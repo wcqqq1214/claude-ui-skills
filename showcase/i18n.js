@@ -12,6 +12,8 @@ const DemoI18n = (() => {
   "Mock attachments": "模拟附件",
   "Add mock attachment": "添加模拟附件",
   "Remove {0}": "移除 {0}",
+  "User message": "用户消息",
+  "Show me how text appears and stays readable.": "展示一下文字如何出现，并保持清晰易读。",
   "Streaming text example": "流式文字示例",
   "Scroll to bottom": "回到底部",
   "As content unfolds, your reading position should stay predictable. At the bottom, new paragraphs naturally enter view.": "内容逐渐展开，阅读的位置不必被打断。停留在底部时，新段落自然进入视野。",

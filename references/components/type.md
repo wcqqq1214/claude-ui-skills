@@ -1,6 +1,6 @@
 # Text reveal and local scrolling
 
-Use this for progressively revealed local text where readers can pause automatic following and return to the newest content. Keep short title emphasis separate from body reading.
+Use this for a user message followed by progressively revealed local text where readers can pause automatic following and return to the newest content. Keep short title emphasis separate from body reading.
 
 ## Read the running code
 
@@ -12,6 +12,7 @@ The button also uses the bundled [default loop sheet](../../showcase/components/
 
 ## Design and adaptation
 
+- `.type-user-row` and `.type-user-bubble` in the linked HTML/CSS show one static, right-aligned user message. The base neutral defaults resolve to a 10px radius, 12px horizontal / 8px vertical padding and an 85% maximum width at a 16px root and scale 1. The fill is `rgb(11 11 11 / 5%)` in light mode and `rgb(255 255 255 / 5%)` in dark mode, composited over the host surface, without an added border or shadow. These values describe the local example. Author-specific and density overrides are not demonstrated. The sample copy, 14px text, 1.6 line height and 24px gap are local adaptations. The existing assistant body remains unboxed.
 - Title spans reveal from 6px blur over 90ms, with index ×30ms delay and `cubic-bezier(.215,.61,.355,1)`. Body chunks instead use a 100ms linear backwards fade. Do not apply title staggering to paragraphs.
 - Content growth follows only while pinned and when the bottom gap exceeds 2px. Upward input releases follow; manually scrolling downward to within 1px of the bottom resumes it. Preserve both resize observations so language and width changes remeasure content.
 - The return button appears only when unpinned and the end marker is outside a 200px extension. The separate fade uses an 8px extension, 3rem height, the host `--surface` color and a 150ms transition. Its layer ignores pointers. The button has a 200ms transition and is inert while hidden.
