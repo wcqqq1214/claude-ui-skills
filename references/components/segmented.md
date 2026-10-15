@@ -18,4 +18,6 @@ Use this for a small, fixed set of mutually exclusive views or options: preview/
 
 Use the shared border-box reset, UI font and `--regular` weight from [style.css](../../showcase/style.css) / [fonts.css](../../showcase/fonts.css). The compact sample uses the theme's text and background roles. `DemoI18n` is needed only by the sample binding, not `setupSegment()`.
 
+The left track only selects a sample answer; it does not switch content. The compact example shows a fixed English heading and sentence alongside their literal HTML. Both panels share a grid cell; the hidden panel remains invisible in layout so switching reserves the taller height, including wrapped code.
+
 The two-card layout, sample content, 700px stacking breakpoint and 1150px button-padding rule are demo choices; they do not represent additional original control variants. Options are fixed and the observer has page lifetime; the host owns cleanup. Dynamic/disabled options and a tab-panel API are outside this example. Check rapid selection/reversal, keyboard endpoints, language/width changes and the compact file consumer.

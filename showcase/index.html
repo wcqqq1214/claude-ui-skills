@@ -246,11 +246,11 @@
               <article class="card segmented-example" aria-labelledby="segmentMotionLabel">
                 <h3 id="segmentMotionLabel">Slider motion</h3>
                 <div class="seg-stage segmented-motion-stage">
-                  <div class="segment" id="viewSegment" role="radiogroup" aria-label="Example view">
+                  <div class="segment" id="viewSegment" role="radiogroup" aria-label="Example choice">
                     <span class="segment-thumb" aria-hidden="true"></span>
-                    <button role="radio" aria-checked="true" tabindex="0" data-value="preview">Preview</button>
-                    <button role="radio" aria-checked="false" tabindex="-1" data-value="code">View code</button>
-                    <button role="radio" aria-checked="false" tabindex="-1" data-value="details">Details</button>
+                    <button role="radio" aria-checked="true" tabindex="0" data-value="yes">Yes</button>
+                    <button role="radio" aria-checked="false" tabindex="-1" data-value="no">No</button>
+                    <button role="radio" aria-checked="false" tabindex="-1" data-value="unsure">Not sure</button>
                   </div>
                 </div>
                 <div class="spec-footer"><span><b>200ms · 32px</b></span><span>← →</span></div>
@@ -264,8 +264,9 @@
                     <button id="compactCodeOption" role="radio" aria-checked="false" tabindex="-1" data-value="code" aria-controls="segmentCompactCode">View code</button>
                   </div>
                   <div class="segment-sample">
-                    <div id="segmentCompactPreview" role="region" aria-labelledby="compactPreviewOption"><strong translate="no">Hello, world.</strong></div>
-                    <pre id="segmentCompactCode" role="region" aria-labelledby="compactCodeOption" hidden><code>&lt;strong&gt;Hello, world.&lt;/strong&gt;</code></pre>
+                    <div id="segmentCompactPreview" role="region" aria-labelledby="compactPreviewOption" translate="no"><h4>Hello, world.</h4><p>Make something.</p></div>
+                    <pre id="segmentCompactCode" role="region" aria-labelledby="compactCodeOption" hidden><code>&lt;h4&gt;Hello, world.&lt;/h4&gt;
+&lt;p&gt;Make something.&lt;/p&gt;</code></pre>
                   </div>
                 </div>
                 <div class="spec-footer"><span><b>200ms · 24px</b></span><span>← →</span></div>
