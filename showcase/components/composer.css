@@ -202,3 +202,78 @@
 .composer-card > .composer-wrap {
   margin-top: auto;
 }
+
+/* Attachment entry and exit motion for the fixed sample cards. */
+.composer-attachments {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 8px 4px 10px;
+  transition: opacity 200ms cubic-bezier(.215,.61,.355,1), transform 200ms cubic-bezier(.215,.61,.355,1);
+}
+.composer-attachments:empty { display: none; }
+.composer-attachment {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  flex: 0 0 120px;
+  width: 120px;
+  height: 120px;
+  padding: 10px;
+  border-radius: 8px;
+  background: var(--surface-popover);
+  box-shadow: inset 0 0 0 var(--hairline) var(--composer-strong);
+  transform-origin: left center;
+  transition: transform 180ms cubic-bezier(.215,.61,.355,1), opacity 180ms cubic-bezier(.215,.61,.355,1);
+}
+.composer-attachment-name {
+  font-size: 12px;
+  line-height: 17px;
+  overflow-wrap: anywhere;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 4;
+  overflow: hidden;
+}
+.composer-attachment-type { font-size: 10px; color: var(--secondary); }
+.composer-attachment-remove {
+  position: absolute;
+  inset-inline-end: -8px;
+  top: -8px;
+  width: 20px;
+  height: 20px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border-radius: 50%;
+  background: var(--surface-popover);
+  color: var(--secondary);
+  box-shadow: var(--surface-ring);
+  opacity: 0;
+}
+.composer-attachment-remove::before { content: ''; position: absolute; inset: -2px; }
+.composer-attachment-remove:hover { color: var(--text); }
+.composer-attachment:hover .composer-attachment-remove,
+.composer-attachment:has(:focus-visible) .composer-attachment-remove { opacity: 1; }
+@media (pointer: coarse), (hover: none) {
+  .composer-attachment-remove { opacity: 1; }
+}
+@starting-style {
+  .composer-attachments:not(:empty) { opacity: 0; transform: translateY(-8px); }
+  .composer-attachment { opacity: 0; transform: scale(.92) translateY(4px); }
+}
+:root:active-view-transition-type(demo-attachments) { view-transition-name: none; }
+:root:active-view-transition-type(demo-attachments) .composer-attachment {
+  view-transition-name: var(--attachment-name);
+  view-transition-class: demo-attachment;
+}
+:root:active-view-transition-type(demo-attachments)::view-transition-group(.demo-attachment) {
+  animation-duration: 180ms;
+  animation-timing-function: cubic-bezier(.215,.61,.355,1);
+}
+@keyframes demo-attachment-out { to { opacity: 0; transform: scale(.5); } }
+:root:active-view-transition-type(demo-attachments)::view-transition-old(.demo-attachment):only-child {
+  animation: 130ms cubic-bezier(.55,.055,.675,.19) forwards demo-attachment-out;
+}

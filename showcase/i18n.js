@@ -2,6 +2,9 @@
 'use strict';
 const DemoI18n = (() => {
   const chinese = {
+  "Mock attachments": "模拟附件",
+  "Add mock attachment": "添加模拟附件",
+  "Remove {0}": "移除 {0}",
   "Growing text · Scroll up to pause": "文字增长 · 上翻暂停跟随",
   "Streaming text example": "流式文字示例",
   "Scroll to bottom": "回到底部",
