@@ -2,7 +2,7 @@
 
 14 组 Claude 风格的本地交互示例，指南直接引用运行中的 HTML、JS 和 CSS。无需构建、安装依赖、登录或安装 Claude。
 
-[简体中文（部署后可用）](https://wcqqq1214.github.io/claude-ui-skills/?lang=zh-Hans) · [English (after deployment)](https://wcqqq1214.github.io/claude-ui-skills/?lang=en)
+Pages 地址（部署后可用）：[简体中文](https://wcqqq1214.github.io/claude-ui-skills/?lang=zh-Hans) · [English](https://wcqqq1214.github.io/claude-ui-skills/?lang=en)
 
 <a id="local-preview"></a>
 
