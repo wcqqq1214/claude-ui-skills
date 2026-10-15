@@ -1,0 +1,160 @@
+.seg-stage {
+  padding: 30px 25px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 1;
+}
+
+.segment {
+  --seg-radius: 8px;
+  --seg-font: 14px;
+  --seg-line: 20px;
+  --seg-pad: 12px;
+  --seg-track: rgb(11 11 11 / 5%);
+  --seg-thumb: #fff;
+  --seg-border: rgb(11 11 11 / 10%);
+  --seg-primary: #0b0b0b;
+  --seg-secondary: #52514e;
+  --seg-focus-inner: #f9f9f7;
+  --seg-focus-glow: #cde2fb;
+  display: inline-flex;
+  align-items: stretch;
+  flex-shrink: 0;
+  position: relative;
+  height: 32px;
+  background: var(--seg-track);
+  border-radius: var(--seg-radius);
+  padding: 1px;
+  isolation: isolate;
+}
+
+[data-theme=dark] .segment {
+  --seg-track: rgb(255 255 255 / 5%);
+  --seg-thumb: rgb(255 255 255 / 10%);
+  --seg-border: rgb(255 255 255 / 10%);
+  --seg-primary: #f0efec;
+  --seg-secondary: #c3c2b7;
+  --seg-focus-inner: #0b0b0b;
+  --seg-focus-glow: rgb(24 79 149 / 60%);
+}
+
+.segment button {
+  display: inline-flex;
+  height: 100%;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  border: 0;
+  border-radius: calc(var(--seg-radius) - 2px);
+  background: transparent;
+  padding: 0 var(--seg-pad);
+  color: var(--seg-secondary);
+  font-family: inherit;
+  font-size: var(--seg-font);
+  line-height: var(--seg-line);
+  font-weight: var(--regular);
+  z-index: 1;
+  position: relative;
+  white-space: nowrap;
+  user-select: none;
+  transition: box-shadow 60ms cubic-bezier(.4,0,.2,1);
+}
+
+.segment button[aria-checked=true] {
+  color: var(--seg-primary);
+}
+
+@media(hover:hover) {
+  .segment button:hover {
+    color: var(--seg-primary);
+  }
+}
+
+.segment button:focus-visible {
+  outline: none!important;
+  box-shadow: inset 0 0 0 1px var(--seg-focus-inner),0 0 0 1px #2a78d6,0 0 6px 1px var(--seg-focus-glow);
+  transition: outline .2s!important;
+}
+
+.segment-thumb {
+  position: absolute;
+  top: 1px;
+  bottom: 1px;
+  left: 0;
+  border-radius: calc(var(--seg-radius) - 1px);
+  background: var(--seg-thumb);
+  box-shadow: inset 0 0 0 1px var(--seg-border),0 1px 2px rgb(0 0 0 / 5%);
+  transform-origin: left center;
+  pointer-events: none;
+}
+
+.segment.compact {
+  --seg-radius: 6px;
+  --seg-font: 13px;
+  --seg-line: 19px;
+  --seg-pad: 8px;
+  height: 24px;
+}
+
+.segment-content {
+  margin-top: 27px;
+  align-self: stretch;
+  min-height: 156px;
+  font-size: 12px;
+  color: var(--secondary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.segment-preview {
+  width: 100%;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 23px;
+  max-width: 340px;
+}
+
+.segment-preview h3 {
+  font-family: var(--study-serif);
+  font-size: 22px;
+  color: var(--text);
+  font-weight: var(--regular);
+  margin: 9px 0;
+}
+
+.segment-preview p {
+  font-size: 11px;
+  line-height: 1.9;
+}
+
+.segment-content pre {
+  width: 100%;
+  padding: 17px;
+  background: var(--bg);
+  border-radius: 8px;
+  font-size: 10px;
+  line-height: 1.9;
+  overflow: auto;
+  margin: 0;
+}
+
+.segment-content ul {
+  padding-left: 20px;
+  line-height: 2.2;
+  margin: 0;
+  font-size: 12px;
+}
+
+@media(max-width:1150px) {
+  .segment button {
+    padding: 8px 11px;
+  }
+}
+
+@media(max-width:620px) {
+  .segment-content {
+    min-height: 130px;
+  }
+}

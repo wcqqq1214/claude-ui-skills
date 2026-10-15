@@ -1,0 +1,49 @@
+name: Deploy demo to Pages
+
+# Runs manually on main when Pages is configured and PAGES_ENABLED is true.
+# Pushing to main never triggers a deployment.
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    if: ${{ github.ref == 'refs/heads/main' && vars.PAGES_ENABLED == 'true' }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+      - name: Stage demo assets
+        shell: bash
+        run: |
+          site_dir="$RUNNER_TEMP/claude-ui-pages"
+          mkdir -p "$site_dir/fonts" "$site_dir/components"
+          cp showcase/*.html showcase/*.css showcase/*.js showcase/*.svg "$site_dir/"
+          cp showcase/components/*.css showcase/components/*.js "$site_dir/components/"
+          cp showcase/fonts/*.woff2 "$site_dir/fonts/"
+      - name: Configure Pages
+        uses: actions/configure-pages@v5
+        with:
+          enablement: false
+      - name: Upload demo
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: ${{ runner.temp }}/claude-ui-pages
+      - name: Deploy
+        id: deployment
+        uses: actions/deploy-pages@v4

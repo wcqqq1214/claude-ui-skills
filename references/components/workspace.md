@@ -1,0 +1,19 @@
+# File panel and resizing
+
+Use this for a file list alongside a preview, where readers can change files, switch view format and give content more room without losing their place.
+
+## Read the running code
+
+[HTML](../../showcase/index.html#workspace) · [JS](../../showcase/components/workspace.js) · [CSS](../../showcase/components/workspace.css)
+
+`initWorkspaceDemo()` owns `renderFile()`, `commitPane()`, drag lifecycle and scoped F6 navigation. `fileSegment` uses the [segmented component](segmented.md), including its JS/CSS; expansion calls `refresh()` after changing layout.
+
+## Design and adaptation
+
+- The filename can shrink and ellipsize through `min-width:0`; right-side actions retain their natural width. File switching preserves the current Preview/Code choice.
+- The file-panel example starts at 244px, bounded to 160–520px and 60% of the container. CSS constrains the rendered width while keeping the chosen width for later expansion. Keep these bounds when reproducing this example.
+- Arrows request 8px steps; Shift+arrows use 32px. Home/End request the bounds; Enter/Space restores 244px. Ignore Ctrl/Meta/Alt, resize keys during drag and repeated endpoint/reset keys. Shift modifies only arrow steps.
+- Drag commits only after movement exceeds 3px; canceled or unchanged drags restore the stored width. Expansion hides/inerts the list and removes the separator from Tab order.
+- F6 / Shift+F6 cycle only through the component's visible regions: file list, selected view option and content. Keep the focusable content region and selected segmented radio together.
+
+Sample files, the three-region focus cycle, narrow horizontal file list, separator appearance and pointercancel restoration are local choices. There is no file IO or rename workflow. Check resize bounds, expand/restore, translated content, long filenames and the shared compact view control.

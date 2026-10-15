@@ -1,0 +1,4 @@
+interface:
+  display_name: "Claude UI Skills"
+  short_description: "Build Claude-inspired UI from frontend examples"
+  default_prompt: "Use $claude-ui-skills to choose the relevant component guide and adapt its working frontend code to my UI."

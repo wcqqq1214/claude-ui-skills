@@ -1,0 +1,205 @@
+.workspace-card {
+  overflow: hidden;
+  --pane-width: 244px;
+}
+.workspace-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 20px;
+  border-bottom: 1px solid transparent;
+  box-shadow: inset 0 calc(-1 * var(--hairline)) var(--line);
+  font-size: 12px;
+}
+.workspace-toolbar > div {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+.workspace-toolbar .numeric {
+  font-size: 10px;
+  color: var(--muted);
+}
+.workspace-toolbar .document-icon {
+  font-size: 17px;
+  margin-right: 7px;
+}
+.workspace-layout {
+  display: grid;
+  grid-template-columns: clamp(160px, var(--pane-width), min(520px, 60%)) 5px minmax(0, 1fr);
+  min-height: 300px;
+}
+.file-list {
+  padding: 22px 12px;
+  background: var(--surface-low);
+  min-width: 0;
+  overflow: hidden;
+}
+.file-label {
+  font-size: 9px;
+  letter-spacing: 1.4px;
+  color: var(--muted);
+  padding: 0 10px 15px;
+}
+.file {
+  padding: 9px 10px;
+  border-radius: 5px;
+  display: flex;
+  gap: 9px;
+  width: 100%;
+  text-align: left;
+  font-size: 11px;
+  background: transparent;
+  white-space: nowrap;
+}
+.file.active {
+  background: var(--muted-surface);
+}
+.file > span {
+  color: var(--muted);
+}
+.file-list p {
+  font-size: 9px;
+  color: var(--muted);
+  line-height: 1.9;
+  padding: 20px 10px;
+}
+.resize-handle {
+  cursor: col-resize;
+  position: relative;
+  background: var(--line);
+  width: 1px;
+  justify-self: center;
+  outline-offset: 3px !important;
+  touch-action: none;
+}
+.resize-handle:before {
+  content: '';
+  position: absolute;
+  inset: 0 -6px;
+}
+.resize-handle:hover,
+.resize-handle:focus-visible {
+  background: var(--clay);
+}
+.workspace-card.expanded .workspace-layout {
+  grid-template-columns: 0 0 minmax(0, 1fr);
+}
+.workspace-card.expanded .file-list,
+.workspace-card.expanded .resize-handle {
+  visibility: hidden;
+  padding: 0;
+}
+.file-preview {
+  min-width: 0;
+}
+.preview-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 19px;
+  border-bottom: 1px solid transparent;
+  box-shadow: inset 0 calc(-1 * var(--hairline)) var(--line);
+  font-size: 10px;
+  color: var(--muted);
+  gap: 12px;
+}
+.preview-toolbar > span {
+  min-width: 0;
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.file-content {
+  padding: 25px 33px;
+  max-width: 630px;
+  margin: auto;
+  font-size: 12px;
+  color: var(--secondary);
+}
+.file-content h3 {
+  font-family: var(--study-serif);
+  font-size: 25px;
+  font-weight: var(--regular);
+  margin: 0 0 15px;
+  color: var(--text);
+}
+.file-content p {
+  margin: 0 0 12px;
+  line-height: 1.9;
+}
+.file-content ul {
+  padding-left: 17px;
+  line-height: 2;
+}
+.file-content pre {
+  margin: 0;
+  font-size: 11px;
+  line-height: 1.9;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  counter-reset: line;
+}
+.code-line {
+  display: block;
+}
+.code-line:before {
+  counter-increment: line;
+  content: counter(line);
+  display: inline-block;
+  min-width: 25px;
+  margin-right: 17px;
+  text-align: right;
+  color: var(--muted);
+  user-select: none;
+}
+.token-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 9px 0;
+  border-bottom: 1px solid var(--line);
+  font-size: 11px;
+}
+@media (max-width: 850px) {
+  .workspace-layout {
+    grid-template-columns: clamp(160px, var(--pane-width), min(520px, 60%)) 5px minmax(0, 1fr);
+  }
+  .workspace-toolbar .numeric {
+    display: none;
+  }
+}
+@media (max-width: 620px) {
+  .workspace-layout {
+    grid-template-columns: 1fr !important;
+  }
+  .file-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    padding: 10px !important;
+    visibility: visible !important;
+  }
+  .file-list .file-label,
+  .file-list p {
+    display: none;
+  }
+  .file {
+    width: auto;
+    font-size: 10px;
+    padding: 6px 9px;
+  }
+  .resize-handle {
+    display: none;
+  }
+  .workspace-card.expanded .file-list {
+    display: none;
+  }
+  .file-content {
+    padding: 23px 21px;
+    min-height: 240px;
+  }
+  .preview-toolbar {
+    padding: 10px 13px;
+  }
+}

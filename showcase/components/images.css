@@ -1,0 +1,91 @@
+.image-card {
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+.image-format {
+  font-size: 9px;
+  color: var(--muted);
+}
+.image-origin {
+  position: relative;
+  display: block;
+  margin: 0 20px;
+  padding: 0;
+  border-radius: 7px;
+  overflow: hidden;
+  background: var(--muted-surface);
+  width: calc(100% - 40px);
+  cursor: zoom-in;
+}
+.image-origin img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 1200/780;
+  object-fit: cover;
+}
+.image-zoom-icon {
+  position: absolute;
+  bottom: 12px;
+  right: 12px;
+  border: 1px solid #fff5;
+  background: #ffffffb3;
+  border-radius: 50%;
+  width: 27px;
+  height: 27px;
+  color: #35514c;
+  display: grid;
+  place-items: center;
+  font-size: 15px;
+}
+.image-caption {
+  display: flex;
+  flex-direction: column;
+  padding: 16px 21px 22px;
+  gap: 4px;
+}
+.image-caption b {
+  font-size: 12px;
+}
+.image-caption span {
+  font-size: 10px;
+  color: var(--muted);
+}
+.image-dialog {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  max-width: none;
+  max-height: none;
+  width: 100vw;
+  height: 100vh;
+  margin: 0;
+  overflow: hidden;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  outline: none;
+}
+.image-dialog[open] {
+  display: flex;
+}
+.image-dialog::backdrop {
+  background: rgb(0 0 0 / 62.5%);
+}
+.image-dialog > img {
+  display: block;
+  max-width: 90vw;
+  max-height: calc(90vh - 2rem);
+  width: auto;
+  height: auto;
+  cursor: zoom-out;
+  border-radius: 7px;
+  box-shadow:
+    0 4px 32px #0005,
+    0 0 0 0.5px #0004;
+}
+@media (max-width: 620px) {
+  .image-caption {
+    padding-bottom: 18px;
+  }
+}

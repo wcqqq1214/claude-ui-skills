@@ -1,0 +1,12 @@
+.DS_Store
+__pycache__/
+*.pyc
+node_modules/
+.env
+.env.*
+!.env.example
+
+# Local-only artifacts and repository backups.
+.cache/
+docs/evidence/
+*.gitbundle

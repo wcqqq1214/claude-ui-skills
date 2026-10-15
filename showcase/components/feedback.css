@@ -1,0 +1,240 @@
+.feedback-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 26px;
+}
+.waiting-card,
+.timeline-card {
+  display: flex;
+  flex-direction: column;
+  align-self: start;
+  min-height: 236px;
+}
+.status-line {
+  padding: 10px 24px 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 12px;
+  color: var(--secondary);
+}
+.quiet-dots {
+  display: inline-flex;
+  gap: 3.5px;
+  position: relative;
+  top: 0.26em;
+}
+.quiet-dots i {
+  width: 3px;
+  height: 3px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: var(--cds-clay, #d97757);
+  opacity: 0;
+  animation: quiet-dot 1.9s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+.quiet-dots i:nth-child(2) {
+  animation-delay: 0.15s;
+}
+.quiet-dots i:nth-child(3) {
+  animation-delay: 0.3s;
+}
+@keyframes quiet-dot {
+  0%,
+  8% {
+    opacity: 0;
+    transform: translateY(2px);
+  }
+  22% {
+    opacity: 1;
+    transform: translateY(-2.5px);
+  }
+  36%,
+  70% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  90%,
+  100% {
+    opacity: 0;
+    transform: translateY(0);
+  }
+}
+.skeleton-slot {
+  --skeleton-base: rgb(11 11 11 / 5%);
+  --skeleton-sheen: rgb(11 11 11 / 5%);
+  padding: 0 24px 23px;
+  min-height: 84px;
+}
+[data-theme='dark'] .skeleton-slot {
+  --skeleton-base: rgb(255 255 255 / 7.5%);
+  --skeleton-sheen: rgb(255 255 255 / 7.5%);
+}
+.loaded-preview {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  min-height: 56px;
+}
+.loaded-preview b {
+  font-size: 12px;
+}
+.loaded-preview p {
+  font-size: 10px;
+  color: var(--muted);
+  margin-top: 3px;
+}
+.skeleton-content {
+  position: relative;
+  animation: word-fade 150ms ease-out both;
+  padding-top: 6px;
+}
+.skeleton-line {
+  height: 10px;
+  background: var(--skeleton-base);
+  border-radius: 4px;
+  margin: 8px 0;
+}
+.skeleton-line:last-child {
+  width: 65%;
+}
+.skeleton-sweep-clip {
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  visibility: hidden;
+}
+.skeleton-sweep-band {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(105deg, transparent 35%, var(--skeleton-sheen), transparent 65%);
+  transform: translateX(-100%);
+  animation: skeleton-wave 2s linear 150ms infinite backwards;
+}
+@keyframes skeleton-wave {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(100%);
+  }
+}
+.timeline-trigger {
+  background: transparent;
+  padding: 25px 23px;
+  display: flex;
+  align-items: center;
+  text-align: left;
+  gap: 13px;
+  width: 100%;
+  border-radius: 12px;
+}
+.timeline-trigger b {
+  font-size: 12px;
+}
+.timeline-trigger small {
+  display: block;
+  font-size: 10px;
+  color: var(--muted);
+  margin-top: 4px;
+}
+.timeline-icon {
+  background: var(--clay-soft);
+  color: var(--clay);
+  width: 25px;
+  height: 25px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  font-size: 12px;
+}
+.chevron {
+  margin-left: auto;
+  color: var(--muted);
+  transition: transform 200ms cubic-bezier(0.19, 1, 0.22, 1);
+}
+[aria-expanded='true'] .chevron {
+  transform: rotate(180deg);
+}
+.accordion {
+  display: grid;
+  grid-template-rows: 0fr;
+  opacity: 0;
+  transition:
+    grid-template-rows 200ms cubic-bezier(0.19, 1, 0.22, 1),
+    opacity 200ms cubic-bezier(0.19, 1, 0.22, 1);
+}
+.accordion.open {
+  grid-template-rows: 1fr;
+  opacity: 1;
+}
+.accordion-inner {
+  min-height: 0;
+  overflow: hidden;
+}
+.timeline {
+  list-style: none;
+  margin: 0;
+  padding: 0 24px 24px 27px;
+}
+.timeline li {
+  display: flex;
+  gap: 14px;
+  position: relative;
+  padding: 0 0 20px;
+  align-items: flex-start;
+}
+.timeline li:not(:last-child):before {
+  content: '';
+  position: absolute;
+  top: 22px;
+  left: 9px;
+  bottom: 0;
+  width: 1px;
+  background: var(--line);
+}
+.timeline li:last-child {
+  padding-bottom: 0;
+}
+.timeline li > span {
+  color: var(--muted);
+  font-size: 9px;
+  font-family: var(--study-mono);
+  width: 19px;
+  height: 23px;
+  line-height: 23px;
+}
+.timeline li b {
+  font-size: 11px;
+}
+.timeline li p {
+  font-size: 10px;
+  color: var(--muted);
+  margin-top: 2px;
+}
+.timeline li i {
+  margin-left: auto;
+  color: var(--muted);
+  font-size: 10px;
+  font-style: normal;
+}
+.timeline-card .spec-footer {
+  margin-top: auto;
+}
+@media (max-width: 1150px) {
+  .feedback-grid {
+    gap: 18px;
+  }
+}
+@media (max-width: 620px) {
+  .feedback-grid {
+    grid-template-columns: 1fr;
+    gap: 15px;
+  }
+  .waiting-card,
+  .timeline-card {
+    min-height: 0;
+  }
+}

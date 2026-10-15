@@ -1,0 +1,15 @@
+/* Demo utility controls; component and navigation styles remain in style.css. */
+.top-actions{flex-shrink:0}
+.shell-controls{display:flex;align-items:center;gap:8px}
+.shell-control{position:relative}
+.shell-icon{width:32px;height:32px;border:1px solid transparent;box-shadow:var(--surface-ring);border-radius:9px;color:var(--secondary);transition:color 120ms var(--snap)}
+.shell-icon:hover,.shell-icon[aria-expanded="true"]{background:transparent;color:var(--text)}
+.shell-icon svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.65;stroke-linecap:round;stroke-linejoin:round}
+.shell-menu{position:absolute;top:calc(100% + 8px);right:0;min-width:152px;padding:5px;border:1px solid transparent;border-radius:10px;background:var(--surface-popover);box-shadow:var(--popover-shadow);z-index:1}
+.shell-menu button{width:100%;display:flex;align-items:center;justify-content:space-between;gap:20px;padding:7px 10px;border-radius:5px;background:transparent;font-size:13px;line-height:20px;white-space:nowrap;text-align:left;color:var(--secondary)}
+.shell-menu button:hover,.shell-menu button:focus-visible{background:var(--hover-fill)}
+.shell-menu button:focus-visible{outline:2px solid var(--focus);outline-offset:-2px}
+.shell-menu [aria-checked="true"]{color:var(--text)}
+.shell-check{visibility:hidden;font-size:12px}
+.shell-menu [aria-checked="true"] .shell-check{visibility:visible}
+@media(prefers-reduced-motion:reduce){.shell-icon{transition:none}}

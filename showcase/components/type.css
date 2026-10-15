@@ -1,0 +1,149 @@
+.reading {
+  padding: 10px 30px 26px;
+  flex: 1;
+}
+.clay-mark {
+  display: block;
+  width: 27px;
+  height: 27px;
+}
+.reading h3 {
+  font-family: var(--study-serif);
+  font-size: 29px;
+  font-weight: var(--regular);
+  margin: 13px 0 13px;
+  min-height: 40px;
+  letter-spacing: -0.5px;
+}
+.reading p {
+  font-size: 13px;
+  line-height: 1.85;
+  color: var(--secondary);
+  min-height: 73px;
+  max-width: 36em;
+}
+.grapheme {
+  animation: grapheme-reveal 90ms cubic-bezier(0.215, 0.61, 0.355, 1) both;
+  animation-delay: calc(var(--i) * 30ms);
+}
+@keyframes grapheme-reveal {
+  from {
+    opacity: 0;
+    filter: blur(6px);
+  }
+}
+.word-fade {
+  animation: word-fade 100ms linear backwards;
+}
+@keyframes word-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+.reading-divider {
+  width: 35px;
+  height: 1px;
+  background: var(--line);
+  margin: 20px 0 14px;
+}
+.reading blockquote {
+  margin: 0;
+  font-family: var(--study-serif);
+  font-size: 13px;
+  color: var(--secondary);
+}
+@media (min-width: 1600px) {
+  .reading {
+    padding-left: 40px;
+    padding-right: 40px;
+  }
+}
+@media (max-width: 1150px) {
+  .reading {
+    padding-left: 24px;
+    padding-right: 24px;
+  }
+}
+@media (max-width: 620px) {
+  .reading {
+    padding: 7px 25px 23px;
+  }
+  .reading h3 {
+    font-size: 28px;
+  }
+  .reading p {
+    min-height: 0;
+  }
+}
+
+.type-scroll-shell {
+  position: relative;
+}
+.type-scroll {
+  height: 300px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  overscroll-behavior: contain;
+  overflow-anchor: none;
+  scrollbar-gutter: stable;
+}
+.type-scroll:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: -2px;
+}
+#streamParagraphs p {
+  min-height: 0;
+  margin: 18px 0;
+}
+#typeEnd {
+  display: block;
+  height: 1px;
+}
+.type-bottom {
+  position: absolute;
+  left: 50%;
+  bottom: 20px;
+  transform: translateX(-50%);
+  width: 36px;
+  height: 36px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 0.5px solid var(--line);
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--surface) 80%, transparent);
+  backdrop-filter: blur(8px);
+  box-shadow: var(--panel-shadow);
+  color: var(--text);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 200ms;
+}
+.type-bottom.visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+.type-bottom:hover {
+  background: var(--surface);
+  box-shadow: var(--popover-shadow);
+}
+
+.type-fade {
+  position: absolute;
+  inset: auto 0 0;
+  height: 3rem;
+  background-image: linear-gradient(to top, var(--surface), transparent);
+  pointer-events: none;
+  opacity: 0;
+  visibility: hidden;
+  transition:
+    opacity 150ms var(--out),
+    visibility 150ms var(--out);
+}
+.type-fade.visible {
+  opacity: 1;
+  visibility: visible;
+}

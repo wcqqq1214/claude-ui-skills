@@ -1,0 +1,811 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" /><meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="color-scheme" content="light dark" />
+    <title>Claude UI</title>
+    <link rel="icon" type="image/svg+xml" href="claude-logo.svg" />
+    <script src="i18n.js"></script
+    ><script src="shell.js"></script>
+    <link rel="stylesheet" href="fonts.css" />
+    <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="components/type.css" />
+    <link rel="stylesheet" href="components/controls.css" />
+    <link rel="stylesheet" href="components/segmented.css" />
+    <link rel="stylesheet" href="components/composer.css" />
+    <link rel="stylesheet" href="components/feedback.css" />
+    <link rel="stylesheet" href="components/workspace.css" />
+    <link rel="stylesheet" href="components/images.css" />
+    <link rel="stylesheet" href="components/micro.css" />
+    <link rel="stylesheet" href="components/reading.css" />
+    <link rel="stylesheet" href="components/gallery.css" />
+    <link rel="stylesheet" href="components/menus.css" />
+    <link rel="stylesheet" href="components/modes.css" />
+    <link rel="stylesheet" href="components/tasks.css" />
+    <link rel="stylesheet" href="components/recovery.css" />
+    <link rel="stylesheet" href="shell.css" />
+  </head>
+  <body>
+    <aside class="sidebar">
+      <a class="brand" href="#intro"
+        ><img class="brand-symbol" src="claude-logo.svg" width="36" height="36" alt="" /><span
+          >Claude UI</span
+        ></a
+      >
+      <nav aria-label="COMPONENT INDEX">
+        <a href="#type"><span>01</span>Typography</a><a href="#controls"><span>02</span>Controls</a>
+        <a href="#segmented"><span>03</span>Segmented control</a
+        ><a href="#composer"><span>04</span>Input &amp; commands</a>
+        <a href="#feedback"><span>05</span>Waiting &amp; disclosure</a
+        ><a href="#workspace"><span>06</span>File panel</a>
+        <a href="#images"><span>07</span>Image preview</a><a href="#micro"><span>08</span>Hints &amp; feedback</a>
+        <a href="#reading"><span>09</span>Reading &amp; tables</a
+        ><a href="#gallery"><span>10</span>Gallery &amp; zoom</a
+        ><a href="#menus"><span>11</span>Focus &amp; selection</a><a href="#modes"><span>12</span>Sidebar modes</a
+        ><a href="#tasks"><span>13</span>Cards &amp; drop targets</a
+        ><a href="#recovery"><span>14</span>Recovery &amp; notices</a>
+      </nav>
+    </aside>
+    <div class="page">
+      <header class="topbar"
+        ><span>Design reference <span class="slash">/</span> Components &amp; motion</span
+        ><div class="top-actions"
+          ><div class="shell-controls">
+            <div class="shell-control"
+              ><button
+                class="icon-button shell-icon"
+                id="languageBtn"
+                aria-label="Language"
+                title="Language"
+                aria-haspopup="menu"
+                aria-expanded="false"
+                aria-controls="languageMenu"
+                ><svg viewBox="0 0 24 24" aria-hidden="true">
+                  <circle cx="12" cy="12" r="9" />
+                  <ellipse cx="12" cy="12" rx="4" ry="9" />
+                  <path d="M3 12h18" /></svg
+              ></button>
+              <div class="shell-menu" id="languageMenu" role="menu" aria-label="Language" hidden
+                ><button
+                  type="button"
+                  role="menuitemradio"
+                  aria-checked="false"
+                  data-locale="zh-Hans"
+                  lang="zh-Hans"
+                  translate="no"
+                  >简体中文<span class="shell-check" aria-hidden="true">✓</span></button
+                ><button
+                  type="button"
+                  role="menuitemradio"
+                  aria-checked="true"
+                  data-locale="en"
+                  lang="en"
+                  translate="no"
+                  >English<span class="shell-check" aria-hidden="true">✓</span></button
+                ></div
+              >
+            </div>
+            <div class="shell-control"
+              ><button class="icon-button shell-icon" id="themeBtn" aria-label="Theme" title="Theme"
+                ><svg viewBox="0 0 24 24" aria-hidden="true">
+                  <g data-theme-icon="system">
+                    <rect x="3" y="4" width="18" height="13" rx="2" />
+                    <path d="M12 17v4m-4 0h8" />
+                  </g>
+                  <g data-theme-icon="light" hidden>
+                    <circle cx="12" cy="12" r="4" />
+                    <path
+                      d="M12 2v2m0 16v2M2 12h2m16 0h2M5 5l1.5 1.5m11 11L19 19M5 19l1.5-1.5m11-11L19 5"
+                    />
+                  </g>
+                  <g data-theme-icon="dark" hidden>
+                    <path d="M20.5 13.5A9 9 0 0 1 10.5 3a9 9 0 1 0 10 10.5Z" />
+                  </g></svg
+              ></button>
+            </div> </div></div
+      ></header>
+      <main id="intro">
+        <div class="sections">
+          <section class="specimen" id="type">
+            <div class="section-head"
+              ><div><h2 class="search-target-title" tabindex="-1">Typography</h2></div></div
+            >
+            <div class="card type-card"
+              ><div class="demo-toolbar"
+                ><span class="tiny-label">Growing text · Scroll up to pause</span
+                ><button
+                  class="icon-button"
+                  id="replayType"
+                  aria-label="Replay text motion"
+                  data-ui-icon="ArrowClockwise"
+                  data-icon-size="16"
+                ></button></div
+              ><div class="type-scroll-shell"
+                ><div
+                  class="type-scroll"
+                  id="typeScroll"
+                  tabindex="0"
+                  role="region"
+                  aria-label="Streaming text example"
+                  ><div class="reading" id="typeReading"
+                    ><img
+                      class="clay-mark"
+                      src="claude-logo.svg"
+                      width="27"
+                      height="27"
+                      alt="" /><h3 id="revealTitle" aria-label="Start with an idea."></h3
+                    ><p
+                      id="revealBody"
+                      aria-label="Space makes content easier to read. Headings appear gently; body text stays steady. Motion simply signals new content."
+                    ></p
+                    ><div id="streamParagraphs"></div><div class="reading-divider"></div
+                    ><blockquote>A quieter interface brings content into focus.</blockquote
+                    ><span id="typeEnd" aria-hidden="true"></span></div></div
+                ><div id="typeFade" class="type-fade" aria-hidden="true"></div
+                ><button
+                  type="button"
+                  id="typeBottom"
+                  class="type-bottom"
+                  aria-label="Scroll to bottom"
+                  aria-hidden="true"
+                  inert
+                  tabindex="-1"
+                  data-ui-icon="ArrowDown"
+                  data-icon-size="20"
+                ></button></div
+              ><div class="spec-footer"
+                ><span><b>90 ms</b> title reveal</span><span><b>100 ms</b> body fade</span></div
+              ></div
+            >
+          </section>
+          <section class="specimen" id="controls">
+            <div class="section-head"
+              ><div><h2 class="search-target-title" tabindex="-1">Controls</h2></div></div
+            >
+            <div class="card controls-card"
+              ><div class="control-row"
+                ><div><label for="demoSwitch">Notify when complete</label></div
+                ><button
+                  class="switch"
+                  id="demoSwitch"
+                  role="switch"
+                  aria-checked="true"
+                  aria-label="Notify when complete"
+                  ><span></span></button></div
+              ><div class="control-row"
+                ><label class="check-label"
+                  ><input type="checkbox" id="demoCheck" checked /><span
+                    class="check-box"
+                    aria-hidden="true"
+                    ><svg viewBox="0 0 16 16"><path d="m3 8 3 3 7-7" /></svg></span
+                  ><span
+                    >Keep a separate space for this exploration<small
+                      >The checkbox aligns with the first line of its label.<br />This changes only the state of this demo.</small
+                    ></span
+                  ></label
+                ></div
+              ><div class="slider-block"
+                ><div class="slider-title"
+                  ><label for="effortRange">Thinking effort</label
+                  ><output id="effortOutput" for="effortRange">High</output></div
+                ><div class="range-shell"
+                  ><div class="range-track"
+                    ><div class="range-fill-origin"
+                      ><div class="range-fill-clip"><div class="range-fill"></div></div></div></div
+                  ><div class="range-stops" aria-hidden="true"
+                    ><i></i><i></i><i class="recommended"></i><i></i></div
+                  ><div class="range-carriage" aria-hidden="true"
+                    ><div class="range-position"><div class="range-thumb"></div></div></div
+                  ><input
+                    id="effortRange"
+                    type="range"
+                    min="0"
+                    max="3"
+                    step="1"
+                    value="2"
+                    aria-valuetext="High" /></div
+                ><div class="range-labels"
+                  ><span>Low</span><span>Medium</span><span>High <em>Recommended</em></span
+                  ><span>Max</span></div
+                ><p id="effortDescription" class="muted">Leave more room to work through complex questions.</p></div
+              ><div class="spec-footer"
+                ><span><b>120 ms</b> thumb spring</span
+                ><span><b>200 / 120 ms</b> check in / out</span></div
+              ></div
+            >
+          </section>
+          <section class="specimen" id="segmented">
+            <div class="section-head"
+              ><div><h2>Segmented control</h2></div></div
+            >
+            <div class="card segmented-card">
+              <div class="seg-stage">
+                <div class="segment" id="viewSegment" role="radiogroup" aria-label="Example view">
+                  <span class="segment-thumb" aria-hidden="true"></span>
+                  <button role="radio" aria-checked="true" tabindex="0" data-value="preview"
+                    >Preview</button
+                  >
+                  <button role="radio" aria-checked="false" tabindex="-1" data-value="code"
+                    >View code</button
+                  >
+                  <button role="radio" aria-checked="false" tabindex="-1" data-value="details"
+                    >Details</button
+                  >
+                </div>
+                <div class="segment-content" id="segmentContent"></div>
+              </div>
+              <div class="spec-footer">
+                <span><b>200 ms</b> position &amp; width</span>
+                <span><b>← →</b> move &amp; select</span>
+              </div>
+            </div>
+          </section>
+          <section class="specimen" id="composer">
+            <div class="section-head"
+              ><div><h2>Input &amp; commands</h2></div></div
+            >
+            <div class="card composer-card"
+              ><div class="composer-wrap"
+                ><div class="command-menu" id="commandMenu" hidden
+                  ><div
+                    class="command-list"
+                    id="commandList"
+                    role="listbox"
+                    aria-label="Command suggestions"
+                  ></div
+                  ><div class="command-description" id="commandDescription"></div></div
+                ><div class="composer-box">
+                  <textarea
+                    id="promptInput"
+                    rows="1"
+                    placeholder="Where would you like to start?"
+                    aria-label="Demo input"
+                    aria-controls="commandList"
+                    aria-expanded="false"
+                  ></textarea
+                  ><div class="composer-chin"
+                    ><button
+                      class="icon-button"
+                      id="suggestBtn"
+                      aria-label="Open command suggestions"
+                      data-ui-icon="Add"
+                      data-icon-size="20"
+                    ></button
+                    ><span class="composer-hint" id="composerHint">Type / for suggestions</span
+                    ><button
+                      class="send-button"
+                      id="sendBtn"
+                      aria-label="Send demo content"
+                      disabled
+                      data-ui-icon="ArrowUp"
+                      data-icon-size="20"
+                    ></button></div></div></div
+              ><div class="local-result" id="localResult" aria-live="polite"></div
+              ><div class="spec-footer"
+                ><span><b>/</b> open suggestions</span><span><b>Esc</b> close, keep text</span></div
+              ></div
+            >
+          </section>
+          <section class="specimen wide" id="feedback">
+            <div class="section-head"
+              ><div><h2 class="search-target-title" tabindex="-1">Waiting &amp; disclosure</h2></div></div
+            >
+            <div class="feedback-grid"
+              ><div class="card waiting-card"
+                ><div class="demo-toolbar"
+                  ><span class="tiny-label">Waiting state</span
+                  ><button class="button small" id="skeletonBtn">Reload</button></div
+                ><div class="status-line"
+                  ><span class="quiet-dots" aria-hidden="true"><i></i><i></i><i></i></span
+                  ><span id="loadingLabel">Organizing content</span></div
+                ><div class="skeleton-slot" id="skeletonSlot"
+                  ><div class="loaded-preview"
+                    ><span class="document-icon" data-ui-icon="File" data-icon-size="20"></span
+                    ><div><b>A clear set of design notes</b><p>Reading rhythm, state changes and spatial continuity</p></div></div
+                  ></div
+                ><div class="spec-footer"
+                  ><span><b>1.9 s</b> dot cycle</span><span><b>500 ms</b> skeleton delay</span></div
+                ></div
+              ><div class="card timeline-card"
+                ><button
+                  class="timeline-trigger"
+                  id="timelineTrigger"
+                  aria-expanded="false"
+                  aria-controls="timelineBody"
+                  ><span class="timeline-icon" data-ui-icon="Check"></span
+                  ><span><b>3 design observations collected</b><small>Expand to see the process</small></span
+                  ><span class="chevron" data-ui-icon="CaretDown"></span></button
+                ><div class="accordion" id="timelineBody" inert
+                  ><div class="accordion-inner"
+                    ><ol class="timeline"
+                      ><li
+                        ><span>01</span><div><b>Observe the interface</b><p>First, establish what the user sees.</p></div
+                        ><i>✓</i></li
+                      ><li
+                        ><span>02</span><div><b>Check the implementation</b><p>Connect parameters to specific components.</p></div
+                        ><i>✓</i></li
+                      ><li
+                        ><span>03</span><div><b>Record the limits</b><p>Separate observations from static parameters.</p></div
+                        ><i>✓</i></li
+                      ></ol
+                    ></div
+                  ></div
+                ><div class="spec-footer"
+                  ><span><b>200 ms</b> expand; collapse adapted locally</span></div
+                ></div
+              ></div
+            >
+          </section>
+          <section class="specimen wide" id="workspace">
+            <div class="section-head"
+              ><div><h2>File panel</h2></div></div
+            >
+            <div class="card workspace-card" id="workspaceCard"
+              ><div class="workspace-toolbar"
+                ><span
+                  ><span class="document-icon" data-ui-icon="File" data-icon-size="20"></span>
+                  Design notes</span
+                ><div
+                  ><span id="paneWidth" class="numeric">244 px</span
+                  ><button
+                    id="expandPanel"
+                    class="icon-button"
+                    aria-label="Expand file panel"
+                    aria-expanded="false"
+                    data-ui-icon="Expand"
+                    data-icon-size="16"
+                  ></button></div></div
+              ><div class="workspace-layout" id="workspaceLayout"
+                ><aside class="file-list" id="fileList"
+                  ><div class="file-label">CONTENTS</div
+                  ><button class="file active" data-file="notes"
+                    ><span data-ui-icon="File"></span> design-notes.md</button
+                  ><button class="file" data-file="tokens"
+                    ><span data-ui-icon="Code"></span> motion-tokens.css</button
+                  ><p>Drag the divider to resize<br />Or focus it and use the arrow keys</p></aside
+                ><div
+                  class="resize-handle"
+                  id="resizeHandle"
+                  role="separator"
+                  tabindex="0"
+                  aria-label="Resize file list"
+                  aria-orientation="vertical"
+                  aria-valuemin="160"
+                  aria-valuemax="520"
+                  aria-valuenow="244"
+                ></div
+                ><div class="file-preview"
+                  ><div class="preview-toolbar"
+                    ><span id="fileName">design-notes.md</span
+                    ><div
+                      class="segment compact"
+                      id="fileSegment"
+                      role="radiogroup"
+                      aria-label="File view"
+                      ><span class="segment-thumb" aria-hidden="true"></span
+                      ><button role="radio" aria-checked="true" tabindex="0" data-value="preview" translate="no"
+                        >Preview</button
+                      ><button role="radio" aria-checked="false" tabindex="-1" data-value="code"
+                        >Code</button
+                      ></div
+                    ></div
+                  ><article id="fileContent" class="file-content"></article></div></div
+              ><div class="spec-footer"
+                ><span><b>8 px</b> arrow key step</span><span><b>F6 / Shift F6</b> switch regions</span></div
+              ></div
+            >
+          </section>
+          <section class="specimen" id="images">
+            <div class="section-head"
+              ><div><h2>Image preview</h2></div></div
+            >
+            <div class="card image-card"
+              ><div class="demo-toolbar"
+                ><span class="tiny-label">Attachment thumbnail · Click to view</span
+                ><span class="image-format">SVG · Local example</span></div
+              ><button
+                class="image-origin"
+                id="imageOrigin"
+                aria-label="Enlarge landscape example"
+                aria-haspopup="dialog"
+                ><img
+                  src="landscape.svg"
+                  alt="Teal mountains and a clay-colored sun under a beige sky"
+                  draggable="false" /><span
+                  class="image-zoom-icon"
+                  data-ui-icon="ArrowUpRight"
+                ></span></button
+              ><div class="image-caption"
+                ><b>A little space among the mountains</b><span>Origin geometry → Preview → Return</span></div
+              ><div class="spec-footer"
+                ><span><b>350 / 250 ms</b> in / out</span
+                ><span><b>snap</b> Bézier curve</span></div
+              ></div
+            >
+          </section>
+          <section class="specimen" id="micro">
+            <div class="section-head"
+              ><div><h2>Hints &amp; feedback</h2></div></div
+            >
+            <div class="card micro-card"
+              ><div class="demo-toolbar"><span class="tiny-label">Hover, or focus with Tab</span></div
+              ><div class="micro-stage"
+                ><div class="tooltip-anchor"
+                  ><button
+                    class="round-tool"
+                    id="tipTarget"
+                    aria-label="View design notes"
+                    data-ui-icon="File"
+                    data-icon-size="24"
+                  ></button
+                  ><span class="tooltip" id="demoTooltip" role="tooltip">View design notes</span></div
+                ><div
+                  ><b>A small hint for an action</b><p>The hint waits 300ms, then fades and scales in.</p></div
+                ></div
+              ><div class="overflow-demo"
+                ><label for="overflowWidth"
+                  >Text container width <output id="overflowWidthOutput">160 px</output></label
+                ><input id="overflowWidth" type="range" min="100" max="320" value="160" /><div
+                  class="overflow-anchor"
+                  ><button id="overflowTarget" class="overflow-target"
+                    >A set of notes on interface details</button
+                  ><span id="overflowTip" class="overflow-tip" role="tooltip" hidden
+                    >A set of notes on interface details</span
+                  ></div
+                ><small id="overflowState">Show the hint only when truncated</small></div
+              ><div class="copy-row"
+                ><code id="copyText">--cds-dur-snap: 120ms;</code
+                ><button class="button small" id="copyBtn">Copy</button></div
+              ><div class="notice-demo"
+                ><span>Action feedback</span
+                ><button class="button small subtle" id="toastBtn">Show notice</button></div
+              ><div class="spec-footer"
+                ><span><b>120 ms</b> hint transition</span><span><b>6 s</b> notice without action</span></div
+              ></div
+            >
+          </section>
+          <section class="specimen wide" id="reading"
+            ><div class="section-head"
+              ><div><h2 class="search-target-title" tabindex="-1">Reading &amp; tables</h2></div></div
+            ><div class="card extra-pad"
+              ><div class="demo-controls"
+                ><label
+                  >Body size
+                  <select id="bodySize"
+                    ><option value="14">Small · 14 px</option
+                    ><option value="15" selected>Default · 15 px</option
+                    ><option value="16">Large · 16 px</option></select
+                  ></label
+                ><output id="measureOutput">Max width 540 px · Line height 24 px</output></div
+              ><article class="measure-prose" id="measureProse"
+                ><h3>Good reading starts with room for content.</h3
+                ><p
+                  >Text needs space and boundaries. Headings balance line lengths; paragraphs wrap naturally. Long identifiers can break when needed, while numbers keep a fixed width.<span
+                    class="inline-symbol"
+                    data-ui-icon="File"
+                  ></span>
+                  Inline icons align 0.125em below the baseline.</p
+                ><p class="long-id"
+                  >claude-design-observation-local-demonstration-with-a-long-identifier</p
+                ></article
+              ><div class="table-heading"
+                ><span class="tiny-label">Wide table · Scroll horizontally</span
+                ><button class="button small" id="expandTable" hidden>Expand table ↗</button></div
+              ><div
+                class="table-viewport"
+                id="tableViewport"
+                tabindex="0"
+                role="region"
+                aria-label="Motion parameters table"
+                ><table id="motionTable"
+                  ><thead
+                    ><tr><th>Context</th><th>Duration</th><th>Curve / mechanism</th><th>Design intent</th></tr></thead
+                  ><tbody
+                    ><tr
+                      ><th>Grapheme heading</th><td>90 ms</td><td>cubic-bezier(.215,.61,.355,1)</td
+                      ><td>Resolve a brief blur into clarity</td></tr
+                    ><tr
+                      ><th>Mode thumb</th><td>120 ms</td><td>cubic-bezier(.32,.72,0,1)</td
+                      ><td>Respond quickly to selection</td></tr
+                    ><tr
+                      ><th>Image entry</th><td>350 ms</td><td>cubic-bezier(.32,.72,0,1)</td
+                      ><td>Connect thumbnail and full image</td></tr
+                    ></tbody
+                  ></table
+                ></div
+              ><div class="spec-footer"
+                ><span><b>36 em</b> max body width</span><span><b>1.6×</b> line height</span></div
+              ></div
+            ></section
+          ><section class="specimen" id="gallery"
+            ><div class="section-head"
+              ><div><h2>Gallery &amp; zoom</h2></div></div
+            ><div class="card extra-pad"
+              ><div class="gallery-thumbs"
+                ><button data-gallery="0" aria-label="Open gallery image 1"
+                  ><img src="landscape.svg" alt="Green mountains" draggable="false" /></button
+                ><button data-gallery="1" aria-label="Open gallery image 2"
+                  ><img src="landscape-dusk.svg" alt="Dusk" draggable="false" /></button
+                ><button data-gallery="2" aria-label="Open gallery image 3"
+                  ><img src="landscape-sand.svg" alt="Sand dunes" draggable="false" /></button></div
+              ><p class="extra-description">Click the current image to zoom; drag to pan, Ctrl + scroll to zoom.</p
+              ><div class="spec-footer"
+                ><span><b>300 ms</b> change image</span><span><b>≥ 2×</b> click zoom target</span></div
+              ></div
+            ></section
+          ><section class="specimen" id="menus"
+            ><div class="section-head"
+              ><div><h2>Focus &amp; selection</h2></div></div
+            ><div class="card extra-pad"
+              ><div class="menu-demo"
+                ><button
+                  class="button"
+                  id="modelMenuButton"
+                  aria-haspopup="menu"
+                  aria-expanded="false"
+                  >Model settings <span>⌄</span></button
+                ><div class="local-menu" id="modelMenu" role="menu" aria-label="Model settings" hidden
+                  ><button
+                    role="menuitem"
+                    id="effortMenuButton"
+                    aria-haspopup="menu"
+                    aria-expanded="false"
+                    >Thinking effort <span id="effortCommitted">High ›</span></button
+                  ></div
+                ><div
+                  class="local-menu effort-submenu"
+                  id="effortMenu"
+                  role="menu"
+                  aria-label="Thinking effort"
+                  hidden
+                  ><button role="menuitemradio" aria-checked="false" data-effort="Low" translate="no">Low</button
+                  ><button role="menuitemradio" aria-checked="false" data-effort="Medium" translate="no"
+                    >Medium</button
+                  ><button role="menuitemradio" aria-checked="true" data-effort="High" translate="no">High</button
+                  ><button role="menuitemradio" aria-checked="false" data-effort="Max" translate="no">Max</button
+                  ><p id="effortPreview">Focus preview: High</p></div
+                ></div
+              ><p class="extra-description" id="effortSelection"
+                >Selected: High. Demo: arrows browse; Enter/Space or click selects.</p
+              ><label class="search-label" for="groupSearch">Find a component</label
+              ><input
+                id="groupSearch"
+                class="local-search"
+                type="search"
+                placeholder="Try “controls” or “reading”"
+              /><div id="searchResults" class="search-results"></div
+              ><div class="palette-demo"
+                ><button
+                  class="button small subtle"
+                  id="paletteOpen"
+                  aria-expanded="false"
+                  aria-controls="paletteCard"
+                  >Expand quick card ↗</button
+                ><div id="paletteCard" class="palette-card" hidden
+                  ><div class="palette-header"
+                    ><b>Expand from the trigger</b><p>Keep the spatial connection as more content appears.</p></div
+                  ><div class="palette-actions"
+                    ><div class="palette-inner"
+                      ><button class="text-button" id="paletteClose">Collapse</button></div
+                    ></div
+                  ></div
+                ></div
+              ><div class="spec-footer"
+                ><span><b>Esc × 2</b> submenu → parent → trigger</span
+                ><span><b>200 ms</b> card move / expand</span></div
+              ></div
+            ></section
+          ><section class="specimen wide" id="modes"
+            ><div class="section-head"
+              ><div><h2>Sidebar modes</h2></div></div
+            ><div class="card extra-pad"
+              ><div class="demo-controls"
+                ><label for="modeWidth">Container width</label
+                ><input type="range" id="modeWidth" min="160" max="360" value="300" /><output
+                  id="modeWidthOutput"
+                  >300 px</output
+                ><button class="button small subtle" id="modeCount">Show 2 items</button></div
+              ><div class="mode-stage"
+                ><div id="modeContainer" class="mode-container"
+                  ><div class="mode-track" id="modeTrack" role="group" aria-label="Sidebar modes"
+                    ><span class="mode-thumb" aria-hidden="true"></span
+                    ><button aria-current="page" data-mode="Chat"
+                      ><span aria-hidden="true" data-ui-icon="Chats"></span
+                      ><span class="mode-label">Chat</span></button
+                    ><button data-mode="Cowork"
+                      ><span aria-hidden="true" data-ui-icon="Tasks"></span
+                      ><span class="mode-label">Cowork</span></button
+                    ><button data-mode="Code"
+                      ><span aria-hidden="true" data-ui-icon="Code"></span
+                      ><span class="mode-label">Code</span></button
+                    ></div
+                  ></div
+                ></div
+              ><p class="extra-description" id="modeSelection">Selected Chat · Arrows move focus only</p
+              ><div class="spec-footer"
+                ><span><b>120 ms</b> snap</span><span><b>≤254 / ≤180 px</b> 3 / 2 item folding</span></div
+              ></div
+            ></section
+          ><section class="specimen" id="tasks"
+            ><div class="section-head"
+              ><div><h2>Cards &amp; drop targets</h2></div></div
+            ><div class="card extra-pad"
+              ><div class="task-grid" id="taskGrid" aria-label="Task cards"
+                ><button class="task-card" data-task="0" aria-expanded="false"
+                  ><span class="task-title-row"
+                    ><span class="task-status-icon done" aria-hidden="true">✓</span
+                    ><span class="task-title">Organize design notes</span></span
+                  ><span class="task-status-row"
+                    ><span class="task-status-label">Done</span></span
+                  ></button
+                ><button class="task-card" data-task="1" aria-expanded="false"
+                  ><span class="task-title-row"
+                    ><span class="task-status-icon stopped" aria-hidden="true"></span
+                    ><span class="task-title">Check motion parameters</span></span
+                  ><span class="task-status-row"
+                    ><span class="task-status-label">Stopped</span></span
+                  ></button
+                ><button class="task-card" data-task="2" aria-expanded="false"
+                  ><span class="task-title-row"
+                    ><span class="task-status-icon failed" aria-hidden="true"></span
+                    ><span class="task-title">Inspect interface details</span></span
+                  ><span class="task-status-row"
+                    ><span class="task-status-label">Failed</span></span
+                  ></button
+                ></div
+              ><div id="taskDetail" class="task-detail" hidden></div
+              ><p class="extra-description">Use arrow keys to browse adjacent cards.</p
+              ><div class="drop-demo"
+                ><div
+                  class="drag-source"
+                  id="dragSource"
+                  draggable="true"
+                  tabindex="0"
+                  role="button"
+                  aria-label="Design notes, press Enter to simulate a drop"
+                  >▤ design-notes.md <small>Drag into the box below</small></div
+                ><div class="drop-target" id="dropTarget"
+                  ><span id="dropHint">Drop here to see the target boundary</span
+                  ><div class="drop-overlay" aria-hidden="true" hidden
+                    ><span class="drop-ring-off"></span><span class="drop-ring-on"></span
+                    ><span class="drop-glow"></span></div></div
+                ><button class="text-button" id="resetDrop">Reset drop demo</button></div
+              ><div class="spec-footer"
+                ><span><b>150 ms</b> card transition</span
+                ><span><b>150 / 200 ms</b> drop in / out</span></div
+              ></div
+            ></section
+          ><section class="specimen" id="recovery"
+            ><div class="section-head"
+              ><div><h2>Recovery &amp; notices</h2></div></div
+            ><div class="card extra-pad"
+              ><div class="retry-surface" id="retrySurface" tabindex="-1"
+                ><div id="retryContent"></div></div
+              ><div class="demo-controls"
+                ><label
+                  >Retry outcome
+                  <select id="retryOutcome"
+                    ><option value="fail">Fail again</option
+                    ><option value="success">Success</option></select
+                  ></label
+                ><button class="text-button" id="resetRetry">Reset</button></div
+              ><div id="retryAnnounce" class="sr-only" role="status" aria-live="polite"></div
+              ><div class="notification-buttons"
+                ><button class="button small" id="addNotification">Add notice</button
+                ><button class="button small subtle" id="repeatNotification">Repeat notice</button
+                ><button class="button small subtle" id="actionNotification"
+                  >Notice with action</button
+                ></div
+              ><div class="notification-stage"
+                ><div class="notification-stack" id="notificationStack"></div
+                ><p id="notificationEmpty">Notices stack here</p></div
+              ><div class="spec-footer"
+                ><span><b>−14 px / −0.04×</b> rear offset / scale</span
+                ><span><b>6 s</b> default duration</span></div
+              ></div
+            ></section
+          >
+        </div>
+        <footer class="page-footer"
+          ><span>Claude UI</span><span>UI examples · Unofficial</span
+          ><a href="#intro">Back to top ↑</a></footer
+        >
+      </main>
+    </div>
+    <dialog id="imageDialog" class="image-dialog" aria-label="Enlarged image preview"
+      ><button
+        class="image-close"
+        id="closeImage"
+        aria-label="Close image preview"
+        data-ui-icon="X"
+        data-icon-size="20"
+      ></button
+      ><img
+        src="landscape.svg"
+        alt="Enlarged view of teal mountains and a clay-colored sun under a beige sky"
+        id="largeImage"
+        draggable="false"
+    /></dialog>
+    <div class="toast-region" aria-live="polite" aria-atomic="true"
+      ><div id="toast" class="stack-toast" style="--toast-index: 0" hidden inert
+        ><div class="stack-toast-content"
+          ><span
+            class="toast-info"
+            aria-hidden="true"
+            data-ui-icon="Info"
+            data-icon-size="20"
+          ></span
+          ><div class="toast-message"><p id="toastText"></p></div
+          ><button
+            id="closeToast"
+            class="toast-dismiss"
+            aria-label="Close notice"
+            data-ui-icon="X"
+          ></button></div></div
+    ></div>
+    <dialog id="tableDialog" class="table-dialog" aria-label="Expanded motion parameters table"
+      ><div class="dialog-heading"
+        ><b>Motion parameters</b
+        ><button
+          class="icon-button"
+          id="closeTable"
+          aria-label="Close expanded table"
+          data-ui-icon="X"
+          data-icon-size="16"
+        ></button></div
+      ><div
+        id="expandedTable"
+        class="table-viewport"
+        tabindex="0"
+        role="region"
+        aria-label="Expanded table content"
+      ></div
+    ></dialog>
+    <dialog id="galleryDialog" class="gallery-dialog" aria-label="Example gallery"
+      ><button
+        class="image-close"
+        id="closeGallery"
+        aria-label="Close gallery"
+        data-ui-icon="X"
+        data-icon-size="20"
+      ></button
+      ><div class="gallery-rail" id="galleryRail"></div
+      ><div class="gallery-bottom"
+        ><button
+          id="galleryPrev"
+          aria-label="Previous image"
+          data-ui-icon="ArrowLeft"
+          data-icon-size="20"
+        ></button
+        ><span id="galleryCount" aria-live="polite" aria-atomic="true"></span
+        ><button
+          id="galleryNext"
+          aria-label="Next image"
+          data-ui-icon="ArrowRight"
+          data-icon-size="20"
+        ></button></div
+      ><p class="gallery-help">← → Browse · Enter Zoom · Drag Pan · Esc Close</p></dialog
+    >
+    <script>
+      DemoI18n.translateDocument();
+    </script>
+    <script src="icons.js"></script
+    ><script src="shared.js"></script>
+    <script src="gallery-zoom.js"></script>
+    <script src="components/type.js"></script>
+    <script src="components/controls.js"></script>
+    <script src="components/segmented.js"></script>
+    <script src="components/composer.js"></script>
+    <script src="components/feedback.js"></script>
+    <script src="components/workspace.js"></script>
+    <script src="components/images.js"></script>
+    <script src="components/micro.js"></script>
+    <script src="components/reading.js"></script>
+    <script src="components/gallery.js"></script>
+    <script src="components/menus.js"></script>
+    <script src="components/modes.js"></script>
+    <script src="components/tasks.js"></script>
+    <script src="components/recovery.js"></script>
+    <script src="app.js"></script>
+  </body>
+</html>
