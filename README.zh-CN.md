@@ -32,7 +32,7 @@ git clone https://github.com/wcqqq1214/claude-ui-skills.git \
 
 ## 演示
 
-包含 14 组交互示例，涵盖分段控件、面板、搜索定位高亮和四种状态动画。支持简体中文、English 和深浅主题。
+包含 13 组交互示例，涵盖分段控件、面板、搜索定位高亮和四种状态动画。支持简体中文、English 和深浅主题。
 
 离线使用请见[本地预览说明](showcase/README.md#local-preview)，无需构建或安装 Claude。
 

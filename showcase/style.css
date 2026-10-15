@@ -281,7 +281,6 @@ main {
 #recovery {
   --chapter-width: 600px;
 }
-#segmented,
 #composer,
 #tasks {
   --chapter-width: 680px;
@@ -357,7 +356,6 @@ main {
     margin: var(--canvas-pad) 0;
   }
   /* Growing examples stay near the top, keeping their controls stationary. */
-  #segmented,
   #feedback,
   #reading,
   #menus,

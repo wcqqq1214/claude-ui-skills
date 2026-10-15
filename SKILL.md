@@ -26,4 +26,4 @@ Test the changed interaction's trigger, state transition, exit and focus return,
 
 Report the frontend files/functions used, local adaptations, checks and remaining uncertainty. Do not claim pixel parity, complete Claude runtime verification, GPU acceleration or performance gains from static code or a working demo.
 
-Open [the demo](showcase/index.html) directly, or serve the skill root with `python3 -m http.server 8766 --bind 127.0.0.1` and browse `/showcase/`. All 14 examples run locally without sending data or executing tools.
+Open [the demo](showcase/index.html) directly, or serve the skill root with `python3 -m http.server 8766 --bind 127.0.0.1` and browse `/showcase/`. All 13 demo chapters run locally without sending data or executing tools.

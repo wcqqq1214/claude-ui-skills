@@ -3,7 +3,6 @@
 (() => {
   initTypeDemo();
   initControlsDemo();
-  initSegmentedDemo();
   initComposerDemo();
   initFeedbackDemo();
   initWorkspaceDemo();

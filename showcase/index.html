@@ -43,16 +43,15 @@
       >
       <nav id="chapterNav" aria-label="COMPONENT INDEX">
         <a href="#type"><span>01</span>Typography</a><a href="#controls"><span>02</span>Controls</a>
-        <a href="#segmented"><span>03</span>Segmented control</a
-        ><a href="#composer"><span>04</span>Input &amp; attachments</a>
-        <a href="#feedback"><span>05</span>Waiting &amp; disclosure</a
-        ><a href="#workspace"><span>06</span>File panel</a>
-        <a href="#images"><span>07</span>Image preview</a><a href="#micro"><span>08</span>Hints &amp; feedback</a>
-        <a href="#reading"><span>09</span>Reading &amp; tables</a
-        ><a href="#gallery"><span>10</span>Gallery &amp; zoom</a
-        ><a href="#menus"><span>11</span>Menus &amp; search</a><a href="#modes"><span>12</span>Sidebar modes</a
-        ><a href="#tasks"><span>13</span>Cards &amp; drop targets</a
-        ><a href="#recovery"><span>14</span>Notifications</a>
+        <a href="#composer"><span>03</span>Input &amp; attachments</a>
+        <a href="#feedback"><span>04</span>Waiting &amp; disclosure</a
+        ><a href="#workspace"><span>05</span>File panel</a>
+        <a href="#images"><span>06</span>Image preview</a><a href="#micro"><span>07</span>Hints &amp; feedback</a>
+        <a href="#reading"><span>08</span>Reading &amp; tables</a
+        ><a href="#gallery"><span>09</span>Gallery &amp; zoom</a
+        ><a href="#menus"><span>10</span>Menus &amp; search</a><a href="#modes"><span>11</span>Sidebar modes</a
+        ><a href="#tasks"><span>12</span>Cards &amp; drop targets</a
+        ><a href="#recovery"><span>13</span>Notifications</a>
         <p class="sidebar-note">UI examples · Unofficial</p>
       </nav>
     </aside>
@@ -235,41 +234,6 @@
                   <p>The fill follows the thumb, which grows while pressed.</p>
                   <p class="controls-params">120ms · 1.12× press scale · 4 stops</p>
                 </div>
-              </article>
-            </div>
-          </section>
-          <section class="specimen" id="segmented">
-            <div class="section-head"
-              ><div><h2>Segmented control</h2></div></div
-            >
-            <div class="segmented-grid">
-              <article class="card segmented-example" aria-labelledby="segmentMotionLabel">
-                <h3 id="segmentMotionLabel">Slider motion</h3>
-                <div class="seg-stage segmented-motion-stage">
-                  <div class="segment" id="viewSegment" role="radiogroup" aria-label="Example choice">
-                    <span class="segment-thumb" aria-hidden="true"></span>
-                    <button role="radio" aria-checked="true" tabindex="0" data-value="yes">Yes</button>
-                    <button role="radio" aria-checked="false" tabindex="-1" data-value="no">No</button>
-                    <button role="radio" aria-checked="false" tabindex="-1" data-value="unsure">Not sure</button>
-                  </div>
-                </div>
-                <div class="spec-footer"><span><b>200ms · 32px</b></span><span>← →</span></div>
-              </article>
-              <article class="card segmented-example" aria-labelledby="segmentCompactLabel">
-                <h3 id="segmentCompactLabel">Compact switching</h3>
-                <div class="seg-stage">
-                  <div class="segment compact" id="compactSegment" role="radiogroup" aria-label="Compact view">
-                    <span class="segment-thumb" aria-hidden="true"></span>
-                    <button id="compactPreviewOption" role="radio" aria-checked="true" tabindex="0" data-value="preview" aria-controls="segmentCompactPreview">Preview</button>
-                    <button id="compactCodeOption" role="radio" aria-checked="false" tabindex="-1" data-value="code" aria-controls="segmentCompactCode">View code</button>
-                  </div>
-                  <div class="segment-sample">
-                    <div id="segmentCompactPreview" role="region" aria-labelledby="compactPreviewOption" translate="no"><h4>Hello, world.</h4><p>Make something.</p></div>
-                    <pre id="segmentCompactCode" role="region" aria-labelledby="compactCodeOption" hidden><code>&lt;h4&gt;Hello, world.&lt;/h4&gt;
-&lt;p&gt;Make something.&lt;/p&gt;</code></pre>
-                  </div>
-                </div>
-                <div class="spec-footer"><span><b>200ms · 24px</b></span><span>← →</span></div>
               </article>
             </div>
           </section>

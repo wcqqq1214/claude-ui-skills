@@ -7,8 +7,8 @@
     },
     {
       "name": "app.js",
-      "sha256": "abdc2f85f3d06e9598eb349626558f88bd531177ec9600ea1a9d04fce885e7b8",
-      "bytes": 427
+      "sha256": "d05aafc5b17963b084b6186185d4311cdbac08399190aa66747cb5809002f86d",
+      "bytes": 404
     },
     {
       "name": "claude-logo.svg",
@@ -187,13 +187,13 @@
     },
     {
       "name": "components/segmented.css",
-      "sha256": "ce0a087a200b83ad795f83aa843585e486d0ee9c4a3c25e1e41addccd8d668f5",
-      "bytes": 3860
+      "sha256": "25b2e65c91d8f24e6414c641022bc3e605446378763db856f1c8a72c51773f2c",
+      "bytes": 2153
     },
     {
       "name": "components/segmented.js",
-      "sha256": "7d2a4c1c3eb19f3eb6259f7705c733d439c8c3e00ac7265ab6a43aae7acb9c16",
-      "bytes": 3927
+      "sha256": "79ac5d732501915227fc0f9631701ad5a6379aea9a39f163e71a13b0e2546192",
+      "bytes": 3405
     },
     {
       "name": "components/tasks.css",
@@ -272,8 +272,8 @@
     },
     {
       "name": "i18n.js",
-      "sha256": "51103d06925d4b9313a45c7a49a1e6aa31b9732ba51ebbc4e03b1209b1f71f29",
-      "bytes": 24235
+      "sha256": "8545f4402c58d3c58701de3f1263fbc13512c664689e2f236b6bff6f2448d62b",
+      "bytes": 23994
     },
     {
       "name": "icons.js",
@@ -282,8 +282,8 @@
     },
     {
       "name": "index.html",
-      "sha256": "1ad4752c104787f21f71a1dd22182732961238862d9dfede6f39eb5f292c92d7",
-      "bytes": 50953
+      "sha256": "e900960df47875c4a282ea5c5d4d785994af2cd14860e5b03151e175f6ab095d",
+      "bytes": 48405
     },
     {
       "name": "landscape-dusk.svg",
@@ -317,8 +317,8 @@
     },
     {
       "name": "style.css",
-      "sha256": "f073c475a0d75c3054d9a595f239ec44d0ccd1ba01a50d516f37d849b869ab05",
-      "bytes": 15794
+      "sha256": "a81bc2fa9984fba050fd4e6db91d1513357014999e66bf5fbb361c7fcc404572",
+      "bytes": 15768
     }
   ],
   "network_dependencies": [],

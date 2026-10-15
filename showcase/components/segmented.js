@@ -1,6 +1,6 @@
 'use strict';
 
-// Shared by the main example, status selector and compact file-view control.
+// Shared by the reading views, status selector and compact file-view control.
 function setupSegment(root, callback) {
   const buttons = [...root.querySelectorAll('[role=radio]')];
   const thumb = root.querySelector('.segment-thumb');
@@ -83,17 +83,4 @@ function setupSegment(root, callback) {
   position(false);
   callback(buttons[selected].dataset.value);
   return { select, refresh: () => position(false) };
-}
-
-// Independent demonstrations; both use the same control as the file toolbar.
-function initSegmentedDemo() {
-  const motion = setupSegment(document.querySelector('#viewSegment'), () => {});
-  const compact = setupSegment(document.querySelector('#compactSegment'), value => {
-    document.querySelector('#segmentCompactPreview').hidden = value !== 'preview';
-    document.querySelector('#segmentCompactCode').hidden = value !== 'code';
-  });
-  DemoI18n.onChange(() => {
-    motion.refresh();
-    compact.refresh();
-  });
 }
