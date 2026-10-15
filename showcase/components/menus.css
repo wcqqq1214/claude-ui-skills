@@ -141,6 +141,9 @@
 .palette-inner {
   min-height: 0;
 }
+.palette-thumb[data-returning] {
+  animation: palette-thumb-return 120ms var(--out);
+}
 .palette-card[data-opening] {
   animation: palette-card-morph 200ms var(--out);
 }
@@ -152,6 +155,11 @@
 }
 .palette-card[data-opening] .palette-inner {
   overflow: hidden;
+}
+@keyframes palette-thumb-return {
+  from {
+    transform: translate(var(--cp-thumb-from-x), var(--cp-thumb-from-y));
+  }
 }
 @keyframes palette-card-morph {
   from {

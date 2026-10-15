@@ -8,7 +8,7 @@ const DemoI18n = (() => {
   "Pin": "置顶",
   "Copy link": "复制链接",
   "Open": "打开",
-  "Thumbnail → actions": "缩略图 → 操作菜单",
+  "Open / return": "展开 / 返回",
   "Click ⋯ to expand · Esc to return": "点击 ⋯ 展开 · Esc 返回",
   "Artifact · Today": "作品 · 今天",
   "Landscape illustration": "风景插画",

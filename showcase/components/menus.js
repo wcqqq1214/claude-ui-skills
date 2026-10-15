@@ -135,17 +135,36 @@ function bindArtifactActions() {
     if (focusFrame !== null) cancelAnimationFrame(focusFrame);
     focusFrame = null;
   }
-  function close(restore = true) {
+  function clearReturn() {
+    thumb.removeAttribute('data-returning');
+    thumb.style.removeProperty('--cp-thumb-from-x');
+    thumb.style.removeProperty('--cp-thumb-from-y');
+  }
+  function close(restore = true, returning = true) {
     cancelFocus();
+    const from = returning && !card.hidden && $('#menus').hasAttribute('data-active')
+      ? card.getBoundingClientRect() : null;
+    clearReturn();
     card.hidden = true;
     card.removeAttribute('data-opening');
     host.classList.remove('palette-open');
     trigger.setAttribute('aria-expanded', 'false');
+    // The fixed artifact stays selected; only return when its thumbnail is ready.
+    const picture = thumb.querySelector('img');
+    if (from && picture.complete && picture.naturalWidth > 0) {
+      const to = thumb.getBoundingClientRect();
+      if (from.width > 0 && to.width > 0) {
+        thumb.style.setProperty('--cp-thumb-from-x', from.left - to.left + 'px');
+        thumb.style.setProperty('--cp-thumb-from-y', from.top - to.top + 'px');
+        thumb.setAttribute('data-returning', '');
+      }
+    }
     if (restore) trigger.focus({preventScroll: true});
   }
   function open() {
     if (!card.hidden) return close();
     const from = thumb.getBoundingClientRect();
+    clearReturn();
     host.classList.add('palette-open');
     card.hidden = false;
     const to = card.getBoundingClientRect();
@@ -162,8 +181,17 @@ function bindArtifactActions() {
       });
     });
   }
+  function dismissWithKey(e) {
+    if (card.hidden || !(e.key === 'Escape' || e.key === 'ArrowLeft' ||
+      (e.key === 'Enter' && e.altKey && !e.metaKey && !e.shiftKey))) return false;
+    e.preventDefault();
+    e.stopPropagation();
+    if (!e.repeat) close();
+    return true;
+  }
   trigger.onclick = open;
   trigger.onkeydown = e => {
+    if (dismissWithKey(e)) return;
     if (e.key === 'Enter' && e.altKey && !e.metaKey && !e.shiftKey) {
       e.preventDefault();
       if (!e.repeat) open();
@@ -183,12 +211,7 @@ function bindArtifactActions() {
   });
   card.onkeydown = e => {
     if (e.key === 'Enter' && e.repeat) { e.preventDefault(); return; }
-    if (e.key === 'Escape' || e.key === 'ArrowLeft' || (e.key === 'Enter' && e.altKey && !e.metaKey && !e.shiftKey)) {
-      e.preventDefault();
-      e.stopPropagation();
-      if (!e.repeat) close();
-      return;
-    }
+    if (dismissWithKey(e)) return;
     if (e.altKey || e.metaKey || e.ctrlKey || e.repeat) return;
     const digit = /^[1-3]$/.test(e.key) ? Number(e.key) - 1 : -1;
     if (digit >= 0) { e.preventDefault(); actions[digit].click(); return; }
@@ -199,6 +222,9 @@ function bindArtifactActions() {
       actions[next].focus({preventScroll: true});
     }
   };
+  thumb.addEventListener('animationend', e => {
+    if (e.target === thumb && e.animationName === 'palette-thumb-return') clearReturn();
+  });
   card.querySelector('.palette-actions').addEventListener('animationend', e => {
     if (e.target === e.currentTarget) card.removeAttribute('data-opening');
   });
@@ -209,9 +235,9 @@ function bindArtifactActions() {
     if (!card.hidden && !host.contains(e.target)) close(false);
   });
   new MutationObserver(() => {
-    if (!$('#menus').hasAttribute('data-active')) close(false);
+    if (!$('#menus').hasAttribute('data-active')) close(false, false);
   }).observe($('#menus'), {attributes: true, attributeFilter: ['data-active']});
-  window.addEventListener('pagehide', () => close(false));
+  window.addEventListener('pagehide', () => close(false, false));
 }
 
 // Destination highlight: settle scroll, draw/wash, then clean up.
