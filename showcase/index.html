@@ -44,7 +44,7 @@
       <nav id="chapterNav" aria-label="COMPONENT INDEX">
         <a href="#type"><span>01</span>Typography</a><a href="#controls"><span>02</span>Controls</a>
         <a href="#segmented"><span>03</span>Segmented control</a
-        ><a href="#composer"><span>04</span>Input &amp; commands</a>
+        ><a href="#composer"><span>04</span>Input &amp; attachments</a>
         <a href="#feedback"><span>05</span>Waiting &amp; disclosure</a
         ><a href="#workspace"><span>06</span>File panel</a>
         <a href="#images"><span>07</span>Image preview</a><a href="#micro"><span>08</span>Hints &amp; feedback</a>
@@ -274,47 +274,17 @@
             </div>
           </section>
           <section class="specimen" id="composer">
-            <div class="section-head"
-              ><div><h2>Input &amp; commands</h2></div></div
-            >
-            <div class="card composer-card"
-              ><div class="composer-wrap"
-                ><div class="command-menu" id="commandMenu" hidden
-                  ><div
-                    class="command-list"
-                    id="commandList"
-                    role="listbox"
-                    aria-label="Command suggestions"
-                  ></div></div
-                ><div class="composer-box">
-                  <div class="composer-attachments" id="composerAttachments" role="group" aria-label="Mock attachments"></div>
-                  <textarea
-                    id="promptInput"
-                    rows="1"
-                    placeholder="Where would you like to start?"
-                    aria-label="Demo input"
-                    aria-controls="commandList"
-                    aria-expanded="false"
-                  ></textarea
-                  ><div class="composer-chin"
-                    ><button
-                      class="icon-button composer-action"
-                      id="suggestBtn"
-                      aria-label="Open command suggestions"
-                    ><span aria-hidden="true">/</span><span>Commands</span></button
-                    ><button class="icon-button composer-action" id="addMockAttachment" type="button" aria-label="Add mock attachment" title="Add mock attachment"><span data-ui-icon="File" aria-hidden="true"></span><span>Add attachment</span></button
-                    ><button
-                      class="send-button"
-                      id="sendBtn"
-                      aria-label="Send demo content"
-                      disabled
-                      data-ui-icon="ArrowUp"
-                      data-icon-size="20"
-                    ></button></div></div></div
-              ><div class="local-result" id="localResult" aria-live="polite"></div
-              ><div class="composer-hint" id="composerHint">Type / for suggestions</div
-              ></div
-            >
+            <div class="section-head"><div><h2>Input &amp; attachments</h2></div></div>
+            <div class="card composer-card">
+              <div class="composer-box">
+                <div class="composer-attachments" id="composerAttachments" role="group" aria-label="Mock attachments"></div>
+                <textarea id="promptInput" rows="1" placeholder="Type a few lines…" aria-label="Demo input"></textarea>
+                <div class="composer-chin">
+                  <button class="icon-button composer-action" id="addMockAttachment" type="button" aria-label="Add mock attachment" title="Add mock attachment"><span data-ui-icon="File" aria-hidden="true"></span><span>Add attachment</span></button>
+                </div>
+              </div>
+              <div class="composer-hint">Focus 200ms · Add/move 180ms · Remove 130ms</div>
+            </div>
           </section>
           <section class="specimen wide" id="feedback">
             <div class="section-head"

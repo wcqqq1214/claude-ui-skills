@@ -50,11 +50,11 @@ test('explicitly choosing the current language remembers it without reloading', 
 test('translation interpolates values once and leaves unknown copy intact', () => {
   const {i18n} = load();
   assert.equal(i18n.t('Theme: {0}; switch to {1}', i18n.t('System'), i18n.t('Light')), 'Theme: System; switch to Light');
-  assert.equal(i18n.t('Selected “{0}”. Keep typing to continue.', '<tag>{1}$&'), 'Selected “<tag>{1}$&”. Keep typing to continue.');
+  assert.equal(i18n.t('Remove {0}', '<tag>{1}$&'), 'Remove <tag>{1}$&');
   assert.equal(i18n.t('Uncatalogued text'), 'Uncatalogued text');
   i18n.select('zh-Hans');
   assert.equal(i18n.t('Theme: {0}; switch to {1}', i18n.t('System'), i18n.t('Light')), '主题：跟随系统；点击切换浅色');
-  assert.equal(i18n.t('Selected “{0}”. Keep typing to continue.', '<tag>{1}$&'), '已选择“<tag>{1}$&”，可以继续输入。');
+  assert.equal(i18n.t('Remove {0}', '<tag>{1}$&'), '移除 <tag>{1}$&');
   assert.equal(i18n.t('Uncatalogued text'), 'Uncatalogued text');
   // Chunk boundaries and their English spaces must survive a round trip.
   assert.equal(i18n.t('Space makes content '), '留白让内容');
