@@ -296,12 +296,14 @@
                 ><div class="demo-toolbar"
                   ><span class="tiny-label">Waiting state</span
                   ><button class="button small" id="skeletonBtn">Finish</button></div
-                ><div class="status-variants" role="group" aria-label="Status animation">
-                  <button class="button small" data-status-activity="think" aria-pressed="true">Thinking</button>
-                  <button class="button small" data-status-activity="read" aria-pressed="false">Reading</button>
-                  <button class="button small" data-status-activity="write" aria-pressed="false">Writing</button>
-                  <button class="button small" data-status-activity="code" aria-pressed="false">Coding</button>
-                </div
+                >
+                <div class="status-variants"><div class="segment compact" id="statusSegment" role="radiogroup" aria-label="Status animation">
+                  <span class="segment-thumb" aria-hidden="true"></span>
+                  <button role="radio" data-value="think" aria-checked="true" tabindex="0">Thinking</button>
+                  <button role="radio" data-value="read" aria-checked="false" tabindex="-1">Reading</button>
+                  <button role="radio" data-value="write" aria-checked="false" tabindex="-1">Writing</button>
+                  <button role="radio" data-value="code" aria-checked="false" tabindex="-1">Coding</button>
+                </div></div
                 ><div class="status-line"
                   ><span class="thinking-mark" id="thinkingMark" data-phase="dot" aria-hidden="true"><span class="thinking-strip"></span></span
                   ><span id="loadingLabel" class="status-shimmer"><span id="loadingText">Organizing content</span></span></div
