@@ -2,6 +2,8 @@
 'use strict';
 const DemoI18n = (() => {
   const chinese = {
+  "Reading width": "阅读宽度",
+  "{0} em · Maximum {1} px": "{0} em · 最大 {1} px",
   "Stable digits · Simulated time": "数字稳定 · 模拟时间",
   "Replay number sample": "重播数字示例",
   "Mock attachments": "模拟附件",

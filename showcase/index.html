@@ -496,7 +496,10 @@
                     ><option value="15" selected>Default · 15 px</option
                     ><option value="16">Large · 16 px</option></select
                   ></label
-                ><output id="measureOutput">Max width 540 px · Line height 24 px</output></div
+                ><label for="readingWidth">Reading width
+                  <input id="readingWidth" type="range" min="12" max="36" step="1" value="36" />
+                </label
+                ><output id="measureOutput" for="bodySize readingWidth">Max width 540 px · Line height 24 px</output></div
               ><article class="measure-prose" id="measureProse"
                 ><h3>Good reading starts with room for content.</h3
                 ><p

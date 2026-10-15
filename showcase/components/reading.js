@@ -12,13 +12,18 @@ function initReadingDemo() {
   const tableObserver = new ResizeObserver(measureTable);
   tableObserver.observe(tableViewport);
   tableObserver.observe($('#motionTable'));
-  $('#bodySize').onchange = (e) => {
-    const n = Number(e.target.value);
+  function updateReadingMeasure() {
+    const n = Number($('#bodySize').value), em = Number($('#readingWidth').value);
     document.documentElement.style.setProperty('--reading-body', n + 'px');
+    $('#measureProse').style.setProperty('--reading-measure', em + 'em');
     DemoI18n.text($('#measureOutput'), () =>
-      DemoI18n.t('Max width {0} px · Line height {1} px', n * 36, Number((n * 1.6).toFixed(1)))
+      DemoI18n.t('Max width {0} px · Line height {1} px', n * em, Number((n * 1.6).toFixed(1)))
     );
-  };
+    DemoI18n.attr($('#readingWidth'), 'aria-valuetext', () => DemoI18n.t('{0} em · Maximum {1} px', em, n * em));
+  }
+  $('#bodySize').onchange = updateReadingMeasure;
+  $('#readingWidth').oninput = updateReadingMeasure;
+  updateReadingMeasure();
   $('#expandTable').onclick = () => {
     const clone = DemoI18n.clone($('#motionTable'));
     clone.removeAttribute('id');

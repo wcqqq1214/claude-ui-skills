@@ -3,7 +3,8 @@
   --inline-code-fill: rgb(11 11 11 / 5%);
   font-size: var(--reading-body, 15px);
   line-height: 1.6;
-  max-width: 36em;
+  width: 100%;
+  max-width: var(--reading-measure, 36em);
   margin: 30px auto;
   padding: 0;
   text-wrap: pretty;
