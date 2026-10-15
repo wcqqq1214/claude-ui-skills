@@ -6,7 +6,7 @@ Use these for a visible local failure/busy/success sequence and several notifica
 
 [HTML](../../showcase/index.html#recovery) · [JS](../../showcase/components/recovery.js) · [CSS](../../showcase/components/recovery.css)
 
-`initRecoveryDemo(showToast)` binds `drawRetry()`, `addNotice()`, `removeNotice()` and `arrangeNotices()`. Its callback shows a local result using [micro.js](../../showcase/components/micro.js). The `.stack-toast` skin is also used by that single-notification example.
+`initRecoveryDemo(showToast)` binds `drawRetry()`, `addNotice()`, `removeNotice()` and `arrangeNotices()`. Its callback shows a local result using [micro.js](../../showcase/components/micro.js); include [micro.css](../../showcase/components/micro.css) for that single notification’s container positioning, width and stacking level. The `.stack-toast` skin is also used by that single-notification example.
 
 ## Design and adaptation
 
