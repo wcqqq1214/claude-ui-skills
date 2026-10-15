@@ -593,7 +593,7 @@
           ><section class="specimen" id="menus">
             <div class="section-head"><div><h2>Menus &amp; search</h2></div></div>
             <div class="menus-grid">
-              <article class="card menus-example" aria-labelledby="menuSelectionLabel">
+              <article class="card menus-example menus-selection-example" aria-labelledby="menuSelectionLabel">
                 <h3 id="menuSelectionLabel">Menu selection</h3>
                 <div class="menus-stage"><div class="menu-demo"
                 ><button
@@ -628,13 +628,14 @@
               ></div>
                 <div class="spec-footer"><span>Arrows preview · Enter selects · Esc returns</span></div>
               </article>
-              <article class="card menus-example" aria-labelledby="paletteLabel">
+              <article class="card menus-example menus-artifact-example" aria-labelledby="paletteLabel">
                 <h3 id="paletteLabel">Artifact actions</h3>
+                <p class="menus-context">Command palette</p>
                 <div class="menus-stage">
                   <div class="palette-demo" id="artifactActionsDemo">
                     <div class="palette-result">
                       <span data-ui-icon="File" data-icon-size="20" aria-hidden="true"></span>
-                      <span class="palette-result-title">Product overview</span>
+                      <span class="palette-result-title">Landscape illustration</span>
                       <button class="icon-button" id="paletteOpen" type="button" aria-label="Artifact actions" aria-haspopup="menu" aria-expanded="false" aria-controls="paletteCard" aria-keyshortcuts="Alt+Enter" data-ui-icon="DotsHorizontal" data-icon-size="16"></button>
                     </div>
                     <div class="palette-preview-area">
@@ -644,7 +645,7 @@
                       </div>
                       <div id="paletteCard" class="palette-card" role="menu" aria-label="Artifact actions" hidden>
                         <img src="landscape.svg" alt="" width="280" height="175" />
-                        <div class="palette-header"><b>Product overview</b><p>Artifact · Today</p></div>
+                        <div class="palette-header"><b>Landscape illustration</b><p>Artifact · Today</p></div>
                         <div class="palette-actions"><div class="palette-inner">
                           <button type="button" role="menuitem" data-palette-action="Open" aria-keyshortcuts="1"><span>Open</span><kbd>1</kbd></button>
                           <button type="button" role="menuitem" data-palette-action="Copy link" aria-keyshortcuts="2"><span>Copy link</span><kbd>2</kbd></button>
@@ -652,7 +653,7 @@
                         </div></div>
                       </div>
                     </div>
-                    <p class="palette-status" id="paletteStatus" role="status">Local preview · No real actions</p>
+                    <p class="palette-status" id="paletteStatus" role="status">Click ⋯ to expand · Esc to return</p>
                   </div>
                 </div>
                 <div class="spec-footer"><span><b>200ms</b></span><span>Thumbnail → actions</span><span>Alt/Option + Enter · Esc</span></div>

@@ -2,15 +2,16 @@
 'use strict';
 const DemoI18n = (() => {
   const chinese = {
+  "Command palette": "命令面板",
   "Demo action: {0}": "模拟操作：{0}",
   "Unpin": "取消置顶",
   "Pin": "置顶",
   "Copy link": "复制链接",
   "Open": "打开",
   "Thumbnail → actions": "缩略图 → 操作菜单",
-  "Local preview · No real actions": "本地演示 · 不执行真实操作",
+  "Click ⋯ to expand · Esc to return": "点击 ⋯ 展开 · Esc 返回",
   "Artifact · Today": "作品 · 今天",
-  "Product overview": "产品概览",
+  "Landscape illustration": "风景插画",
   "Artifact actions": "作品操作菜单",
   "Select a result to highlight it here": "选择结果，在这里查看定位高亮",
   "highlight": "高亮",
