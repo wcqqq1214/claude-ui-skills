@@ -49,7 +49,7 @@ function initMenusDemo() {
       effortOptions.forEach((x) => x.setAttribute('aria-checked', String(x === b)));
       $('#effortCommitted').textContent = committedEffort + ' ›';
       DemoI18n.text($('#effortSelection'), () =>
-        DemoI18n.t('Selected: {0}. Demo: arrows browse; Enter/Space or click selects.', committedEffort)
+        DemoI18n.t('Selected: {0}', committedEffort)
       );
       closeModel(true);
     };
@@ -73,12 +73,11 @@ function initMenusDemo() {
   document.addEventListener('focusin', (e) => {
     if (!e.target.closest('.menu-demo')) closeModel();
   });
-  // Fixed chapter destinations are a local adaptation of settings row lookup.
+  // Fixed rows in this example are a local adaptation of settings row lookup.
   const searchData = [
-    { group: 'Visual foundations', name: 'Controls', target: 'controls' },
-    { group: 'Visual foundations', name: 'Reading & tables', target: 'reading' },
-    { group: 'Motion feedback', name: 'Typography', target: 'type' },
-    { group: 'Motion feedback', name: 'Waiting & disclosure', target: 'feedback' }
+    { group: 'Interface', name: 'Appearance', target: 'searchAppearance' },
+    { group: 'Interface', name: 'Language', target: 'searchLanguage' },
+    { group: 'Updates', name: 'Notifications', target: 'searchNotifications' }
   ];
   let cancelSearchHighlight = () => {};
   function renderSearch() {
@@ -103,10 +102,8 @@ function initMenusDemo() {
         cancelSearchHighlight();
         $('#groupSearch').value = '';
         renderSearch();
-        const row = $(`#${x.target} .section-head`);
-        const title = row.querySelector('h2');
-        // A page that shows one chapter at a time reveals the destination first.
-        row.dispatchEvent(new CustomEvent('demo-reveal', { bubbles: true }));
+        const row = $(`#${x.target}`);
+        const title = row.querySelector('.search-target-title');
         // Keep keyboard navigation at the destination without adding another scroll.
         title.focus({ preventScroll: true });
         cancelSearchHighlight = highlightSearchTarget(row, title);
@@ -165,7 +162,7 @@ function initMenusDemo() {
 }
 
 // Destination highlight: settle scroll, draw/wash, then clean up.
-// The demo owns fixed chapter targets; no settings search or deferred row mounting.
+// The demo owns fixed local rows; no settings search or deferred row mounting.
 function highlightSearchTarget(row, title) {
   function containers() {
     const scrollers = [],

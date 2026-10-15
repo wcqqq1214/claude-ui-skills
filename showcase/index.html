@@ -50,7 +50,7 @@
         <a href="#images"><span>07</span>Image preview</a><a href="#micro"><span>08</span>Hints &amp; feedback</a>
         <a href="#reading"><span>09</span>Reading &amp; tables</a
         ><a href="#gallery"><span>10</span>Gallery &amp; zoom</a
-        ><a href="#menus"><span>11</span>Focus &amp; selection</a><a href="#modes"><span>12</span>Sidebar modes</a
+        ><a href="#menus"><span>11</span>Menus &amp; search</a><a href="#modes"><span>12</span>Sidebar modes</a
         ><a href="#tasks"><span>13</span>Cards &amp; drop targets</a
         ><a href="#recovery"><span>14</span>Recovery &amp; notices</a>
         <p class="sidebar-note">UI examples · Unofficial</p>
@@ -117,7 +117,7 @@
         <div class="sections">
           <section class="specimen" id="type">
             <div class="section-head"
-              ><div><h2 class="search-target-title" tabindex="-1">Typography</h2></div></div
+              ><div><h2>Typography</h2></div></div
             >
             <div class="type-effects">
               <article class="card type-effect-card" id="graphemeExample" aria-labelledby="graphemeLabel">
@@ -178,7 +178,7 @@
           </section>
           <section class="specimen" id="controls">
             <div class="section-head"
-              ><div><h2 class="search-target-title" tabindex="-1">Controls</h2></div></div
+              ><div><h2>Controls</h2></div></div
             >
             <div class="controls-grid">
               <div class="controls-toolbar">
@@ -298,7 +298,7 @@
           </section>
           <section class="specimen wide" id="feedback">
             <div class="section-head"
-              ><div><h2 class="search-target-title" tabindex="-1">Waiting &amp; disclosure</h2></div></div
+              ><div><h2>Waiting &amp; disclosure</h2></div></div
             >
             <div class="feedback-grid"
               ><div class="card waiting-card"
@@ -474,7 +474,7 @@
           </section>
           <section class="specimen wide" id="reading"
             ><div class="section-head"
-              ><div><h2 class="search-target-title" tabindex="-1">Reading &amp; tables</h2></div></div
+              ><div><h2>Reading &amp; tables</h2></div></div
             ><div class="card extra-pad"
               ><div class="demo-controls"
                 ><label
@@ -574,11 +574,12 @@
                 ><span><b>300 ms</b> change image</span><span><b>≥ 2×</b> click zoom target</span></div
               ></div
             ></section
-          ><section class="specimen" id="menus"
-            ><div class="section-head"
-              ><div><h2>Focus &amp; selection</h2></div></div
-            ><div class="card extra-pad"
-              ><div class="menu-demo"
+          ><section class="specimen" id="menus">
+            <div class="section-head"><div><h2>Menus &amp; search</h2></div></div>
+            <div class="menus-grid">
+              <article class="card menus-example" aria-labelledby="menuSelectionLabel">
+                <h3 id="menuSelectionLabel">Menu selection</h3>
+                <div class="menus-stage"><div class="menu-demo"
                 ><button
                   class="button"
                   id="modelMenuButton"
@@ -607,15 +608,13 @@
                   ><p id="effortPreview">Focus preview: High</p></div
                 ></div
               ><p class="extra-description" id="effortSelection"
-                >Selected: High. Demo: arrows browse; Enter/Space or click selects.</p
-              ><label class="search-label" for="groupSearch">Find a component</label
-              ><input
-                id="groupSearch"
-                class="local-search"
-                type="search"
-                placeholder="Try “controls” or “reading”"
-              /><div id="searchResults" class="search-results"></div
-              ><div class="palette-demo"
+                >Selected: High</p
+              ></div>
+                <div class="spec-footer"><span>Arrows preview · Enter selects · Esc returns</span></div>
+              </article>
+              <article class="card menus-example" aria-labelledby="paletteLabel">
+                <h3 id="paletteLabel">Card expansion</h3>
+                <div class="menus-stage"><div class="palette-demo"
                 ><button
                   class="button small subtle"
                   id="paletteOpen"
@@ -631,11 +630,27 @@
                     ></div
                   ></div
                 ></div
-              ><div class="spec-footer"
-                ><span><b>Esc × 2</b> submenu → parent → trigger</span
-                ><span><b>200 ms</b> card move / expand</span></div
-              ></div
-            ></section
+              ></div>
+                <div class="spec-footer"><span><b>200ms</b> card move / expand</span></div>
+              </article>
+              <article class="card menus-example menus-search-example" aria-labelledby="searchLocateLabel">
+                <h3 id="searchLocateLabel">Search &amp; highlight</h3>
+                <div class="menus-search-layout">
+                  <div>
+                    <label class="search-label" for="groupSearch">Find a setting</label>
+                    <input id="groupSearch" class="local-search" type="search" placeholder="Try “appearance” or “notifications”" />
+                    <div id="searchResults" class="search-results"></div>
+                  </div>
+                  <div class="search-destinations">
+                    <div class="search-destination" id="searchAppearance"><h4 class="search-target-title" tabindex="-1">Appearance</h4><p>Choose a light or dark interface.</p></div>
+                    <div class="search-destination" id="searchLanguage"><h4 class="search-target-title" tabindex="-1">Language</h4><p>Choose the interface language.</p></div>
+                    <div class="search-destination" id="searchNotifications"><h4 class="search-target-title" tabindex="-1">Notifications</h4><p>Get notified when a response is ready.</p></div>
+                  </div>
+                </div>
+                <div class="spec-footer"><span><b>1.95s</b> highlight</span><span>Select a result to highlight it here</span></div>
+              </article>
+            </div>
+          </section
           ><section class="specimen wide" id="modes"
             ><div class="section-head"
               ><div><h2>Sidebar modes</h2></div></div
