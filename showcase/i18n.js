@@ -2,6 +2,8 @@
 'use strict';
 const DemoI18n = (() => {
   const chinese = {
+  "Stable digits · Simulated time": "数字稳定 · 模拟时间",
+  "Replay number sample": "重播数字示例",
   "Mock attachments": "模拟附件",
   "Add mock attachment": "添加模拟附件",
   "Remove {0}": "移除 {0}",

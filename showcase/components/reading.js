@@ -1,6 +1,7 @@
 'use strict';
 function initReadingDemo() {
   bindReadingCodeCopy();
+  bindReadingNumberSample();
   // Document layout and table overflow.
   const tableViewport = $('#tableViewport');
   function measureTable() {
@@ -25,6 +26,23 @@ function initReadingDemo() {
     $('#tableDialog').showModal();
   };
   $('#closeTable').onclick = () => $('#tableDialog').close();
+}
+
+function bindReadingNumberSample() {
+  const value = $('#readingNumberValue');
+  const samples = ['00:11.11', '00:18.88', '00:22.22', '00:37.77', '00:44.44', '00:58.88'];
+  let timer;
+  $('#replayReadingNumbers').onclick = () => {
+    clearInterval(timer);
+    let index = 0;
+    value.textContent = samples[index];
+    // Fixed presentation frames, never elapsed time or usage statistics.
+    timer = setInterval(() => {
+      value.textContent = samples[++index];
+      if (index === samples.length - 1) clearInterval(timer);
+    }, 650);
+  };
+  window.addEventListener('pagehide', () => clearInterval(timer));
 }
 
 function bindReadingCodeCopy() {

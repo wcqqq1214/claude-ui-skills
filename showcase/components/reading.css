@@ -41,6 +41,21 @@
   font-size: 0.85em;
   color: var(--muted);
 }
+.reading-number-sample {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-block: 20px;
+}
+.reading-number-label { flex: 1 1 100%; color: var(--secondary); font-size: 12px; }
+.reading-number-value {
+  font-family: var(--study-sans);
+  font-variant-numeric: tabular-nums;
+  font-size: 28px;
+  line-height: 1.2;
+  white-space: nowrap;
+}
 .reading-code-block {
   position: relative;
   margin-top: 14px;
