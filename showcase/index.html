@@ -180,30 +180,28 @@
             <div class="section-head"
               ><div><h2 class="search-target-title" tabindex="-1">Controls</h2></div></div
             >
-            <div class="card controls-card"
-              ><div class="control-row"
-                ><div><label for="demoSwitch">Notify when complete</label></div
-                ><button
-                  class="switch"
-                  id="demoSwitch"
-                  role="switch"
-                  aria-checked="true"
-                  aria-label="Notify when complete"
-                  ><span></span></button></div
-              ><div class="control-row"
-                ><label class="check-label"
-                  ><input type="checkbox" id="demoCheck" checked /><span
-                    class="check-box"
-                    aria-hidden="true"
-                    ><svg viewBox="0 0 16 16"><path d="m3 8 3 3 7-7" /></svg></span
-                  ><span
-                    >Keep a separate space for this exploration<small
-                      >The checkbox aligns with the first line of its label.<br />This changes only the state of this demo.</small
-                    ></span
-                  ></label
-                ></div
-              ><div class="slider-block"
-                ><div class="range-shell"
+            <div class="controls-grid">
+              <div class="controls-toolbar">
+                <button class="icon-button controls-slow" id="controlsSlow" type="button" aria-label="Slow motion" aria-pressed="false">
+                  <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 15v-3a6 6 0 0 1 12 0v3H5Z M8 7l3 4 3-4 M11 11v4 M7 15l-1 3 M15 15l1 3 M5 12H3"/><path d="M17 11h2a2 2 0 0 1 0 4h-2"/></svg>
+                </button>
+              </div>
+              <article class="card controls-card">
+                <div class="control-row">
+                  <button class="switch control-magnify" id="demoSwitch" role="switch" aria-checked="true" aria-label="Switch"><span></span></button>
+                </div>
+              </article>
+              <article class="card controls-card">
+                <div class="control-row">
+                  <label class="check-label control-magnify">
+                    <input type="checkbox" id="demoCheck" aria-label="Checkbox" checked />
+                    <span class="check-box" aria-hidden="true"><svg viewBox="0 0 16 16"><path d="m3 8 3 3 7-7" /></svg></span>
+                  </label>
+                </div>
+              </article>
+              <article class="card controls-card slider-card">
+                <div class="slider-block">
+                  <div class="range-shell"
                   ><div class="range-track"
                     ><div class="range-fill-origin"
                       ><div class="range-fill-clip"><div class="range-fill"></div></div></div></div
@@ -219,13 +217,10 @@
                     max="3"
                     step="1"
                     value="2"
-                    aria-valuetext="Level 3 of 4" /></div
-                ></div
-              ><div class="spec-footer"
-                ><span><b>120 ms</b> thumb spring</span
-                ><span><b>200 / 120 ms</b> check in / out</span></div
-              ></div
-            >
+                    aria-valuetext="Level 3 of 4" /></div>
+                </div>
+              </article>
+            </div>
           </section>
           <section class="specimen" id="segmented">
             <div class="section-head"

@@ -1,5 +1,11 @@
 'use strict';
 function initControlsDemo() {
+  $('#controlsSlow').onclick = (e) => {
+    const button = e.currentTarget;
+    const slow = button.getAttribute('aria-pressed') !== 'true';
+    button.setAttribute('aria-pressed', String(slow));
+    $('#controls').dataset.slow = String(slow);
+  };
   $('#demoSwitch').onclick = (e) => {
     const b = e.currentTarget;
     b.setAttribute('aria-checked', b.getAttribute('aria-checked') === 'true' ? 'false' : 'true');

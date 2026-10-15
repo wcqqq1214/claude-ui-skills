@@ -1,23 +1,57 @@
+.controls-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
+  grid-area: 2 / 1;
+  justify-self: center;
+  width: min(100% - 48px, var(--chapter-width));
+  margin: 24px 0;
+}
+.controls-grid .slider-card {
+  grid-column: 1 / -1;
+}
+.controls-toolbar {
+  grid-column: 1 / -1;
+  display: flex;
+  justify-content: flex-end;
+}
+.controls-slow {
+  width: 44px;
+  height: 44px;
+}
+.controls-slow svg {
+  width: 24px;
+  height: 24px;
+}
+.controls-slow[aria-pressed='true'] {
+  color: var(--control-accent);
+  background: var(--surface);
+  box-shadow: inset 0 0 0 1px currentColor;
+}
+.control-magnify {
+  zoom: 2;
+}
 .control-row {
-  margin: 0 23px;
-  padding: 23px 0;
-  border-bottom: 1px solid transparent;
-  box-shadow: inset 0 calc(-1 * var(--hairline)) var(--line);
+  min-height: 160px;
+  padding: 28px 24px;
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: center;
   gap: 20px;
 }
-.control-row label {
-  font-size: 12px;
-  font-weight: var(--medium);
+@media (max-width: 850px) {
+  .controls-grid {
+    width: 100%;
+    margin: 0;
+  }
 }
-.control-row p {
-  color: var(--muted);
-  font-size: 10px;
-  margin-top: 3px;
+@container (max-width: 480px) {
+  .controls-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
 }
 #controls {
+  --controls-duration-scale: 1;
   --control-accent: #2a78d6;
   --control-focus-inner: #f9f9f7;
   --control-focus-glow: #cde2fb;
@@ -36,6 +70,9 @@
   --control-handle: #fff;
   --control-handle-ring: rgb(11 11 11 / 4%);
   --control-handle-depth: rgb(11 11 11 / 6%);
+}
+#controls[data-slow='true'] {
+  --controls-duration-scale: 5;
 }
 [data-theme='dark'] #controls {
   --control-focus-inner: #0b0b0b;
@@ -80,14 +117,14 @@
   border-radius: 50%;
   background: var(--control-handle);
   box-shadow: var(--switch-shadow);
-  transition: transform 120ms var(--overshoot);
+  transition: transform calc(120ms * var(--controls-duration-scale)) var(--overshoot);
 }
 .switch[aria-checked='true'] > span {
   transform: translateX(calc(var(--h) * 0.8));
 }
 .check-label {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   gap: 10px;
   position: relative;
   cursor: pointer;
@@ -98,13 +135,13 @@
   width: 20px;
   height: 20px;
   margin: 0;
-  top: calc((1lh - 20px) / 2);
+  top: 0;
   left: 0;
 }
 .check-box {
   width: 20px;
   height: 20px;
-  margin-top: calc((1lh - 20px) / 2);
+  margin-top: 0;
   border: 1px solid var(--check-border);
   border-radius: 5px;
   display: flex;
@@ -112,8 +149,8 @@
   justify-content: center;
   flex-shrink: 0;
   transition:
-    background 60ms var(--out),
-    border-color 60ms var(--out);
+    background calc(60ms * var(--controls-duration-scale)) var(--out),
+    border-color calc(60ms * var(--controls-duration-scale)) var(--out);
 }
 @media (hover: hover) {
   .check-label:hover input:not(:checked):not(:disabled) + .check-box {
@@ -125,7 +162,7 @@
   height: 16px;
   flex-shrink: 0;
   clip-path: inset(0 100% 0 0);
-  transition: clip-path 120ms var(--out);
+  transition: clip-path calc(120ms * var(--controls-duration-scale)) var(--out);
   stroke: white;
   fill: none;
   stroke-width: 1.7;
@@ -141,27 +178,23 @@
 }
 .check-label input:checked + .check-box svg {
   clip-path: inset(0);
-  transition-duration: 200ms;
+  transition-duration: calc(200ms * var(--controls-duration-scale));
 }
 .check-label input:focus-visible + .check-box {
   box-shadow: var(--control-focus);
 }
-.check-label small {
-  display: block;
-  color: var(--muted);
-  font-weight: var(--regular);
-  font-size: 10px;
-  line-height: 1.8;
-  margin-top: 4px;
-}
 .slider-block {
-  padding: 23px;
+  padding: 28px 24px;
+  min-height: 160px;
+  display: grid;
+  align-items: center;
 }
 .range-shell {
   position: relative;
   height: 32px;
+  zoom: 1.5;
   width: min(360px, calc(100% - 20px));
-  margin: 13px auto 6px;
+  margin: 0 auto;
   --pos: 0.6666666667;
   --range-inset: 12px;
 }
@@ -240,7 +273,7 @@
 .range-fill-clip,
 .range-fill,
 .range-position {
-  transition: transform 120ms var(--out);
+  transition: transform calc(120ms * var(--controls-duration-scale)) var(--out);
 }
 .range-thumb {
   position: absolute;
@@ -254,7 +287,7 @@
   box-shadow:
     0 0 0 1px var(--control-handle-ring),
     0 0 12px var(--control-handle-depth);
-  transition: scale 120ms var(--overshoot);
+  transition: scale calc(120ms * var(--controls-duration-scale)) var(--overshoot);
   pointer-events: none;
 }
 .range-shell.dragging .range-thumb {
