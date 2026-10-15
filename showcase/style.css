@@ -422,6 +422,8 @@ main {
     bottom: 0;
     z-index: 1;
     background: var(--surface);
+    /* Follow the card's rounded bottom (12px radius inside a 1px border). */
+    border-radius: 0 0 11px 11px;
   }
   .specimen > .card::after {
     content: '';
