@@ -84,15 +84,15 @@ function createStatusShimmer(label, text) {
 }
 function initFeedbackDemo() {
   const thinkingMark = createThinkingMark($('#thinkingMark'));
-  thinkingMark.start();
   const setStatus = createStatusShimmer($('#loadingLabel'), $('#loadingText'));
-  setStatus('Organizing content', true);
-  let skeletonTimers = [];
+  const button = $('#skeletonBtn');
+  let phase = 'working';
+  let skeletonTimer = null;
   let skeletonObserver = null;
   const loadedTemplate = DemoI18n.clone($('#skeletonSlot'));
   function clearSkeleton() {
-    skeletonTimers.forEach(clearTimeout);
-    skeletonTimers = [];
+    clearTimeout(skeletonTimer);
+    skeletonTimer = null;
     skeletonObserver?.disconnect();
     skeletonObserver = null;
   }
@@ -101,39 +101,44 @@ function initFeedbackDemo() {
     thinkingMark.start();
     $('#skeletonSlot').replaceChildren();
     setStatus('Organizing content', true);
-    DemoI18n.text($('#skeletonBtn'), () => DemoI18n.t('Reload'));
-    skeletonTimers.push(
-      setTimeout(() => {
-        $('#skeletonSlot').innerHTML =
-          '<div class="skeleton-content" aria-label="Loading content"><div class="skeleton-sweep-clip" aria-hidden="true"><div class="skeleton-sweep-band"></div></div><div class="skeleton-line"></div><div class="skeleton-line"></div></div>';
-        const group = $('#skeletonSlot .skeleton-content'),
-          clip = group.querySelector('.skeleton-sweep-clip');
-        DemoI18n.attr(group, 'aria-label', () => DemoI18n.t('Loading content'));
-        // Clip one shared shimmer band to the rectangles of the direct-child rows.
-        const updateClip = () => {
-          const paths = [...group.querySelectorAll('.skeleton-line')].map(
-            (row) =>
-              `M${row.offsetLeft},${row.offsetTop}h${row.offsetWidth}v${row.offsetHeight}h${-row.offsetWidth}Z`
-          );
-          clip.style.clipPath = paths.length ? `path("${paths.join(' ')}")` : '';
-          clip.style.visibility = paths.length ? 'visible' : 'hidden';
-        };
-        updateClip();
-        skeletonObserver = new ResizeObserver(updateClip);
-        skeletonObserver.observe(group);
-      }, 500)
-    );
-    skeletonTimers.push(
-      setTimeout(() => {
-        thinkingMark.finish(() => {
-          clearSkeleton();
-          $('#skeletonSlot').replaceChildren(...DemoI18n.clone(loadedTemplate).childNodes);
-          setStatus('Example content is ready', false);
-        });
-      }, 2300)
-    );
+    phase = 'working';
+    button.removeAttribute('aria-disabled');
+    DemoI18n.text(button, () => DemoI18n.t('Finish'));
+    skeletonTimer = setTimeout(() => {
+      $('#skeletonSlot').innerHTML =
+        '<div class="skeleton-content" aria-label="Loading content"><div class="skeleton-sweep-clip" aria-hidden="true"><div class="skeleton-sweep-band"></div></div><div class="skeleton-line"></div><div class="skeleton-line"></div></div>';
+      const group = $('#skeletonSlot .skeleton-content'),
+        clip = group.querySelector('.skeleton-sweep-clip');
+      DemoI18n.attr(group, 'aria-label', () => DemoI18n.t('Loading content'));
+      // Clip one shared shimmer band to the rectangles of the direct-child rows.
+      const updateClip = () => {
+        const paths = [...group.querySelectorAll('.skeleton-line')].map(
+          (row) =>
+            `M${row.offsetLeft},${row.offsetTop}h${row.offsetWidth}v${row.offsetHeight}h${-row.offsetWidth}Z`
+        );
+        clip.style.clipPath = paths.length ? `path("${paths.join(' ')}")` : '';
+        clip.style.visibility = paths.length ? 'visible' : 'hidden';
+      };
+      updateClip();
+      skeletonObserver = new ResizeObserver(updateClip);
+      skeletonObserver.observe(group);
+    }, 500);
   }
-  $('#skeletonBtn').onclick = runSkeleton;
+  button.onclick = () => {
+    if (phase === 'done') return runSkeleton();
+    if (phase !== 'working') return;
+    phase = 'finishing';
+    button.setAttribute('aria-disabled', 'true');
+    thinkingMark.finish(() => {
+      clearSkeleton();
+      $('#skeletonSlot').replaceChildren(...DemoI18n.clone(loadedTemplate).childNodes);
+      setStatus('Example content is ready', false);
+      phase = 'done';
+      button.removeAttribute('aria-disabled');
+      DemoI18n.text(button, () => DemoI18n.t('Replay'));
+    });
+  };
+  runSkeleton();
   $('#timelineTrigger').onclick = () => {
     const open = $('#timelineTrigger').getAttribute('aria-expanded') !== 'true';
     $('#timelineTrigger').setAttribute('aria-expanded', String(open));

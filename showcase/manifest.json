@@ -42,8 +42,8 @@
     },
     {
       "name": "components/feedback.js",
-      "sha256": "d8669e4dde21badf1cc8196abb95e9393fa30d071ab74efa6ab5ca9a865ecab4",
-      "bytes": 5492
+      "sha256": "26576564f6999bf476a38a56381546be99c7cd730320d29f5203d2ef6136e94e",
+      "bytes": 5685
     },
     {
       "name": "components/status-assets/default-loop.webp",
@@ -227,8 +227,8 @@
     },
     {
       "name": "i18n.js",
-      "sha256": "969e73456ba7d558b80a27c98a45d645b30d3e0a3eb54f44cab4df160a4286e1",
-      "bytes": 24027
+      "sha256": "ce13c665e2a5b94f9a743a5a02fc647157401befd953bd9d9a53c33edb55cb52",
+      "bytes": 24043
     },
     {
       "name": "icons.js",
@@ -237,7 +237,7 @@
     },
     {
       "name": "index.html",
-      "sha256": "ad7596507997c3574f11123c6592d30f821cffd7e27363eefeef2eea5178a6e1",
+      "sha256": "150c28bede7592bfbd68606275a18dba5d3820d2e3b1fe1cae07fe8d9c5cecb5",
       "bytes": 39777
     },
     {
