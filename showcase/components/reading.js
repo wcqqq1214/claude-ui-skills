@@ -35,19 +35,28 @@ function initReadingDemo() {
 
 function bindReadingNumberSample() {
   const value = $('#readingNumberValue');
-  const samples = ['00:11.11', '00:18.88', '00:22.22', '00:37.77', '00:44.44', '00:58.88'];
-  let timer;
-  $('#replayReadingNumbers').onclick = () => {
+  let frame = 0, timer, visible = false, active = true;
+  function stop() {
     clearInterval(timer);
-    let index = 0;
-    value.textContent = samples[index];
-    // Fixed presentation frames, never elapsed time or usage statistics.
+    timer = undefined;
+  }
+  function sync() {
+    stop();
+    if (!active || !visible || document.hidden) return;
+    // Presentation frames only: fixed format, never elapsed time or usage statistics.
     timer = setInterval(() => {
-      value.textContent = samples[++index];
-      if (index === samples.length - 1) clearInterval(timer);
-    }, 650);
-  };
-  window.addEventListener('pagehide', () => clearInterval(timer));
+      frame = (frame + 7) % 6000;
+      value.textContent = `00:${String(Math.floor(frame / 100)).padStart(2, '0')}.${String(frame % 100).padStart(2, '0')}`;
+    }, 50);
+  }
+  const observer = new IntersectionObserver(([entry]) => {
+    visible = entry.isIntersecting;
+    sync();
+  });
+  observer.observe(value);
+  document.addEventListener('visibilitychange', sync);
+  window.addEventListener('pagehide', () => { active = false; stop(); });
+  window.addEventListener('pageshow', () => { active = true; sync(); });
 }
 
 function bindReadingCodeCopy() {

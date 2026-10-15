@@ -5,7 +5,6 @@ const DemoI18n = (() => {
   "Reading width": "阅读宽度",
   "{0} em · Maximum {1} px": "{0} em · 最大 {1} px",
   "Stable digits · Simulated time": "数字稳定 · 模拟时间",
-  "Replay number sample": "重播数字示例",
   "Mock attachments": "模拟附件",
   "Add mock attachment": "添加模拟附件",
   "Remove {0}": "移除 {0}",
