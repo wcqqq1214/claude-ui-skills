@@ -266,7 +266,7 @@ const DemoI18n = (() => {
   "Selected: {0}": "已选：{0}",
   "Interface": "界面",
   "Updates": "更新",
-  "No matching components": "没有匹配的组件",
+  "No matching settings": "没有匹配的设置",
   "Selected {0} · Arrows move focus only": "已选 {0} · 方向键只移动焦点",
   "Show 3 items": "切换为 3 项",
   "Done: reading rhythm and visual hierarchy organized.": "已完成：整理阅读节奏与视觉层级。",

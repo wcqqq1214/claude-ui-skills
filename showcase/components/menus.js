@@ -112,7 +112,7 @@ function initMenusDemo() {
     });
     if (!rows.length) {
       const p = document.createElement('p');
-      DemoI18n.text(p, () => DemoI18n.t('No matching components'));
+      DemoI18n.text(p, () => DemoI18n.t('No matching settings'));
       p.setAttribute('role', 'status');
       host.append(p);
     }
