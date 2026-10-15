@@ -163,7 +163,7 @@ const DemoI18n = (() => {
   "Connect parameters to specific components.": "把参数与具体组件联系起来。",
   "Record the limits": "记录边界",
   "Separate observations from static parameters.": "将实测结果和静态参数分开。",
-  "expand; collapse adapted locally": "展开；收起为本地适配",
+  "expand / collapse": "展开／收起",
   "Design notes": "设计笔记",
   "Expand file panel": "展开文件面板",
   "Resize file list": "调整文件列表宽度",

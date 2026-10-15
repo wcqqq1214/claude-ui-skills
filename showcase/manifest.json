@@ -272,8 +272,8 @@
     },
     {
       "name": "i18n.js",
-      "sha256": "3511bb61b6b0755c7e2bd6c0568b64f3e9ace320e8a4ccfed87944070e708271",
-      "bytes": 25244
+      "sha256": "93548325053292fe403cf515b662b1ae8e2ca96d8683e509255b5f86adae207e",
+      "bytes": 25214
     },
     {
       "name": "icons.js",
@@ -282,8 +282,8 @@
     },
     {
       "name": "index.html",
-      "sha256": "b77fb845e50e5b126fbe0943bdc5722da5216f7b80aef1992bad6289b2b37b13",
-      "bytes": 52284
+      "sha256": "29fcffbecf741fa9f17c281657ad794e42f79fbe7feb1d6a22109bff58c956a9",
+      "bytes": 52269
     },
     {
       "name": "landscape-dusk.svg",
