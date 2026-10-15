@@ -2,34 +2,18 @@
 function initWorkspaceDemo() {
   const docs = {
     notes: {
-      name: 'design-notes.md',
-      get code() {
-        return DemoI18n.t(
-          '# Leave room for content\n\nFold a complex process into an expandable layer.\nKeep common actions within reach,\nand reveal details when needed.\n\n- Keep the reading position\n- Make state changes visible\n- Return to the original workspace after closing'
-        );
-      },
-      get html() {
-        return DemoI18n.t(
-          '<h3>Leave room for content</h3><p>Fold a complex process into an expandable layer. Keep common actions within reach, and reveal details when needed.</p><ul><li>Keep the reading position</li><li>Make state changes visible</li><li>Return to the original workspace after closing</li></ul>'
-        );
-      }
+      name: 'panel-layout-and-resize-notes.md',
+      get code() { return DemoI18n.t("# Space follows the content\n\nAs the panel narrows, filenames shorten while view controls stay visible.\n\n- Switch files without leaving Preview or Code\n- Expand the preview, then restore the chosen width"); },
+      get html() { return DemoI18n.t("<h3>Space follows the content</h3><p>As the panel narrows, filenames shorten while view controls stay visible.</p><ul><li>Switch files without leaving Preview or Code</li><li>Expand the preview, then restore the chosen width</li></ul>"); }
     },
     tokens: {
-      name: 'motion-tokens.css',
-      code: ':root {\n  --cds-dur-fast: 60ms;\n  --cds-dur-snap: 120ms;\n  --cds-dur-base: 200ms;\n  --cds-dur-sheet: 300ms;\n  --cds-dur-slow: 450ms;\n}',
+      name: 'panel-layout.css',
+      code: ".workspace-layout {\n  grid-template-columns:\n    clamp(160px, var(--pane-width),\n      min(520px, 60%))\n    5px minmax(0, 1fr);\n}",
       get html() {
-        return (
-          DemoI18n.t('<h3>Five measures of time</h3>') +
-          [
-            ['fast', '60 ms'],
-            ['snap', '120 ms'],
-            ['base', '200 ms'],
-            ['sheet', '300 ms'],
-            ['slow', '450 ms']
-          ]
-            .map((x) => `<div class="token-row"><span>${x[0]}</span><code>${x[1]}</code></div>`)
-            .join('')
-        );
+        return DemoI18n.t('<h3>Bounded, flexible columns</h3>') +
+          [['Minimum', '160px'], ['Initial', '244px'], ['Maximum', 'min(520px, 60%)']]
+            .map(([label, value]) => `<div class="token-row"><span>${DemoI18n.t(label)}</span><code>${value}</code></div>`)
+            .join('');
       }
     }
   };
@@ -38,6 +22,7 @@ function initWorkspaceDemo() {
   function renderFile() {
     const d = docs[currentFile];
     $('#fileName').textContent = d.name;
+    $('#fileName').title = d.name;
     if (fileMode === 'preview') $('#fileContent').innerHTML = d.html;
     else {
       const pre = document.createElement('pre');
@@ -51,6 +36,7 @@ function initWorkspaceDemo() {
       $('#fileContent').replaceChildren(pre);
     }
   }
+  $$('[data-file]').forEach(button => { button.title = docs[button.dataset.file].name; });
   $$('[data-file]').forEach(
     (b) =>
       (b.onclick = () => {
@@ -98,6 +84,7 @@ function initWorkspaceDemo() {
     handle.focus();
     resizeStart = { x: e.clientX, width: measuredPane(), changed: false };
     handle.setPointerCapture(e.pointerId);
+    panel.toggleAttribute('data-resizing', true);
   };
   handle.onpointermove = (e) => {
     if (!resizeStart) return;
@@ -110,6 +97,7 @@ function initWorkspaceDemo() {
     if (commit && resizeStart.changed && measuredPane() !== resizeStart.width)
       paneWidth = measuredPane();
     resizeStart = null;
+    panel.removeAttribute('data-resizing');
     renderPane();
   }
   handle.onpointerup = () => finishResize(true);

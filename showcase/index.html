@@ -375,9 +375,8 @@
               ><div class="workspace-toolbar"
                 ><span
                   ><span class="document-icon" data-ui-icon="File" data-icon-size="20"></span>
-                  Design notes</span
+                  Resize, switch, restore</span
                 ><div
-                  ><span id="paneWidth" class="numeric">244 px</span
                   ><button
                     id="expandPanel"
                     class="icon-button"
@@ -388,15 +387,16 @@
                   ></button></div></div
               ><div class="workspace-layout" id="workspaceLayout"
                 ><aside class="file-list" id="fileList"
-                  ><div class="file-label">CONTENTS</div
+                  ><div class="file-list-heading"><span class="file-label">Files</span><span id="paneWidth" class="numeric">244 px</span></div><p class="resize-hint">Drag the divider →</p
                   ><button class="file active" data-file="notes"
-                    ><span data-ui-icon="File"></span> design-notes.md</button
+                    ><span data-ui-icon="File"></span><span class="file-name" translate="no">panel-layout-and-resize-notes.md</span></button
                   ><button class="file" data-file="tokens"
-                    ><span data-ui-icon="Code"></span> motion-tokens.css</button
+                    ><span data-ui-icon="Code"></span><span class="file-name" translate="no">panel-layout.css</span></button
                   ></aside
                 ><div
                   class="resize-handle"
                   id="resizeHandle"
+                  title="Arrows: 8px · Shift: 32px · Enter: reset"
                   role="separator"
                   tabindex="0"
                   aria-label="Resize file list"
@@ -407,14 +407,14 @@
                 ></div
                 ><div class="file-preview"
                   ><div class="preview-toolbar"
-                    ><span id="fileName">design-notes.md</span
+                    ><span id="fileName">panel-layout-and-resize-notes.md</span
                     ><div
                       class="segment compact"
                       id="fileSegment"
                       role="radiogroup"
                       aria-label="File view"
                       ><span class="segment-thumb" aria-hidden="true"></span
-                      ><button role="radio" aria-checked="true" tabindex="0" data-value="preview" translate="no"
+                      ><button role="radio" aria-checked="true" tabindex="0" data-value="preview"
                         >Preview</button
                       ><button role="radio" aria-checked="false" tabindex="-1" data-value="code"
                         >Code</button
@@ -422,7 +422,7 @@
                     ></div
                   ><article id="fileContent" class="file-content"></article></div></div
               ><div class="spec-footer"
-                ><span><b>8 px</b> arrow key step</span><span><b>F6 / Shift F6</b> switch regions</span></div
+                ><span>Filename yields; view controls stay visible</span><span><b>200ms</b> cubic-bezier(.32,.72,0,1)</span><span>Restore keeps the chosen width</span></div
               ></div
             >
           </section>
