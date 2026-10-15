@@ -6,48 +6,34 @@ function initComposerDemo() {
       name: 'prototype',
       get label() {
         return DemoI18n.t('Prototype');
-      },
-      get desc() {
-        return DemoI18n.t('Use a small example to check layout and interaction directly.');
       }
     },
     {
       name: 'research',
       get label() {
         return DemoI18n.t('Design research');
-      },
-      get desc() {
-        return DemoI18n.t('Collect observations, evidence and unknowns for a question.');
       }
     },
     {
       name: 'notes',
       get label() {
         return DemoI18n.t('Organize notes');
-      },
-      get desc() {
-        return DemoI18n.t('Give scattered observations an easy-to-read structure.');
       }
     },
     {
       name: 'review',
       get label() {
         return DemoI18n.t('Review details');
-      },
-      get desc() {
-        return DemoI18n.t('Check spacing, state feedback and keyboard paths.');
       }
     }
   ];
   const prompt = $('#promptInput'),
-    menu = $('#commandMenu'),
-    commandDetail = $('#commandDescription');
+    menu = $('#commandMenu');
   let matches = [],
     activeCommand = 0,
     menuDismissed = false;
-  document.body.append(commandDetail);
-  commandDetail.hidden = true;
   function renderCommands() {
+    updateHint();
     const list = $('#commandList');
     list.replaceChildren();
     if (!matches.length) {
@@ -55,7 +41,6 @@ function initComposerDemo() {
       t.className = 'command-empty';
       DemoI18n.text(t, () => DemoI18n.t('No matching suggestions'));
       list.append(t);
-      commandDetail.hidden = true;
       prompt.removeAttribute('aria-activedescendant');
       return;
     }
@@ -79,66 +64,28 @@ function initComposerDemo() {
       row.onclick = () => chooseCommand(i);
       list.append(row);
     });
-    const selectedCommand = matches[activeCommand];
-    DemoI18n.text(commandDetail, () => selectedCommand.desc);
     prompt.setAttribute('aria-activedescendant', 'command-option-' + activeCommand);
-    positionCommandDetail();
   }
-  function positionCommandDetail() {
-    const row = $('#command-option-' + activeCommand);
-    if (menu.hidden || !row || !matches.length) {
-      commandDetail.hidden = true;
-      return;
-    }
-    const rect = row.getBoundingClientRect(),
-      clip = $('#commandList').getBoundingClientRect();
-    if (
-      rect.bottom <= Math.max(clip.top, 0) ||
-      rect.top >= Math.min(clip.bottom, innerHeight) ||
-      rect.right <= 0 ||
-      rect.left >= innerWidth
-    ) {
-      commandDetail.hidden = true;
-      return;
-    }
-    commandDetail.hidden = false;
-    commandDetail.style.maxWidth = Math.max(0, Math.min(416, innerWidth - 64)) + 'px';
-    const right = innerWidth - rect.right - 16,
-      left = rect.left - 16,
-      flip = right < commandDetail.offsetWidth && left > right,
-      space = flip ? left : right;
-    commandDetail.style.maxWidth =
-      Math.max(0, Math.min(innerWidth - 16, 416, Math.max(160, Math.floor(space)))) + 'px';
-    const x = flip ? rect.left - 8 - commandDetail.offsetWidth : rect.right + 8;
-    commandDetail.style.left =
-      Math.max(8, Math.min(x, innerWidth - commandDetail.offsetWidth - 8)) + 'px';
-    commandDetail.style.top =
-      Math.max(8, Math.min(rect.top, innerHeight - commandDetail.offsetHeight - 8)) + 'px';
+  function updateHint() {
+    DemoI18n.text($('#composerHint'), () => {
+      if (!menu.hidden) return DemoI18n.t(matches.length
+        ? '↑ ↓ to choose · Enter to insert · Esc to close'
+        : 'Edit your query · Esc to close');
+      return DemoI18n.t(prompt.value.trim()
+        ? 'Enter to send · Shift Enter for a new line'
+        : 'Type / for suggestions');
+    });
   }
-  let commandDetailFrame = 0;
-  function queueCommandDetail() {
-    if (!commandDetailFrame)
-      commandDetailFrame = requestAnimationFrame(() => {
-        commandDetailFrame = 0;
-        positionCommandDetail();
-      });
-  }
-  new ResizeObserver(queueCommandDetail).observe(menu);
-  window.addEventListener('resize', queueCommandDetail);
-  document.addEventListener('scroll', queueCommandDetail, true);
   function closeCommands() {
-    commandDetail.hidden = true;
     menu.hidden = true;
     prompt.setAttribute('aria-expanded', 'false');
     prompt.removeAttribute('aria-activedescendant');
+    updateHint();
   }
   function updateComposer() {
     prompt.style.height = 'auto';
     prompt.style.height = Math.min(prompt.scrollHeight, 130) + 'px';
     $('#sendBtn').disabled = !prompt.value.trim();
-    DemoI18n.text($('#composerHint'), () =>
-      prompt.value ? DemoI18n.t('Enter to send · Shift Enter for a new line') : DemoI18n.t('Type / for suggestions')
-    );
     if (prompt.value.startsWith('/') && !menuDismissed) {
       const q = prompt.value.slice(1).toLowerCase().trim();
       matches = commands.filter((x) => x.name.includes(q) || x.label.includes(q));
