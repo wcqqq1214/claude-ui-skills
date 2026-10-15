@@ -282,8 +282,8 @@
     },
     {
       "name": "index.html",
-      "sha256": "c6913495d3b144916138280b1646adb7bd7ba1c8f5d46b47d1c5d73752c90331",
-      "bytes": 41955
+      "sha256": "2f8f0c8b5484e5666c2084dff03a06221cff5f55da3ed4ceddd163a72b8eaeae",
+      "bytes": 42015
     },
     {
       "name": "landscape-dusk.svg",
@@ -317,8 +317,8 @@
     },
     {
       "name": "style.css",
-      "sha256": "246e13408ec0a80be65e68f18196350cfbc3621bb1dfcda9d392a2a7d2bc9a9f",
-      "bytes": 13213
+      "sha256": "e1fb45a45b8775385a5c07bfdbfbf5095acabbb6db9f5cf64d5a33707cdf79ac",
+      "bytes": 14466
     }
   ],
   "network_dependencies": [],
