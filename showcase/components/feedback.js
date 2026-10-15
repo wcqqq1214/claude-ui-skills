@@ -67,9 +67,26 @@ function createThinkingMark(host) {
     },
   };
 }
+// ShimmerText secondary: a stable clone keeps the sweep phase when copy changes.
+function createStatusShimmer(label, text) {
+  const clone = document.createElement('span');
+  clone.className = 'status-shimmer-clone';
+  clone.setAttribute('aria-hidden', 'true');
+  clone.setAttribute('translate', 'no');
+  label.append(clone);
+  const sync = () => { clone.textContent = label.dataset.shimmering === 'true' ? text.textContent : ''; };
+  DemoI18n.onChange(sync);
+  return (source, active) => {
+    DemoI18n.text(text, () => DemoI18n.t(source));
+    label.dataset.shimmering = String(active);
+    sync();
+  };
+}
 function initFeedbackDemo() {
   const thinkingMark = createThinkingMark($('#thinkingMark'));
   thinkingMark.start();
+  const setStatus = createStatusShimmer($('#loadingLabel'), $('#loadingText'));
+  setStatus('Organizing content', true);
   let skeletonTimers = [];
   let skeletonObserver = null;
   const loadedTemplate = DemoI18n.clone($('#skeletonSlot'));
@@ -83,7 +100,7 @@ function initFeedbackDemo() {
     clearSkeleton();
     thinkingMark.start();
     $('#skeletonSlot').replaceChildren();
-    DemoI18n.text($('#loadingLabel'), () => DemoI18n.t('Organizing content'));
+    setStatus('Organizing content', true);
     DemoI18n.text($('#skeletonBtn'), () => DemoI18n.t('Reload'));
     skeletonTimers.push(
       setTimeout(() => {
@@ -111,7 +128,7 @@ function initFeedbackDemo() {
         thinkingMark.finish(() => {
           clearSkeleton();
           $('#skeletonSlot').replaceChildren(...DemoI18n.clone(loadedTemplate).childNodes);
-          DemoI18n.text($('#loadingLabel'), () => DemoI18n.t('Example content is ready'));
+          setStatus('Example content is ready', false);
         });
       }, 2300)
     );

@@ -45,6 +45,69 @@
 .thinking-mark:is([data-phase='dot'], [data-phase='done']) .thinking-strip {
   visibility: hidden;
 }
+.status-shimmer {
+  --shimmer-base: var(--secondary);
+  --shimmer-peak: color-mix(in srgb, var(--shimmer-base) 30%, white);
+  display: block;
+  position: relative;
+  min-width: 0;
+}
+[data-theme='dark'] .status-shimmer { --shimmer-base: var(--muted); }
+.status-shimmer[data-shimmering='true'] {
+  background-image: linear-gradient(120deg, var(--shimmer-base) 37.5%, var(--shimmer-peak) 50%, var(--shimmer-base) 62.5%);
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-repeat: no-repeat;
+  background-size: 400% 100%;
+  background-position: 83.333% 0;
+  animation: status-shimmer-shine 3s linear infinite;
+}
+.status-shimmer-clone { display: none; }
+@keyframes status-shimmer-shine {
+  0%, 15% {
+    background-position: 83.333% 0;
+    animation-timing-function: cubic-bezier(.714, .121, .211, .888);
+  }
+  85%, 100% { background-position: 16.667% 0; }
+}
+@keyframes status-shimmer-band {
+  0%, 15% {
+    translate: -62.5%;
+    animation-timing-function: cubic-bezier(.714, .121, .211, .888);
+  }
+  85%, 100% { translate: -12.5%; }
+}
+/* This example is a block flex item without line clamping. */
+@supports ((-webkit-mask-clip: text) and (-webkit-app-region: drag)) {
+  .status-shimmer[data-shimmering='true'] {
+    background: none;
+    -webkit-text-fill-color: var(--shimmer-base);
+    animation: none;
+  }
+  .status-shimmer[data-shimmering='true'] .status-shimmer-clone {
+    display: block;
+    position: absolute;
+    inset: 0;
+    box-sizing: border-box;
+    padding: inherit;
+    white-space: inherit;
+    text-overflow: inherit;
+    pointer-events: none;
+    user-select: none;
+    -webkit-text-fill-color: transparent;
+    -webkit-mask-image: linear-gradient(#000 0 0);
+    -webkit-mask-clip: text;
+    overflow: clip;
+  }
+  .status-shimmer-clone::after {
+    content: '';
+    position: absolute;
+    inset: 0 -300% 0 0;
+    background-image: linear-gradient(120deg, transparent 37.5%, var(--shimmer-peak) 50%, transparent 62.5%);
+    translate: -62.5%;
+    animation: status-shimmer-band 3s linear infinite;
+  }
+}
 .skeleton-slot {
   --skeleton-base: rgb(11 11 11 / 5%);
   --skeleton-sheen: rgb(11 11 11 / 5%);
