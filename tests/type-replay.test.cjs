@@ -63,42 +63,48 @@ test('replay leaves the introduction visible, then appends content progressively
   r.resize();
   assert.equal(n['#streamParagraphs'].children.length, 0);
   assert.equal(n['#typeScroll'].scrollTop, 0);
-  r.advance(1200);
+  r.advance(399);
   assert.equal(n['#typeScroll'].scrollTop, 0);
-  r.advance(600);
+  r.advance(1);
   assert.equal(n['#streamParagraphs'].children.length, 1);
   assert.equal(n['#typeScroll'].scrollTop, 500);
-  r.advance(3000);
+  r.advance(700);
   assert.equal(n['#streamParagraphs'].children.length, 2);
+  r.advance(700);
+  assert.equal(n['#streamParagraphs'].children.length, 3);
+  r.advance(1999);
+  assert.equal(n['#streamParagraphs'].children.length, 3);
+  r.advance(1);
+  assert.equal(n['#streamParagraphs'].children.length, 4);
   r.replay(); r.replay(); r.resize();
   assert.equal(n['#streamParagraphs'].children.length, 0);
   assert.equal(n['#typeScroll'].scrollTop, 0);
-  r.advance(22800);
+  r.advance(11800);
   assert.equal(n['#streamParagraphs'].children.length, 8);
 });
 
 test('leaving cancels pending playback and returning starts a fresh introduction', () => {
   const r = reader(), n = r.nodes;
-  r.advance(1800);
+  r.advance(400);
   r.chapter(false);
   r.advance(30000);
   assert.equal(n['#streamParagraphs'].children.length, 1);
   r.chapter(true); r.resize();
   assert.equal(n['#streamParagraphs'].children.length, 0);
   assert.equal(n['#typeScroll'].scrollTop, 0);
-  r.advance(1800);
+  r.advance(400);
   assert.equal(n['#streamParagraphs'].children.length, 1);
 });
 
 
 test('the scroll card pauses offscreen and restarts on return', () => {
   const r = reader(), n = r.nodes;
-  r.advance(1800);
+  r.advance(400);
   r.visible(false);
   r.advance(30000);
   assert.equal(n['#streamParagraphs'].children.length, 1);
   r.visible(true);
   assert.equal(n['#streamParagraphs'].children.length, 0);
-  r.advance(1800);
+  r.advance(400);
   assert.equal(n['#streamParagraphs'].children.length, 1);
 });

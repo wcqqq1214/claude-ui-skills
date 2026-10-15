@@ -149,12 +149,12 @@ function initTypeDemo() {
       $('#streamParagraphs').append(p);
       if (i === paragraphs.length - 1) typePlaying = false;
     }
-    // Let the static introduction be seen before growing the local reading area.
+    // Establish overflow quickly, then leave time to explore pause and return.
     paragraphs.forEach((text, i) => {
       typeTimers.push(setTimeout(() => {
         appendParagraph(text, i);
         followType();
-      }, 1800 + i * 3000));
+      }, i < 3 ? 400 + i * 700 : 1800 + (i - 2) * 2000));
     });
     followType();
   }
@@ -192,7 +192,7 @@ function bindTypeEffectCards() {
   const workingButton = $('#workingPreview');
   const strip = workingButton.querySelector('.type-working-strip');
   function renderTypeTitle(animate = true) {
-    const title = DemoI18n.t('Start with an idea.');
+    const title = DemoI18n.t('Start with an idea, then watch each letter come into focus, one after another.');
     const chars =
       typeof Intl.Segmenter === 'function'
         ? [...new Intl.Segmenter(DemoI18n.locale, { granularity: 'grapheme' }).segment(title)].map(

@@ -28,11 +28,12 @@
 }
 #revealTitle {
   font-family: var(--study-serif);
-  font-size: 29px;
+  font-size: 18px;
+  line-height: 1.65;
   font-weight: var(--regular);
   margin: 13px 0 13px;
   min-height: 40px;
-  letter-spacing: -0.5px;
+  letter-spacing: normal;
 }
 .reading p {
   font-size: 13px;
@@ -89,9 +90,6 @@
 @media (max-width: 620px) {
   .reading {
     padding: 7px 25px 23px;
-  }
-  #revealTitle {
-    font-size: 28px;
   }
   .reading p {
     min-height: 0;
