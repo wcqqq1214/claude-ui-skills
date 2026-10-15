@@ -1,4 +1,6 @@
 .measure-prose {
+  --inline-code-text: #8e2626;
+  --inline-code-fill: rgb(11 11 11 / 5%);
   font-size: var(--reading-body, 15px);
   line-height: 1.6;
   max-width: 36em;
@@ -6,6 +8,21 @@
   padding: 0;
   text-wrap: pretty;
   overflow-wrap: anywhere;
+}
+[data-theme='dark'] .measure-prose {
+  --inline-code-text: #ec7e7e;
+  --inline-code-fill: rgb(255 255 255 / 5%);
+}
+.measure-prose code:not(pre code) {
+  color: var(--inline-code-text);
+  background: var(--inline-code-fill);
+  border: 0.5px solid var(--line);
+  white-space: pre-wrap;
+  overflow-wrap: break-word;
+  border-radius: 0.4em;
+  padding: 0.0625em 0.25em;
+  font-size: 0.9em;
+  line-height: 1;
 }
 .measure-prose h3 {
   font-size: 1.3em;

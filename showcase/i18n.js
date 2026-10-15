@@ -120,6 +120,8 @@ const DemoI18n = (() => {
   "Good reading starts with room for content.": "好的阅读，从容纳内容开始。",
   "Text needs space and boundaries. Headings balance line lengths; paragraphs wrap naturally. Long identifiers can break when needed, while numbers keep a fixed width.": "文本需要空间，也需要边界。标题平衡行长，段落使用自然换行；较长的标识符可以在必要时断开，数字则保持等宽。",
   "Inline icons align 0.125em below the baseline.": "行内图标向下对齐 0.125em。",
+  "Inline references such as": "例如",
+  "stay within the paragraph.": "这样的行内引用可以融入段落。",
   "Wide table · Scroll horizontally": "宽表格 · 横向滚动",
   "Expand table ↗": "展开表格 ↗",
   "Motion parameters table": "动效参数表格",
