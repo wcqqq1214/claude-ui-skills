@@ -318,17 +318,16 @@
             >
             <div class="feedback-grid"
               ><div class="card waiting-card"
-                ><div class="demo-toolbar"
-                  ><button class="button small" id="skeletonBtn">Finish</button></div
-                >
+                ><div class="waiting-controls">
                 <div class="status-variants"><div class="segment compact" id="statusSegment" role="radiogroup" aria-label="Status animation">
                   <span class="segment-thumb" aria-hidden="true"></span>
                   <button role="radio" data-value="think" aria-checked="true" tabindex="0">Thinking</button>
                   <button role="radio" data-value="read" aria-checked="false" tabindex="-1">Reading</button>
                   <button role="radio" data-value="write" aria-checked="false" tabindex="-1">Writing</button>
                   <button role="radio" data-value="code" aria-checked="false" tabindex="-1">Coding</button>
-                </div></div
-                ><div class="status-line"
+                </div></div>
+                  <button class="button small" id="skeletonBtn">Finish</button>
+                </div><div class="status-line"
                   ><span class="thinking-mark" id="thinkingMark" data-phase="dot" aria-hidden="true"><span class="thinking-strip"></span></span
                   ><span id="loadingLabel" class="status-shimmer"><span id="loadingText">Organizing content</span></span></div
                 ><div class="skeleton-slot" id="skeletonSlot"

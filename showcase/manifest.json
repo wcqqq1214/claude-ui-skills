@@ -37,8 +37,8 @@
     },
     {
       "name": "components/feedback.css",
-      "sha256": "ee577a105218f5336dc83076bf3ae037ea20f69bd5a64a9bddc0a13db490a268",
-      "bytes": 6454
+      "sha256": "734456701044d014a9ffdb74acdfd08423c335729d99f4346540e0733cb86d08",
+      "bytes": 6667
     },
     {
       "name": "components/feedback.js",
@@ -282,8 +282,8 @@
     },
     {
       "name": "index.html",
-      "sha256": "fca84e2b51b34729362f69fc7505fdb8d2bc60e985683241e7fc1ffddce04bde",
-      "bytes": 48500
+      "sha256": "8c184e5d74ea0afdb7a262fffda1b04d632dd3fc77c041a31d106da111f96713",
+      "bytes": 48487
     },
     {
       "name": "landscape-dusk.svg",
