@@ -162,7 +162,7 @@ function initMenusDemo() {
   };
 }
 
-//  destination highlight: settle scroll, draw/wash, then clean up.
+// Destination highlight: settle scroll, draw/wash, then clean up.
 // The demo owns fixed chapter targets; no settings search or deferred row mounting.
 function highlightSearchTarget(row, title) {
   function containers() {

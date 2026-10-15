@@ -52,7 +52,7 @@
   margin: 20px 0 8px;
 }
 .local-search {
-  /*  settings search shell, mapped onto this single input. */
+  /* Settings search shell, mapped onto this single input. */
   --search-field: #ffffff80;
   --search-border-strong: rgb(11 11 11 / 20%);
   --search-focus-glow: #cde2fb;

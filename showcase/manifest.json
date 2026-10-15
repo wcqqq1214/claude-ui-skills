@@ -137,13 +137,13 @@
     },
     {
       "name": "components/menus.css",
-      "sha256": "acbff23d4b55133f27d9f08e6c6195cbc00d8415d6877fe62407bc87253f937c",
-      "bytes": 5857
+      "sha256": "3f83802559d93bb0332e659b1970fbda8bd10557213b8c97d65d55edfba33b9d",
+      "bytes": 5856
     },
     {
       "name": "components/menus.js",
-      "sha256": "c79f9cc1f9a8643d8d2af0edc141d379bdd1b7b7fc97f06f248c5a3e4fa7ff1e",
-      "bytes": 10216
+      "sha256": "0801783f942c4fe1807450aad23b6330e65f2de108fb378f424096165b867aa1",
+      "bytes": 10215
     },
     {
       "name": "components/micro.css",
@@ -277,8 +277,8 @@
     },
     {
       "name": "icons.js",
-      "sha256": "0d92aee50dc802d6ac22a39e8c1b34b57ab7ac300892ca1f72cc8783aaf65b05",
-      "bytes": 1318
+      "sha256": "a25411c63487cd8cb14e384a9d5c1ef4f7fa1e2e8289cc169bb95f9fe345777b",
+      "bytes": 1314
     },
     {
       "name": "index.html",

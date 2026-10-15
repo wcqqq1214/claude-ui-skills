@@ -10,3 +10,6 @@ node_modules/
 .cache/
 docs/evidence/
 *.gitbundle
+
+# Private working notes stay local.
+docs/*-records/

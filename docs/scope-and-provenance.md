@@ -6,7 +6,7 @@ Claude UI Skills is an unofficial reference for UI, frontend presentation, typog
 
 The implementation reference is the demo's readable HTML, JS and CSS. Install the complete repository so each scenario guide can resolve its running code and shared dependencies.
 
-Checks apply only to the documented components and interaction paths. Recorded observations do not establish compatibility with future versions.
+Checks apply only to the documented components and interaction paths. Recorded observations are not fresh runtime verification.
 
 The demo uses bundled text/icon fonts and selected design parameters alongside local layout, artwork, sample data, timing and platform adaptations. Chinese glyphs use system fallback chains. A working example does not establish original-app pixel or frame parity, GPU usage, CPU savings or complete application coverage.
 

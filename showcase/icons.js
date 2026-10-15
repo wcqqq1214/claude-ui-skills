@@ -1,5 +1,5 @@
 "use strict";
-// Exact glyph map from ; UI placement is limited to existing demos.
+// Bundled glyph map; UI placement is limited to existing demos.
 const DemoIcons = (() => {
   const glyphs = {"Add":57345,"ArrowUp":57363,"ArrowDown":57353,"ArrowLeft":57356,"ArrowRight":57360,"ArrowClockwise":57629,"X":57615,"Expand":57447,"Collapse":57421,"ArrowUpRight":57365,"File":57452,"Code":57416,"Chat":57393,"Tasks":57585,"Check":57403,"CaretDown":57383,"Chats":57401,"Info":57487};
   const strokes = {12:.8,16:1,20:1.2,24:1.4,28:1.6,32:1.8};
