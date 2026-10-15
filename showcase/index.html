@@ -242,26 +242,34 @@
             <div class="section-head"
               ><div><h2>Segmented control</h2></div></div
             >
-            <div class="card segmented-card">
-              <div class="seg-stage">
-                <div class="segment" id="viewSegment" role="radiogroup" aria-label="Example view">
-                  <span class="segment-thumb" aria-hidden="true"></span>
-                  <button role="radio" aria-checked="true" tabindex="0" data-value="preview"
-                    >Preview</button
-                  >
-                  <button role="radio" aria-checked="false" tabindex="-1" data-value="code"
-                    >View code</button
-                  >
-                  <button role="radio" aria-checked="false" tabindex="-1" data-value="details"
-                    >Details</button
-                  >
+            <div class="segmented-grid">
+              <article class="card segmented-example" aria-labelledby="segmentMotionLabel">
+                <h3 id="segmentMotionLabel">Slider motion</h3>
+                <div class="seg-stage segmented-motion-stage">
+                  <div class="segment" id="viewSegment" role="radiogroup" aria-label="Example view">
+                    <span class="segment-thumb" aria-hidden="true"></span>
+                    <button role="radio" aria-checked="true" tabindex="0" data-value="preview">Preview</button>
+                    <button role="radio" aria-checked="false" tabindex="-1" data-value="code">View code</button>
+                    <button role="radio" aria-checked="false" tabindex="-1" data-value="details">Details</button>
+                  </div>
                 </div>
-                <div class="segment-content" id="segmentContent"></div>
-              </div>
-              <div class="spec-footer">
-                <span><b>200 ms</b> position &amp; width</span>
-                <span><b>← →</b> move &amp; select</span>
-              </div>
+                <div class="spec-footer"><span><b>200ms · 32px</b></span><span>← →</span></div>
+              </article>
+              <article class="card segmented-example" aria-labelledby="segmentCompactLabel">
+                <h3 id="segmentCompactLabel">Compact switching</h3>
+                <div class="seg-stage">
+                  <div class="segment compact" id="compactSegment" role="radiogroup" aria-label="Compact view">
+                    <span class="segment-thumb" aria-hidden="true"></span>
+                    <button id="compactPreviewOption" role="radio" aria-checked="true" tabindex="0" data-value="preview" aria-controls="segmentCompactPreview">Preview</button>
+                    <button id="compactCodeOption" role="radio" aria-checked="false" tabindex="-1" data-value="code" aria-controls="segmentCompactCode">View code</button>
+                  </div>
+                  <div class="segment-sample">
+                    <div id="segmentCompactPreview" role="region" aria-labelledby="compactPreviewOption"><strong translate="no">Hello, world.</strong></div>
+                    <pre id="segmentCompactCode" role="region" aria-labelledby="compactCodeOption" hidden><code>&lt;strong&gt;Hello, world.&lt;/strong&gt;</code></pre>
+                  </div>
+                </div>
+                <div class="spec-footer"><span><b>200ms · 24px</b></span><span>← →</span></div>
+              </article>
             </div>
           </section>
           <section class="specimen" id="composer">

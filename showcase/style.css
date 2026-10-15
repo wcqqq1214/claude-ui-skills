@@ -453,7 +453,6 @@ h2 {
 }
 .type-card,
 .controls-card,
-.segmented-card,
 .composer-card {
   display: flex;
   flex-direction: column;

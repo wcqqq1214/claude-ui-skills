@@ -1,11 +1,3 @@
-.seg-stage {
-  padding: 30px 25px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  flex: 1;
-}
-
 .segment {
   --seg-radius: 8px;
   --seg-font: 14px;
@@ -97,64 +89,29 @@
   height: 24px;
 }
 
-.segment-content {
-  margin-top: 27px;
-  align-self: stretch;
-  min-height: 156px;
-  font-size: 12px;
-  color: var(--secondary);
-  display: flex;
-  align-items: center;
-  justify-content: center;
+/* Chapter framing is local; control dimensions and animation stay shared. */
+#segmented { --chapter-width: 880px; }
+.segmented-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; min-width: 0; }
+.segmented-example { display: flex; flex-direction: column; min-width: 0; }
+.segmented-example > h3 { padding: 20px 20px 0; font-size: 14px; font-weight: var(--medium); }
+.seg-stage { padding: 24px 20px; display: flex; flex-direction: column; align-items: center; gap: 20px; flex: 1; }
+.segmented-motion-stage { justify-content: center; min-height: 144px; }
+.segment-sample { width: 100%; min-height: 92px; display: grid; place-items: center; padding: 16px; border-radius: 8px; background: var(--bg); color: var(--text); font-size: 15px; }
+.segment-sample pre { max-width: 100%; margin: 0; white-space: pre-wrap; overflow-wrap: anywhere; font-size: 12px; line-height: 1.6; }
+.segmented-example .spec-footer { border-radius: 0 0 11px 11px; }
+@media (min-width: 851px) {
+  #segmented[data-active] > .segmented-grid {
+    grid-area: 2 / 1; justify-self: center; align-self: start;
+    width: min(100% - 2 * var(--canvas-pad), var(--chapter-width));
+    margin: var(--canvas-pad) 0;
+  }
 }
-
-.segment-preview {
-  width: 100%;
-  border: 1px solid var(--line);
-  border-radius: 8px;
-  padding: 23px;
-  max-width: 340px;
-}
-
-.segment-preview h3 {
-  font-family: var(--study-serif);
-  font-size: 22px;
-  color: var(--text);
-  font-weight: var(--regular);
-  margin: 9px 0;
-}
-
-.segment-preview p {
-  font-size: 11px;
-  line-height: 1.9;
-}
-
-.segment-content pre {
-  width: 100%;
-  padding: 17px;
-  background: var(--bg);
-  border-radius: 8px;
-  font-size: 10px;
-  line-height: 1.9;
-  overflow: auto;
-  margin: 0;
-}
-
-.segment-content ul {
-  padding-left: 20px;
-  line-height: 2.2;
-  margin: 0;
-  font-size: 12px;
+@container (max-width: 700px) {
+  .segmented-grid { grid-template-columns: minmax(0, 1fr); gap: 16px; }
 }
 
 @media(max-width:1150px) {
   .segment button {
     padding: 8px 11px;
-  }
-}
-
-@media(max-width:620px) {
-  .segment-content {
-    min-height: 130px;
   }
 }

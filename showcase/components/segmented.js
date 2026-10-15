@@ -85,26 +85,15 @@ function setupSegment(root, callback) {
   return { select, refresh: () => position(false) };
 }
 
-// Sample content belongs to the demo; the control above only emits a value.
+// Independent demonstrations; both use the same control as the file toolbar.
 function initSegmentedDemo() {
-  const content = document.querySelector('#segmentContent');
-  setupSegment(document.querySelector('#viewSegment'), value => {
-    if (value === 'preview') {
-      DemoI18n.html(content, () => DemoI18n.t(
-        '<div class="segment-preview"><span class="eyebrow">A SMALL OBSERVATION</span>'
-        + '<h3>Leave room for content.</h3><p>Labels of different widths can still flow naturally.<br>'
-        + 'Try clicking, or use the left and right arrows.</p></div>'
-      ));
-    } else if (value === 'code') {
-      DemoI18n.html(content, () => DemoI18n.t(
-        '<pre><code>duration: 200ms\neasing: cubic-bezier(.32,.72,0,1)\n\n'
-        + 'translateX(selected position)\nscaleX(old width / new width)</code></pre>'
-      ));
-    } else {
-      DemoI18n.html(content, () => DemoI18n.t(
-        '<ul><li>Measure each option’s actual position and width</li><li>Keep 1px above and below the thumb</li>'
-        + '<li>Arrow keys move both focus and selection</li></ul>'
-      ));
-    }
+  const motion = setupSegment(document.querySelector('#viewSegment'), () => {});
+  const compact = setupSegment(document.querySelector('#compactSegment'), value => {
+    document.querySelector('#segmentCompactPreview').hidden = value !== 'preview';
+    document.querySelector('#segmentCompactCode').hidden = value !== 'code';
+  });
+  DemoI18n.onChange(() => {
+    motion.refresh();
+    compact.refresh();
   });
 }
