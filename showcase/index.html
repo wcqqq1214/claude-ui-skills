@@ -296,6 +296,12 @@
                 ><div class="demo-toolbar"
                   ><span class="tiny-label">Waiting state</span
                   ><button class="button small" id="skeletonBtn">Finish</button></div
+                ><div class="status-variants" role="group" aria-label="Status animation">
+                  <button class="button small" data-status-activity="think" aria-pressed="true">Thinking</button>
+                  <button class="button small" data-status-activity="read" aria-pressed="false">Reading</button>
+                  <button class="button small" data-status-activity="write" aria-pressed="false">Writing</button>
+                  <button class="button small" data-status-activity="code" aria-pressed="false">Coding</button>
+                </div
                 ><div class="status-line"
                   ><span class="thinking-mark" id="thinkingMark" data-phase="dot" aria-hidden="true"><span class="thinking-strip"></span></span
                   ><span id="loadingLabel" class="status-shimmer"><span id="loadingText">Organizing content</span></span></div
@@ -305,7 +311,7 @@
                     ><div><b>A clear set of design notes</b><p>Reading rhythm, state changes and spatial continuity</p></div></div
                   ></div
                 ><div class="spec-footer"
-                  ><span><b>3.67 s</b> dot cycle</span><span><b>500 ms</b> skeleton delay</span></div
+                  ><span><b id="statusCycle">3.67 s</b> dot cycle</span><span><b>500 ms</b> skeleton delay</span></div
                 ></div
               ><div class="card timeline-card"
                 ><button

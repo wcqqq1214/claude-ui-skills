@@ -1,17 +1,24 @@
 'use strict';
-// Thinking animation: 48px frames displayed in a 20px slot.
-function createThinkingMark(host) {
+// Activity animation: 48px frames displayed in a 20px slot.
+const STATUS_MARKS = {
+  think: {frames: [16, 110, 15], label: 'Organizing content'},
+  read: {frames: [21, 60, 19], label: 'Reading content'},
+  write: {frames: [31, 60, 14], label: 'Writing content'},
+  code: {frames: [16, 75, 9], label: 'Working with code'},
+};
+function createStatusMark(host) {
   const strip = host.querySelector('.thinking-strip');
-  const sheets = {grow: 10, 'think-in': 16, 'think-loop': 110, 'think-out': 15};
+  const sheets = {grow: 10};
+  for (const [activity, {frames}] of Object.entries(STATUS_MARKS)) {
+    ['in', 'loop', 'out'].forEach((stage, index) => { sheets[`${activity}-${stage}`] = frames[index]; });
+  }
+  let activity = 'think';
   const frameMs = 33.3333;
   const images = Object.fromEntries(Object.keys(sheets).map(name => {
     const image = new Image();
     image.src = new URL(`components/status-assets/${name}.webp`, document.baseURI).href;
     return [name, image];
   }));
-  const ready = Promise.all(Object.values(images).map(image => image.decode()));
-  // Keep the static dot if artwork is unavailable.
-  ready.catch(() => {});
   let revision = 0, animation = null, complete = null;
   function reset() {
     revision++;
@@ -52,13 +59,17 @@ function createThinkingMark(host) {
       return;
     }
     if (run !== revision) return;
-    if (stage === 'think-out') return settle();
+    if (stage === `${activity}-out`) return settle();
     // Finish the current authored loop before its exit; no arbitrary frame cut.
-    play(stage === 'grow' ? 'think-in' : complete ? 'think-out' : 'think-loop', run);
+    play(`${activity}-${stage === 'grow' ? 'in' : complete ? 'out' : 'loop'}`, run);
   }
   return {
-    start() {
+    start(nextActivity) {
       const run = reset();
+      activity = nextActivity;
+      // Decode only this variant; another unavailable sheet must not block it.
+      const ready = Promise.all(['grow', ...['in', 'loop', 'out'].map(stage => `${activity}-${stage}`)]
+        .map(name => images[name].decode()));
       ready.then(() => { if (run === revision) play('grow', run); }, () => {});
     },
     finish(callback) {
@@ -83,7 +94,9 @@ function createStatusShimmer(label, text) {
   };
 }
 function initFeedbackDemo() {
-  const thinkingMark = createThinkingMark($('#thinkingMark'));
+  const thinkingMark = createStatusMark($('#thinkingMark'));
+  const choices = [...document.querySelectorAll('[data-status-activity]')];
+  let activity = 'think';
   const setStatus = createStatusShimmer($('#loadingLabel'), $('#loadingText'));
   const button = $('#skeletonBtn');
   let phase = 'working';
@@ -98,9 +111,11 @@ function initFeedbackDemo() {
   }
   function runSkeleton() {
     clearSkeleton();
-    thinkingMark.start();
+    thinkingMark.start(activity);
     $('#skeletonSlot').replaceChildren();
-    setStatus('Organizing content', true);
+    setStatus(STATUS_MARKS[activity].label, true);
+    $('#statusCycle').textContent = `${Number((STATUS_MARKS[activity].frames[1] / 30).toFixed(2))} s`;
+    choices.forEach(choice => choice.setAttribute('aria-pressed', String(choice.dataset.statusActivity === activity)));
     phase = 'working';
     button.removeAttribute('aria-disabled');
     DemoI18n.text(button, () => DemoI18n.t('Finish'));
@@ -138,6 +153,14 @@ function initFeedbackDemo() {
       DemoI18n.text(button, () => DemoI18n.t('Replay'));
     });
   };
+  choices.forEach(choice => {
+    choice.onclick = () => {
+      const next = choice.dataset.statusActivity;
+      if (next === activity) return;
+      activity = next;
+      runSkeleton();
+    };
+  });
   runSkeleton();
   $('#timelineTrigger').onclick = () => {
     const open = $('#timelineTrigger').getAttribute('aria-expanded') !== 'true';
