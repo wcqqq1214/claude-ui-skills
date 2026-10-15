@@ -46,6 +46,11 @@
       "bytes": 5492
     },
     {
+      "name": "components/status-assets/default-loop.webp",
+      "sha256": "b696a8fef1599e111042c23f8286c87104cda53535cd9f71d0626503190f681e",
+      "bytes": 5586
+    },
+    {
       "name": "components/status-assets/grow.webp",
       "sha256": "de274c4870d41924c1623de83ec14c65070207d001254b3b9ecb0c869cb3fcc1",
       "bytes": 1102
@@ -157,13 +162,13 @@
     },
     {
       "name": "components/type.css",
-      "sha256": "c333b80afe9bdcd9b06b3a1daa451c1c03498595ac0869b0d35949318374eebb",
-      "bytes": 2712
+      "sha256": "ecb1f92252c42ef213c16a688ee1559f93758c81b732fe031f3dd240399ca9a3",
+      "bytes": 3227
     },
     {
       "name": "components/type.js",
-      "sha256": "be012034162beb67512080086560b60582612deb797073b6cf65dc2ad5d216c6",
-      "bytes": 6257
+      "sha256": "5e0dd691b36b969b46583ca30afc39e7c1aaeaabd4beb1edfed2389845fc57e3",
+      "bytes": 7286
     },
     {
       "name": "components/workspace.css",
@@ -232,8 +237,8 @@
     },
     {
       "name": "index.html",
-      "sha256": "7a4830d972c296d7c23b2db0908a3db93d1dac2b12e387a8cc2cc68370b9c00b",
-      "bytes": 39526
+      "sha256": "ad7596507997c3574f11123c6592d30f821cffd7e27363eefeef2eea5178a6e1",
+      "bytes": 39777
     },
     {
       "name": "landscape-dusk.svg",

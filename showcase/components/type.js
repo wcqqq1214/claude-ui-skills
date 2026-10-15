@@ -4,6 +4,13 @@ function initTypeDemo() {
   const typeScroll = $('#typeScroll'),
     typeReading = $('#typeReading'),
     typeBottom = $('#typeBottom');
+  const typeMark = typeBottom.querySelector('.type-working-strip');
+  let typePlaying = false, typeMarkReady = false, typeMarkAnimation = null;
+  // Default activity loop: 40 frames of 48px displayed in a 20px slot.
+  typeMark.decode().then(() => {
+    typeMarkReady = typeof typeMark.animate === 'function';
+    updateTypeBottom();
+  }, () => {}); // Keep the arrow if the local artwork cannot load.
   let typePinned = true,
     typeNearEnd = true,
     typeFadeNearEnd = true,
@@ -16,6 +23,15 @@ function initTypeDemo() {
     typeBottom.inert = !show;
     typeBottom.tabIndex = show ? 0 : -1;
     typeBottom.setAttribute('aria-hidden', String(!show));
+    typeBottom.classList.toggle('working', typePlaying && typeMarkReady);
+    if (show && typePlaying && typeMarkReady) {
+      if (!typeMarkAnimation) {
+        typeMarkAnimation = typeMark.animate(
+          Array.from({length: 40}, (_, frame) => ({transform: `translateY(-${frame * 20}px)`})),
+          {duration: 40 * 33.3333, iterations: Infinity, easing: 'steps(40, jump-none)'}
+        );
+      } else typeMarkAnimation.play();
+    } else typeMarkAnimation?.pause();
   }
   function followType() {
     if (typePinned) {
@@ -121,6 +137,9 @@ function initTypeDemo() {
   function replayType() {
     typeTimers.forEach(clearTimeout);
     typeTimers = [];
+    typeMarkAnimation?.cancel();
+    typeMarkAnimation = null;
+    typePlaying = true;
     typePinned = true;
     typeLastTop = 0;
     typeScroll.scrollTop = 0;
@@ -169,6 +188,7 @@ function initTypeDemo() {
             p.className = 'word-fade';
             DemoI18n.text(p, () => DemoI18n.t(text));
             $('#streamParagraphs').append(p);
+            if (i === paragraphs.length - 1) typePlaying = false;
             followType();
           },
           1800 + i * 1400

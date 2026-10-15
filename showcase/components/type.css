@@ -130,6 +130,32 @@
   background: var(--surface);
   box-shadow: var(--popover-shadow);
 }
+.type-bottom-arrow,
+.type-working-mark {
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  width: 20px;
+  height: 20px;
+  pointer-events: none;
+  transition: opacity 200ms ease-out;
+}
+.type-working-mark {
+  overflow: clip;
+  opacity: 0;
+}
+.type-working-strip {
+  display: block;
+  width: 20px;
+  height: 800px;
+  max-height: none;
+}
+.type-bottom.working:not(:hover):not(:focus-visible) .type-working-mark {
+  opacity: 1;
+}
+.type-bottom.working:not(:hover):not(:focus-visible) .type-bottom-arrow {
+  opacity: 0;
+}
 
 .type-fade {
   position: absolute;
