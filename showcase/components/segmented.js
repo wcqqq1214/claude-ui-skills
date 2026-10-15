@@ -1,6 +1,6 @@
 'use strict';
 
-// Shared by the main example and the compact file-view control.
+// Shared by the main example, status selector and compact file-view control.
 function setupSegment(root, callback) {
   const buttons = [...root.querySelectorAll('[role=radio]')];
   const thumb = root.querySelector('.segment-thumb');

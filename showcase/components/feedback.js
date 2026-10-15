@@ -1,68 +1,126 @@
 'use strict';
-// Thinking animation: 48px frames displayed in a 20px slot.
-function createThinkingMark(host) {
+// Activity animation sheets and transitions between activities.
+const STATUS_MARKS = {
+  think: {frames: [16, 110, 15], seams: [54], label: 'Organizing content'},
+  read: {frames: [21, 60, 19], label: 'Reading content'},
+  write: {frames: [31, 60, 14], label: 'Writing content'},
+  code: {frames: [16, 75, 9], seams: [18, 37, 56], label: 'Working with code'},
+};
+function createStatusMark(host, onEnter) {
   const strip = host.querySelector('.thinking-strip');
-  const sheets = {grow: 10, 'think-in': 16, 'think-loop': 110, 'think-out': 15};
   const frameMs = 33.3333;
+  const sheets = {grow: 10};
+  for (const [activity, {frames}] of Object.entries(STATUS_MARKS)) {
+    ['in', 'loop', 'out'].forEach((stage, index) => { sheets[`${activity}-${stage}`] = frames[index]; });
+  }
   const images = Object.fromEntries(Object.keys(sheets).map(name => {
     const image = new Image();
     image.src = new URL(`components/status-assets/${name}.webp`, document.baseURI).href;
     return [name, image];
   }));
-  const ready = Promise.all(Object.values(images).map(image => image.decode()));
-  // Keep the static dot if artwork is unavailable.
-  ready.catch(() => {});
-  let revision = 0, animation = null, complete = null;
-  function reset() {
-    revision++;
-    animation?.cancel();
-    animation = null;
-    complete = null;
-    host.dataset.phase = 'dot';
-    strip.style.backgroundImage = '';
-    return revision;
+  const decoded = new Set(), pending = new Map();
+  let activity = 'think', wanted = 'think', stage = 'dot';
+  let revision = 0, animation = null, complete = null, seamTimer = null;
+  const target = () => decoded.has(wanted) ? wanted : activity;
+  function clearSeam() {
+    clearTimeout(seamTimer);
+    seamTimer = null;
   }
   function settle() {
+    clearSeam();
     animation?.cancel();
     animation = null;
-    host.dataset.phase = 'done';
+    host.dataset.phase = stage = 'done';
     const callback = complete;
     complete = null;
     callback?.();
   }
-  async function play(stage, run) {
+  function scheduleSeam() {
+    clearSeam();
+    if (stage !== 'loop' || target() === activity || complete || !animation || animation.currentTime === null) return;
+    const time = Number(animation.currentTime);
+    const seam = STATUS_MARKS[activity].seams?.map(frame => frame * frameMs).find(ms => ms > time + 50);
+    if (seam === undefined) return; // No upcoming seam: finish this authored loop.
+    const current = animation, run = revision;
+    seamTimer = setTimeout(() => {
+      if (run === revision && animation === current && target() !== activity && !complete) play('out', run);
+    }, seam - time);
+  }
+  async function play(nextStage, run) {
     if (run !== revision) return;
-    const frames = sheets[stage];
-    host.dataset.phase = stage;
-    strip.style.backgroundImage = `url("${images[stage].src}")`;
-    strip.style.height = `${frames * 20}px`;
+    clearSeam();
     animation?.cancel();
+    animation = null;
+    stage = nextStage;
+    const sheet = stage === 'grow' ? 'grow' : `${activity}-${stage}`;
+    const frames = sheets[sheet];
+    host.dataset.phase = sheet;
+    strip.style.backgroundImage = `url("${images[sheet].src}")`;
+    strip.style.height = `${frames * 20}px`;
+    if (stage === 'in') onEnter(activity);
+    let current;
     try {
-      animation = strip.animate(
+      current = animation = strip.animate(
         Array.from({length: frames}, (_, frame) => ({transform: `translateY(-${frame * 20}px)`})),
         {duration: frames * frameMs, iterations: 1, easing: `steps(${frames}, jump-none)`, fill: 'forwards'}
       );
-      await animation.finished;
+      scheduleSeam();
+      await current.finished;
     } catch {
-      if (run === revision) {
-        host.dataset.phase = 'dot';
+      if (run === revision && (!current || animation === current)) {
+        clearSeam();
+        host.dataset.phase = stage = 'dot';
         animation = null;
         if (complete) settle();
       }
       return;
     }
-    if (run !== revision) return;
-    if (stage === 'think-out') return settle();
-    // Finish the current authored loop before its exit; no arbitrary frame cut.
-    play(stage === 'grow' ? 'think-in' : complete ? 'think-out' : 'think-loop', run);
+    if (run !== revision || animation !== current) return;
+    if (stage === 'out') {
+      if (complete) return settle();
+      activity = target();
+      return play('in', run);
+    }
+    if (stage === 'grow') {
+      activity = target();
+      return play('in', run);
+    }
+    // An entry completes before its loop; a changed target exits at a seam or loop end.
+    play(complete || stage === 'loop' && target() !== activity ? 'out' : 'loop', run);
+  }
+  function select(nextActivity) {
+    wanted = nextActivity;
+    complete = null;
+    const run = revision;
+    if (!pending.has(wanted)) {
+      const names = ['grow', ...['in', 'loop', 'out'].map(stage => `${wanted}-${stage}`)];
+      pending.set(wanted, Promise.all(names.map(name => images[name].decode()))
+        .then(() => { decoded.add(nextActivity); return true; }, () => false));
+    }
+    scheduleSeam();
+    pending.get(wanted).then(ready => {
+      if (!ready || run !== revision || wanted !== nextActivity || complete || stage === 'done') return;
+      if (stage === 'dot') {
+        activity = wanted;
+        play('grow', run);
+      } else scheduleSeam();
+    });
   }
   return {
-    start() {
-      const run = reset();
-      ready.then(() => { if (run === revision) play('grow', run); }, () => {});
+    start(nextActivity) {
+      revision++;
+      clearSeam();
+      animation?.cancel();
+      animation = null;
+      host.dataset.phase = stage = 'dot';
+      strip.style.backgroundImage = '';
+      activity = nextActivity;
+      select(nextActivity);
     },
+    select,
     finish(callback) {
       complete = callback;
+      clearSeam();
       if (!animation) { revision++; settle(); }
     },
   };
@@ -83,8 +141,13 @@ function createStatusShimmer(label, text) {
   };
 }
 function initFeedbackDemo() {
-  const thinkingMark = createThinkingMark($('#thinkingMark'));
+  let activity = 'think';
   const setStatus = createStatusShimmer($('#loadingLabel'), $('#loadingText'));
+  function showActivity(value) {
+    setStatus(STATUS_MARKS[value].label, true);
+    $('#statusCycle').textContent = `${Number((STATUS_MARKS[value].frames[1] / 30).toFixed(2))} s`;
+  }
+  const thinkingMark = createStatusMark($('#thinkingMark'), showActivity);
   const button = $('#skeletonBtn');
   let phase = 'working';
   let skeletonTimer = null;
@@ -98,9 +161,9 @@ function initFeedbackDemo() {
   }
   function runSkeleton() {
     clearSkeleton();
-    thinkingMark.start();
+    thinkingMark.start(activity);
     $('#skeletonSlot').replaceChildren();
-    setStatus('Organizing content', true);
+    showActivity(activity);
     phase = 'working';
     button.removeAttribute('aria-disabled');
     DemoI18n.text(button, () => DemoI18n.t('Finish'));
@@ -138,6 +201,15 @@ function initFeedbackDemo() {
       DemoI18n.text(button, () => DemoI18n.t('Replay'));
     });
   };
+  const statusSegment = setupSegment($('#statusSegment'), next => {
+    if (next === activity) return;
+    activity = next;
+    if (phase === 'done') return runSkeleton();
+    phase = 'working';
+    button.removeAttribute('aria-disabled');
+    thinkingMark.select(next);
+  });
+  DemoI18n.onChange(() => statusSegment.refresh());
   runSkeleton();
   $('#timelineTrigger').onclick = () => {
     const open = $('#timelineTrigger').getAttribute('aria-expanded') !== 'true';

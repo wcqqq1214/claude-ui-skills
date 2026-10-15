@@ -10,6 +10,13 @@
   align-self: start;
   min-height: 236px;
 }
+.status-variants { padding: 0 24px 12px; }
+.status-variants .segment { display: flex; }
+.status-variants .segment button {
+  flex: 1;
+  min-width: 0;
+  padding: 0 4px;
+}
 .status-line {
   padding: 10px 24px 16px;
   display: flex;

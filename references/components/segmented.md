@@ -6,7 +6,7 @@ Use this for a small, fixed set of mutually exclusive views or options: preview/
 
 [HTML](../../showcase/index.html#segmented) · [JS](../../showcase/components/segmented.js) · [CSS](../../showcase/components/segmented.css)
 
-`setupSegment(root, callback)` owns selection, keyboard navigation, geometry and resize observation. `initSegmentedDemo()` binds the sample content. In [workspace.js](../../showcase/components/workspace.js), `fileSegment` updates `renderFile()` and expansion calls `refresh()`. Its markup is in [the file panel](../../showcase/index.html#workspace).
+`setupSegment(root, callback)` owns selection, keyboard navigation, geometry and resize observation. `initSegmentedDemo()` binds the sample content. In [workspace.js](../../showcase/components/workspace.js), `fileSegment` updates `renderFile()` and expansion calls `refresh()`. Its markup is in [the file panel](../../showcase/index.html#workspace). [feedback.js](../../showcase/components/feedback.js) also reuses it for status selection and refreshes geometry after translation.
 
 ## Design and adaptation
 
