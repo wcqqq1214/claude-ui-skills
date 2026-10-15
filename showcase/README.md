@@ -25,7 +25,7 @@ python3 -m http.server 8766 --bind 127.0.0.1
 
 ## 复现边界
 
-布局、示例数据、装饰图及语言/主题入口是本地设计；验证范围限于示例中展示的交互。
+布局、示例数据、装饰图及语言/主题入口是本地设计；示例行为与本地适配见[组件指南](../references/components.md)。
 
 [组件指南](../references/components.md)
 
