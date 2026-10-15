@@ -4,7 +4,7 @@ const vm = require('node:vm');
 const {readFileSync} = require('node:fs');
 
 function reader() {
-  let now = 0, nextTimer = 0, chapterChange;
+  let now = 0, nextTimer = 0, chapterChange, scrollVisibility;
   const timers = new Map(), resizes = [];
   function element() {
     const classes = new Set();
@@ -18,7 +18,7 @@ function reader() {
   }
   const nodes = Object.fromEntries([
     'type', 'typeScroll', 'typeReading', 'typeEnd', 'typeBottom',
-    'typeFade', 'revealTitle', 'revealBody', 'streamParagraphs', 'replayType'
+    'typeFade', 'streamParagraphs', 'replayType', 'scrollExample'
   ].map(id => ['#' + id, element()]));
   nodes['#type'].active = true;
   nodes['#type'].hasAttribute = () => nodes['#type'].active;
@@ -26,18 +26,23 @@ function reader() {
   // remain visible before the first appended paragraph starts following.
   Object.assign(nodes['#typeScroll'], {scrollTop: 0, scrollHeight: 800, clientHeight: 300});
   nodes['#typeBottom'].querySelector = () => ({decode: () => ({then() {}})});
-  vm.runInNewContext(readFileSync(require.resolve('../showcase/components/type.js'), 'utf8') + '\ninitTypeDemo();', {
+  vm.runInNewContext(readFileSync(require.resolve('../showcase/components/type.js'), 'utf8') + '\nbindTypeEffectCards = () => {}; initTypeDemo();', {
     $: selector => nodes[selector], Intl,
     document: {createElement: element, activeElement: null},
     DemoI18n: {locale: 'en', t: text => text, text(node, render) {node.textContent = render();}, onChange() {}},
     setTimeout(callback, delay) {const id = ++nextTimer; timers.set(id, {at: now + delay, callback}); return id;},
     clearTimeout(id) {timers.delete(id);},
     ResizeObserver: class {constructor(callback) {resizes.push(callback);} observe() {}},
-    IntersectionObserver: class {observe() {}},
+    IntersectionObserver: class {
+      constructor(callback) {this.callback = callback;}
+      observe(node) {if (node === nodes['#typeScroll']) scrollVisibility = this.callback;}
+    },
     MutationObserver: class {constructor(callback) {chapterChange = callback;} observe() {}},
   });
+  scrollVisibility([{isIntersecting: true, intersectionRatio: 1}]);
   return {
     nodes,
+    visible: value => scrollVisibility([{isIntersecting: value, intersectionRatio: value ? 1 : 0}]),
     replay: () => nodes['#replayType'].onclick(),
     resize: () => resizes.forEach(callback => callback()),
     chapter(active) {nodes['#type'].active = active; chapterChange();},
@@ -59,7 +64,6 @@ test('replay leaves the introduction visible, then appends content progressively
   assert.equal(n['#streamParagraphs'].children.length, 0);
   assert.equal(n['#typeScroll'].scrollTop, 0);
   r.advance(1200);
-  assert.equal(n['#revealBody'].children.length, 6);
   assert.equal(n['#typeScroll'].scrollTop, 0);
   r.advance(600);
   assert.equal(n['#streamParagraphs'].children.length, 1);
@@ -67,7 +71,6 @@ test('replay leaves the introduction visible, then appends content progressively
   r.advance(3000);
   assert.equal(n['#streamParagraphs'].children.length, 2);
   r.replay(); r.replay(); r.resize();
-  assert.equal(n['#revealBody'].children.length, 0);
   assert.equal(n['#streamParagraphs'].children.length, 0);
   assert.equal(n['#typeScroll'].scrollTop, 0);
   r.advance(22800);
@@ -83,6 +86,19 @@ test('leaving cancels pending playback and returning starts a fresh introduction
   r.chapter(true); r.resize();
   assert.equal(n['#streamParagraphs'].children.length, 0);
   assert.equal(n['#typeScroll'].scrollTop, 0);
+  r.advance(1800);
+  assert.equal(n['#streamParagraphs'].children.length, 1);
+});
+
+
+test('the scroll card pauses offscreen and restarts on return', () => {
+  const r = reader(), n = r.nodes;
+  r.advance(1800);
+  r.visible(false);
+  r.advance(30000);
+  assert.equal(n['#streamParagraphs'].children.length, 1);
+  r.visible(true);
+  assert.equal(n['#streamParagraphs'].children.length, 0);
   r.advance(1800);
   assert.equal(n['#streamParagraphs'].children.length, 1);
 });

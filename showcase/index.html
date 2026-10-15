@@ -119,16 +119,35 @@
             <div class="section-head"
               ><div><h2 class="search-target-title" tabindex="-1">Typography</h2></div></div
             >
-            <div class="card type-card"
-              ><div class="demo-toolbar"
-                ><button
-                  class="icon-button"
-                  id="replayType"
-                  aria-label="Replay text motion"
-                  data-ui-icon="ArrowClockwise"
-                  data-icon-size="16"
-                ></button></div
-              ><div class="type-scroll-shell"
+            <div class="type-effects">
+              <article class="card type-effect-card" id="graphemeExample" aria-labelledby="graphemeLabel">
+                <header class="type-effect-heading"><h3 id="graphemeLabel">Grapheme reveal</h3><button class="icon-button" id="replayGrapheme" aria-label="Replay grapheme reveal" data-ui-icon="ArrowClockwise" data-icon-size="16"></button></header>
+                <div class="type-effect-stage"><h4 id="revealTitle" aria-label="Start with an idea."></h4></div>
+                <div class="spec-footer"><span><b>90 ms</b></span><span><b>6 px</b> blur</span><span><b>30 ms</b> stagger</span></div>
+              </article>
+              <article class="card type-effect-card" id="bodyFadeExample" aria-labelledby="bodyFadeLabel">
+                <header class="type-effect-heading"><h3 id="bodyFadeLabel">Body fade</h3><button class="icon-button" id="replayBodyFade" aria-label="Replay body fade" data-ui-icon="ArrowClockwise" data-icon-size="16"></button></header>
+                <div class="type-effect-stage"><p id="revealBody" aria-label="Space makes content easier to read. Headings appear gently; body text stays steady. Motion simply signals new content."></p></div>
+                <div class="spec-footer"><span><b>100 ms</b> body fade</span></div>
+              </article>
+              <article class="card type-effect-card" id="bubbleExample" aria-labelledby="bubbleLabel">
+                <header class="type-effect-heading"><h3 id="bubbleLabel">User message</h3></header>
+                <div class="type-effect-stage"><div class="type-user-row"><div class="type-user-bubble">Show me how text appears and stays readable.</div></div></div>
+                <div class="spec-footer"><span><b>10 px</b> radius</span><span><b>85%</b> maximum width</span></div>
+              </article>
+              <article class="card type-effect-card" id="workingExample" aria-labelledby="workingLabel">
+                <header class="type-effect-heading"><h3 id="workingLabel">Working dots</h3></header>
+                <div class="type-effect-stage type-working-stage">
+                  <button type="button" id="workingPreview" class="type-bottom visible" aria-label="Preview loading feedback">
+                    <span class="type-bottom-arrow" data-ui-icon="ArrowDown" data-icon-size="20" aria-hidden="true"></span>
+                    <span class="type-working-mark" aria-hidden="true"><img class="type-working-strip" src="components/status-assets/default-loop.webp" alt="" width="20" height="800" /></span>
+                  </button>
+                </div>
+                <div class="spec-footer"><span><b>1.333 s</b> loop</span><span>Hover or focus for the arrow</span></div>
+              </article>
+              <article class="card type-card type-effect-card type-scroll-example" id="scrollExample" aria-labelledby="scrollLabel">
+                <header class="type-effect-heading"><h3 id="scrollLabel">Scroll following</h3><button class="icon-button" id="replayType" aria-label="Replay scroll following" data-ui-icon="ArrowClockwise" data-icon-size="16"></button></header>
+              <div class="type-scroll-shell"
                 ><div
                   class="type-scroll"
                   id="typeScroll"
@@ -136,18 +155,7 @@
                   role="region"
                   aria-label="Streaming text example"
                   ><div class="reading" id="typeReading"
-                    ><div class="type-user-row" role="group" aria-label="User message"
-                      ><div class="type-user-bubble">Show me how text appears and stays readable.</div></div
-                    ><img
-                      class="clay-mark"
-                      src="claude-logo.svg"
-                      width="27"
-                      height="27"
-                      alt="" /><h3 id="revealTitle" aria-label="Start with an idea."></h3
-                    ><p
-                      id="revealBody"
-                      aria-label="Space makes content easier to read. Headings appear gently; body text stays steady. Motion simply signals new content."
-                    ></p
+                    ><p>Space makes content easier to read. Headings appear gently; body text stays steady. Motion simply signals new content.</p
                     ><div id="streamParagraphs"></div><div class="reading-divider"></div
                     ><blockquote>A quieter interface brings content into focus.</blockquote
                     ><span id="typeEnd" aria-hidden="true"></span></div></div
@@ -163,11 +171,10 @@
                 ><span class="type-bottom-arrow" data-ui-icon="ArrowDown" data-icon-size="20" aria-hidden="true"></span
                   ><span class="type-working-mark" aria-hidden="true"
                     ><img class="type-working-strip" src="components/status-assets/default-loop.webp" alt="" width="20" height="800" /></span
-                ></button></div
-              ><div class="spec-footer"
-                ><span><b>90 ms</b> title reveal</span><span><b>100 ms</b> body fade</span></div
-              ></div
-            >
+                ></button></div>
+                <div class="spec-footer"><span>Scroll up to pause · Return to follow</span></div>
+              </article>
+            </div>
           </section>
           <section class="specimen" id="controls">
             <div class="section-head"

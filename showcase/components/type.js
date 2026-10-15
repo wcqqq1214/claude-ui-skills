@@ -1,5 +1,6 @@
 'use strict';
 function initTypeDemo() {
+  bindTypeEffectCards();
   let typeTimers = [];
   const typeScroll = $('#typeScroll'),
     typeReading = $('#typeReading'),
@@ -27,10 +28,7 @@ function initTypeDemo() {
     typeBottom.classList.toggle('working', typePlaying && typeMarkReady);
     if (show && typePlaying && typeMarkReady) {
       if (!typeMarkAnimation) {
-        typeMarkAnimation = typeMark.animate(
-          Array.from({length: 40}, (_, frame) => ({transform: `translateY(-${frame * 20}px)`})),
-          {duration: 40 * 33.3333, iterations: Infinity, easing: 'steps(40, jump-none)'}
-        );
+        typeMarkAnimation = animateTypeWorkingMark(typeMark);
       } else typeMarkAnimation.play();
     } else typeMarkAnimation?.pause();
   }
@@ -115,6 +113,84 @@ function initTypeDemo() {
     typeLastTop = typeScroll.scrollTop;
     updateTypeBottom();
   };
+  function stopTypePlayback() {
+    typeTimers.forEach(clearTimeout);
+    typeTimers = [];
+    typeMarkAnimation?.cancel();
+    typeMarkAnimation = null;
+    typePlaying = false;
+    typeIntro = false;
+    updateTypeBottom();
+  }
+  function replayType() {
+    stopTypePlayback();
+    typePlaying = true;
+    typeIntro = true;
+    typePinned = true;
+    typeLastTop = 0;
+    typeScroll.scrollTop = 0;
+    $('#streamParagraphs').replaceChildren();
+    updateTypeBottom();
+    const paragraphs = [
+      'As content unfolds, your reading position should stay predictable. At the bottom, new paragraphs naturally enter view.',
+      'Scroll up to revisit an earlier sentence. New text keeps arriving without pulling you away from what you are reading.',
+      'A little space between paragraphs gives each idea a clear boundary and gives your eyes a brief pause.',
+      'When you are ready to continue, choose the arrow below. Returning to the bottom lets the view follow new content again.',
+      'These fixed paragraphs appear locally to demonstrate how scrolling and reading work together.',
+      'While you read, the interface only needs to offer a clear direction. Earlier content stays in place while new paragraphs arrive without competing for attention.',
+      'In a narrower space, paragraphs wrap naturally. This scrolling area keeps its own boundary, so the surrounding showcase does not move as the text grows.',
+      'The content ends here. You can still browse freely or replay this example.'
+    ];
+    function appendParagraph(text, i) {
+      typeIntro = false;
+      const p = document.createElement('p');
+      p.className = 'word-fade';
+      DemoI18n.text(p, () => DemoI18n.t(text));
+      $('#streamParagraphs').append(p);
+      if (i === paragraphs.length - 1) typePlaying = false;
+    }
+    // Let the static introduction be seen before growing the local reading area.
+    paragraphs.forEach((text, i) => {
+      typeTimers.push(setTimeout(() => {
+        appendParagraph(text, i);
+        followType();
+      }, 1800 + i * 3000));
+    });
+    followType();
+  }
+  $('#replayType').onclick = replayType;
+  // Chapter activation owns sample playback; hidden examples must not finish offscreen.
+  const chapter = $('#type');
+  let scrollVisible = false;
+  const syncPlayback = () => {
+    if (chapter.hasAttribute('data-active') && scrollVisible) replayType();
+    else stopTypePlayback();
+  };
+  new MutationObserver(syncPlayback).observe(chapter, {
+    attributes: true, attributeFilter: ['data-active']
+  });
+  new IntersectionObserver(([entry]) => {
+    const next = entry.isIntersecting && entry.intersectionRatio >= 0.25;
+    if (scrollVisible === next) return;
+    scrollVisible = next;
+    syncPlayback();
+  }, {threshold: 0.25}).observe(typeScroll);
+  syncPlayback();
+}
+
+// Both presentations use the same authored sheet and frame timing.
+function animateTypeWorkingMark(strip) {
+  return strip.animate(
+    Array.from({length: 40}, (_, frame) => ({transform: `translateY(-${frame * 20}px)`})),
+    {duration: 40 * 33.3333, iterations: Infinity, easing: 'steps(40, jump-none)'}
+  );
+}
+
+function bindTypeEffectCards() {
+  let bodyTimers = [], workingAnimation, workingReady = false;
+  const visible = new Set();
+  const workingButton = $('#workingPreview');
+  const strip = workingButton.querySelector('.type-working-strip');
   function renderTypeTitle(animate = true) {
     const title = DemoI18n.t('Start with an idea.');
     const chars =
@@ -135,25 +211,12 @@ function initTypeDemo() {
       })
     );
   }
-  function stopTypePlayback() {
-    typeTimers.forEach(clearTimeout);
-    typeTimers = [];
-    typeMarkAnimation?.cancel();
-    typeMarkAnimation = null;
-    typePlaying = false;
-    typeIntro = false;
-    updateTypeBottom();
+  function stopBody() {
+    bodyTimers.forEach(clearTimeout);
+    bodyTimers = [];
   }
-  function replayType() {
-    stopTypePlayback();
-    typePlaying = true;
-    typeIntro = true;
-    typePinned = true;
-    typeLastTop = 0;
-    typeScroll.scrollTop = 0;
-    $('#streamParagraphs').replaceChildren();
-    updateTypeBottom();
-    renderTypeTitle();
+  function replayBody() {
+    stopBody();
     const chunks = [
       'Space makes content ',
       'easier to read. ',
@@ -164,7 +227,7 @@ function initTypeDemo() {
     ];
     $('#revealBody').replaceChildren();
     chunks.forEach((s, i) =>
-      typeTimers.push(
+      bodyTimers.push(
         setTimeout(
           () => {
             const el = document.createElement('span');
@@ -172,49 +235,46 @@ function initTypeDemo() {
             DemoI18n.text(el, () => DemoI18n.t(s));
             el.setAttribute('aria-hidden', 'true');
             $('#revealBody').append(el);
-            followType();
           },
           320 + i * 155
         )
       )
     );
-    const paragraphs = [
-      'As content unfolds, your reading position should stay predictable. At the bottom, new paragraphs naturally enter view.',
-      'Scroll up to revisit an earlier sentence. New text keeps arriving without pulling you away from what you are reading.',
-      'A little space between paragraphs gives each idea a clear boundary and gives your eyes a brief pause.',
-      'When you are ready to continue, choose the arrow below. Returning to the bottom lets the view follow new content again.',
-      'These fixed paragraphs appear locally to demonstrate how scrolling and reading work together.',
-      'While you read, the interface only needs to offer a clear direction. Earlier content stays in place while new paragraphs arrive without competing for attention.',
-      'In a narrower space, paragraphs wrap naturally. This scrolling area keeps its own boundary, so the surrounding showcase does not move as the text grows.',
-      'The content ends here. You can still browse freely or replay this example.'
-    ];
-    function appendParagraph(text, i) {
-      typeIntro = false;
-      const p = document.createElement('p');
-      p.className = 'word-fade';
-      DemoI18n.text(p, () => DemoI18n.t(text));
-      $('#streamParagraphs').append(p);
-      if (i === paragraphs.length - 1) typePlaying = false;
-    }
-    // Let the message and title be seen before growing the local reading area.
-    paragraphs.forEach((text, i) => {
-      typeTimers.push(setTimeout(() => {
-        appendParagraph(text, i);
-        followType();
-      }, 1800 + i * 3000));
-    });
-    followType();
   }
+  function syncWorking() {
+    const playing = workingReady && visible.has($('#workingExample')) && !document.hidden;
+    workingButton.classList.toggle('working', workingReady);
+    if (playing) {
+      if (!workingAnimation) workingAnimation = animateTypeWorkingMark(strip);
+      else workingAnimation.play();
+    } else workingAnimation?.pause();
+  }
+  strip.decode().then(() => {
+    workingReady = typeof strip.animate === 'function';
+    syncWorking();
+  }, () => {});
+  $('#replayGrapheme').onclick = () => renderTypeTitle();
+  $('#replayBodyFade').onclick = replayBody;
   DemoI18n.onChange(() => renderTypeTitle(false));
-  $('#replayType').onclick = replayType;
-  // Chapter activation owns sample playback; hidden examples must not finish offscreen.
-  const chapter = $('#type');
-  const syncPlayback = () => {
-    if (chapter.hasAttribute('data-active')) replayType();
-    else stopTypePlayback();
-  };
-  new MutationObserver(syncPlayback).observe(chapter, {
-    attributes: true, attributeFilter: ['data-active']
+  const observer = new IntersectionObserver(entries => {
+    for (const entry of entries) {
+      if (entry.isIntersecting) {
+        visible.add(entry.target);
+        if (entry.target === $('#graphemeExample')) renderTypeTitle();
+        if (entry.target === $('#bodyFadeExample')) replayBody();
+      } else {
+        visible.delete(entry.target);
+        if (entry.target === $('#bodyFadeExample')) stopBody();
+      }
+    }
+    syncWorking();
   });
-  syncPlayback();
+  ['#graphemeExample', '#bodyFadeExample', '#workingExample'].forEach(id => observer.observe($(id)));
+  document.addEventListener('visibilitychange', syncWorking);
+  window.addEventListener('pagehide', () => {
+    stopBody();
+    workingAnimation?.cancel();
+    workingAnimation = null;
+  });
+  window.addEventListener('pageshow', syncWorking);
 }

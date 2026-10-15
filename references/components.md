@@ -4,7 +4,7 @@ Choose the user-facing scenario, then read that chapter's linked HTML, JS and CS
 
 | Scenario | Guide | Demo |
 | --- | --- | --- |
-| User message bubble and progressive text with reading-position continuity | [Text reveal and local scrolling](components/type.md) | [01](../showcase/index.html#type) |
+| Standalone grapheme/body reveal, user bubble, working dots and scroll following | [Text reveal and local scrolling](components/type.md) | [01](../showcase/index.html#type) |
 | Binary choices and an ordered discrete scale | [Switch, checkbox and slider](components/controls.md) | [02](../showcase/index.html#controls) |
 | A fixed set of mutually exclusive views | [Segmented control](components/segmented.md) | [03](../showcase/index.html#segmented) |
 | A draft with command suggestions and mock attachment add/remove motion | [Input, commands and attachments](components/composer.md) | [04](../showcase/index.html#composer) |

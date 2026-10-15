@@ -26,12 +26,7 @@
 [data-theme='dark'] .type-user-bubble {
   background: rgb(255 255 255 / 5%);
 }
-.clay-mark {
-  display: block;
-  width: 27px;
-  height: 27px;
-}
-.reading h3 {
+#revealTitle {
   font-family: var(--study-serif);
   font-size: 29px;
   font-weight: var(--regular);
@@ -95,7 +90,7 @@
   .reading {
     padding: 7px 25px 23px;
   }
-  .reading h3 {
+  #revealTitle {
     font-size: 28px;
   }
   .reading p {
@@ -196,4 +191,56 @@
 .type-fade.visible {
   opacity: 1;
   visibility: visible;
+}
+
+/* Local presentation: one effect per card, with shared animation rules above. */
+#type { --chapter-width: 980px; }
+.type-effects {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
+  min-width: 0;
+}
+.type-effect-card { display: flex; flex-direction: column; min-width: 0; }
+.type-effect-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 16px 20px 0;
+  min-height: 46px;
+}
+.type-effect-heading h3 { font-size: 14px; font-weight: var(--medium); }
+.type-effect-stage {
+  padding: 20px;
+  min-height: 140px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+.type-effect-stage #revealBody {
+  font-family: var(--study-serif);
+  font-size: 13px;
+  line-height: 1.85;
+  color: var(--secondary);
+  min-height: 73px;
+  margin: 0;
+}
+.type-effect-stage .type-user-row { margin-bottom: 0; }
+.type-working-stage { align-items: center; }
+.type-working-stage .type-bottom { position: relative; left: auto; bottom: auto; transform: none; }
+.type-scroll-example { grid-column: 1 / -1; }
+.type-scroll-example .type-scroll-shell { margin-top: 16px; }
+.type-effect-card .spec-footer { border-radius: 0 0 11px 11px; }
+@media (min-width: 851px) {
+  #type[data-active] > .type-effects {
+    grid-area: 2 / 1;
+    justify-self: center;
+    align-self: start;
+    width: min(100% - 2 * var(--canvas-pad), var(--chapter-width));
+    margin: var(--canvas-pad) 0;
+  }
+}
+@media (max-width: 620px) {
+  .type-effects { grid-template-columns: minmax(0, 1fr); gap: 16px; }
 }
