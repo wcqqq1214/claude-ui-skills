@@ -416,6 +416,11 @@ main {
     display: flex;
     flex-direction: column;
   }
+  /* These examples scroll as a whole; their content must keep its natural
+     height instead of shrinking and overflowing into the next section. */
+  :is(#reading, #menus) > .card > * {
+    flex-shrink: 0;
+  }
   .specimen > .card > .spec-footer {
     order: 2;
     position: sticky;
@@ -424,6 +429,9 @@ main {
     background: var(--surface);
     /* Follow the card's rounded bottom (12px radius inside a 1px border). */
     border-radius: 0 0 11px 11px;
+  }
+  .specimen > .card.extra-pad > .spec-footer {
+    bottom: calc(-1 * var(--card-pad));
   }
   .specimen > .card::after {
     content: '';
