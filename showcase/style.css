@@ -402,15 +402,50 @@ main {
     flex-direction: column;
   }
   .workspace-card > .workspace-layout {
-    flex: 1 0 auto;
+    flex: 1 1 0;
+    min-height: 0;
+  }
+  .workspace-card :is(.file-list, .file-preview) {
+    min-height: 0;
+    overflow: auto;
+    overscroll-behavior: contain;
+  }
+  .workspace-card > .workspace-toolbar,
+  #workspace > .workspace-card > .spec-footer {
+    flex-shrink: 0;
+    position: static;
+  }
+  /* Typography already owns a scroll area: shrink that area, not its
+     toolbar or footer, when the canvas is shorter than the example. */
+  .specimen > .type-card {
+    max-height: calc(100% - 2 * var(--canvas-pad));
+    min-height: 0;
+  }
+  .type-card > .type-scroll-shell {
+    flex: 0 1 300px;
+    min-height: 0;
+  }
+  .type-card .type-scroll {
+    height: 100%;
+  }
+  .type-card > :is(.demo-toolbar, .spec-footer) {
+    flex-shrink: 0;
   }
   /* On a short screen a growing example scrolls inside its card; the
      parameters stay visible at the bottom. */
-  :is(#segmented, #reading, #menus, #tasks, #recovery)[data-active] > .card,
+  :is(#segmented, #reading, #menus, #tasks, #recovery, #images, #micro)[data-active] > .card,
   #feedback[data-active] > .feedback-grid {
     max-height: calc(100% - 2 * var(--canvas-pad));
+    min-height: 0;
     overflow: auto;
     overscroll-behavior: contain;
+  }
+  #feedback[data-active] > .feedback-grid {
+    /* Keep the scrollport outside the cards' rings and shadows without
+       moving or resizing the cards themselves. */
+    box-sizing: content-box;
+    padding: 12px;
+    margin-block: calc(var(--canvas-pad) - 12px);
   }
   .specimen > .card {
     display: flex;
@@ -418,7 +453,7 @@ main {
   }
   /* These examples scroll as a whole; their content must keep its natural
      height instead of shrinking and overflowing into the next section. */
-  :is(#reading, #menus) > .card > * {
+  :is(#reading, #menus, #images, #micro) > .card > * {
     flex-shrink: 0;
   }
   .specimen > .card > .spec-footer {
