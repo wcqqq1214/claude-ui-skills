@@ -1,43 +1,43 @@
 # Claude UI
 
-14 组 Claude 风格的本地交互示例，指南直接引用运行中的 HTML、JS 和 CSS。无需构建、安装依赖、登录或安装 Claude。
+14 groups of local, interactive Claude-inspired examples. The guides link directly to the running HTML, JS and CSS. No build, dependency installation, sign-in or Claude installation is required.
 
-Pages 地址（部署后可用）：[简体中文](https://wcqqq1214.github.io/claude-ui-skills/?lang=zh-Hans) · [English](https://wcqqq1214.github.io/claude-ui-skills/?lang=en)
+Pages URLs (after deployment): [English](https://wcqqq1214.github.io/claude-ui-skills/?lang=en) · [Simplified Chinese](https://wcqqq1214.github.io/claude-ui-skills/?lang=zh-Hans)
 
 <a id="local-preview"></a>
 
-## 本地运行
+## Run locally
 
-直接打开 [index.html](index.html)，或从仓库根目录执行：
+Open [index.html](index.html) directly, or run this command from the repository root:
 
 ```sh
 python3 -m http.server 8766 --bind 127.0.0.1
 ```
 
-访问 [Claude UI](http://127.0.0.1:8766/showcase/)。资源均在本地，无后台接口；复制功能需要浏览器许可。
+Visit [Claude UI](http://127.0.0.1:8766/showcase/). All assets are local, with no backend endpoints; clipboard copying requires browser permission.
 
-## 使用
+## Usage
 
-- 地球按钮切换简体中文 / English；首次跟随浏览器语言，之后记住手动选择。可用 `?lang=zh-Hans` 或 `?lang=en` 指定预览语言。
-- 主题按钮按“跟随系统 → 浅色 → 深色”循环，并保存偏好。
-- HTML 与组件 JS 使用英文原文，`i18n.js` 提供中文译文；未收录的文案保留英文。切换语言保留输入与交互状态。语言菜单支持方向键、Home/End、Enter/Space 和 Escape。
-- 页面仅保留组件、操作和少量参数；各章指南直接链接到运行中的前端代码。
+- The globe button switches between English and Simplified Chinese. The first visit follows the browser language; subsequent visits remember the manual selection. Use `?lang=en` or `?lang=zh-Hans` to specify the preview language.
+- The theme button cycles through system, light and dark, and saves the preference.
+- HTML and component JS contain the English source text; `i18n.js` supplies Chinese translations. Unmapped text stays in English. Language switching preserves input and interaction state. The language menu supports arrow keys, Home/End, Enter/Space and Escape.
+- The page shows components, controls and a few parameters. Each chapter guide links directly to the running frontend code.
 
-## 复现边界
+## Adaptation boundaries
 
-布局、示例数据、装饰图及语言/主题入口是本地设计；示例行为与本地适配见[组件指南](../references/components.md)。
+The layout, sample data, decorative artwork and language/theme controls are local designs. See the [component guides](../references/components.md) for demonstrated behavior and local adaptations.
 
-[组件指南](../references/components.md)
+[Component guides](../references/components.md)
 
-## Pages 部署准备
+## Pages deployment preparation
 
-[部署配置](../.github/workflows/pages.yml)仅接受手动运行，且只允许 `main` 分支在仓库变量 `PAGES_ENABLED` 为 `true` 时执行。推送不会触发部署。
+The [deployment workflow](../.github/workflows/pages.yml) runs only when manually dispatched on `main` with the repository variable `PAGES_ENABLED` set to `true`. Pushing does not trigger deployment.
 
-以后启用时：
+To deploy:
 
-1. 将仓库 Settings → Pages → Source 设为 **GitHub Actions**，确认站点访问范围。
-2. 在 Settings → Secrets and variables → Actions → Variables 设置 `PAGES_ENABLED=true`。
-3. 在 Actions 中手动运行 **Deploy demo to Pages**，选择 `main`。
-4. 确认站点可用后，将 GitHub About 的 Website 设置为 `https://wcqqq1214.github.io/claude-ui-skills/`。
+1. Set repository Settings → Pages → Source to **GitHub Actions** and confirm the site's visibility.
+2. Under Settings → Secrets and variables → Actions → Variables, set `PAGES_ENABLED=true`.
+3. In Actions, manually run **Deploy demo to Pages** on `main`.
+4. After confirming the site works, set the GitHub About Website to `https://wcqqq1214.github.io/claude-ui-skills/`.
 
-工作流只将 `showcase/` 中的 HTML、CSS、JS、SVG 和 `components/` 下的 CSS、JS、`components/status-assets/*.webp` 及 `fonts/*.woff2` 打包至站点根目录；仓库文档、Skill 和 manifest 不进入站点。组件指南与本地预览继续使用仓库内相对路径。站点可用性与访问范围取决于 GitHub 套餐及 Pages 设置。
+The workflow stages only HTML, CSS, JS and SVG from `showcase/`, CSS and JS from `components/`, `components/status-assets/*.webp` and `fonts/*.woff2` at the site root. Repository documentation, the Skill and the manifest are excluded from the site. Component guides and local preview continue to use relative repository paths. Site availability and visibility depend on the GitHub plan and Pages settings.
