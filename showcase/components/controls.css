@@ -157,23 +157,11 @@
 .slider-block {
   padding: 23px;
 }
-.slider-title {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-size: 12px;
-}
-.slider-title output {
-  font-size: 11px;
-  color: var(--clay);
-  background: var(--clay-soft);
-  border-radius: 4px;
-  padding: 2px 7px;
-}
 .range-shell {
   position: relative;
   height: 32px;
-  margin: 13px 10px 6px;
+  width: min(360px, calc(100% - 20px));
+  margin: 13px auto 6px;
   --pos: 0.6666666667;
   --range-inset: 12px;
 }
@@ -317,17 +305,4 @@
   width: 24px;
   height: 28px;
   border: 0;
-}
-.range-labels {
-  display: flex;
-  justify-content: space-between;
-  font-size: 9px;
-  color: var(--muted);
-  margin: 0 -2px;
-}
-.range-labels span {
-  position: relative;
-}
-.range-labels em {
-  display: none;
 }

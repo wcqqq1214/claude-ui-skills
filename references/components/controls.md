@@ -6,7 +6,7 @@ Use these for a binary setting, an independent choice, or a small ordered scale.
 
 [HTML](../../showcase/index.html#controls) · [JS](../../showcase/components/controls.js) · [CSS](../../showcase/components/controls.css)
 
-`initControlsDemo()` binds `#demoSwitch` and `#effortRange`; the checkbox remains a native input. `updateEffort()` maps the four discrete values to `--pos`, text and `aria-valuetext`. The `.range-fill-origin` / `.range-fill-clip` / `.range-fill` layers move together.
+`initControlsDemo()` binds `#demoSwitch` and `#effortRange`; the checkbox remains a native input. `updateEffort()` maps the four discrete values to `--pos` and `aria-valuetext`. The `.range-fill-origin` / `.range-fill-clip` / `.range-fill` layers move together.
 
 ## Design and adaptation
 
@@ -15,4 +15,4 @@ Use these for a binary setting, an independent choice, or a small ordered scale.
 - Selected fills use #2a78d6 and hover #3987e5. Unselected checkbox borders use black/light or white/dark at 20%, increasing to 40% on hover-capable devices over 60ms. Keep focus layers, theme-dependent handle shadows and selected/unselected colors distinct.
 - Pointer release, cancellation and blur all clear drag feedback. The hidden native range owns keyboard input and exposes the same state as the visual layers.
 
-The sample labels, native range positioning and surrounding layout are local choices. This discrete example does not establish continuous-slider or overlay/lean variants. Check click/Space, arrow changes, endpoint geometry, pointer cancellation and both themes.
+The slider has no visible title, value or descriptive copy. Its accessible name uses `Effort`; `aria-valuetext` uses the local unnamed-option text `Level {position} of {total}` (adapted to positional i18n placeholders). Chinese translations are local, not verified official copy. Four stops and the highlighted third marker remain sample data. The centered demo track is capped at 360px and shrinks with its container. This width, native range positioning and surrounding layout are local choices. This discrete example does not establish continuous-slider or overlay/lean variants. Check click/Space, arrow changes, endpoint geometry, pointer cancellation and both themes.
