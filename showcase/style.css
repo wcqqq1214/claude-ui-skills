@@ -368,12 +368,6 @@ main {
   .specimen[data-active] > :not(.section-head) {
     align-self: var(--canvas-anchor, center);
   }
-  #composer {
-    --canvas-anchor: end;
-  }
-  .specimen[data-active] > .composer-card {
-    min-height: 0;
-  }
   .specimen[data-active] > .workspace-card {
     align-self: stretch;
     display: flex;
@@ -463,16 +457,6 @@ h2 {
 .composer-card {
   display: flex;
   flex-direction: column;
-}
-/* Room above the input for its upward suggestion menu. */
-.composer-card {
-  min-height: 340px;
-}
-.composer-card > .composer-wrap {
-  margin-top: auto;
-}
-.composer-card > .spec-footer {
-  margin-top: 0;
 }
 .muted {
   font-size: 10px;
