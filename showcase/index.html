@@ -487,67 +487,81 @@
               ></div
             >
           </section>
-          <section class="specimen wide" id="reading"
-            ><div class="section-head"
-              ><div><h2>Reading &amp; tables</h2></div></div
-            ><div class="card extra-pad"
-              ><div class="demo-controls"
-                ><label
-                  >Body size
-                  <select id="bodySize"
-                    ><option value="14">Small · 14 px</option
-                    ><option value="15" selected>Default · 15 px</option
-                    ><option value="16">Large · 16 px</option></select
-                  ></label
-                ><label for="readingWidth">Reading width
-                  <input id="readingWidth" type="range" min="12" max="36" step="1" value="36" />
-                </label
-                ><output id="measureOutput" for="bodySize readingWidth">Max width 540 px · Line height 24 px</output></div
-              ><article class="measure-prose" id="measureProse"
-                ><h3>Good reading starts with room for content.</h3
-                ><p
-                  >Text needs space and boundaries. Headings balance line lengths; paragraphs wrap naturally. Long identifiers can break when needed, while numbers keep a fixed width.<span
-                    class="inline-symbol"
-                    data-ui-icon="File"
-                  ></span>
-                  Inline icons align 0.125em below the baseline.</p
-                ><p>Inline references such as <code>reading.js</code> stay within the paragraph.</p
-                ><p class="long-id"
-                  ><code>claude-design-observation-local-demonstration-with-a-long-identifier</code></p
-                ><div class="reading-baseline-comparison" role="group" aria-label="Icon baseline comparison">
+          <section class="specimen wide" id="reading">
+            <div class="section-head"><div><h2>Reading &amp; tables</h2></div></div>
+            <div class="card reading-card">
+              <div class="segment" id="readingViews" role="radiogroup" aria-label="Reading examples">
+                <div class="segment-thumb"></div>
+                <button id="readingLayoutTab" role="radio" aria-checked="true" aria-controls="readingLayoutPanel" data-value="layout" tabindex="0">Typography details</button>
+                <button id="readingCodeTab" role="radio" aria-checked="false" aria-controls="readingCodePanel" data-value="code" tabindex="-1">Code &amp; tables</button>
+              </div>
+              <div class="reading-panels">
+                <div id="readingLayoutPanel" class="reading-layout" role="region" aria-labelledby="readingLayoutTab">
+                  <div class="reading-prose-example">
+                    <div class="reading-width-control">
+                      <label for="readingWidth">Resize to see wrapping</label>
+                      <input id="readingWidth" type="range" min="12" max="36" step="1" value="36" />
+                    </div>
+                    <article class="measure-prose" id="measureProse">
+                      <h3>Good reading starts with room for content.</h3>
+                      <p>A few quiet details make a page easier to read. Leave room between ideas, and let each sentence find its own rhythm.</p>
+                      <p>Inline references such as <code>reading.js</code> stay within the paragraph.</p>
+                      <p class="long-id"><code>claude-design-observation-local-demonstration-with-a-long-identifier</code></p>
+                    </article>
+                    <p class="reading-detail">text-wrap: balance for headings · pretty for paragraphs</p>
+                    <p class="reading-detail">Inline code · 0.5px border · 0.9em type · 0.4em radius</p>
+                    <output class="reading-detail" id="measureOutput" for="readingWidth">Demo width cap · 36em / 540px</output>
+                  </div>
+                  <div class="reading-comparisons">
+<div class="reading-baseline-comparison" role="group" aria-label="Icon baseline comparison">
+                  <span class="reading-number-label">Align icons with text</span>
                   <div class="reading-baseline-default">
                     <span class="reading-baseline-label">Default baseline</span>
-                    <div class="reading-baseline-line"><span data-ui-icon="File" data-icon-size="16"></span> <span>File details</span></div>
+                    <div class="reading-baseline-line"><span class="reading-baseline-guide" aria-hidden="true"></span><span data-ui-icon="File" data-icon-size="16"></span> <span>File details</span></div>
                   </div>
                   <div>
                     <span class="reading-baseline-label">Offset −0.125em</span>
-                    <div class="reading-baseline-line"><span data-ui-icon="File" data-icon-size="16"></span> <span>File details</span></div>
+                    <div class="reading-baseline-line"><span class="reading-baseline-guide" aria-hidden="true"></span><span data-ui-icon="File" data-icon-size="16"></span> <span>File details</span></div>
                   </div>
+                  <span class="reading-detail reading-tech-detail">vertical-align: −0.125em · 16px icon → 2px down</span>
                 </div
                 ><div class="reading-number-sample" role="group" aria-labelledby="readingNumberLabel">
-                  <span class="reading-number-label" id="readingNumberLabel">Numeric spacing · Simulated time</span>
+                  <span class="reading-number-label" id="readingNumberLabel">Digits change, width stays steady</span>
                   <div><span class="reading-baseline-label">Proportional digits</span><span class="reading-number-value reading-number-proportional" id="readingNumberProportional" dir="ltr" translate="no" aria-live="off">00:00.00</span></div>
                   <div><span class="reading-baseline-label">Tabular digits</span><span class="reading-number-value" id="readingNumberValue" dir="ltr" translate="no" aria-live="off">00:00.00</span></div>
+                  <span class="reading-detail reading-tech-detail">tabular-nums · Simulated counter · Edge markers show width</span>
                 </div
                 ><div class="reading-weight-comparison" role="group" aria-label="Font weight comparison">
-                  <span class="reading-number-label">Font weight · Compare in dark mode</span>
-                  <div class="reading-weight-fixed"><span class="reading-baseline-label">Fixed weights</span><div class="reading-weight-medium">Thoughtful interface details</div><div class="reading-weight-bold">Clear hierarchy</div></div>
-                  <div><span class="reading-baseline-label">Theme weights</span><div class="reading-weight-medium">Thoughtful interface details</div><div class="reading-weight-bold">Clear hierarchy</div></div>
+                  <span class="reading-number-label">Lighter weights in dark mode</span>
+                  <div class="reading-weight-fixed"><span class="reading-baseline-label">Fixed weights</span><div lang="en" translate="no"><div class="reading-weight-medium">Interface details</div><div class="reading-weight-bold">Interface details</div></div><div class="reading-weight-local"><div class="reading-weight-medium">Thoughtful interface details</div><div class="reading-weight-bold">Clear hierarchy</div></div></div>
+                  <div><span class="reading-baseline-label">Theme weights</span><div lang="en" translate="no"><div class="reading-weight-medium">Interface details</div><div class="reading-weight-bold">Interface details</div></div><div class="reading-weight-local"><div class="reading-weight-medium">Thoughtful interface details</div><div class="reading-weight-bold">Clear hierarchy</div></div></div>
+                  <span class="reading-detail reading-tech-detail">Variable weight · Light 500 / 600 → Dark 460 / 560</span>
                 </div
-                ><div class="reading-code-block" id="readingCodeBlock" role="group" aria-label="CSS code" tabindex="0" dir="ltr">
+                >
+                  </div>
+                </div>
+                <div id="readingCodePanel" class="reading-code-panel" role="region" aria-labelledby="readingCodeTab" hidden>
+                  <div class="reading-code-example">
+                    <h3 class="reading-example-title">Code &amp; copy feedback</h3>
+<div class="reading-code-block" id="readingCodeBlock" role="group" aria-label="CSS code" tabindex="0" dir="ltr">
                   <div class="reading-code-actions">
                     <button class="icon-button reading-code-copy" id="readingCodeCopy" type="button" aria-label="Copy to clipboard" title="Copy"><span data-ui-icon="Copy"></span></button>
                     <span class="sr-only" id="readingCodeStatus" role="status"></span>
                   </div>
                   <div class="reading-code-language" translate="no">css</div>
-                  <div class="reading-code-viewport"><pre><code id="readingCodeContent">.reading {
-  max-width: 36em;
-  line-height: 1.6;
-  font-family: var(--study-sans), system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+                  <div class="reading-code-viewport"><pre><code id="readingCodeContent">.measure-prose code:not(pre code) {
+  border: 0.5px solid var(--line);
+  border-radius: 0.4em;
+  font-size: 0.9em;
+  overflow-wrap: break-word;
 }</code></pre></div>
-                </div></article
-              ><div class="table-heading"
-                ><button class="button small" id="expandTable" hidden>Expand table ↗</button></div
+                </div>
+<p class="reading-detail reading-copy-detail">Hover or focus to copy · Check on success · Reset after 2000ms</p>
+</div>
+                  <div class="reading-table-example">
+<div class="table-heading"
+                ><h3 class="reading-example-title">Scroll edge shadows</h3>
+                <button class="button small" id="expandTable" hidden>Expand table ↗</button></div
               ><div
                 class="table-viewport"
                 id="tableViewport"
@@ -570,11 +584,16 @@
                     ></tbody
                   ></table
                 ></div
-              ><div class="spec-footer"
-                ><span><b>36 em</b> max body width</span><span><b>1.6×</b> line height</span></div
-              ></div
-            ></section
-          ><section class="specimen" id="gallery"
+              >
+                    <p class="reading-detail reading-copy-detail">Scroll horizontally · 3rem masks / 1.5rem shadows · CSS local / scroll</p>
+                    <p class="reading-detail">Expand · 200ms · scale 0.98 → 1</p>
+                    <p class="reading-detail">cubic-bezier(.165, .84, .44, 1)</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+          <section class="specimen" id="gallery"
             ><div class="section-head"
               ><div><h2>Gallery &amp; zoom</h2></div></div
             ><div class="card extra-pad"

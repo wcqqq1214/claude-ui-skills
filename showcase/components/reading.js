@@ -13,17 +13,20 @@ function initReadingDemo() {
   tableObserver.observe(tableViewport);
   tableObserver.observe($('#motionTable'));
   function updateReadingMeasure() {
-    const n = Number($('#bodySize').value), em = Number($('#readingWidth').value);
-    document.documentElement.style.setProperty('--reading-body', n + 'px');
+    const em = Number($('#readingWidth').value);
     $('#measureProse').style.setProperty('--reading-measure', em + 'em');
     DemoI18n.text($('#measureOutput'), () =>
-      DemoI18n.t('Max width {0} px · Line height {1} px', n * em, Number((n * 1.6).toFixed(1)))
+      DemoI18n.t('Demo width cap · {0}em / {1}px', em, 15 * em)
     );
-    DemoI18n.attr($('#readingWidth'), 'aria-valuetext', () => DemoI18n.t('{0} em · Maximum {1} px', em, n * em));
+    DemoI18n.attr($('#readingWidth'), 'aria-valuetext', () => DemoI18n.t('{0} em · Maximum {1} px', em, 15 * em));
   }
-  $('#bodySize').onchange = updateReadingMeasure;
   $('#readingWidth').oninput = updateReadingMeasure;
   updateReadingMeasure();
+  setupSegment($('#readingViews'), value => {
+    $('#readingLayoutPanel').hidden = value !== 'layout';
+    $('#readingCodePanel').hidden = value !== 'code';
+    measureTable();
+  });
   $('#expandTable').onclick = () => {
     const clone = DemoI18n.clone($('#motionTable'));
     clone.removeAttribute('id');
