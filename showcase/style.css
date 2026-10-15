@@ -326,36 +326,17 @@ main {
   margin: calc(var(--card-pad) + 8px) calc(-1 * (var(--card-pad) + var(--stage-inset)))
     calc(-1 * var(--card-pad));
 }
-/* Desktop: each chapter is a canvas that fills the viewport under its title,
-   so the page does not scroll. The example keeps its real size in a card on
-   the canvas: centered when its height is fixed, anchored near the top when
-   it grows during interaction (so growth never moves what is above it). */
+/* Desktop: short chapters fill the canvas; longer examples grow the page.
+   Only component-owned viewports (streaming, code and tables) scroll locally. */
 @media (min-width: 851px) {
-  .page {
-    display: flex;
-    flex-direction: column;
-    height: 100vh;
-    height: 100dvh;
-  }
   main {
-    flex: 1 1 auto;
-    min-height: 0;
-    display: flex;
-    flex-direction: column;
     width: 100%;
     padding-bottom: 28px;
   }
-  .sections {
-    flex: 1 1 auto;
-    min-height: 0;
-    display: flex;
-    flex-direction: column;
-  }
   .specimen[data-active] {
-    flex: 1 1 auto;
-    min-height: 0;
+    min-height: calc(100dvh - 64px);
     display: grid;
-    grid-template-rows: auto minmax(0, 1fr);
+    grid-template-rows: auto 1fr;
   }
   .specimen[data-active]::before {
     content: '';
@@ -364,7 +345,7 @@ main {
     background: var(--canvas);
   }
   .specimen {
-    --canvas-pad: 40px;
+    --canvas-pad: 24px;
     --stage-inset: 0px;
   }
   .specimen[data-active] > .card,
@@ -375,7 +356,7 @@ main {
     width: min(100% - 2 * var(--canvas-pad), var(--chapter-width));
     margin: var(--canvas-pad) 0;
   }
-  /* Examples that grow while you use them start near the top of the canvas. */
+  /* Growing examples stay near the top, keeping their controls stationary. */
   #segmented,
   #feedback,
   #reading,
@@ -387,86 +368,28 @@ main {
   .specimen[data-active] > :not(.section-head) {
     align-self: var(--canvas-anchor, center);
   }
-  /* A composer rests at the bottom like a chat input; suggestions and
-     attachments grow upward into the canvas. */
   #composer {
     --canvas-anchor: end;
   }
   .specimen[data-active] > .composer-card {
     min-height: 0;
   }
-  /* The file panel works best large: it fills the canvas. */
   .specimen[data-active] > .workspace-card {
     align-self: stretch;
     display: flex;
     flex-direction: column;
   }
   .workspace-card > .workspace-layout {
-    flex: 1 1 0;
-    min-height: 0;
-  }
-  .workspace-card :is(.file-list, .file-preview) {
-    min-height: 0;
-    overflow: auto;
-    overscroll-behavior: contain;
-  }
-  .workspace-card > .workspace-toolbar,
-  #workspace > .workspace-card > .spec-footer {
-    flex-shrink: 0;
-    position: static;
-  }
-  /* Typography already owns a scroll area: shrink that area, not its
-     toolbar or footer, when the canvas is shorter than the example. */
-  .specimen > .type-card {
-    max-height: calc(100% - 2 * var(--canvas-pad));
-    min-height: 0;
-  }
-  .type-card > .type-scroll-shell {
-    flex: 0 1 300px;
-    min-height: 0;
-  }
-  .type-card .type-scroll {
-    height: 100%;
-  }
-  .type-card > :is(.demo-toolbar, .spec-footer) {
-    flex-shrink: 0;
-  }
-  /* On a short screen a growing example scrolls inside its card; the
-     parameters stay visible at the bottom. */
-  :is(#segmented, #reading, #menus, #tasks, #recovery, #images, #micro)[data-active] > .card,
-  #feedback[data-active] > .feedback-grid {
-    max-height: calc(100% - 2 * var(--canvas-pad));
-    min-height: 0;
-    overflow: auto;
-    overscroll-behavior: contain;
-  }
-  #feedback[data-active] > .feedback-grid {
-    /* Keep the scrollport outside the cards' rings and shadows without
-       moving or resizing the cards themselves. */
-    box-sizing: content-box;
-    padding: 12px;
-    margin-block: calc(var(--canvas-pad) - 12px);
+    flex: 1 1 auto;
   }
   .specimen > .card {
     display: flex;
     flex-direction: column;
   }
-  /* These examples scroll as a whole; their content must keep its natural
-     height instead of shrinking and overflowing into the next section. */
-  :is(#reading, #menus, #images, #micro) > .card > * {
-    flex-shrink: 0;
-  }
   .specimen > .card > .spec-footer {
     order: 2;
-    position: sticky;
-    bottom: 0;
-    z-index: 1;
     background: var(--surface);
-    /* Follow the card's rounded bottom (12px radius inside a 1px border). */
     border-radius: 0 0 11px 11px;
-  }
-  .specimen > .card.extra-pad > .spec-footer {
-    bottom: calc(-1 * var(--card-pad));
   }
   .specimen > .card::after {
     content: '';

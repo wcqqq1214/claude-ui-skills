@@ -21,7 +21,7 @@ Visit [Claude UI](http://127.0.0.1:8766/showcase/). All assets are local, with n
 - The globe button switches between English and Simplified Chinese. The first visit follows the browser language; subsequent visits remember the manual selection. Use `?lang=en` or `?lang=zh-Hans` to specify the preview language.
 - The theme button cycles through system, light and dark, and saves the preference.
 - HTML and component JS contain the English source text; `i18n.js` supplies Chinese translations. Unmapped text stays in English. Language switching preserves input and interaction state. The language menu supports arrow keys, Home/End, Enter/Space and Escape.
-- The page shows one chapter at a time: components, controls and a few parameters. Each chapter has its own hash (for example `#reading`), so links, reload and back/forward keep the chapter; narrow screens choose chapters from the bar at the top. Each chapter guide links directly to the running frontend code.
+- The page shows one chapter at a time: components, controls and a few parameters. Each chapter has its own hash (for example `#reading`), so links, reload and back/forward keep the chapter; narrow screens choose chapters from the bar at the top. Desktop cards expand with their content instead of adding a second vertical scroll area; longer chapters scroll with the page. Component-owned viewports, such as streaming text, code and tables, retain their local scrolling. Each chapter guide links directly to the running frontend code.
 
 ## Adaptation boundaries
 

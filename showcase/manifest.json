@@ -2,8 +2,8 @@
   "files": [
     {
       "name": "README.md",
-      "sha256": "e522ebf2f51ae6471720536bd786c3e4c540e6bf903493810961e4220df5aeb2",
-      "bytes": 2931
+      "sha256": "5b1d361026226891415e852613f9a4b7f70b24ce9d7ac2909533c724cb272c1c",
+      "bytes": 3156
     },
     {
       "name": "app.js",
@@ -317,8 +317,8 @@
     },
     {
       "name": "style.css",
-      "sha256": "4d552255a3f38a9b57d4bba4c80d70cd9ba5981135d95eda9759a49a06d825b3",
-      "bytes": 18595
+      "sha256": "93edb1535edf00ebdd734cd8f7ffd89230663f74b8d8c0fca83c88f3d3483b04",
+      "bytes": 16128
     }
   ],
   "network_dependencies": [],
