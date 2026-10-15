@@ -4,7 +4,22 @@ const DemoIcons = (() => {
   const glyphs = {"Add":57345,"ArrowUp":57363,"ArrowDown":57353,"ArrowLeft":57356,"ArrowRight":57360,"ArrowClockwise":57629,"X":57615,"Expand":57447,"Collapse":57421,"ArrowUpRight":57365,"File":57452,"Code":57416,"Chat":57393,"Tasks":57585,"Check":57403,"Copy":57430,"CaretDown":57383,"Chats":57401,"Info":57487};
   const strokes = {12:.8,16:1,20:1.2,24:1.4,28:1.6,32:1.8};
   function create(name, size=16) {
-    if (!(name in glyphs) || !(size in strokes)) throw new Error('Unknown demo icon or size');
+    if (!(size in strokes)) throw new Error('Unknown demo icon size');
+    if (name === 'DotsHorizontal') {
+      const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+      svg.setAttribute('viewBox', '0 0 24 24');
+      svg.setAttribute('width', String(size));
+      svg.setAttribute('height', String(size));
+      svg.setAttribute('aria-hidden', 'true');
+      svg.setAttribute('fill', 'currentColor');
+      for (const x of [4, 12, 20]) {
+        const dot = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        dot.setAttribute('cx', String(x)); dot.setAttribute('cy', '12'); dot.setAttribute('r', '1.8');
+        svg.append(dot);
+      }
+      return svg;
+    }
+    if (!(name in glyphs)) throw new Error('Unknown demo icon');
     const master = size <= 18 ? 16 : 20, lo = master === 16 ? .8 : 1.125, hi = master === 16 ? 1.25 : 1.8;
     const weight = Math.round(Math.max(400, Math.min(700, 400 + 300 * (strokes[size]*master/size-lo)/(hi-lo)))*10)/10;
     const icon = document.createElement('span');

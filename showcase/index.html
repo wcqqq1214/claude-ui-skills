@@ -629,25 +629,33 @@
                 <div class="spec-footer"><span>Arrows preview · Enter selects · Esc returns</span></div>
               </article>
               <article class="card menus-example" aria-labelledby="paletteLabel">
-                <h3 id="paletteLabel">Card expansion</h3>
-                <div class="menus-stage"><div class="palette-demo"
-                ><button
-                  class="button small subtle"
-                  id="paletteOpen"
-                  aria-expanded="false"
-                  aria-controls="paletteCard"
-                  >Expand quick card ↗</button
-                ><div id="paletteCard" class="palette-card" hidden
-                  ><div class="palette-header"
-                    ><b>Expand from the trigger</b><p>Keep the spatial connection as more content appears.</p></div
-                  ><div class="palette-actions"
-                    ><div class="palette-inner"
-                      ><button class="text-button" id="paletteClose">Collapse</button></div
-                    ></div
-                  ></div
-                ></div
-              ></div>
-                <div class="spec-footer"><span><b>200ms</b> card move / expand</span></div>
+                <h3 id="paletteLabel">Artifact actions</h3>
+                <div class="menus-stage">
+                  <div class="palette-demo" id="artifactActionsDemo">
+                    <div class="palette-result">
+                      <span data-ui-icon="File" data-icon-size="20" aria-hidden="true"></span>
+                      <span class="palette-result-title">Product overview</span>
+                      <button class="icon-button" id="paletteOpen" type="button" aria-label="Artifact actions" aria-haspopup="menu" aria-expanded="false" aria-controls="paletteCard" aria-keyshortcuts="Alt+Enter" data-ui-icon="DotsHorizontal" data-icon-size="16"></button>
+                    </div>
+                    <div class="palette-preview-area">
+                      <div class="palette-thumb" id="paletteThumb" aria-hidden="true">
+                        <img src="landscape.svg" alt="" width="280" height="175" />
+                        <p>Artifact · Today</p>
+                      </div>
+                      <div id="paletteCard" class="palette-card" role="menu" aria-label="Artifact actions" hidden>
+                        <img src="landscape.svg" alt="" width="280" height="175" />
+                        <div class="palette-header"><b>Product overview</b><p>Artifact · Today</p></div>
+                        <div class="palette-actions"><div class="palette-inner">
+                          <button type="button" role="menuitem" data-palette-action="Open" aria-keyshortcuts="1"><span>Open</span><kbd>1</kbd></button>
+                          <button type="button" role="menuitem" data-palette-action="Copy link" aria-keyshortcuts="2"><span>Copy link</span><kbd>2</kbd></button>
+                          <button type="button" role="menuitem" data-palette-action="Pin" aria-keyshortcuts="3"><span id="palettePinLabel">Pin</span><kbd>3</kbd></button>
+                        </div></div>
+                      </div>
+                    </div>
+                    <p class="palette-status" id="paletteStatus" role="status">Local preview · No real actions</p>
+                  </div>
+                </div>
+                <div class="spec-footer"><span><b>200ms</b></span><span>Thumbnail → actions</span><span>Alt/Option + Enter · Esc</span></div>
               </article>
               <article class="card menus-example menus-search-example" aria-labelledby="searchLocateLabel">
                 <h3 id="searchLocateLabel">Search &amp; highlight</h3>

@@ -14,7 +14,7 @@ Choose the user-facing scenario, then read that chapter's linked HTML, JS and CS
 | Short hints, adjustable filename truncation and standalone copy confirmation | [Tooltips and copy feedback](components/micro.md) | [08](../showcase/index.html#micro) |
 | Adjustable reading width and wrapping, inline icon baseline and theme-weight comparisons, synchronized proportional/tabular digits, long identifiers, inline/fenced code, copy confirmation and wide tables | [Reading, code and tables](components/reading.md) | [09](../showcase/index.html#reading) |
 | Several images with zoom and bounded pan | [Gallery](components/gallery.md) | [10](../showcase/index.html#gallery) |
-| Separate menu selection, in-chapter search highlighting and action-card expansion | [Menus, search and palette](components/menus.md) | [11](../showcase/index.html#menus) |
+| Separate menu selection, in-chapter search highlighting and artifact thumbnail-to-actions | [Menus, search and palette](components/menus.md) | [11](../showcase/index.html#menus) |
 | Top-level mode buttons with focus-only arrows | [Sidebar modes](components/modes.md) | [12](../showcase/index.html#modes) |
 | Status-card selection and a local drop target | [Cards and drop feedback](components/tasks.md) | [13](../showcase/index.html#tasks) |
 | Visible retry states and a notification queue | [Retry and notifications](components/recovery.md) | [14](../showcase/index.html#recovery) |

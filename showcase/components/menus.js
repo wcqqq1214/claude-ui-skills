@@ -122,43 +122,96 @@ function initMenusDemo() {
   DemoI18n.onChange(renderSearch);
   window.addEventListener('pagehide', () => cancelSearchHighlight());
   renderSearch();
-  let paletteFocusFrame = null;
-  function cancelPaletteFocus() {
-    if (paletteFocusFrame !== null) cancelAnimationFrame(paletteFocusFrame);
-    paletteFocusFrame = null;
+  bindArtifactActions();
+}
+
+// Expand the artifact thumbnail into its action card.
+function bindArtifactActions() {
+  const host = $('#artifactActionsDemo'), trigger = $('#paletteOpen'),
+    thumb = $('#paletteThumb'), card = $('#paletteCard'),
+    actions = [...card.querySelectorAll('[data-palette-action]')];
+  let focusFrame = null, pinned = false;
+  function cancelFocus() {
+    if (focusFrame !== null) cancelAnimationFrame(focusFrame);
+    focusFrame = null;
   }
-  const paletteCard = $('#paletteCard'),
-    paletteActions = paletteCard.querySelector('.palette-actions');
-  paletteActions.addEventListener('animationend', (e) => {
-    if (e.target === paletteActions) paletteCard.removeAttribute('data-opening');
-  });
-  $('#paletteOpen').onclick = () => {
-    const card = paletteCard,
-      trigger = $('#paletteOpen');
-    if (!card.hidden) return;
-    const from = trigger.getBoundingClientRect();
+  function close(restore = true) {
+    cancelFocus();
+    card.hidden = true;
+    card.removeAttribute('data-opening');
+    host.classList.remove('palette-open');
+    trigger.setAttribute('aria-expanded', 'false');
+    if (restore) trigger.focus({preventScroll: true});
+  }
+  function open() {
+    if (!card.hidden) return close();
+    const from = thumb.getBoundingClientRect();
+    host.classList.add('palette-open');
     card.hidden = false;
-    trigger.setAttribute('aria-expanded', 'true');
     const to = card.getBoundingClientRect();
     card.style.setProperty('--cp-card-from-x', from.left - to.left + 'px');
     card.style.setProperty('--cp-card-from-y', from.top - to.top + 'px');
+    trigger.setAttribute('aria-expanded', 'true');
     card.setAttribute('data-opening', '');
-    cancelPaletteFocus();
-    paletteFocusFrame = requestAnimationFrame(() => {
-      paletteFocusFrame = requestAnimationFrame(() => {
-        paletteFocusFrame = null;
+    cancelFocus();
+    focusFrame = requestAnimationFrame(() => {
+      focusFrame = requestAnimationFrame(() => {
+        focusFrame = null;
         if (!card.hidden && document.activeElement === trigger)
-          $('#paletteClose').focus({ preventScroll: true });
+          actions[0].focus({preventScroll: true});
       });
     });
+  }
+  trigger.onclick = open;
+  trigger.onkeydown = e => {
+    if (e.key === 'Enter' && e.altKey && !e.metaKey && !e.shiftKey) {
+      e.preventDefault();
+      if (!e.repeat) open();
+    }
   };
-  $('#paletteClose').onclick = () => {
-    cancelPaletteFocus();
-    paletteCard.hidden = true;
-    paletteCard.removeAttribute('data-opening');
-    $('#paletteOpen').setAttribute('aria-expanded', 'false');
-    $('#paletteOpen').focus();
+  actions.forEach(button => {
+    button.onclick = () => {
+      const label = button.dataset.paletteAction === 'Pin' ? (pinned ? 'Unpin' : 'Pin') : button.dataset.paletteAction;
+      if (button.dataset.paletteAction === 'Pin') {
+        pinned = !pinned;
+        DemoI18n.text($('#palettePinLabel'), () => DemoI18n.t(pinned ? 'Unpin' : 'Pin'));
+      }
+      // These controls never open a file, copy a real link or change an account.
+      DemoI18n.text($('#paletteStatus'), () => DemoI18n.t('Demo action: {0}', DemoI18n.t(label)));
+      close();
+    };
+  });
+  card.onkeydown = e => {
+    if (e.key === 'Enter' && e.repeat) { e.preventDefault(); return; }
+    if (e.key === 'Escape' || e.key === 'ArrowLeft' || (e.key === 'Enter' && e.altKey && !e.metaKey && !e.shiftKey)) {
+      e.preventDefault();
+      e.stopPropagation();
+      if (!e.repeat) close();
+      return;
+    }
+    if (e.altKey || e.metaKey || e.ctrlKey || e.repeat) return;
+    const digit = /^[1-3]$/.test(e.key) ? Number(e.key) - 1 : -1;
+    if (digit >= 0) { e.preventDefault(); actions[digit].click(); return; }
+    const index = actions.indexOf(document.activeElement);
+    if (['ArrowDown', 'ArrowUp', 'Home', 'End'].includes(e.key)) {
+      e.preventDefault();
+      const next = e.key === 'Home' ? 0 : e.key === 'End' ? actions.length - 1 : (index + (e.key === 'ArrowDown' ? 1 : actions.length - 1)) % actions.length;
+      actions[next].focus({preventScroll: true});
+    }
   };
+  card.querySelector('.palette-actions').addEventListener('animationend', e => {
+    if (e.target === e.currentTarget) card.removeAttribute('data-opening');
+  });
+  document.addEventListener('pointerdown', e => {
+    if (!card.hidden && !host.contains(e.target)) close(false);
+  });
+  document.addEventListener('focusin', e => {
+    if (!card.hidden && !host.contains(e.target)) close(false);
+  });
+  new MutationObserver(() => {
+    if (!$('#menus').hasAttribute('data-active')) close(false);
+  }).observe($('#menus'), {attributes: true, attributeFilter: ['data-active']});
+  window.addEventListener('pagehide', () => close(false));
 }
 
 // Destination highlight: settle scroll, draw/wash, then clean up.

@@ -112,23 +112,22 @@
   color: var(--muted);
   margin: 20px 8px;
 }
-.palette-demo {
-  min-height: 66px;
-}
-.palette-card {
-  margin-top: 14px;
-  padding: 16px;
-  background: var(--clay-soft);
-  border: 1px solid var(--line);
-  border-radius: 9px;
-  transform-origin: top left;
-  font-size: 12px;
-}
-.palette-card p {
-  color: var(--secondary);
-  line-height: 1.7;
-  margin: 10px 0;
-}
+.palette-result { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: 6px; background: var(--hover-fill); }
+.palette-result-title { flex: 1; min-width: 0; font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.palette-preview-area { position: relative; margin-top: 12px; }
+.palette-thumb, .palette-card { width: 280px; max-width: 100%; padding: 6px; background: var(--surface-popover); border-radius: 10px; box-shadow: var(--popover-shadow); font-size: 12px; }
+.palette-thumb { margin-left: auto; }
+.palette-thumb img, .palette-card img { display: block; width: 100%; height: auto; aspect-ratio: 16 / 10; object-fit: cover; border-radius: 4px; }
+.palette-thumb p, .palette-header p { color: var(--secondary); font-size: 11px; line-height: 1.6; margin: 4px 0 0; }
+.palette-thumb p { padding: 0 4px; }
+.palette-card { transform-origin: top left; }
+.palette-open .palette-thumb { position: absolute; top: 0; right: 0; visibility: hidden; }
+.palette-header { padding: 8px 6px; }
+.palette-inner { border-top: 1px solid var(--line); }
+.palette-inner button { display: flex; align-items: center; justify-content: space-between; gap: 12px; width: 100%; padding: 7px 8px; background: transparent; color: var(--text); text-align: left; border-radius: 5px; font-size: 12px; }
+.palette-inner button:hover, .palette-inner button:focus-visible { background: var(--hover-fill); }
+.palette-inner kbd { color: var(--muted); font-size: 10px; }
+.palette-status { color: var(--muted); font-size: 10px; line-height: 1.6; margin: 14px 0 0; min-height: 16px; }
 @media (max-width: 620px) {
   .local-search {
     font-size: 16px;
