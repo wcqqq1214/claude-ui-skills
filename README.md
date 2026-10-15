@@ -32,7 +32,7 @@ UI, frontend interactions, typography and motion only. [Scope and behavior](docs
 
 ## Demo
 
-Supports English, Simplified Chinese and light/dark themes.
+Explore 14 interactive example groups, including segmented controls, panels, search highlighting and four status animations. Supports English, Simplified Chinese and light/dark themes.
 
 For offline use, see [local preview instructions](showcase/README.md#local-preview). No build or Claude installation required.
 
