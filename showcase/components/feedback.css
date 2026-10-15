@@ -18,47 +18,32 @@
   font-size: 12px;
   color: var(--secondary);
 }
-.quiet-dots {
-  display: inline-flex;
-  gap: 3.5px;
+.thinking-mark {
   position: relative;
-  top: 0.26em;
-}
-.quiet-dots i {
-  width: 3px;
-  height: 3px;
+  width: 20px;
+  height: 20px;
   flex-shrink: 0;
+  overflow: clip;
+  color: var(--cds-clay, #d97757);
+}
+.thinking-mark[data-phase='dot']::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  width: 7px;
+  height: 7px;
   border-radius: 50%;
-  background: var(--cds-clay, #d97757);
-  opacity: 0;
-  animation: quiet-dot 1.9s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+  background: currentColor;
 }
-.quiet-dots i:nth-child(2) {
-  animation-delay: 0.15s;
+.thinking-strip {
+  display: block;
+  width: 20px;
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
 }
-.quiet-dots i:nth-child(3) {
-  animation-delay: 0.3s;
-}
-@keyframes quiet-dot {
-  0%,
-  8% {
-    opacity: 0;
-    transform: translateY(2px);
-  }
-  22% {
-    opacity: 1;
-    transform: translateY(-2.5px);
-  }
-  36%,
-  70% {
-    opacity: 1;
-    transform: translateY(0);
-  }
-  90%,
-  100% {
-    opacity: 0;
-    transform: translateY(0);
-  }
+.thinking-mark:is([data-phase='dot'], [data-phase='done']) .thinking-strip {
+  visibility: hidden;
 }
 .skeleton-slot {
   --skeleton-base: rgb(11 11 11 / 5%);

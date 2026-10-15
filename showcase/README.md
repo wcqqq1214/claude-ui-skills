@@ -40,4 +40,4 @@ python3 -m http.server 8766 --bind 127.0.0.1
 3. 在 Actions 中手动运行 **Deploy demo to Pages**，选择 `main`。
 4. 确认站点可用后，将 GitHub About 的 Website 设置为 `https://wcqqq1214.github.io/claude-ui-skills/`。
 
-工作流只将 `showcase/` 中的 HTML、CSS、JS、SVG 和 `components/` 下的 CSS、JS 及 `fonts/*.woff2` 打包至站点根目录；仓库文档、Skill 和 manifest 不进入站点。组件指南与本地预览继续使用仓库内相对路径。站点可用性与访问范围取决于 GitHub 套餐及 Pages 设置。
+工作流只将 `showcase/` 中的 HTML、CSS、JS、SVG 和 `components/` 下的 CSS、JS、`components/status-assets/*.webp` 及 `fonts/*.woff2` 打包至站点根目录；仓库文档、Skill 和 manifest 不进入站点。组件指南与本地预览继续使用仓库内相对路径。站点可用性与访问范围取决于 GitHub 套餐及 Pages 设置。

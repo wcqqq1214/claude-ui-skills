@@ -2,8 +2,8 @@
   "files": [
     {
       "name": "README.md",
-      "sha256": "66cde9bf04dea19ce55300e9a310fbf4bc16b763e4bb3b7459c49270b9fa92ef",
-      "bytes": 2425
+      "sha256": "f94021203a3c4d41ad8b8dd0af3362ea37e3ca97eda57007faadccaa1000ee01",
+      "bytes": 2461
     },
     {
       "name": "app.js",
@@ -37,13 +37,33 @@
     },
     {
       "name": "components/feedback.css",
-      "sha256": "9afa534339d0d295d4fc2a8a4f6d637f9fed8d33059c0f40d56a4ca4d6b2754b",
-      "bytes": 4383
+      "sha256": "653c28c111c544d1b2f489e5ced0de9575683534b27c077c417713565d627edd",
+      "bytes": 4235
     },
     {
       "name": "components/feedback.js",
-      "sha256": "f07715863cd656dc18ee903765a61c46598457855c91d18ae296c4726c3ba901",
-      "bytes": 2361
+      "sha256": "93d36f4d261cfb7e998d54c3ca1017e9aff2f4ca2480daf3c6e0a40f2bb8ddcb",
+      "bytes": 4833
+    },
+    {
+      "name": "components/status-assets/grow.webp",
+      "sha256": "de274c4870d41924c1623de83ec14c65070207d001254b3b9ecb0c869cb3fcc1",
+      "bytes": 1102
+    },
+    {
+      "name": "components/status-assets/think-in.webp",
+      "sha256": "7b9238ebe807aa35855afb82297148fc5dd1c13b29688bddd3439ece7ca4e9bd",
+      "bytes": 2314
+    },
+    {
+      "name": "components/status-assets/think-loop.webp",
+      "sha256": "e9a0f9a301f0f1a6d2ec09153984db168ccf9c25aa467e0816459a039b58822b",
+      "bytes": 15330
+    },
+    {
+      "name": "components/status-assets/think-out.webp",
+      "sha256": "f2e6320d93c0869f0a524b2fda3c5f9e347bc2d499074ff6ce32cd7bcf0ab1ad",
+      "bytes": 1928
     },
     {
       "name": "components/gallery.css",
@@ -212,8 +232,8 @@
     },
     {
       "name": "index.html",
-      "sha256": "a33666eef729a618d3020d4dad2f922a8b28f76295b1c66982255f87988bfa35",
-      "bytes": 39419
+      "sha256": "2708f6fe3455d4f0a24af261f409f04b355d687608faeaa644ac7f4881a3d6cc",
+      "bytes": 39473
     },
     {
       "name": "landscape-dusk.svg",
