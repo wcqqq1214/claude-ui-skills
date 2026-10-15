@@ -180,21 +180,23 @@ function initTypeDemo() {
       'In a narrower space, paragraphs wrap naturally. This scrolling area keeps its own boundary, so the surrounding showcase does not move as the text grows.',
       'The content ends here. You can still browse freely or replay this example.'
     ];
-    paragraphs.forEach((text, i) =>
-      typeTimers.push(
-        setTimeout(
-          () => {
-            const p = document.createElement('p');
-            p.className = 'word-fade';
-            DemoI18n.text(p, () => DemoI18n.t(text));
-            $('#streamParagraphs').append(p);
-            if (i === paragraphs.length - 1) typePlaying = false;
-            followType();
-          },
-          1800 + i * 1400
-        )
-      )
-    );
+    const initialParagraphs = 7;
+    function appendParagraph(text, i) {
+      const p = document.createElement('p');
+      p.className = 'word-fade';
+      DemoI18n.text(p, () => DemoI18n.t(text));
+      $('#streamParagraphs').append(p);
+      if (i === paragraphs.length - 1) typePlaying = false;
+    }
+    // Seed readable history immediately; leave time to inspect the return animation.
+    paragraphs.forEach((text, i) => {
+      if (i < initialParagraphs) appendParagraph(text, i);
+      else typeTimers.push(setTimeout(() => {
+        appendParagraph(text, i);
+        followType();
+      }, (i - initialParagraphs + 1) * 30000));
+    });
+    followType();
   }
   DemoI18n.onChange(() => renderTypeTitle(false));
   $('#replayType').onclick = replayType;
