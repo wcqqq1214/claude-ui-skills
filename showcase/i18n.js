@@ -2,6 +2,10 @@
 'use strict';
 const DemoI18n = (() => {
   const chinese = {
+  "Icon baseline comparison": "图标基线对照",
+  "Default baseline": "默认基线",
+  "Offset −0.125em": "偏移 −0.125em",
+  "File details": "文件详情",
   "Reading width": "阅读宽度",
   "{0} em · Maximum {1} px": "{0} em · 最大 {1} px",
   "Stable digits · Simulated time": "数字稳定 · 模拟时间",

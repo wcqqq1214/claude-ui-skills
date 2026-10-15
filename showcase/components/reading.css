@@ -42,6 +42,22 @@
   font-size: 0.85em;
   color: var(--muted);
 }
+.reading-baseline-comparison {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 10rem), 1fr));
+  gap: 12px;
+  margin-block: 20px;
+}
+.reading-baseline-label {
+  display: block;
+  margin-bottom: 6px;
+  color: var(--secondary);
+  font-family: var(--study-sans);
+  font-size: 12px;
+}
+.reading-baseline-default .study-icon {
+  vertical-align: baseline;
+}
 .reading-number-sample {
   display: flex;
   align-items: center;
