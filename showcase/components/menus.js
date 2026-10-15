@@ -105,6 +105,8 @@ function initMenusDemo() {
         renderSearch();
         const row = $(`#${x.target} .section-head`);
         const title = row.querySelector('h2');
+        // A page that shows one chapter at a time reveals the destination first.
+        row.dispatchEvent(new CustomEvent('demo-reveal', { bubbles: true }));
         // Keep keyboard navigation at the destination without adding another scroll.
         title.focus({ preventScroll: true });
         cancelSearchHighlight = highlightSearchTarget(row, title);

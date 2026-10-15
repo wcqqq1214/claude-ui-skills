@@ -27,12 +27,21 @@
   </head>
   <body>
     <aside class="sidebar">
-      <a class="brand" href="#intro"
+      <a class="brand" href="#type"
         ><img class="brand-symbol" src="claude-logo.svg" width="36" height="36" alt="" /><span
+          class="brand-name"
           >Claude UI</span
         ></a
+      ><button
+        type="button"
+        class="chapter-toggle"
+        id="chapterToggle"
+        aria-expanded="false"
+        aria-controls="chapterNav"
+        ><span class="chapter-current" id="chapterCurrent"></span
+        ><span class="chapter-chevron" aria-hidden="true" data-ui-icon="CaretDown"></span></button
       >
-      <nav aria-label="COMPONENT INDEX">
+      <nav id="chapterNav" aria-label="COMPONENT INDEX">
         <a href="#type"><span>01</span>Typography</a><a href="#controls"><span>02</span>Controls</a>
         <a href="#segmented"><span>03</span>Segmented control</a
         ><a href="#composer"><span>04</span>Input &amp; commands</a>
@@ -48,7 +57,6 @@
     </aside>
     <div class="page">
       <header class="topbar"
-        ><span>Design reference <span class="slash">/</span> Components &amp; motion</span
         ><div class="top-actions"
           ><div class="shell-controls">
             <div class="shell-control"
@@ -730,8 +738,7 @@
           >
         </div>
         <footer class="page-footer"
-          ><span>Claude UI</span><span>UI examples · Unofficial</span
-          ><a href="#intro">Back to top ↑</a></footer
+          ><span>Claude UI</span><span>UI examples · Unofficial</span></footer
         >
       </main>
     </div>

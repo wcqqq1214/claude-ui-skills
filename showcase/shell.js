@@ -1,5 +1,5 @@
 'use strict';
-// Showcase navigation and appearance; app.js initializes the component demonstrations.
+// Showcase chapter navigation and appearance; app.js initializes the component demonstrations.
 (() => {
   const systemTheme = matchMedia('(prefers-color-scheme: dark)');
   const themes = ['system', 'light', 'dark'];
@@ -86,76 +86,111 @@
     }
     updateThemeControl();
     updateLanguageControl();
-    DemoI18n.onChange(() => { updateThemeControl(); updateLanguageControl(); queueScroll(); });
-    const links = [...document.querySelectorAll('.sidebar nav a')];
-    const sections = links.map(link => document.getElementById(link.hash.slice(1)));
+    DemoI18n.onChange(() => { updateThemeControl(); updateLanguageControl(); });
+
+    // One chapter is shown at a time. The URL hash is the only chapter state:
+    // links push it, back/forward and hash edits restore it, and language
+    // changes keep it because they replace only the query string. Hidden
+    // chapters stay mounted (content-visibility + inert) so their state,
+    // timers, listeners and in-progress animations are preserved.
+    const sidebar = document.querySelector('.sidebar');
+    const links = [...sidebar.querySelectorAll('nav a')];
+    const chapters = links.map(link => document.getElementById(link.hash.slice(1)));
+    const picker = document.getElementById('chapterToggle');
+    const pickerLabel = document.getElementById('chapterCurrent');
     let active = null;
-    // Keep the clicked item during anchor scrolling, then follow actual document
-    // movement. Nested scrolling must neither change the selection nor lock it.
-    let destination = null;
-    let frame = 0;
-    let settleTimer = 0;
-    function select(section) {
-      if (active === section) return;
-      active = section;
+    const chapterFor = hash => chapters.find(chapter => '#' + chapter.id === hash) || null;
+
+    // Close overlays through their own exits so nothing from the previous
+    // chapter stays above the next one or keeps focus.
+    function closeTransientLayers() {
+      for (const dialog of document.querySelectorAll('dialog[open]')) {
+        if (dialog.dispatchEvent(new Event('cancel', {cancelable: true}))) dialog.close();
+      }
+      const toast = document.getElementById('toast');
+      if (toast && !toast.hidden && !toast.inert) document.getElementById('closeToast').click();
+      // The examples' menus and command suggestions already close on an outside press.
+      document.body.dispatchEvent(new PointerEvent('pointerdown', {bubbles: true}));
+    }
+    function show(chapter) {
+      if (!chapter || chapter === active) return false;
+      if (active) closeTransientLayers();
+      active = chapter;
+      chapters.forEach(section => {
+        const selected = section === chapter;
+        section.toggleAttribute('data-active', selected);
+        section.inert = !selected;
+      });
       links.forEach((link, index) => {
-        const selected = sections[index] === section;
+        const selected = chapters[index] === chapter;
         link.classList.toggle('active', selected);
-        if (selected) link.setAttribute('aria-current', 'location');
+        if (selected) link.setAttribute('aria-current', 'page');
         else link.removeAttribute('aria-current');
       });
+      // A translated clone keeps the compact label in the current language.
+      pickerLabel.replaceChildren(...DemoI18n.clone(links[chapters.indexOf(chapter)]).childNodes);
+      return true;
     }
-    function settleScroll() {
-      clearTimeout(settleTimer);
-      destination = null;
-      queueScroll();
+    function setPicker(open, restoreFocus = false) {
+      sidebar.toggleAttribute('data-picker-open', open);
+      picker.setAttribute('aria-expanded', String(open));
+      if (restoreFocus) picker.focus({preventScroll: true});
     }
-    function waitForScrollEnd() {
-      clearTimeout(settleTimer);
-      // Also covers same-position anchors and browsers without scrollend.
-      settleTimer = setTimeout(settleScroll, 180);
+    function navigate(chapter) {
+      // The selected link is about to be hidden in the compact picker.
+      setPicker(false, picker.getAttribute('aria-expanded') === 'true'
+        && links.includes(document.activeElement));
+      const url = new URL(location.href);
+      url.hash = chapter.id;
+      if (url.href !== location.href) {
+        try {
+          // Reselecting the default chapter only names it in the URL.
+          if (chapter === active) history.replaceState(history.state, '', url.href);
+          else history.pushState(null, '', url.href);
+        } catch {
+          // Some file:// previews deny history changes; hashchange then shows it.
+          location.hash = chapter.id;
+          return;
+        }
+      }
+      show(chapter);
+      window.scrollTo({top: 0, behavior: 'instant'});
     }
-    function followDestination(section) {
-      destination = section;
-      select(section);
-      waitForScrollEnd();
+    function followLocation() {
+      const chapter = chapterFor(location.hash)
+        || (!location.hash || location.hash === '#intro' ? chapters[0] : null);
+      if (show(chapter)) window.scrollTo({top: 0, behavior: 'instant'});
     }
-    function followHash() {
-      followDestination(sections.find(section => '#' + section.id === location.hash) || null);
-    }
-    links.forEach((link, index) => link.addEventListener('click', event => {
-      if (event.button || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
-      followDestination(sections[index]);
-    }));
-    function syncScroll() {
-      frame = 0;
-      if (destination) return;
-      const anchorOffset = (parseFloat(getComputedStyle(sections[0]).scrollMarginTop) || 0)
-        + (parseFloat(getComputedStyle(document.documentElement).scrollPaddingTop) || 0);
-      const line = Math.max(document.querySelector('.topbar').getBoundingClientRect().bottom + 32, anchorOffset + 1);
-      const positions = sections.map(section => ({section, top: section.getBoundingClientRect().top}));
-      const page = document.scrollingElement;
-      const atEnd = page.scrollTop > 0 && page.scrollTop + page.clientHeight >= page.scrollHeight - 1;
-      const passed = positions.filter(item => item.top <= line);
-      if (!atEnd && !passed.length) { select(null); return; }
-      const rowTop = atEnd ? positions[positions.length - 1].top : Math.max(...passed.map(item => item.top));
-      const row = positions.filter(item => Math.abs(item.top - rowTop) < 2);
-      select(row.find(item => item.section === active)?.section || row[0].section);
-    }
-    function queueScroll() {
-      if (!frame) frame = requestAnimationFrame(syncScroll);
-    }
-    document.addEventListener('scroll', event => {
-      if (event.target !== document) return;
-      if (destination) waitForScrollEnd();
-      else queueScroll();
-    }, {passive: true});
-    document.addEventListener('scrollend', event => {
-      if (event.target === document) settleScroll();
+    document.addEventListener('click', event => {
+      if (event.defaultPrevented || event.button || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+      const link = event.target.closest?.('a[href^="#"]');
+      const chapter = link && chapterFor(link.hash);
+      if (!chapter) return;
+      event.preventDefault();
+      navigate(chapter);
     });
-    window.addEventListener('resize', queueScroll);
-    window.addEventListener('hashchange', followHash);
-    followHash();
-    queueScroll();
+    // Examples that move focus to another chapter (search results) reveal it first.
+    document.addEventListener('demo-reveal', event => {
+      const chapter = event.target.closest?.('.specimen');
+      if (chapters.includes(chapter)) navigate(chapter);
+    });
+    window.addEventListener('popstate', followLocation);
+    window.addEventListener('hashchange', followLocation);
+
+    // Narrow layouts collapse the same navigation behind the current chapter.
+    picker.addEventListener('click', () => setPicker(picker.getAttribute('aria-expanded') !== 'true'));
+    sidebar.addEventListener('keydown', event => {
+      if (event.key !== 'Escape' || picker.getAttribute('aria-expanded') !== 'true') return;
+      event.preventDefault();
+      setPicker(false, true);
+    });
+    for (const eventName of ['pointerdown', 'focusin']) {
+      document.addEventListener(eventName, event => {
+        if (picker.getAttribute('aria-expanded') === 'true' && !sidebar.contains(event.target)) setPicker(false);
+      });
+    }
+    matchMedia('(max-width: 850px)').addEventListener('change', () => setPicker(false));
+
+    show(chapterFor(location.hash) || chapters[0]);
   });
 })();
