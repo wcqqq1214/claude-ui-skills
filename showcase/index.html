@@ -53,8 +53,8 @@
         ><a href="#menus"><span>11</span>Focus &amp; selection</a><a href="#modes"><span>12</span>Sidebar modes</a
         ><a href="#tasks"><span>13</span>Cards &amp; drop targets</a
         ><a href="#recovery"><span>14</span>Recovery &amp; notices</a>
+        <p class="sidebar-note">UI examples · Unofficial</p>
       </nav>
-      <p class="sidebar-note">UI examples · Unofficial</p>
     </aside>
     <div class="page">
       <header class="topbar"
@@ -121,7 +121,6 @@
             >
             <div class="card type-card"
               ><div class="demo-toolbar"
-                ><span class="tiny-label">Growing text · Scroll up to pause</span
                 ><button
                   class="icon-button"
                   id="replayType"
@@ -305,7 +304,6 @@
             <div class="feedback-grid"
               ><div class="card waiting-card"
                 ><div class="demo-toolbar"
-                  ><span class="tiny-label">Waiting state</span
                   ><button class="button small" id="skeletonBtn">Finish</button></div
                 >
                 <div class="status-variants"><div class="segment compact" id="statusSegment" role="radiogroup" aria-label="Status animation">
@@ -382,7 +380,7 @@
                     ><span data-ui-icon="File"></span> design-notes.md</button
                   ><button class="file" data-file="tokens"
                     ><span data-ui-icon="Code"></span> motion-tokens.css</button
-                  ><p>Drag the divider to resize<br />Or focus it and use the arrow keys</p></aside
+                  ></aside
                 ><div
                   class="resize-handle"
                   id="resizeHandle"
@@ -420,9 +418,6 @@
               ><div><h2>Image preview</h2></div></div
             >
             <div class="card image-card"
-              ><div class="demo-toolbar"
-                ><span class="tiny-label">Attachment thumbnail · Click to view</span
-                ><span class="image-format">SVG · Local example</span></div
               ><button
                 class="image-origin"
                 id="imageOrigin"
@@ -435,8 +430,6 @@
                   class="image-zoom-icon"
                   data-ui-icon="ArrowUpRight"
                 ></span></button
-              ><div class="image-caption"
-                ><b>A little space among the mountains</b><span>Origin geometry → Preview → Return</span></div
               ><div class="spec-footer"
                 ><span><b>350 / 250 ms</b> in / out</span
                 ><span><b>snap</b> Bézier curve</span></div
@@ -448,7 +441,6 @@
               ><div><h2>Hints &amp; feedback</h2></div></div
             >
             <div class="card micro-card"
-              ><div class="demo-toolbar"><span class="tiny-label">Hover, or focus with Tab</span></div
               ><div class="micro-stage"
                 ><div class="tooltip-anchor"
                   ><button
@@ -459,8 +451,6 @@
                     data-icon-size="24"
                   ></button
                   ><span class="tooltip" id="demoTooltip" role="tooltip">View design notes</span></div
-                ><div
-                  ><b>A small hint for an action</b><p>The hint waits 300ms, then fades and scales in.</p></div
                 ></div
               ><div class="overflow-demo"
                 ><label for="overflowWidth"
@@ -477,7 +467,6 @@
                 ><code id="copyText">--cds-dur-snap: 120ms;</code
                 ><button class="button small" id="copyBtn">Copy</button></div
               ><div class="notice-demo"
-                ><span>Action feedback</span
                 ><button class="button small subtle" id="toastBtn">Show notice</button></div
               ><div class="spec-footer"
                 ><span><b>120 ms</b> hint transition</span><span><b>6 s</b> notice without action</span></div
@@ -529,7 +518,6 @@
 }</code></pre></div>
                 </div></article
               ><div class="table-heading"
-                ><span class="tiny-label">Wide table · Scroll horizontally</span
                 ><button class="button small" id="expandTable" hidden>Expand table ↗</button></div
               ><div
                 class="table-viewport"
@@ -568,7 +556,6 @@
                   ><img src="landscape-dusk.svg" alt="Dusk" draggable="false" /></button
                 ><button data-gallery="2" aria-label="Open gallery image 3"
                   ><img src="landscape-sand.svg" alt="Sand dunes" draggable="false" /></button></div
-              ><p class="extra-description">Click the current image to zoom; drag to pan, Ctrl + scroll to zoom.</p
               ><div class="spec-footer"
                 ><span><b>300 ms</b> change image</span><span><b>≥ 2×</b> click zoom target</span></div
               ></div
@@ -694,7 +681,6 @@
                   ></button
                 ></div
               ><div id="taskDetail" class="task-detail" hidden></div
-              ><p class="extra-description">Use arrow keys to browse adjacent cards.</p
               ><div class="drop-demo"
                 ><div
                   class="drag-source"
@@ -703,7 +689,7 @@
                   tabindex="0"
                   role="button"
                   aria-label="Design notes, press Enter to simulate a drop"
-                  >▤ design-notes.md <small>Drag into the box below</small></div
+                  >▤ design-notes.md</div
                 ><div class="drop-target" id="dropTarget"
                   ><span id="dropHint">Drop here to see the target boundary</span
                   ><div class="drop-overlay" aria-hidden="true" hidden
@@ -746,9 +732,6 @@
             ></section
           >
         </div>
-        <footer class="page-footer"
-          ><span>Claude UI</span><span>UI examples · Unofficial</span></footer
-        >
       </main>
     </div>
     <dialog id="imageDialog" class="image-dialog" aria-label="Enlarged image preview"

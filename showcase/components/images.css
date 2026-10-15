@@ -3,14 +3,10 @@
   display: flex;
   flex-direction: column;
 }
-.image-format {
-  font-size: 9px;
-  color: var(--muted);
-}
 .image-origin {
   position: relative;
   display: block;
-  margin: 0 20px;
+  margin: 0 20px 20px;
   padding: 0;
   border-radius: 7px;
   overflow: hidden;
@@ -37,19 +33,6 @@
   display: grid;
   place-items: center;
   font-size: 15px;
-}
-.image-caption {
-  display: flex;
-  flex-direction: column;
-  padding: 16px 21px 22px;
-  gap: 4px;
-}
-.image-caption b {
-  font-size: 12px;
-}
-.image-caption span {
-  font-size: 10px;
-  color: var(--muted);
 }
 .image-dialog {
   padding: 0;
@@ -83,9 +66,4 @@
   box-shadow:
     0 4px 32px #0005,
     0 0 0 0.5px #0004;
-}
-@media (max-width: 620px) {
-  .image-caption {
-    padding-bottom: 18px;
-  }
 }

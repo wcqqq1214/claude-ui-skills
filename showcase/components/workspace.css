@@ -58,12 +58,6 @@
 .file > span {
   color: var(--muted);
 }
-.file-list p {
-  font-size: 9px;
-  color: var(--muted);
-  line-height: 1.9;
-  padding: 20px 10px;
-}
 .resize-handle {
   cursor: col-resize;
   position: relative;
@@ -180,8 +174,7 @@
     padding: 10px !important;
     visibility: visible !important;
   }
-  .file-list .file-label,
-  .file-list p {
+  .file-list .file-label {
     display: none;
   }
   .file {

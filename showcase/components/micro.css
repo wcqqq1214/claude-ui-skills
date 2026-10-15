@@ -18,14 +18,6 @@
   height: 48px;
   color: var(--secondary);
 }
-.micro-stage b {
-  font-size: 12px;
-}
-.micro-stage p {
-  font-size: 10px;
-  color: var(--muted);
-  margin-top: 5px;
-}
 .tooltip-anchor {
   position: relative;
 }
