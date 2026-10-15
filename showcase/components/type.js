@@ -11,6 +11,7 @@ function initTypeDemo() {
     typeMarkReady = typeof typeMark.animate === 'function';
     updateTypeBottom();
   }, () => {}); // Keep the arrow if the local artwork cannot load.
+  let typeIntro = false;
   let typePinned = true,
     typeNearEnd = true,
     typeFadeNearEnd = true,
@@ -34,7 +35,7 @@ function initTypeDemo() {
     } else typeMarkAnimation?.pause();
   }
   function followType() {
-    if (typePinned) {
+    if (typePinned && !typeIntro) {
       const bottom = typeScroll.scrollHeight - typeScroll.clientHeight;
       if (bottom - typeScroll.scrollTop > 2) typeScroll.scrollTop = bottom;
       typeLastTop = typeScroll.scrollTop;
@@ -134,12 +135,19 @@ function initTypeDemo() {
       })
     );
   }
-  function replayType() {
+  function stopTypePlayback() {
     typeTimers.forEach(clearTimeout);
     typeTimers = [];
     typeMarkAnimation?.cancel();
     typeMarkAnimation = null;
+    typePlaying = false;
+    typeIntro = false;
+    updateTypeBottom();
+  }
+  function replayType() {
+    stopTypePlayback();
     typePlaying = true;
+    typeIntro = true;
     typePinned = true;
     typeLastTop = 0;
     typeScroll.scrollTop = 0;
@@ -180,25 +188,33 @@ function initTypeDemo() {
       'In a narrower space, paragraphs wrap naturally. This scrolling area keeps its own boundary, so the surrounding showcase does not move as the text grows.',
       'The content ends here. You can still browse freely or replay this example.'
     ];
-    const initialParagraphs = 7;
     function appendParagraph(text, i) {
+      typeIntro = false;
       const p = document.createElement('p');
       p.className = 'word-fade';
       DemoI18n.text(p, () => DemoI18n.t(text));
       $('#streamParagraphs').append(p);
       if (i === paragraphs.length - 1) typePlaying = false;
     }
-    // Seed readable history immediately; leave time to inspect the return animation.
+    // Let the message and title be seen before growing the local reading area.
     paragraphs.forEach((text, i) => {
-      if (i < initialParagraphs) appendParagraph(text, i);
-      else typeTimers.push(setTimeout(() => {
+      typeTimers.push(setTimeout(() => {
         appendParagraph(text, i);
         followType();
-      }, (i - initialParagraphs + 1) * 30000));
+      }, 1800 + i * 3000));
     });
     followType();
   }
   DemoI18n.onChange(() => renderTypeTitle(false));
   $('#replayType').onclick = replayType;
-  replayType();
+  // Chapter activation owns sample playback; hidden examples must not finish offscreen.
+  const chapter = $('#type');
+  const syncPlayback = () => {
+    if (chapter.hasAttribute('data-active')) replayType();
+    else stopTypePlayback();
+  };
+  new MutationObserver(syncPlayback).observe(chapter, {
+    attributes: true, attributeFilter: ['data-active']
+  });
+  syncPlayback();
 }
