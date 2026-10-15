@@ -271,7 +271,7 @@ function initComposerAttachments() {
       });
     } catch { update(); }
   }
-  add.onclick = () => {
+  function addSample() {
     const index = names.findIndex((_, i) => !list.querySelector(`[data-sample="${i}"]`));
     if (index < 0) return;
     transition?.skipTransition();
@@ -305,6 +305,10 @@ function initComposerAttachments() {
     tile.append(filename, type, close);
     list.append(tile);
     updateAdd();
-  };
+  }
+  add.onclick = addSample;
+  // Seed the local presentation through the same path as subsequent additions.
+  addSample();
+  addSample();
   window.addEventListener('pagehide', () => { transition?.skipTransition(); releaseKey?.(); });
 }

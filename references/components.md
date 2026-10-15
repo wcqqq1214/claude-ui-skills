@@ -7,7 +7,7 @@ Choose the user-facing scenario, then read that chapter's linked HTML, JS and CS
 | Standalone grapheme/body reveal, user bubble, working dots and scroll following | [Text reveal and local scrolling](components/type.md) | [01](../showcase/index.html#type) |
 | Binary choices and an ordered discrete scale | [Switch, checkbox and slider](components/controls.md) | [02](../showcase/index.html#controls) |
 | A fixed set of mutually exclusive views | [Segmented control](components/segmented.md) | [03](../showcase/index.html#segmented) |
-| A draft with command suggestions and mock attachment add/remove motion | [Input, commands and attachments](components/composer.md) | [04](../showcase/index.html#composer) |
+| A draft with slash suggestions, two initial mock attachments and add/remove/reflow motion | [Input, commands and attachments](components/composer.md) | [04](../showcase/index.html#composer) |
 | Waiting, delayed placeholders and optional detail | [Waiting and accordion](components/feedback.md) | [05](../showcase/index.html#feedback) |
 | Files, view formats and a resizable preview | [File panel](components/workspace.md) | [06](../showcase/index.html#workspace) |
 | A single thumbnail opening into a preview | [Image preview](components/images.md) | [07](../showcase/index.html#images) |

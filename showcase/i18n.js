@@ -72,6 +72,7 @@ const DemoI18n = (() => {
   "Clear hierarchy": "清晰的层次",
   "Mock attachments": "模拟附件",
   "Add mock attachment": "添加模拟附件",
+  "Add attachment": "添加附件",
   "Remove {0}": "移除 {0}",
   "User message": "用户消息",
   "Streaming text example": "流式文字示例",

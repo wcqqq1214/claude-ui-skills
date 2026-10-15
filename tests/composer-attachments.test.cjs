@@ -44,6 +44,9 @@ function setup(animated = false) {
 
 test('fixed mock tiles cap at three, restore a removed sample, and return keyboard focus', () => {
   const s = setup();
+  assert.deepEqual(s.list.children.map(tile => tile.dataset.sample), ['0', '1']);
+  assert.equal(s.add.disabled, false);
+  assert.equal(s.document.activeElement, null);
   for (let i=0;i<4;i++) s.add.onclick();
   assert.equal(s.list.children.length,3); assert.equal(s.add.disabled,true);
   const middle = s.list.children[1], last = s.list.children[2];
@@ -57,7 +60,7 @@ test('fixed mock tiles cap at three, restore a removed sample, and return keyboa
 });
 
 test('pending removals apply once; the last tile skips transition and IME/modifiers do not remove', () => {
-  const s=setup(true); s.add.onclick();s.add.onclick();
+  const s=setup(true);
   const first=s.list.children[0], last=s.list.children[1];
   s.key(first,'Delete',{isComposing:true});s.key(first,'Delete',{ctrlKey:true});
   assert.equal(s.transitions.length,0);

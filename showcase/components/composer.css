@@ -61,14 +61,23 @@
 }
 .composer-chin {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: 5px;
   padding-top: 12px;
 }
+.composer-chin .composer-add {
+  width: auto;
+  gap: 5px;
+  padding: 0 8px;
+  font-size: 12px;
+}
+.composer-chin .send-button { margin-left: auto; }
 .composer-hint {
+  order: 1;
   font-size: 9px;
   color: var(--muted);
-  flex: 1;
+  flex: 1 0 100%;
 }
 .send-button {
   height: 29px;

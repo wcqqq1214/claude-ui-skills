@@ -17,13 +17,13 @@
     },
     {
       "name": "components/composer.css",
-      "sha256": "a950b433c4a7c7cbaf728b915782dbc0ce99233399f01c7eb94d0ebb8ab9fca8",
-      "bytes": 7245
+      "sha256": "4073918a10bbac52e91ed22502eee208c21b069a4a967f03e270cc385aa47f6f",
+      "bytes": 7431
     },
     {
       "name": "components/composer.js",
-      "sha256": "6940dd53e41f95b54229242b14874367c901b4b339f2b2e01a7da14e68687945",
-      "bytes": 11027
+      "sha256": "3ce56f4c961f60c9dfc73f209e568994bbc770fc701cb23c703daaf3518e29ee",
+      "bytes": 11164
     },
     {
       "name": "components/controls.css",
@@ -272,8 +272,8 @@
     },
     {
       "name": "i18n.js",
-      "sha256": "c3f6cacc60f03306dfdf44da8064f2887eb1abd82f5b81ede9a578c8e70d08bf",
-      "bytes": 26004
+      "sha256": "f4e4b53797903f138f5b9f76e03a0c30772af19615df6af75f3fce70ba759afc",
+      "bytes": 26040
     },
     {
       "name": "icons.js",
@@ -282,8 +282,8 @@
     },
     {
       "name": "index.html",
-      "sha256": "281a6f8a910c4e563ccbc5ef0f84d043d53c0c8129db35e074648e0199802fc2",
-      "bytes": 50759
+      "sha256": "96b1f8885d7ee3982b2f3b2b977593910cfa41a1feca7ff802ebd5db9e4b48ad",
+      "bytes": 50836
     },
     {
       "name": "landscape-dusk.svg",
