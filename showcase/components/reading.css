@@ -41,6 +41,70 @@
   font-size: 0.85em;
   color: var(--muted);
 }
+.reading-code-block {
+  position: relative;
+  margin-top: 14px;
+  background: color-mix(in oklab, var(--surface-popover) 50%, transparent);
+  border: 0.5px solid var(--line);
+  border-radius: var(--msg-block-radius, 0.5rem);
+  text-wrap: wrap;
+}
+.reading-code-block:focus-visible {
+  outline-offset: 0;
+}
+.reading-code-actions {
+  position: sticky;
+  top: 8px;
+  float: right;
+  width: 0;
+  height: 48px;
+  padding-block: 8px;
+  opacity: 0;
+  z-index: 1;
+}
+.reading-code-block:hover .reading-code-actions,
+.reading-code-block:focus-within .reading-code-actions {
+  opacity: 1;
+}
+.reading-code-copy {
+  position: absolute;
+  right: 8px;
+  width: 32px;
+  height: 32px;
+  backdrop-filter: blur(12px);
+}
+.reading-code-copy:hover {
+  background: var(--hover-fill);
+}
+.reading-code-language {
+  padding: 14px 14px 0;
+  font-family: var(--study-sans);
+  font-size: 0.6875rem;
+  line-height: 1.0625rem;
+  color: var(--secondary);
+}
+.reading-code-viewport {
+  overflow-x: auto;
+}
+.reading-code-viewport pre {
+  margin: 0;
+  padding: 14px;
+  border-radius: var(--msg-block-radius, 0.5rem);
+  font-size: 0.875rem;
+  line-height: 1.625;
+  white-space: pre;
+  overflow-wrap: normal;
+  text-wrap: nowrap;
+}
+.reading-code-viewport code {
+  font-size: inherit;
+  color: var(--text);
+}
+@media (pointer: coarse), (hover: none) {
+  .reading-code-actions {
+    opacity: 1;
+  }
+}
 .table-heading {
   display: flex;
   justify-content: space-between;
