@@ -27,7 +27,7 @@ Decorative separator width changes with resolution (1px, .5px, 1/3px, .25px). Co
 
 ## Fonts and icons
 
-The bundled Sans/Serif text fonts support weight 300–800 and optical size 16–48; Mono has weight only. No GRAD axis is established. UI uses Sans, reading uses Serif, and code uses Mono. Dark regular/medium/semibold/bold axes are 360/460/540/560. These values do not guarantee equal perceived weight across different fonts.
+The bundled Sans/Serif text fonts support weight 300–800 and optical size 16–48; Mono has weight only. No GRAD axis is established. UI uses Sans, reading uses Serif, and code uses Mono. Dark regular/medium/semibold/bold axes are 360/460/540/560. These values do not guarantee equal perceived weight across different fonts. The [reading guide](components/reading.md) links the running fixed-versus-theme weight comparison.
 
 Simplified Chinese response fallback is PingFang SC → Microsoft YaHei → Noto Sans CJK SC. Sans also places system-ui before its CJK chain. Chinese glyphs come from system fallback, not an additional bundled Chinese font. The demo does not implement Claude's chat-font settings.
 

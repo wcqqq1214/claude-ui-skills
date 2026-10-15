@@ -11,8 +11,8 @@ Choose the user-facing scenario, then read that chapter's linked HTML, JS and CS
 | Waiting, delayed placeholders and optional detail | [Waiting and accordion](components/feedback.md) | [05](../showcase/index.html#feedback) |
 | Files, view formats and a resizable preview | [File panel](components/workspace.md) | [06](../showcase/index.html#workspace) |
 | A single thumbnail opening into a preview | [Image preview](components/images.md) | [07](../showcase/index.html#images) |
-| Short hints, clipped labels and standalone copy confirmation | [Tooltips and copy feedback](components/micro.md) | [08](../showcase/index.html#micro) |
-| Adjustable reading width and wrapping, inline icon baseline comparison, automatically changing stable digits, long identifiers, inline/fenced code, copy confirmation and wide tables | [Reading, code and tables](components/reading.md) | [09](../showcase/index.html#reading) |
+| Short hints, adjustable filename truncation and standalone copy confirmation | [Tooltips and copy feedback](components/micro.md) | [08](../showcase/index.html#micro) |
+| Adjustable reading width and wrapping, inline icon baseline and theme-weight comparisons, synchronized proportional/tabular digits, long identifiers, inline/fenced code, copy confirmation and wide tables | [Reading, code and tables](components/reading.md) | [09](../showcase/index.html#reading) |
 | Several images with zoom and bounded pan | [Gallery](components/gallery.md) | [10](../showcase/index.html#gallery) |
 | Focus preview, committed choice and action cards | [Menus, search and palette](components/menus.md) | [11](../showcase/index.html#menus) |
 | Top-level mode buttons with focus-only arrows | [Sidebar modes](components/modes.md) | [12](../showcase/index.html#modes) |

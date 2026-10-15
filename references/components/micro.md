@@ -11,7 +11,8 @@ Use these for short explanations that appear on hover or focus, full text only w
 ## Design and adaptation
 
 - Ordinary and overflow tips wait 300ms, then use 120ms opacity/scale transitions with snap easing and scale .98. Closing removes `aria-describedby` and reverses the visual state. Keep the fading element rendered.
-- Truncation checks both scroll width and a text Range, including `.1px` edge tolerance. Width changes dismiss the old tip and remeasure; untruncated text needs no duplicate explanation.
+- The existing `#overflowWidth` slider adjusts `.overflow-anchor` from 100–320px, capped by its container, to demonstrate a localized sample filename. Its output is the requested width, not the final available width. The slider and filenames are local teaching aids, not a Claude setting or real files.
+- Truncation checks both scroll width and a text Range, including `.1px` edge tolerance. Width, language and font-readiness changes dismiss the old tip and remeasure; untruncated text needs no duplicate explanation.
 - Copy success appears only after clipboard writing succeeds. The fallback uses a temporary selected textarea, restores focus and reports failure rather than showing a false success.
 - A single notification replaces its text and resets a 6s timer. Closing keeps it rendered until transitions finish, makes it inert and uses a revision to ignore outdated completions. Focus inside the closing toast returns to its trigger.
 

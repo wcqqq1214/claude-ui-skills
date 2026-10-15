@@ -134,5 +134,7 @@ function initMicroDemo() {
     if (e.key === 'Escape') hideOverflowTip();
   };
   new ResizeObserver(measureOverflow).observe(overflowTarget);
+  DemoI18n.onChange(measureOverflow);
+  document.fonts?.ready.then(measureOverflow);
   return showToast;
 }

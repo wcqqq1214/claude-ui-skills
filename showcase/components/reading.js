@@ -34,7 +34,7 @@ function initReadingDemo() {
 }
 
 function bindReadingNumberSample() {
-  const value = $('#readingNumberValue');
+  const values = [$('#readingNumberProportional'), $('#readingNumberValue')];
   let frame = 0, timer, visible = false, active = true;
   function stop() {
     clearInterval(timer);
@@ -46,14 +46,15 @@ function bindReadingNumberSample() {
     // Presentation frames only: fixed format, never elapsed time or usage statistics.
     timer = setInterval(() => {
       frame = (frame + 7) % 6000;
-      value.textContent = `00:${String(Math.floor(frame / 100)).padStart(2, '0')}.${String(frame % 100).padStart(2, '0')}`;
+      const text = `00:${String(Math.floor(frame / 100)).padStart(2, '0')}.${String(frame % 100).padStart(2, '0')}`;
+      values.forEach(value => { value.textContent = text; });
     }, 50);
   }
   const observer = new IntersectionObserver(([entry]) => {
     visible = entry.isIntersecting;
     sync();
   });
-  observer.observe(value);
+  observer.observe($('.reading-number-sample'));
   document.addEventListener('visibilitychange', sync);
   window.addEventListener('pagehide', () => { active = false; stop(); });
   window.addEventListener('pageshow', () => { active = true; sync(); });
