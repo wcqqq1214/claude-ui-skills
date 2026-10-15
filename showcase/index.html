@@ -52,7 +52,7 @@
         ><a href="#gallery"><span>10</span>Gallery &amp; zoom</a
         ><a href="#menus"><span>11</span>Menus &amp; search</a><a href="#modes"><span>12</span>Sidebar modes</a
         ><a href="#tasks"><span>13</span>Cards &amp; drop targets</a
-        ><a href="#recovery"><span>14</span>Recovery &amp; notices</a>
+        ><a href="#recovery"><span>14</span>Notifications</a>
         <p class="sidebar-note">UI examples · Unofficial</p>
       </nav>
     </aside>
@@ -755,36 +755,30 @@
                 ><span><b>150 / 200 ms</b> drop in / out</span></div
               ></div
             ></section
-          ><section class="specimen" id="recovery"
-            ><div class="section-head"
-              ><div><h2>Recovery &amp; notices</h2></div></div
-            ><div class="card extra-pad"
-              ><div class="retry-surface" id="retrySurface" tabindex="-1"
-                ><div id="retryContent"></div></div
-              ><div class="demo-controls"
-                ><label
-                  >Retry outcome
-                  <select id="retryOutcome"
-                    ><option value="fail">Fail again</option
-                    ><option value="success">Success</option></select
-                  ></label
-                ><button class="text-button" id="resetRetry">Reset</button></div
-              ><div id="retryAnnounce" class="sr-only" role="status" aria-live="polite"></div
-              ><div class="notification-buttons"
-                ><button class="button small" id="addNotification">Add notice</button
-                ><button class="button small subtle" id="repeatNotification">Repeat notice</button
-                ><button class="button small subtle" id="actionNotification"
-                  >Notice with action</button
-                ></div
-              ><div class="notification-stage"
-                ><div class="notification-stack" id="notificationStack"></div
-                ><p id="notificationEmpty">Notices stack here</p></div
-              ><div class="spec-footer"
-                ><span><b>−14 px / −0.04×</b> rear offset / scale</span
-                ><span><b>6 s</b> default duration</span></div
-              ></div
-            ></section
-          >
+          ><section class="specimen" id="recovery">
+            <div class="section-head"><div><h2>Notifications</h2></div></div>
+            <div class="recovery-grid">
+              <article class="card recovery-card">
+                <header class="recovery-heading">
+                  <h3>Notification stack</h3>
+                  <button class="button small subtle" id="clearNotifications">Clear notices</button>
+                </header>
+                <div class="notification-buttons">
+                  <button class="button small" id="addNotification">Stack three</button>
+                  <button class="button small subtle" id="repeatNotification">Repeat notice</button>
+                  <button class="button small subtle" id="actionNotification">Notice with action</button>
+                </div>
+                <div class="notification-stage">
+                  <div class="notification-stack" id="notificationStack"></div>
+                  <p id="notificationEmpty" hidden>No notices. Add a stack to replay.</p>
+                </div>
+                <footer class="recovery-caption">
+                  <p>New notices move to the front; repeated messages merge.</p>
+                  <p class="recovery-params">200ms · −14px / −4% per layer · standard notices dismiss after 6s</p>
+                </footer>
+              </article>
+            </div>
+          </section>
         </div>
       </main>
     </div>

@@ -6,7 +6,7 @@ Use these for short explanations that appear on hover or focus, full text only w
 
 [HTML](../../showcase/index.html#micro) · [JS](../../showcase/components/micro.js) · [CSS](../../showcase/components/micro.css)
 
-`initMicroDemo()` binds ordinary and overflow tips, copying and a single notification; it returns `showToast` to the retry demo. Read `isTruncated()`, `showOverflowTip()`, `showToast()` and `hideToast()`. Notifications share `.stack-toast` in [recovery.css](../../showcase/components/recovery.css).
+`initMicroDemo()` binds ordinary and overflow tips, copying and a single notification; it returns `showToast` to the notification-stack demo. Read `isTruncated()`, `showOverflowTip()`, `showToast()` and `hideToast()`. Notifications share `.stack-toast` in [recovery.css](../../showcase/components/recovery.css).
 
 ## Design and adaptation
 

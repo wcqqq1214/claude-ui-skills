@@ -81,13 +81,13 @@ test('live copy updates preserve user values and connected node identity', () =>
 test('a new message replaces its old binding and detached messages stop updating', () => {
   const output = {isConnected: true, textContent: ''};
   const {i18n} = load();
-  i18n.text(output, () => i18n.t('Retry'));
-  i18n.text(output, () => i18n.t('Retrying…'));
+  i18n.text(output, () => i18n.t('Copy'));
+  i18n.text(output, () => i18n.t('Copied'));
   i18n.select('zh-Hans');
-  assert.equal(output.textContent, '重试中…');
+  assert.equal(output.textContent, '已复制');
   output.isConnected = false;
   i18n.select('en');
-  assert.equal(output.textContent, '重试中…');
+  assert.equal(output.textContent, '已复制');
 });
 
 test('changing language restores scroll offsets and preserves unrelated history state', () => {

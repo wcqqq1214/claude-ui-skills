@@ -1,60 +1,5 @@
 'use strict';
 function initRecoveryDemo(showToast) {
-  // Repeated errors stay visible and announced; timers only represent demonstration pacing.
-  let retryTimer,
-    retryCount = 0;
-  function drawRetry(success = false) {
-    const host = $('#retryContent');
-    const lost = host.contains(document.activeElement);
-    host.replaceChildren();
-    const p = document.createElement('p');
-    DemoI18n.text(p, () =>
-      success
-        ? DemoI18n.t('✓ Content restored. Local example loaded.')
-        : DemoI18n.t('This content cannot be shown right now. Try again.')
-    );
-    host.append(p);
-    if (!success) {
-      const b = document.createElement('button');
-      b.className = 'button small';
-      b.id = 'retryButton';
-      DemoI18n.text(b, () => DemoI18n.t('Retry'));
-      b.onclick = () => {
-        const ownedFocus = document.activeElement === b;
-        b.disabled = true;
-        DemoI18n.text(b, () => DemoI18n.t('Retrying…'));
-        retryTimer = setTimeout(() => {
-          retryCount++;
-          const ok = $('#retryOutcome').value === 'success';
-          if (ok) {
-            drawRetry(true);
-            if (ownedFocus && document.activeElement === document.body)
-              $('#retrySurface').focus({ preventScroll: true });
-          } else {
-            b.disabled = false;
-            DemoI18n.text(b, () => DemoI18n.t('Retry'));
-            if (ownedFocus && document.activeElement === document.body)
-              b.focus({ preventScroll: true });
-            const status = document.createElement('span');
-            DemoI18n.text(status, () =>
-              DemoI18n.t('Attempt {0} was unsuccessful. You can try again.', retryCount)
-            );
-            $('#retryAnnounce').replaceChildren(status);
-          }
-        }, 900);
-      };
-      host.append(b);
-    }
-    if (lost && document.activeElement === document.body)
-      $('#retrySurface').focus({ preventScroll: true });
-  }
-  $('#resetRetry').onclick = () => {
-    clearTimeout(retryTimer);
-    retryCount = 0;
-    $('#retryAnnounce').replaceChildren();
-    drawRetry();
-  };
-  drawRetry();
   let notices = [],
     noticeSerial = 0;
   const notificationStack = $('#notificationStack');
@@ -176,7 +121,14 @@ function initRecoveryDemo(showToast) {
     void el.offsetHeight;
     el.removeAttribute('data-starting-style');
   }
-  $('#addNotification').onclick = () => addNotice();
+  $('#addNotification').onclick = () => {
+    for (let i = 0; i < 3; i++) addNotice();
+  };
+  $('#clearNotifications').onclick = () => {
+    for (const notice of notices.filter((item) => !item.ending)) removeNotice(notice.id);
+  };
   $('#repeatNotification').onclick = () => addNotice(false, true);
   $('#actionNotification').onclick = () => addNotice(true);
+  // A persistent action notice keeps the initial preview visible until dismissed.
+  addNotice(true);
 }

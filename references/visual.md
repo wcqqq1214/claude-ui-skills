@@ -21,7 +21,7 @@ Use this for theme roles, typography, static icons and shared surface hierarchy.
 | Brand text | #c6613f | #d97757 |
 | Focus | #2a78d6 | #2a78d6 |
 
-Preserve role relationships rather than using one background everywhere. Ordinary cards use the panel/small shadow, [menus](components/menus.md) the popover shadow and table dialogs the large shadow. The dark raised surface is #20201f. Light panels have an outer 1px ring; dark panels an inset ring. A transparent 1px border reserves geometry. Nested copy/retry surfaces use the ring without elevation; menu hover/focus fill is 5% light and 7.5% dark.
+Preserve role relationships rather than using one background everywhere. Ordinary cards use the panel/small shadow, [menus](components/menus.md) the popover shadow and table dialogs the large shadow. The dark raised surface is #20201f. Light panels have an outer 1px ring; dark panels an inset ring. A transparent 1px border reserves geometry. Nested copy surfaces use the ring without elevation; menu hover/focus fill is 5% light and 7.5% dark.
 
 Decorative separator width changes with resolution (1px, .5px, 1/3px, .25px). Control outlines, focus rings, menu/document separators and table grid lines retain their own widths. See [reading](components/reading.md), [micro](components/micro.md) and [recovery](components/recovery.md) for the actual consumers. Density variants are not a demo API; use each chapter's fixed sizes and preserve its padding/icon/height relationships.
 

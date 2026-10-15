@@ -17,7 +17,7 @@ Choose the user-facing scenario, then read that chapter's linked HTML, JS and CS
 | Separate menu selection, in-chapter search highlighting and artifact thumbnail-to-actions | [Menus, search and palette](components/menus.md) | [11](../showcase/index.html#menus) |
 | Top-level mode buttons with focus-only arrows | [Sidebar modes](components/modes.md) | [12](../showcase/index.html#modes) |
 | Status-card selection and a local drop target | [Cards and drop feedback](components/tasks.md) | [13](../showcase/index.html#tasks) |
-| Visible retry states and a notification queue | [Retry and notifications](components/recovery.md) | [14](../showcase/index.html#recovery) |
+| A notification queue with stacking and deduplication | [Notification stacks](components/recovery.md) | [14](../showcase/index.html#recovery) |
 
 ## Shared runtime
 
