@@ -9,7 +9,7 @@
 </p>
 
 <p align="center">
-  <a href="showcase/index.html">打开演示</a>
+  <img src="docs/assets/demo-preview.jpg" width="960" alt="Claude UI 演示">
 </p>
 
 ## 安装

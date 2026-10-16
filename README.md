@@ -9,7 +9,7 @@
 </p>
 
 <p align="center">
-  <a href="showcase/index.html">Open the demo</a>
+  <img src="docs/assets/demo-preview.jpg" width="960" alt="Claude UI demo">
 </p>
 
 ## Install

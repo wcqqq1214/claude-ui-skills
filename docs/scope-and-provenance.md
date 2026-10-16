@@ -16,7 +16,7 @@ The demo uses bundled text/icon fonts and selected design parameters alongside l
 - [Visual foundations](../references/visual.md): theme, typography, icon and surface roles.
 - [Design overview](design-overview.md): design ideas demonstrated by the existing components.
 - [Component guides](../references/components.md): demonstrated behavior and local adaptations.
-- [Demo manifest](../showcase/manifest.json): hashes of bundled showcase assets. [Demo preview](../README.md): see the repository README.
+- [Demo manifest](../showcase/manifest.json): hashes of bundled showcase assets. [Demo image](assets/demo-preview.jpg): the README preview.
 
 ## Coverage boundary
 

@@ -1,6 +1,6 @@
 # Claude UI
 
-14 groups of local, interactive Claude-inspired examples. The guides link directly to the running HTML, JS and CSS. No build, dependency installation, sign-in or Claude installation is required.
+13 groups of local, interactive Claude-inspired examples. The guides link directly to the running HTML, JS and CSS. No build, dependency installation, sign-in or Claude installation is required.
 
 Pages URLs (after deployment): [English](https://wcqqq1214.github.io/claude-ui-skills/?lang=en) · [Simplified Chinese](https://wcqqq1214.github.io/claude-ui-skills/?lang=zh-Hans)
 
