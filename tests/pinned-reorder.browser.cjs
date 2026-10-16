@@ -160,6 +160,70 @@ const types = {'.html':'text/html', '.js':'text/javascript', '.css':'text/css', 
     assert.equal(await page.locator('#pinnedMenu').isVisible(),false);
     console.log('PASS row roving focus, RTL, action navigation, menu boundaries and focus return');
 
+    const popup = page.locator('#pinnedMenu'), menuItem = popup.locator('[data-move="-1"]');
+    const pointerMenu = async () => { await primary('reading').hover(); await trigger('reading').click(); };
+    for (const theme of ['light', 'dark']) {
+      while(await page.locator('html').getAttribute('data-theme')!==theme) await page.locator('#themeBtn').click();
+      await pointerMenu();
+      assert.equal(await popup.evaluate(e=>e.parentElement===document.body),true);
+      assert.equal(await popup.evaluate(e=>e===document.activeElement),true,'pointer opens the popup without highlighting an item');
+      assert.equal(await popup.locator('[data-highlighted]').count(),0);
+      const values = await menuItem.evaluate(e=>{
+        const s=getComputedStyle(e), m=getComputedStyle(e.closest('[role="menu"]'));
+        return [s.height,s.padding,s.gap,s.borderRadius,s.fontSize,s.lineHeight,s.fontWeight,s.outlineStyle,
+          m.width,m.height,m.borderRadius,m.backgroundColor,m.color,m.transitionDuration,m.animationName];
+      });
+      // Compact MenuPopup / MenuItem measured from the installed component, not local-menu.
+      assert.deepEqual(values,['24px','2.5px 8px','6px','6px','13px','19px','400','none',
+        '128px',theme==='dark'?'57px':'56px','10px',theme==='dark'?'rgb(32, 32, 31)':'rgb(255, 255, 255)',
+        theme==='dark'?'rgb(240, 239, 236)':'rgb(11, 11, 11)','0s','none']);
+      assert.equal(await menuItem.evaluate(e=>getComputedStyle(e).fontVariationSettings),theme==='dark'?'"GRAD" 0, "wght" 360':'"GRAD" 0');
+      const a=await trigger('reading').boundingBox(), m=await popup.boundingBox();
+      assert.equal(m.y,Math.round(a.y+a.height+6),'6px from the action trigger, rounded to a device pixel');
+      assert.equal(m.x,Math.round(a.x+a.width-m.width),'end aligned to the trigger');
+      await menuItem.hover();
+      assert.equal(await menuItem.getAttribute('data-highlighted'),'');
+      assert.equal(await menuItem.evaluate(e=>e===document.activeElement),true);
+      assert.equal(await menuItem.evaluate(e=>getComputedStyle(e).backgroundColor),theme==='dark'?'rgba(255, 255, 255, 0.075)':'rgba(11, 11, 11, 0.05)');
+      if(process.env.SCREENSHOT_DIR) await page.screenshot({path:resolve(process.env.SCREENSHOT_DIR,`menu-${theme}.png`),fullPage:true});
+      await page.mouse.move(m.x+2,m.y+2);
+      assert.equal(await popup.locator('[data-highlighted]').count(),0,'padding clears the previous item highlight');
+      assert.equal(await popup.evaluate(e=>e===document.activeElement),true);
+      await menuItem.hover();
+      await page.mouse.move(0,0);
+      assert.equal(await popup.locator('[data-highlighted]').count(),0);
+      assert.equal(await popup.evaluate(e=>e===document.activeElement),true);
+      await page.keyboard.press('ArrowUp');
+      assert.equal(await popup.locator('[data-move="1"]').evaluate(e=>e===document.activeElement),true);
+      await page.keyboard.press('Escape');
+      assert.equal(await popup.isVisible(),false,'no delayed exit');
+    }
+    for(let i=0;i<8;i++) {
+      await openMenu('reading'); await page.keyboard.press('Escape');
+      assert.equal(await popup.isVisible(),false);
+      assert.equal(await trigger('reading').getAttribute('aria-expanded'),'false');
+    }
+    // Portal placement tracks its trigger and flips above near the viewport edge.
+    await page.locator('#pinnedStage').evaluate(e=>{e.style.position='fixed';e.style.left='8px';e.style.top='auto';e.style.bottom='5px';e.dir='rtl';});
+    await primary('reading').focus(); await page.keyboard.press('ArrowLeft'); await page.keyboard.press('Enter');
+    assert.equal(await popup.getAttribute('data-side'),'top');
+    const rtlAnchor=await trigger('reading').boundingBox(), rtlBox=await popup.boundingBox();
+    assert.equal(rtlBox.x,Math.round(rtlAnchor.x));
+    assert.equal(rtlBox.y,Math.round(rtlAnchor.y-rtlBox.height-6));
+    await page.setViewportSize({width:390,height:844});
+    assert.equal(await popup.isVisible(),true,'resize repositions the open popup');
+    const narrowMenu=await popup.boundingBox();
+    assert.ok(narrowMenu.x>=5 && narrowMenu.x+narrowMenu.width<=385);
+    await page.keyboard.press('Escape');
+    await page.locator('#pinnedStage').evaluate(e=>{e.removeAttribute('style');e.removeAttribute('dir');});
+    await page.setViewportSize({width:1200,height:900});
+    await openMenu('reading');
+    await page.evaluate(()=>{location.hash='#controls';});
+    await popup.waitFor({state:'hidden'});
+    await page.evaluate(()=>{location.hash='#modes';});
+    await page.locator('#modes[data-active]').waitFor();
+    console.log('PASS menu geometry, light/dark surfaces, immediate highlight/open/close, repeated opening, RTL and edge placement');
+
     await page.locator('#modeTrack [data-mode="Code"]').focus();
     await page.keyboard.press('ArrowLeft');
     assert.equal(await page.locator('#modeTrack [aria-current="page"]').getAttribute('data-mode'),'Chat');
@@ -176,12 +240,20 @@ const types = {'.html':'text/html', '.js':'text/javascript', '.css':'text/css', 
     while(await page.locator('html').getAttribute('data-theme')!=='dark') await page.locator('#themeBtn').click();
     if(process.env.SCREENSHOT_DIR) await page.screenshot({path:resolve(process.env.SCREENSHOT_DIR,'dark-desktop.png'),fullPage:true});
     await page.emulateMedia({reducedMotion:'reduce'});
+    await openMenu('reading');
+    assert.equal(await popup.evaluate(e=>getComputedStyle(e).animationName),'none');
+    assert.equal(await popup.evaluate(e=>getComputedStyle(e).transitionDuration),'0s');
+    await page.keyboard.press('Escape');
     await reorder('notes',3);
     assert.equal(await list.locator('[data-pin="reading"]').evaluate(e=>getComputedStyle(e).transitionDuration),'0s');
     assert.equal(await page.locator('.pinned-ghost-surface').evaluate(e=>getComputedStyle(e).transitionDuration),'0s');
     await page.mouse.up(); await reset();
     await page.emulateMedia({reducedMotion:'no-preference'});
     await page.evaluate(()=>document.documentElement.dataset.reduceMotion='true');
+    await openMenu('reading');
+    assert.equal(await popup.evaluate(e=>getComputedStyle(e).animationName),'none');
+    assert.equal(await popup.evaluate(e=>getComputedStyle(e).transitionDuration),'0s');
+    await page.keyboard.press('Escape');
     await reorder('notes',3);
     assert.equal(await list.locator('[data-pin="reading"]').evaluate(e=>getComputedStyle(e).transitionDuration),'0s');
     assert.equal(await page.locator('.pinned-ghost-surface').evaluate(e=>getComputedStyle(e).transitionDuration),'0s');
@@ -193,6 +265,7 @@ const types = {'.html':'text/html', '.js':'text/javascript', '.css':'text/css', 
       await openMenu('ideas');
       const box = await page.locator('#pinnedMenu').boundingBox();
       assert.ok(box.x>=0 && box.x+box.width<=narrow);
+      if(process.env.SCREENSHOT_DIR) await page.screenshot({path:resolve(process.env.SCREENSHOT_DIR,`menu-${narrow}.png`),fullPage:true});
       await page.keyboard.press('Escape');
       assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
       if(process.env.SCREENSHOT_DIR) await page.screenshot({path:resolve(process.env.SCREENSHOT_DIR,`mobile-${narrow}.png`),fullPage:true});
