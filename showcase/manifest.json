@@ -7,8 +7,8 @@
     },
     {
       "name": "app.js",
-      "sha256": "d05aafc5b17963b084b6186185d4311cdbac08399190aa66747cb5809002f86d",
-      "bytes": 404
+      "sha256": "6c00c21e0864592ed3e1c4c8b9f13a75f494abe5b6b42c99774cee28075d8485",
+      "bytes": 429
     },
     {
       "name": "claude-logo.svg",
@@ -44,6 +44,16 @@
       "name": "components/feedback.js",
       "sha256": "cdc9ce24878eac534584d2b039df63dad8be012558c144dad7a141dbe63982ee",
       "bytes": 8571
+    },
+    {
+      "name": "components/reading-flow.css",
+      "sha256": "da3ad6a09e3f138dba0e8b8b3d943728af254569bb86e45838671e45e2f0234a",
+      "bytes": 3248
+    },
+    {
+      "name": "components/reading-flow.js",
+      "sha256": "32105346c24912edcc6cab854accce595794a0e9c81a84e528ed42548f79ae1a",
+      "bytes": 5709
     },
     {
       "name": "components/status-assets/default-loop.webp",
@@ -272,8 +282,8 @@
     },
     {
       "name": "i18n.js",
-      "sha256": "8545f4402c58d3c58701de3f1263fbc13512c664689e2f236b6bff6f2448d62b",
-      "bytes": 23994
+      "sha256": "93726bcb7160815e05e0302179ddd184310dddf761a8f3b524e46baa0d1dfbd0",
+      "bytes": 28233
     },
     {
       "name": "icons.js",
@@ -282,8 +292,8 @@
     },
     {
       "name": "index.html",
-      "sha256": "c197a92d95d3eb66702813c853d6b758682ad523fd56c7a5e93a69e28f8b71b5",
-      "bytes": 48527
+      "sha256": "ea7e482bcb251c63cfaab29a4aa495820fcb6101bcbc9428ddfd8293ac4ec1fc",
+      "bytes": 52980
     },
     {
       "name": "landscape-dusk.svg",

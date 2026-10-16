@@ -19,3 +19,7 @@ Use this for a file list alongside a preview, where readers can change files, sw
 - F6 / Shift+F6 cycle only through the component's visible regions: file list, selected view option and content. Keep the focusable content region and selected segmented radio together.
 
 The sample CSS mirrors the running grid declaration. The file-view control uses the bundled Eye/Code glyphs in square buttons; accessible names and native title hints translate with the page. Native title hints provide the labels in this demo. The compact indicator keeps its existing 200ms curve from the segmented guide. Sample files, the three-region focus cycle, narrow horizontal file list and pointercancel restoration are local choices. There is no file IO or rename workflow. Check resize bounds, expand/restore, translated content, long filenames and the shared compact view control.
+
+## Reading with notes
+
+The same [chapter](../../showcase/index.html#workspace) also contains a riverside reading scene with a resizable notes panel and a restart button. Its [JS](../../showcase/components/reading-flow.js) and [CSS](../../showcase/components/reading-flow.css) use the existing shell, translations and icons. The original file preview remains independently usable.
