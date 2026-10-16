@@ -72,12 +72,49 @@ function initPinnedDemo() {
   const actions = [...menu.querySelectorAll('[data-move]')];
   let menuRow = null, drag = null, suppressClick = false;
   const rows = () => [...list.children];
+  const main = row => row.querySelector('.pinned-main');
+  const more = row => row.querySelector('.pinned-more');
+  const rtl = () => getComputedStyle(stage).direction === 'rtl';
+  function tabStop(row) {
+    initialRows.forEach(item => { main(item).tabIndex = item === row ? 0 : -1; });
+  }
+  tabStop(initialRows[0]);
+  function measureTitles() {
+    for (const row of initialRows) {
+      const title = row.querySelector('.pinned-title');
+      if (title.clientWidth) title.toggleAttribute('data-overflow', title.firstElementChild.scrollWidth > title.clientWidth);
+    }
+  }
+  new ResizeObserver(measureTitles).observe(stage);
+  DemoI18n.onChange(measureTitles);
+  list.addEventListener('focusin', event => {
+    const row = event.target.closest('.pinned-row');
+    if (row) tabStop(row);
+  });
+  list.addEventListener('keydown', event => {
+    if (event.metaKey || event.ctrlKey || event.altKey || event.isComposing) return;
+    const row = event.target.closest('.pinned-row');
+    if (!row) return;
+    const ordered = rows(), index = ordered.indexOf(row);
+    if (['ArrowDown', 'ArrowUp', 'Home', 'End'].includes(event.key)) {
+      event.preventDefault();
+      const next = event.key === 'Home' ? 0 : event.key === 'End' ? ordered.length - 1 :
+        (index + (event.key === 'ArrowDown' ? 1 : ordered.length - 1)) % ordered.length;
+      main(ordered[next]).focus();
+      main(ordered[next]).scrollIntoView({block: 'nearest'});
+    } else if (['ArrowLeft', 'ArrowRight'].includes(event.key)) {
+      const towardMenu = event.key === (rtl() ? 'ArrowLeft' : 'ArrowRight');
+      const next = towardMenu ? more(row) : main(row);
+      if (next !== document.activeElement) { event.preventDefault(); next.focus(); }
+    }
+  });
   function announce(message, ...args) {
     DemoI18n.text($('#pinnedStatus'), () => DemoI18n.t(message, ...args.map(a =>
       typeof a === 'function' ? a() : a)));
   }
   function closeMenu(restore = false) {
-    const trigger = menuRow?.querySelector('button');
+    const trigger = menuRow && more(menuRow);
+    menuRow?.removeAttribute('data-menu-open');
     menuRow = null;
     menu.hidden = true;
     trigger?.setAttribute('aria-expanded', 'false');
@@ -94,24 +131,27 @@ function initPinnedDemo() {
     if (menuRow === row) return closeMenu(true);
     closeMenu();
     menuRow = row;
+    row.setAttribute('data-menu-open', '');
     const index = rows().indexOf(row);
     actions[0].hidden = index === 0;
     actions[1].hidden = index === initialRows.length - 1;
-    row.querySelector('button').setAttribute('aria-expanded', 'true');
+    more(row).setAttribute('aria-expanded', 'true');
     menu.hidden = false;
-    menu.style.top = row.getBoundingClientRect().bottom - stage.getBoundingClientRect().top + 4 + 'px';
+    menu.style.top = row.getBoundingClientRect().bottom - stage.getBoundingClientRect().top + 6 + 'px';
     const visible = actions.filter(a => !a.hidden);
     visible[last ? visible.length - 1 : 0].focus({preventScroll: true});
   }
   initialRows.forEach(row => {
-    const trigger = row.querySelector('button');
-    trigger.onclick = () => openMenu(row);
-    trigger.onkeydown = event => {
+    main(row).onclick = () => {
+      initialRows.forEach(item => {
+        item.toggleAttribute('data-selected', item === row);
+        if (item === row) main(item).setAttribute('aria-current', 'page');
+        else main(item).removeAttribute('aria-current');
+      });
+    };
+    more(row).onclick = () => openMenu(row);
+    more(row).onkeydown = event => {
       if (event.repeat && ['Enter', ' '].includes(event.key)) event.preventDefault();
-      if (['ArrowDown', 'ArrowUp'].includes(event.key)) {
-        event.preventDefault();
-        openMenu(row, event.key === 'ArrowUp');
-      }
     };
   });
   actions.forEach(action => {
@@ -120,7 +160,7 @@ function initPinnedDemo() {
       const row = menuRow, index = rows().indexOf(row) + Number(action.dataset.move);
       closeMenu();
       moveRow(row, index);
-      row.querySelector('button').focus({preventScroll: true});
+      main(row).focus({preventScroll: true});
     };
   });
   menu.onkeydown = event => {
@@ -140,7 +180,7 @@ function initPinnedDemo() {
   };
   document.addEventListener('pointerdown', event => {
     suppressClick = false;
-    if (!menu.contains(event.target) && !menuRow?.querySelector('button').contains(event.target)) closeMenu();
+    if (!menu.contains(event.target) && !(menuRow && more(menuRow).contains(event.target))) closeMenu();
   }, true);
   document.addEventListener('focusin', event => {
     if (menuRow && !menu.contains(event.target) && !menuRow.contains(event.target)) closeMenu();
@@ -159,6 +199,8 @@ function initPinnedDemo() {
     document.removeEventListener('pointermove', onMove);
     document.removeEventListener('pointerup', onUp);
     document.removeEventListener('pointercancel', onCancel);
+    cancelAnimationFrame(state.frame);
+    clearTimeout(state.releaseTimer);
     state.ghost?.remove();
     list.removeAttribute('data-pin-dragging');
     document.documentElement.classList.remove('pinned-dragging');
@@ -171,7 +213,12 @@ function initPinnedDemo() {
   }
   function onMove(event) {
     if (!drag || event.pointerId !== drag.id) return;
-    if (!event.buttons) return finish(false);
+    if (!event.buttons || drag.releaseTimer) {
+      drag.releaseTimer ||= setTimeout(() => finish(true), 200);
+      return;
+    }
+    drag.pointerX = event.clientX;
+    drag.pointerY = event.clientY;
     if (!drag.ghost) {
       if (Math.abs(event.clientX - drag.x) < 4 && Math.abs(event.clientY - drag.y) < 4) return;
       drag.ordered = rows();
@@ -180,33 +227,46 @@ function initPinnedDemo() {
       const box = drag.boxes[drag.from];
       drag.dx = Math.min(Math.max(event.clientX - box.left, 4), box.width - 4);
       drag.dy = Math.min(Math.max(event.clientY - box.top, 2), Math.min(box.height, 26) - 2);
-      const ghost = drag.row.cloneNode(true);
-      ghost.classList.add('pinned-ghost');
+      const clone = drag.row.cloneNode(true);
+      clone.removeAttribute('data-pin');
+      clone.removeAttribute('style');
+      clone.querySelectorAll('[id], [aria-controls]').forEach(e => {
+        e.removeAttribute('id'); e.removeAttribute('aria-controls');
+      });
+      const ghost = document.createElement('div'), surface = document.createElement('div');
+      ghost.className = 'pinned-ghost';
       ghost.inert = true;
       ghost.setAttribute('aria-hidden', 'true');
-      ghost.removeAttribute('data-pin');
-      ghost.querySelectorAll('[aria-controls]').forEach(e => e.removeAttribute('aria-controls'));
-      ghost.style.width = box.width + 'px';
-      ghost.style.height = Math.min(box.height, 26) + 'px';
-      document.body.append(ghost);
+      surface.className = 'pinned-ghost-surface';
+      surface.style.cssText = `left:${-drag.dx}px;top:${-drag.dy}px;width:${box.width}px;height:${box.height}px;transform-origin:${drag.dx}px ${drag.dy}px`;
+      surface.append(clone);
+      ghost.append(surface);
+      stage.append(ghost);
       drag.ghost = ghost;
+      drag.step = parseFloat(getComputedStyle(stage).getPropertyValue('--pin-row-h')) +
+        parseFloat(getComputedStyle(stage).getPropertyValue('--pin-row-gap'));
+      const paint = () => {
+        if (!drag || drag.ghost !== ghost) return;
+        ghost.style.transform = `translate(${drag.pointerX}px, ${drag.pointerY}px)`;
+        drag.frame = requestAnimationFrame(paint);
+      };
+      paint();
       drag.row.style.visibility = 'hidden';
       list.setAttribute('data-pin-dragging', '');
       document.documentElement.classList.add('pinned-dragging');
       drag.row.setPointerCapture(event.pointerId);
+      return;
     }
     event.preventDefault();
-    drag.ghost.style.left = event.clientX - drag.dx + 'px';
-    drag.ghost.style.top = event.clientY - drag.dy + 'px';
     let slot = drag.boxes.findIndex(box => event.clientY < box.top + box.height / 2);
     if (slot < 0) slot = drag.boxes.length;
     drag.to = slot > drag.from ? slot - 1 : slot;
-    if (event.clientX < drag.bounds.left || event.clientX > drag.bounds.right) drag.to = drag.from;
+    if (rtl() ? event.clientX < drag.bounds.left : event.clientX > drag.bounds.right) drag.to = drag.from;
     drag.ordered.forEach((row, index) => {
       const target = index === drag.from ? index :
         index > drag.from && index <= drag.to ? index - 1 :
         index < drag.from && index >= drag.to ? index + 1 : index;
-      row.style.transform = `translateY(${drag.boxes[target].top - drag.boxes[index].top}px)`;
+      row.style.transform = `translateY(${(target - index) * drag.step}px)`;
     });
   }
   function onUp(event) {
@@ -217,7 +277,7 @@ function initPinnedDemo() {
   }
   function onCancel(event) { if (event.pointerId === drag?.id) finish(false); }
   list.onpointerdown = event => {
-    if (drag || event.button !== 0 || !event.isPrimary || event.target.closest('button')) return;
+    if (drag || event.button !== 0 || !event.isPrimary || event.target.closest('.pinned-more')) return;
     const row = event.target.closest('.pinned-row');
     if (!row) return;
     closeMenu();
@@ -232,8 +292,9 @@ function initPinnedDemo() {
   });
   document.addEventListener('keydown', event => {
     if (!event.repeat) suppressClick = false;
-    if (event.key === 'Escape' && drag) {
+    if (event.key === 'Escape' && drag && !event.isComposing && !event.defaultPrevented) {
       event.preventDefault();
+      event.stopImmediatePropagation();
       finish(false);
     }
   }, true);
@@ -249,6 +310,8 @@ function initPinnedDemo() {
   $('#resetPinned').onclick = () => {
     dismiss();
     list.append(...initialRows);
+    initialRows.forEach(row => { row.removeAttribute('data-selected'); main(row).removeAttribute('aria-current'); });
+    tabStop(initialRows[0]);
     announce('Order restored');
   };
 }

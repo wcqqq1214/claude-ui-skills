@@ -2,6 +2,7 @@
 'use strict';
 const DemoI18n = (() => {
   const chinese = {
+  "Drag to reorder; Esc cancels. Use ↑ ↓ to focus a conversation, then → and Enter for its menu.": "拖动调整顺序，Esc 取消。用 ↑ ↓ 聚焦会话，再按 → 和 Enter 打开菜单。",
   "Pinned conversations": "固定会话",
   "Restore order": "恢复顺序",
   "Drag a conversation to reorder. Esc cancels. Use ⋯ to move it with the keyboard.": "拖动会话调整顺序，按 Esc 取消。也可以通过 ⋯ 菜单用键盘上移、下移。",
