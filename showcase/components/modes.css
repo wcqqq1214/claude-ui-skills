@@ -54,9 +54,45 @@
   transition: opacity 150ms ease-out, transform 150ms ease-out, width 150ms ease-out, left 150ms ease-out, top 150ms ease-out;
 }
 .pinned-ghost .pinned-row { width: 100%; }
-.pinned-menu { position: absolute; inset-inline-end: 0; width: min(180px, 100%); margin: 0; padding: 4px; }
-.pinned-menu button { justify-content: start; align-items: center; }
+.pinned-menu {
+  position: fixed; z-index: 40; display: flex; flex-direction: column;
+  width: max-content; min-width: min(128px, calc(100vw - 10px)); max-width: min(320px, calc(100vw - 10px));
+  max-height: var(--pin-menu-available-height); margin: 0; padding: 0; border: 0; border-radius: 10px;
+  background: #fff; color: #0b0b0b; box-shadow: 0 0 0 1px rgb(11 11 11 / 10%), 0 8px 24px rgb(0 0 0 / 12%), 0 2px 6px rgb(0 0 0 / 8%);
+  font: 400 13px / 19px var(--study-sans); outline: none; user-select: none;
+}
+.pinned-menu-scroll { min-height: 0; overflow-y: auto; border-radius: inherit; padding: 4px; border-bottom: 0 solid transparent; }
+.pinned-menu button {
+  display: flex; width: 100%; min-width: 0; align-items: center; gap: 6px; padding: 2.5px 8px;
+  border: 0; border-radius: 6px; background: transparent; color: inherit; font: inherit;
+  font-weight: 400; text-align: start; cursor: default; outline: none; box-shadow: none;
+}
+.pinned-menu button > [data-ui-icon] { display: flex; align-items: center; justify-content: center; width: 16px; height: 16px; flex: none; }
+.pinned-menu button > span:last-child { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.pinned-menu button[data-highlighted] { background: rgb(11 11 11 / 5%); }
+.pinned-menu:focus-visible, .pinned-menu button:focus-visible { outline: none; }
+[data-theme='dark'] .pinned-menu {
+  background: #20201f; color: #f0efec;
+  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 10%), 0 8px 24px rgb(0 0 0 / 32%), 0 2px 6px rgb(0 0 0 / 20%);
+}
+[data-theme='dark'] .pinned-menu-scroll { border-bottom-width: 1px; }
+[data-theme='dark'] .pinned-menu button[data-highlighted] { background: rgb(255 255 255 / 7.5%); }
 .pinned-menu [hidden] { display: none; }
+
+/* Installed MenuPopup scroll mask; tied to scroll position, not elapsed time. */
+@property --pin-menu-fade-size{syntax:"<length>";inherits:false;initial-value:28px}
+@property --pin-menu-fade-top{syntax:"<length>";inherits:false;initial-value:0}
+@property --pin-menu-fade-bottom{syntax:"<length>";inherits:false;initial-value:0}
+@property --pin-menu-fade-top-raw{syntax:"<length>";inherits:false;initial-value:0}
+@property --pin-menu-fade-bottom-raw{syntax:"<length>";inherits:false;initial-value:0}
+@property --pin-menu-fade-y-active{syntax:"<number>";inherits:false;initial-value:0}
+@property --pin-menu-fade-top-on{syntax:"<number>";inherits:false;initial-value:1}
+@property --pin-menu-fade-bottom-on{syntax:"<number>";inherits:false;initial-value:1}
+@keyframes pin-menu-fade-top{0%{--pin-menu-fade-top-raw:0px}to{--pin-menu-fade-top-raw:var(--pin-menu-fade-size)}}
+@keyframes pin-menu-fade-bottom{0%{--pin-menu-fade-bottom-raw:var(--pin-menu-fade-size)}to{--pin-menu-fade-bottom-raw:0px}}
+@keyframes pin-menu-fade-y-active{0%,to{--pin-menu-fade-y-active:1}}
+.pinned-menu-scroll{scroll-padding-block:calc(var(--pin-menu-fade-size) * var(--pin-menu-fade-top-on)) calc(var(--pin-menu-fade-size) * var(--pin-menu-fade-bottom-on))}
+@supports (animation-timeline:scroll()){.pinned-menu-scroll{--pin-menu-fade-top:calc(var(--pin-menu-fade-top-raw) * var(--pin-menu-fade-y-active) * var(--pin-menu-fade-top-on));--pin-menu-fade-bottom:calc(var(--pin-menu-fade-bottom-raw) * var(--pin-menu-fade-y-active) * var(--pin-menu-fade-bottom-on));mask-image:linear-gradient(to bottom, transparent, #0000000d calc(var(--pin-menu-fade-top) * .15), #00000026 calc(var(--pin-menu-fade-top) * .3), #0000004d calc(var(--pin-menu-fade-top) * .45), #00000080 calc(var(--pin-menu-fade-top) * .6), #000000b3 calc(var(--pin-menu-fade-top) * .75), #000000d9 calc(var(--pin-menu-fade-top) * .87), #000 var(--pin-menu-fade-top), #000 calc(100% - var(--pin-menu-fade-bottom)), #000000d9 calc(100% - var(--pin-menu-fade-bottom) * .87), #000000b3 calc(100% - var(--pin-menu-fade-bottom) * .75), #00000080 calc(100% - var(--pin-menu-fade-bottom) * .6), #0000004d calc(100% - var(--pin-menu-fade-bottom) * .45), #00000026 calc(100% - var(--pin-menu-fade-bottom) * .3), #0000000d calc(100% - var(--pin-menu-fade-bottom) * .15), transparent);animation-name:pin-menu-fade-top,pin-menu-fade-bottom,pin-menu-fade-y-active;animation-timing-function:linear;animation-fill-mode:both,both,none;animation-duration:auto;animation-timeline:scroll(self);animation-range:0px var(--pin-menu-fade-size), calc(100% - var(--pin-menu-fade-size)) 100%, 0px 101%}}
 .pinned-status { min-height: 1.5em; margin: 16px 0 0; font-size: 12px; color: var(--secondary); }
 @media (prefers-reduced-motion: no-preference) {
   .pinned-list[data-pin-dragging] .pinned-row { transition: transform 120ms ease-out; }
