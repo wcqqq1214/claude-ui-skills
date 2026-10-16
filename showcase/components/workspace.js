@@ -77,6 +77,11 @@ function initWorkspaceDemo() {
     if (after !== before) paneWidth = after;
     renderPane();
   }
+  function resetPane() {
+    paneWidth = 244;
+    renderPane();
+  }
+  handle.ondblclick = resetPane;
   let resizeStart = null;
   handle.onpointerdown = (e) => {
     if (e.button !== 0) return;
@@ -114,8 +119,7 @@ function initWorkspaceDemo() {
       e.preventDefault();
       if (e.repeat) return;
       if (e.key === 'Enter' || e.key === ' ') {
-        paneWidth = 244;
-        renderPane();
+        resetPane();
         return;
       }
       n = e.key === 'Home' ? 160 : 520;
