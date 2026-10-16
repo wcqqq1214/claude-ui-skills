@@ -635,7 +635,7 @@
           ><section class="specimen wide" id="modes"
             ><div class="section-head"
               ><div><h2>Sidebar modes</h2></div></div
-            ><div class="card extra-pad"
+            ><div class="modes-grid"><div class="card extra-pad"
               ><div class="demo-controls"
                 ><label for="modeWidth">Container width</label
                 ><input type="range" id="modeWidth" min="160" max="360" value="300" /><output
@@ -662,7 +662,23 @@
               ><div class="spec-footer"
                 ><span><b>120 ms</b> snap</span><span><b>≤254 / ≤180 px</b> 3 / 2 item folding</span></div
               ></div
-            ></section
+            ><article class="card extra-pad pinned-card">
+              <div class="pinned-heading"><h3>Pinned conversations</h3><button class="button small subtle" id="resetPinned">Restore order</button></div>
+              <p class="extra-description" id="pinnedHelp">Drag a conversation to reorder. Esc cancels. Use ⋯ to move it with the keyboard.</p>
+              <div class="pinned-stage" id="pinnedStage">
+                <ol class="pinned-list" id="pinnedList" aria-label="Pinned conversations" aria-describedby="pinnedHelp">
+                  <li class="pinned-row" data-pin="notes"><span class="pinned-title">Design notes</span><button class="pinned-more" type="button" aria-label="Actions for Design notes" aria-haspopup="menu" aria-expanded="false" aria-controls="pinnedMenu">⋯</button></li>
+                  <li class="pinned-row" data-pin="reading"><span class="pinned-title">Reading list</span><button class="pinned-more" type="button" aria-label="Actions for Reading list" aria-haspopup="menu" aria-expanded="false" aria-controls="pinnedMenu">⋯</button></li>
+                  <li class="pinned-row" data-pin="weekend"><span class="pinned-title">Weekend plans</span><button class="pinned-more" type="button" aria-label="Actions for Weekend plans" aria-haspopup="menu" aria-expanded="false" aria-controls="pinnedMenu">⋯</button></li>
+                  <li class="pinned-row" data-pin="ideas"><span class="pinned-title">A few ideas</span><button class="pinned-more" type="button" aria-label="Actions for A few ideas" aria-haspopup="menu" aria-expanded="false" aria-controls="pinnedMenu">⋯</button></li>
+                </ol>
+                <div class="local-menu pinned-menu" id="pinnedMenu" role="menu" aria-label="Move conversation" hidden>
+                  <button type="button" role="menuitem" data-move="-1">Move up</button>
+                  <button type="button" role="menuitem" data-move="1">Move down</button>
+                </div>
+              </div>
+              <p class="pinned-status" id="pinnedStatus" role="status" aria-live="polite"></p>
+            </article></div></section
           ><section class="specimen" id="tasks"
             ><div class="section-head"
               ><div><h2>Cards &amp; drop targets</h2></div></div

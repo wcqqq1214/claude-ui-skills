@@ -16,3 +16,7 @@ Use this for top-level mode choices that keep every visible button in natural Ta
 - The compact controls are 28px high with a 7px radius at a 16px rem. Mode glyphs are rendered by [icons.js](../../showcase/icons.js); keep the matching font assets from [fonts.css](../../showcase/fonts.css).
 
 The width/count controls, 13px text, focus outline and surrounding layout are demo choices, not an original mode-management feature. Check focus without selection, explicit selection, two/three options, breakpoint boundaries and rapid resize/select combinations.
+
+## Pinned conversation order
+
+The same [sidebar demo](../../showcase/index.html#modes) includes a fixed list. `initPinnedDemo()` handles drag preview, commit/cancel and the Move up / Move down menu. Keep the mode controls independent. The reset button restores the sample order.

@@ -2,6 +2,23 @@
 'use strict';
 const DemoI18n = (() => {
   const chinese = {
+  "Pinned conversations": "固定会话",
+  "Restore order": "恢复顺序",
+  "Drag a conversation to reorder. Esc cancels. Use ⋯ to move it with the keyboard.": "拖动会话调整顺序，按 Esc 取消。也可以通过 ⋯ 菜单用键盘上移、下移。",
+  "Reading list": "阅读清单",
+  "Weekend plans": "周末计划",
+  "A few ideas": "一些想法",
+  "Move conversation": "移动会话",
+  "Move up": "上移",
+  "Move down": "下移",
+  "Order restored": "已恢复原来的顺序",
+  "Move cancelled": "已取消移动",
+  "{0} moved to position {1} of {2}": "{0}已移到第 {1} 位，共 {2} 项",
+  "Actions for Design notes": "设计笔记的操作",
+  "Actions for Reading list": "阅读清单的操作",
+  "Actions for Weekend plans": "周末计划的操作",
+  "Actions for A few ideas": "一些想法的操作",
+
   "Command palette": "命令面板",
   "Demo action: {0}": "模拟操作：{0}",
   "Unpin": "取消置顶",
