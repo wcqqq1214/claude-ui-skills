@@ -4,7 +4,15 @@
   padding: 30px 0 20px;
 }
 
-.pinned-card { margin-top: 18px; }
+.modes-grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: 18px; min-width: 0; }
+.modes-grid > .card { min-width: 0; }
+@media (min-width: 851px) {
+  #modes[data-active] > .modes-grid {
+    grid-area: 2 / 1; justify-self: center; align-self: start;
+    width: min(100% - 2 * var(--canvas-pad), var(--chapter-width));
+    margin: var(--canvas-pad) 0;
+  }
+}
 .pinned-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
 .pinned-heading h3 { margin: 0; font-size: 14px; font-weight: var(--medium); }
 .pinned-stage { position: relative; width: 300px; max-width: 100%; margin-top: 20px; }

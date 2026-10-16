@@ -90,6 +90,7 @@ function initPinnedDemo() {
       () => row.querySelector('.pinned-title').textContent, index + 1, initialRows.length);
   }
   function openMenu(row, last = false) {
+    finish(false);
     if (menuRow === row) return closeMenu(true);
     closeMenu();
     menuRow = row;
@@ -208,7 +209,12 @@ function initPinnedDemo() {
       row.style.transform = `translateY(${drag.boxes[target].top - drag.boxes[index].top}px)`;
     });
   }
-  function onUp(event) { if (event.pointerId === drag?.id) finish(true); }
+  function onUp(event) {
+    if (event.pointerId !== drag?.id) return;
+    const current = list.getBoundingClientRect(), before = drag.bounds;
+    const stable = !before || ['x', 'y', 'width', 'height'].every(key => current[key] === before[key]);
+    finish(stable);
+  }
   function onCancel(event) { if (event.pointerId === drag?.id) finish(false); }
   list.onpointerdown = event => {
     if (drag || event.button !== 0 || !event.isPrimary || event.target.closest('button')) return;
