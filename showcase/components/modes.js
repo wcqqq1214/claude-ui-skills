@@ -93,8 +93,9 @@ function initPinnedDemo() {
     menu.style.setProperty('--pin-menu-available-height', available + 'px');
     const x = rtl() ? anchor.left : anchor.right - box.width;
     const y = top ? anchor.top - offset - Math.min(box.height, available) : anchor.bottom + offset;
-    menu.style.left = Math.max(padding, Math.min(x, width - padding - box.width)) + 'px';
-    menu.style.top = Math.max(padding, y) + 'px';
+    const ratio = window.devicePixelRatio || 1, snap = value => Math.round(value * ratio) / ratio;
+    menu.style.left = snap(Math.max(padding, Math.min(x, width - padding - box.width))) + 'px';
+    menu.style.top = snap(Math.max(padding, y)) + 'px';
     menu.dataset.side = top ? 'top' : 'bottom';
   }
   new ResizeObserver(positionMenu).observe(menu);
@@ -194,6 +195,9 @@ function initPinnedDemo() {
   });
   menu.onpointerleave = event => {
     if (event.pointerType !== 'touch' && menuRow) { highlight(null); menu.focus({preventScroll: true}); }
+  };
+  menu.onpointermove = event => {
+    if (!event.target.closest('[data-move]') && !event.buttons) menu.onpointerleave(event);
   };
   menu.onkeydown = event => {
     if (event.isComposing || event.metaKey || event.ctrlKey || event.altKey) return;
