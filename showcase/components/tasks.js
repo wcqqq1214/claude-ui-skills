@@ -201,6 +201,17 @@ function initProgressDemo() {
           r.node = document.createElement('span');
           r.node.dataset.kind = kind; r.node.className = 'progress-node';
           if (kind === 'current' && previous[i] !== 'in_progress' && !inFold) r.node.classList.add('progress-node-enter');
+          if (kind === 'current') {
+            const clay = document.createElement('span'); clay.className = 'progress-clay';
+            clay.addEventListener('animationstart', () => {
+              for (const animation of clay.getAnimations()) {
+                const timing = animation.effect?.getTiming();
+                if (timing?.iterations === Infinity && typeof timing.duration === 'number' && timing.duration > 0)
+                  animation.startTime = -(performance.timeOrigin % timing.duration);
+              }
+            });
+            r.node.append(clay);
+          }
           if (kind === 'finished') r.node.append(DemoIcons.create('CheckCircleFilled', 16));
           r.track.append(r.node);
         }

@@ -1,11 +1,11 @@
-// Explicit browser gate: PLAYWRIGHT_MODULE=/path/to/playwright-core CHROME_BIN=/path/to/chrome node tests/workspace.browser.cjs
+// Explicit browser gate: PLAYWRIGHT_MODULE=/path/to/playwright-core CHROME_BIN=/path/to/chrome node tests/task-progress.browser.cjs
 const assert = require('node:assert/strict');
 const {createServer} = require('node:http');
 const {readFile} = require('node:fs/promises');
 const {resolve, extname, sep} = require('node:path');
 const {chromium} = require(process.env.PLAYWRIGHT_MODULE || 'playwright-core');
 const root = resolve(__dirname, '..');
-const types = {'.html':'text/html', '.js':'text/javascript', '.css':'text/css', '.svg':'image/svg+xml', '.woff2':'font/woff2', '.webp':'image/webp'};
+const types = {'.html':'text/html', '.js':'text/javascript', '.css':'text/css', '.svg':'image/svg+xml', '.woff2':'font/woff2', '.webp':'image/webp', '.png':'image/png'};
 (async () => {
   const server = createServer(async (req, res) => {
     try {
@@ -62,6 +62,8 @@ const types = {'.html':'text/html', '.js':'text/javascript', '.css':'text/css', 
     await advance(1750);
     assert.deepEqual(await status(), ['in_progress','pending','pending']);
     assert.equal(await progress.locator('[data-kind="current"]').count(),1);
+    const clay=await progress.locator('.progress-clay').evaluate(e=>({size:getComputedStyle(e).width,duration:getComputedStyle(e).animationDuration,background:getComputedStyle(e).backgroundImage}));
+    assert.equal(clay.size,'8px'); assert.equal(clay.duration,'3s'); assert.ok(clay.background.includes('progress-clay.png'));
     await advance(3200);
     assert.deepEqual(await status(), ['completed','completed','in_progress','pending','pending','pending']);
     const entry = await progress.locator('.progress-step-enter').evaluateAll(rows=>rows.map(e=>({name:getComputedStyle(e).animationName,duration:getComputedStyle(e).animationDuration})));

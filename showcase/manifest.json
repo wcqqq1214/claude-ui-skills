@@ -2,8 +2,8 @@
   "files": [
     {
       "name": "README.md",
-      "sha256": "4c139944e79454584cebd8217c257549dcd016facc422e67d13f1c0ef14925de",
-      "bytes": 3156
+      "sha256": "f1dd1110e73540b9e2af4144d5357e0b4dfa99a4b015fcb1f0899bec5aa64d53",
+      "bytes": 3202
     },
     {
       "name": "app.js",
@@ -54,6 +54,11 @@
       "name": "components/status-assets/grow.webp",
       "sha256": "de274c4870d41924c1623de83ec14c65070207d001254b3b9ecb0c869cb3fcc1",
       "bytes": 1102
+    },
+    {
+      "name": "components/status-assets/progress-clay.png",
+      "sha256": "788766e752c0f9b956bad98241ea02a6d793d23cad2b91bc0eafe1343b574826",
+      "bytes": 451
     },
     {
       "name": "components/status-assets/think-in.webp",
@@ -197,13 +202,13 @@
     },
     {
       "name": "components/tasks.css",
-      "sha256": "f68b22532356113d772f810058396cb69c1fbf6574dfd97a479166554a1b3578",
-      "bytes": 12628
+      "sha256": "e1afdd59476b0df014d20158b0b596ef610ef87e5046810b5570267f11497e1b",
+      "bytes": 12975
     },
     {
       "name": "components/tasks.js",
-      "sha256": "80fb91e308e69819b6e63ee89329dc8572694f62cb39594e31a1267db6740038",
-      "bytes": 11261
+      "sha256": "83f917b9f118b327e0631dbc9da0204cbcf66789c8a80db7954cfd61849ad380",
+      "bytes": 11849
     },
     {
       "name": "components/type.css",

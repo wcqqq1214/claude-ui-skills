@@ -234,7 +234,9 @@
 .progress-list .status-shimmer { --shimmer-base: var(--text); --shimmer-peak: color-mix(in srgb, var(--text) 30%, white); }
 [data-theme='dark'] .progress-list .status-shimmer { --shimmer-base: var(--secondary); --shimmer-peak: var(--text); }
 .progress-node { position: absolute; left: 50%; top: 10px; translate: -50% -50%; border-radius: 50%; box-shadow: 0 0 0 2px var(--progress-surface); }
-.progress-node[data-kind='current'] { width: 7px; height: 7px; background: currentColor; color: var(--progress-muted); }
+.progress-node[data-kind='current'] { background: var(--progress-surface); }
+.progress-clay { display: block; position: relative; width: 8px; height: 8px; border-radius: 50%; background: transparent url('./status-assets/progress-clay.png') center / cover; animation: progress-clay-breathe 3s ease-in-out infinite; }
+@keyframes progress-clay-breathe { 0%,100% { filter: brightness(.96); transform: scale(.86); } 50% { filter: brightness(1.06); transform: scale(1); } }
 .progress-node[data-kind='finished'] { display: flex; background: var(--progress-surface); color: var(--secondary); }
 .progress-fold-button { position: relative; display: flex; flex-shrink: 0; align-items: stretch; gap: 10px; padding: 0; background: transparent; text-align: start; }
 button.progress-fold-button { font-weight: var(--regular); outline: none; }

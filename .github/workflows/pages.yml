@@ -35,7 +35,7 @@ jobs:
           mkdir -p "$site_dir/fonts" "$site_dir/components/status-assets"
           cp showcase/*.html showcase/*.css showcase/*.js showcase/*.svg "$site_dir/"
           cp showcase/components/*.css showcase/components/*.js "$site_dir/components/"
-          cp showcase/components/status-assets/*.webp "$site_dir/components/status-assets/"
+          cp showcase/components/status-assets/*.webp showcase/components/status-assets/progress-clay.png "$site_dir/components/status-assets/"
           cp showcase/fonts/*.woff2 "$site_dir/fonts/"
       - name: Configure Pages
         uses: actions/configure-pages@v5
