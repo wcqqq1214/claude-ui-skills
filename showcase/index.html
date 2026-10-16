@@ -672,9 +672,11 @@
                   <li class="pinned-row" data-pin="weekend"><button class="pinned-main" type="button" tabindex="-1"><span class="pinned-title"><span>Weekend plans</span></span></button><button class="pinned-more" tabindex="-1" type="button" aria-label="Actions for Weekend plans" aria-haspopup="menu" aria-expanded="false" aria-controls="pinnedMenu"><span data-ui-icon="DotsVertical" aria-hidden="true"></span></button></li>
                   <li class="pinned-row" data-pin="ideas"><button class="pinned-main" type="button" tabindex="-1"><span class="pinned-title"><span>A few ideas</span></span></button><button class="pinned-more" tabindex="-1" type="button" aria-label="Actions for A few ideas" aria-haspopup="menu" aria-expanded="false" aria-controls="pinnedMenu"><span data-ui-icon="DotsVertical" aria-hidden="true"></span></button></li>
                 </ol>
-                <div class="local-menu pinned-menu" id="pinnedMenu" role="menu" aria-label="Move conversation" hidden>
-                  <button type="button" role="menuitem" data-move="-1"><span data-ui-icon="ArrowUp" aria-hidden="true"></span><span>Move up</span></button>
-                  <button type="button" role="menuitem" data-move="1"><span data-ui-icon="ArrowDown" aria-hidden="true"></span><span>Move down</span></button>
+                <div class="pinned-menu" id="pinnedMenu" role="menu" tabindex="-1" aria-label="Move conversation" hidden>
+                  <div class="pinned-menu-scroll">
+                    <button type="button" role="menuitem" tabindex="-1" data-move="-1"><span data-ui-icon="ArrowUp" aria-hidden="true"></span><span>Move up</span></button>
+                    <button type="button" role="menuitem" tabindex="-1" data-move="1"><span data-ui-icon="ArrowDown" aria-hidden="true"></span><span>Move down</span></button>
+                  </div>
                 </div>
               </div>
               <p class="pinned-status" id="pinnedStatus" role="status" aria-live="polite"></p>

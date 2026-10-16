@@ -75,6 +75,31 @@ function initPinnedDemo() {
   const main = row => row.querySelector('.pinned-main');
   const more = row => row.querySelector('.pinned-more');
   const rtl = () => getComputedStyle(stage).direction === 'rtl';
+  document.body.append(menu);
+  const visibleActions = () => actions.filter(action => !action.hidden);
+  function highlight(action) {
+    actions.forEach(item => item.toggleAttribute('data-highlighted', item === action));
+  }
+  function positionMenu() {
+    if (!menuRow) return;
+    const anchor = more(menuRow).getBoundingClientRect(), padding = 5, offset = 6;
+    const width = document.documentElement.clientWidth, height = document.documentElement.clientHeight;
+    menu.dir = rtl() ? 'rtl' : 'ltr';
+    menu.style.removeProperty('--pin-menu-available-height');
+    const box = menu.getBoundingClientRect();
+    const below = height - padding - anchor.bottom - offset, above = anchor.top - offset - padding;
+    const top = box.height > below && above > below;
+    const available = Math.max(0, top ? above : below);
+    menu.style.setProperty('--pin-menu-available-height', available + 'px');
+    const x = rtl() ? anchor.left : anchor.right - box.width;
+    const y = top ? anchor.top - offset - Math.min(box.height, available) : anchor.bottom + offset;
+    const ratio = window.devicePixelRatio || 1, snap = value => Math.round(value * ratio) / ratio;
+    menu.style.left = snap(Math.max(padding, Math.min(x, width - padding - box.width))) + 'px';
+    menu.style.top = snap(Math.max(padding, y)) + 'px';
+    menu.dataset.side = top ? 'top' : 'bottom';
+  }
+  new ResizeObserver(positionMenu).observe(menu);
+  DemoI18n.onChange(positionMenu);
   function tabStop(row) {
     initialRows.forEach(item => { main(item).tabIndex = item === row ? 0 : -1; });
   }
@@ -117,6 +142,7 @@ function initPinnedDemo() {
     menuRow?.removeAttribute('data-menu-open');
     menuRow = null;
     menu.hidden = true;
+    highlight(null);
     trigger?.setAttribute('aria-expanded', 'false');
     if (restore) trigger?.focus({preventScroll: true});
   }
@@ -126,7 +152,7 @@ function initPinnedDemo() {
     announce('{0} moved to position {1} of {2}',
       () => row.querySelector('.pinned-title').textContent, index + 1, initialRows.length);
   }
-  function openMenu(row, last = false) {
+  function openMenu(row, keyboard = false) {
     finish(false);
     if (menuRow === row) return closeMenu(true);
     closeMenu();
@@ -137,9 +163,9 @@ function initPinnedDemo() {
     actions[1].hidden = index === initialRows.length - 1;
     more(row).setAttribute('aria-expanded', 'true');
     menu.hidden = false;
-    menu.style.top = row.getBoundingClientRect().bottom - stage.getBoundingClientRect().top + 6 + 'px';
-    const visible = actions.filter(a => !a.hidden);
-    visible[last ? visible.length - 1 : 0].focus({preventScroll: true});
+    menu.querySelector('.pinned-menu-scroll').scrollTop = 0;
+    positionMenu();
+    (keyboard ? visibleActions()[0] : menu).focus({preventScroll: true});
   }
   initialRows.forEach(row => {
     main(row).onclick = () => {
@@ -149,12 +175,16 @@ function initPinnedDemo() {
         else main(item).removeAttribute('aria-current');
       });
     };
-    more(row).onclick = () => openMenu(row);
+    more(row).onclick = event => openMenu(row, event.detail === 0);
     more(row).onkeydown = event => {
       if (event.repeat && ['Enter', ' '].includes(event.key)) event.preventDefault();
     };
   });
   actions.forEach(action => {
+    action.onfocus = () => highlight(action);
+    action.onpointermove = event => {
+      if (event.pointerType !== 'touch' && !event.buttons && document.activeElement !== action) action.focus({preventScroll: true});
+    };
     action.onclick = () => {
       if (!menuRow || action.hidden) return;
       const row = menuRow, index = rows().indexOf(row) + Number(action.dataset.move);
@@ -163,7 +193,14 @@ function initPinnedDemo() {
       main(row).focus({preventScroll: true});
     };
   });
+  menu.onpointerleave = event => {
+    if (event.pointerType !== 'touch' && menuRow) { highlight(null); menu.focus({preventScroll: true}); }
+  };
+  menu.onpointermove = event => {
+    if (!event.target.closest('[data-move]') && !event.buttons) menu.onpointerleave(event);
+  };
   menu.onkeydown = event => {
+    if (event.isComposing || event.metaKey || event.ctrlKey || event.altKey) return;
     if (event.repeat && ['Enter', ' '].includes(event.key)) event.preventDefault();
     if (event.key === 'Escape') {
       event.preventDefault();
@@ -172,9 +209,10 @@ function initPinnedDemo() {
     } else if (event.key === 'Tab') closeMenu(true);
     else if (['ArrowDown', 'ArrowUp', 'Home', 'End'].includes(event.key)) {
       event.preventDefault();
-      const visible = actions.filter(a => !a.hidden), index = visible.indexOf(document.activeElement);
+      const visible = visibleActions(), index = visible.indexOf(document.activeElement);
       const next = event.key === 'Home' ? 0 : event.key === 'End' ? visible.length - 1 :
-        (index + (event.key === 'ArrowDown' ? 1 : visible.length - 1)) % visible.length;
+        index < 0 ? (event.key === 'ArrowDown' ? 0 : visible.length - 1) :
+          (index + (event.key === 'ArrowDown' ? 1 : visible.length - 1)) % visible.length;
       visible[next].focus();
     }
   };
@@ -300,8 +338,12 @@ function initPinnedDemo() {
   }, true);
   function dismiss() { finish(false); closeMenu(); }
   window.addEventListener('blur', dismiss);
-  window.addEventListener('resize', dismiss);
-  document.addEventListener('scroll', dismiss, true);
+  window.addEventListener('resize', () => { finish(false); positionMenu(); });
+  document.addEventListener('scroll', event => {
+    if (menu.contains(event.target)) return;
+    finish(false);
+    positionMenu();
+  }, true);
   document.addEventListener('visibilitychange', () => { if (document.hidden) dismiss(); });
   window.addEventListener('pagehide', dismiss);
   new MutationObserver(() => {

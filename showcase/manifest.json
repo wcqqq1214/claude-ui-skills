@@ -157,13 +157,13 @@
     },
     {
       "name": "components/modes.css",
-      "sha256": "4a44a14be2b2e57e71bb1817109b8a158c3654998dd7889cb5c42948c73bebe7",
-      "bytes": 7417
+      "sha256": "a067e3b0e0a08b9ae0fed82187936cca843a233fa6b087d5dfe0063eb45ea49d",
+      "bytes": 11841
     },
     {
       "name": "components/modes.js",
-      "sha256": "e32e9d831c178860eab08ba2b60d41399c700e020c23d2eaf3ef5343abbd4a66",
-      "bytes": 13634
+      "sha256": "acd31249b119bfe7512c1d5ee6f2e562d4cd0bf75391d19d927ecbb0958bcd8f",
+      "bytes": 15830
     },
     {
       "name": "components/reading.css",
@@ -282,8 +282,8 @@
     },
     {
       "name": "index.html",
-      "sha256": "dd04f7884b3e18f908b9700fd71d8cdc536d3418f4bcea02093dc63826e55ce9",
-      "bytes": 51402
+      "sha256": "dbfe1a0ffd20d9dc72ea8c53dc8071969d4f5c2f31283bb5a35ac9cbc65e9c59",
+      "bytes": 51513
     },
     {
       "name": "landscape-dusk.svg",
