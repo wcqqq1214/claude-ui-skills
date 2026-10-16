@@ -9,7 +9,7 @@ Choose the user-facing scenario, then read that chapter's linked HTML, JS and CS
 | Mutually exclusive views with unequal-width slider motion | [Segmented control](components/segmented.md) | [File panel](../showcase/index.html#workspace) · [Reading](../showcase/index.html#reading) |
 | Composer surfaces, hover/focus transitions and mock attachment add/remove/reflow motion | [Input and attachments](components/composer.md) | [03](../showcase/index.html#composer) |
 | Waiting, delayed placeholders and optional detail | [Waiting and accordion](components/feedback.md) | [04](../showcase/index.html#feedback) |
-| Files, view formats and a resizable preview | [File panel](components/workspace.md) | [05](../showcase/index.html#workspace) |
+| Files, view formats, a resizable preview and reading with notes | [File panel](components/workspace.md) | [05](../showcase/index.html#workspace) |
 | A single thumbnail opening into a preview | [Image preview](components/images.md) | [06](../showcase/index.html#images) |
 | Short hints, adjustable filename truncation and standalone copy confirmation | [Tooltips and copy feedback](components/micro.md) | [07](../showcase/index.html#micro) |
 | Adjustable reading width and wrapping, inline icon baseline and theme-weight comparisons, synchronized proportional/tabular digits, long identifiers, inline/fenced code, copy confirmation and wide tables | [Reading, code and tables](components/reading.md) | [08](../showcase/index.html#reading) |
