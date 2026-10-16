@@ -20,4 +20,5 @@ pre,code,kbd{font-family:var(--study-mono)}
 @font-face{font-family:Anthropic Serif Fallback Noto;src:local(Noto Serif),local(NotoSerif),local(NotoSerif-Regular);size-adjust:97.12%;ascent-override:102.19%;descent-override:26.51%;line-gap-override:0%;unicode-range:U+20-7E,U+A0-B4,U+B6-17F,U+2012-2015,U+2018-2022,U+2026,U+2030,U+2032-2034,U+2039-203A,U+2044}
 
 .study-icon{font-family:Anthropicons-Variable;font-feature-settings:"liga" 0;font-optical-sizing:auto;font-variation-settings:normal;font-weight:var(--icon-weight);font-style:normal;line-height:1;display:inline-flex;align-items:center;justify-content:center;width:1em;height:1em;flex-shrink:0;user-select:none;vertical-align:-.125em}
-.mode-track button[aria-current=page] .study-icon{font-weight:700}
+.mode-track button[data-mode=Code][aria-current=page] .study-icon{font-weight:700}
+@media (forced-colors:active){.mode-track button[aria-current=page] .study-icon{font-weight:700}}
