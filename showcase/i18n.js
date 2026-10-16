@@ -2,6 +2,7 @@
 'use strict';
 const DemoI18n = (() => {
   const chinese = {
+  "Open the current level to adjust effort.": "点击当前档位，调整思考强度。",
   "Effort: {0}": "思考强度：{0}",
   "Effort: High": "思考强度：High",
   "Faster": "更快",

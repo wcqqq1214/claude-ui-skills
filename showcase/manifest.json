@@ -27,13 +27,13 @@
     },
     {
       "name": "components/controls.css",
-      "sha256": "87c6157a270013ef554b7e3be81a4b2105f60cd328188041d6573073955160d1",
-      "bytes": 8844
+      "sha256": "cb035108717b2e3fe68749eb2c287e6a6d451be230c657b37bc009e576fec8d5",
+      "bytes": 11351
     },
     {
       "name": "components/controls.js",
-      "sha256": "d1e611c8647f448a13842db3a0a9c47f2f6b17893d86f46fc13bf72218282873",
-      "bytes": 1118
+      "sha256": "8c7e2e7e6bcea8a56c03596f15069374c154341e9af890097e0bcfef6947b834",
+      "bytes": 9702
     },
     {
       "name": "components/feedback.css",
@@ -137,13 +137,13 @@
     },
     {
       "name": "components/menus.css",
-      "sha256": "e16574169820bf47ab28f5b9aeefcca042ba4d1629e3173141a731b9e4ee5904",
-      "bytes": 11874
+      "sha256": "55811e232be5b90e15e9ff3e1be632da52253388edc8f885b52c4a297755b1d0",
+      "bytes": 9328
     },
     {
       "name": "components/menus.js",
-      "sha256": "ec1832e8c28fefd6726fe1b87be9b720519c3ed0385c6ef356922f1d50436928",
-      "bytes": 22404
+      "sha256": "80e608d56e0b4fbdd31d8005405d10a1faa04cd4aa70a0bd95a0710469405610",
+      "bytes": 13525
     },
     {
       "name": "components/micro.css",
@@ -272,8 +272,8 @@
     },
     {
       "name": "i18n.js",
-      "sha256": "8bd7a3effd11bdeb1778b7c8f2f00fcc99d27cbe99eeccb60618bdb327432c34",
-      "bytes": 24332
+      "sha256": "1272b7fdd95378a4d689c9e683ab41d22d235342b9ec1697c61906ba4e952e40",
+      "bytes": 24424
     },
     {
       "name": "icons.js",
@@ -282,8 +282,8 @@
     },
     {
       "name": "index.html",
-      "sha256": "ab5b6f6413b779f0b4bd88d1440914e42816902dfacf580201975b8dccf43ab8",
-      "bytes": 50457
+      "sha256": "4ee97d0aab6f9be90da29ee6ecc6cb2fd70a2d4d32e81d939eaea82f622910e5",
+      "bytes": 49191
     },
     {
       "name": "landscape-dusk.svg",
