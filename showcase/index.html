@@ -15,7 +15,6 @@
     <link rel="stylesheet" href="components/composer.css" />
     <link rel="stylesheet" href="components/feedback.css" />
     <link rel="stylesheet" href="components/workspace.css" />
-    <link rel="stylesheet" href="components/reading-flow.css" />
     <link rel="stylesheet" href="components/images.css" />
     <link rel="stylesheet" href="components/micro.css" />
     <link rel="stylesheet" href="components/reading.css" />
@@ -311,45 +310,6 @@
             <div class="section-head"
               ><div><h2>File panel</h2></div></div
             >
-            <div class="workspace-examples">
-              <article class="card reading-flow" id="readingFlow" aria-labelledby="readingFlowTitle">
-                <header class="reading-flow-toolbar">
-                  <div><h3 id="readingFlowTitle">A morning by the river</h3><p>Read a little, open your notes, then carry on.</p></div>
-                  <div class="reading-flow-actions">
-                    <button class="button small" id="readingNotesToggle" aria-controls="readingNotes" aria-expanded="false">Open notes</button>
-                    <button class="icon-button" id="readingFlowReset" aria-label="Start reading again" data-ui-icon="ArrowClockwise" data-icon-size="16"></button>
-                  </div>
-                </header>
-                <div class="reading-flow-stage" id="readingFlowStage">
-                  <div class="reading-flow-viewport" id="readingFlowViewport" tabindex="0" role="region" aria-label="Riverside walk">
-                    <div class="reading-flow-copy">
-                      <p class="reading-flow-intro">A walk with no hurry</p>
-                      <h4>Follow the water</h4>
-                      <p>Leave the busy street behind and take the narrow path beside the river. The first stretch is quiet, with low branches brushing the water and small boats tied to the bank.</p>
-                      <h4>The old footbridge</h4>
-                      <p>At the wooden bridge, stop halfway across. From here you can see both bends of the river. In the morning, the far bank catches the light before the path does.</p>
-                      <p>There is no need to choose the whole route yet. Cross to the sunny side if the benches are dry, or stay beneath the trees and listen to the water against the steps.</p>
-                      <h4>A place for breakfast</h4>
-                      <p>A small bakery sits just beyond the bridge. Pick up something warm and take it to the stone steps. Leave the lower step free for people coming up from the boats.</p>
-                      <p>Bring a bottle of water and a light layer. The breeze feels cooler beside the river, even when the streets are already warm. A short pause here can become the best part of the morning.</p>
-                      <h4>Through the gardens</h4>
-                      <p>Follow the path past the reeds until it reaches a small garden. Herbs grow along the wall, and the gate opens onto a lane lined with old houses. Walk slowly; there are little details above every doorway.</p>
-                      <p>If you want a longer walk, continue to the next bend. If you would rather linger, return to the garden bench. Both routes lead back to the same footbridge.</p>
-                      <h4>The way home</h4>
-                      <p>Return along the other bank for a different view. The bakery, bridge and trees will look familiar from across the water. Keep a little time for one last stop before the busy street begins again.</p>
-                      <p>Some mornings need no more of a plan than this: a path, a warm breakfast and enough room to change your mind.</p>
-                    </div>
-                  </div>
-                  <div id="readingNotesResize" class="reading-flow-resize" role="separator" tabindex="-1" aria-label="Resize notes" aria-orientation="vertical" aria-valuemin="200" aria-valuemax="320" aria-valuenow="260" hidden></div>
-                  <aside id="readingNotes" class="reading-flow-notes" aria-labelledby="readingNotesTitle" hidden inert>
-                    <header><h4 id="readingNotesTitle">Along the way</h4><button class="icon-button" id="readingNotesClose" aria-label="Close notes" data-ui-icon="X" data-icon-size="16"></button></header>
-                    <p>Keep these nearby while you read.</p>
-                    <ul><li>Start at the riverside path.</li><li>Pause on the old footbridge.</li><li>Pick up breakfast by the water.</li><li>Return through the little garden.</li></ul>
-                    <p class="reading-flow-tip">Drag the divider to make room. You can also focus it and use the arrow keys.</p>
-                  </aside>
-                </div>
-                <div class="spec-footer"><span>Scroll to a paragraph · Open and close your notes · Keep reading</span><span>Esc closes notes</span></div>
-              </article>
             <div class="card workspace-card" id="workspaceCard"
               ><div class="workspace-toolbar"
                 ><span
@@ -404,7 +364,6 @@
                 ><span>Filename yields; view controls stay visible</span><span><b>200ms</b> cubic-bezier(.32,.72,0,1)</span><span>Restore keeps the chosen width</span></div
               ></div
             >
-            </div>
           </section>
           <section class="specimen" id="images">
             <div class="section-head"
@@ -865,7 +824,6 @@
     <script src="components/composer.js"></script>
     <script src="components/feedback.js"></script>
     <script src="components/workspace.js"></script>
-    <script src="components/reading-flow.js"></script>
     <script src="components/images.js"></script>
     <script src="components/micro.js"></script>
     <script src="components/reading.js"></script>
