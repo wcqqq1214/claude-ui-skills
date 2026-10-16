@@ -137,7 +137,7 @@ function initProgressDemo() {
     const shimmer = document.createElement('span'); shimmer.className = 'status-shimmer';
     const text = document.createElement('span');
     const clone = document.createElement('span'); clone.className = 'status-shimmer-clone';
-    clone.setAttribute('aria-hidden', 'true'); clone.setAttribute('translate', 'no');
+    clone.setAttribute('aria-hidden', 'true'); clone.setAttribute('translate', 'no'); clone.inert = true;
     shimmer.append(text, clone); label.append(shimmer);
     const status = document.createElement('span'); status.className = 'sr-only';
     row.append(track, label, status);

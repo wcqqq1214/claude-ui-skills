@@ -83,6 +83,7 @@ const types = {'.html':'text/html', '.js':'text/javascript', '.css':'text/css', 
     assert.equal(await progress.locator('[data-kind="finished"]').count(),1);
     assert.equal(await fold.getAttribute('aria-expanded'),'true','progress updates preserve expanded state');
     assert.equal(await progress.locator('[data-shimmering="true"]').count(),0);
+    assert.equal(await progress.locator('.status-shimmer-clone').evaluateAll(nodes=>nodes.every(e=>e.inert&&e.getAttribute('aria-hidden')==='true')),true);
     await replay.click(); await advance(1000); await replay.click(); await advance(1700);
     assert.equal(await count(),'0 / 3','old playback timers cannot update a restarted sample');
     assert.equal(await fold.isVisible(),false);
