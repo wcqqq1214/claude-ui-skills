@@ -93,7 +93,8 @@
     padding-block: 14px;
   }
 }
-#controls {
+#controls,
+.effort-popup {
   --controls-duration-scale: 1;
   --control-accent: #2a78d6;
   --control-focus-inner: #f9f9f7;
@@ -117,7 +118,8 @@
 #controls[data-slow='true'] {
   --controls-duration-scale: 5;
 }
-[data-theme='dark'] #controls {
+[data-theme='dark'] #controls,
+[data-theme='dark'] .effort-popup {
   --control-focus-inner: #0b0b0b;
   --control-focus-glow: rgb(24 79 149 / 60%);
   --switch-shadow: 0 1px 2px rgb(11 11 11 / 6%), 0 2px 8px rgb(0 0 0 / 24%);

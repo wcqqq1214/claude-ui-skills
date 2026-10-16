@@ -2,6 +2,12 @@
 'use strict';
 const DemoI18n = (() => {
   const chinese = {
+  "Effort: {0}": "思考强度：{0}",
+  "Effort: High": "思考强度：High",
+  "Faster": "更快",
+  "Smarter": "更智能",
+  "Drag to preview · Release to select · Arrow keys adjust": "拖动预览 · 松手选择 · 方向键调整",
+  "Esc closes · Reopen to see your selection": "Esc 关闭 · 再次打开保留所选档位",
   "Command palette": "命令面板",
   "Demo action: {0}": "模拟操作：{0}",
   "Unpin": "取消置顶",
