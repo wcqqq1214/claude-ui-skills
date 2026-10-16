@@ -1,4 +1,4 @@
-// Pinned-order browser gate: PLAYWRIGHT_MODULE=/path/to/playwright-core CHROME_BIN=/path/to/chrome node tests/workspace.browser.cjs
+// Pinned-order browser gate: PLAYWRIGHT_MODULE=/path/to/playwright-core CHROME_BIN=/path/to/chrome node tests/pinned-reorder.browser.cjs
 const assert = require('node:assert/strict');
 const {createServer} = require('node:http');
 const {readFile} = require('node:fs/promises');
@@ -45,9 +45,29 @@ const types = {'.html':'text/html', '.js':'text/javascript', '.css':'text/css', 
     const reorder = async (key, target) => {
       const p = await start(key), b = await list.boundingBox();
       await page.mouse.move(p.x+4,p.y);
-      await page.mouse.move(p.x, b.y + target*26 + (target===0 ? 2 : 24), {steps:4});
+      await page.mouse.move(p.x, b.y + target*27 + (target===0 ? 2 : 24), {steps:4});
       return p;
     };
+    const geometry = await list.locator('.pinned-row').evaluateAll(es=>es.map(e=>e.getBoundingClientRect().top));
+    assert.equal(geometry[1]-geometry[0],27,'26px compact row plus 1px gap');
+    await page.locator('#modeTrack button').first().focus();
+    await page.mouse.move(0,0);
+    assert.equal(await list.locator('.pinned-more').first().evaluate(e=>getComputedStyle(e).opacity),'0');
+    await list.locator('.pinned-row').first().hover();
+    assert.equal(await list.locator('.pinned-more').first().evaluate(e=>getComputedStyle(e).opacity),'1');
+    const title = list.locator('[data-pin="notes"] .pinned-title');
+    const saved = await title.innerText();
+    await title.locator('span').evaluate(e=>{e.firstChild.nodeValue='A long conversation title that extends past the row controls and must fade';});
+    await page.locator('#pinnedStage').evaluate(e=>e.style.width='280px');
+    await page.waitForFunction(()=>document.querySelector('[data-pin="notes"] .pinned-title').hasAttribute('data-overflow'));
+    assert.notEqual(await title.evaluate(e=>getComputedStyle(e).maskImage),'none');
+    assert.notEqual(await title.evaluate(e=>getComputedStyle(e).textOverflow),'ellipsis');
+    await title.locator('span').evaluate((e,text)=>{e.firstChild.nodeValue=text;},saved);
+    await page.locator('#pinnedStage').evaluate(e=>e.style.width='');
+    await page.waitForFunction(()=>!document.querySelector('[data-pin="notes"] .pinned-title').hasAttribute('data-overflow'));
+    const once = await start('notes');
+    await page.mouse.move(once.x,once.y+90); await page.mouse.up();
+    assert.deepEqual(await order(),original,'first threshold event initializes only');
     const p = await start('notes');
     await page.mouse.move(p.x+3,p.y+3);
     assert.equal(await page.locator('.pinned-ghost').count(),0,'below either-axis threshold');
@@ -58,8 +78,12 @@ const types = {'.html':'text/html', '.js':'text/javascript', '.css':'text/css', 
     await page.mouse.up(); await clean(); assert.deepEqual(await order(),original);
     await reorder('notes',3);
     assert.deepEqual(await order(),original,'DOM order commits only on release');
-    assert.equal(await list.locator('[data-pin="reading"]').evaluate(e=>e.style.transform),'translateY(-26px)');
+    assert.equal(await list.locator('[data-pin="reading"]').evaluate(e=>e.style.transform),'translateY(-27px)');
     assert.equal(await list.locator('[data-pin="reading"]').evaluate(e=>getComputedStyle(e).transitionDuration),'0.12s');
+    await page.waitForFunction(()=>document.querySelector('.pinned-ghost').style.transform.includes('translate('));
+    assert.equal(await page.locator('.pinned-ghost').evaluate(e=>getComputedStyle(e).willChange),'transform');
+    assert.equal(await page.locator('.pinned-ghost-surface').evaluate(e=>getComputedStyle(e).opacity),'0.9');
+    assert.equal(await page.locator('.pinned-ghost').evaluate(e=>e.parentElement.id),'pinnedStage');
     if(process.env.SCREENSHOT_DIR) await page.screenshot({path:resolve(process.env.SCREENSHOT_DIR,'drag-preview.png'),fullPage:true});
     await page.mouse.up(); await clean();
     assert.deepEqual(await order(),['reading','weekend','ideas','notes']);
@@ -77,38 +101,64 @@ const types = {'.html':'text/html', '.js':'text/javascript', '.css':'text/css', 
       if(cancel==='chapter') await page.goto(url+'#modes');
     }
     await reorder('notes',3);
-    await page.mouse.move(1,300); await page.mouse.up();
+    const outside=await list.boundingBox();
+    await page.mouse.move(outside.x+outside.width+10,outside.y+90); await page.mouse.up();
     assert.deepEqual(await order(),original,'horizontal exit does not reorder');
+    await reorder('notes',3);
+    await list.locator('[data-pin="notes"]').dispatchEvent('pointermove',{pointerId:1,buttons:0});
+    assert.deepEqual(await order(),original,'missing button state waits before committing');
+    await page.waitForFunction(()=>!document.querySelector('.pinned-ghost'));
+    assert.deepEqual(await order(),['reading','weekend','ideas','notes']);
+    await page.mouse.up(); await reset();
     for(let i=0;i<8;i++) { await reorder('notes',3); await page.mouse.up(); await reset(); }
     console.log('PASS cancel, horizontal exit, eight reorder/reset cycles and cleanup');
 
-    const trigger = key => list.locator(`[data-pin="${key}"] button`);
+    const primary = key => list.locator(`[data-pin="${key}"] .pinned-main`);
+    const trigger = key => list.locator(`[data-pin="${key}"] .pinned-more`);
+    const openMenu = async key => { await primary(key).focus(); await page.keyboard.press('ArrowRight'); await page.keyboard.press('Enter'); };
+    // Roving focus: one main row Tab stop; row actions are not extra Tab stops.
+    assert.equal(await list.locator('.pinned-main[tabindex="0"]').count(),1);
+    assert.equal(await list.locator('.pinned-more[tabindex="0"]').count(),0);
+    await primary('notes').focus();
+    await page.keyboard.press('ArrowDown'); assert.equal(await primary('reading').evaluate(e=>e===document.activeElement),true);
+    assert.equal(await page.locator('#pinnedMenu').isVisible(),false);
+    await page.keyboard.press('End'); assert.equal(await primary('ideas').evaluate(e=>e===document.activeElement),true);
+    await page.keyboard.press('Home'); await page.keyboard.press('ArrowRight');
+    assert.equal(await trigger('notes').evaluate(e=>e===document.activeElement),true);
+    await page.keyboard.press('ArrowLeft'); assert.equal(await primary('notes').evaluate(e=>e===document.activeElement),true);
+    await page.keyboard.press('Tab');
+    assert.equal(await page.evaluate(()=>document.activeElement.closest('#pinnedList')===null),true);
+    await page.evaluate(()=>document.querySelector('#pinnedStage').dir='rtl');
+    await primary('notes').focus(); await page.keyboard.press('ArrowLeft');
+    assert.equal(await trigger('notes').evaluate(e=>e===document.activeElement),true);
+    await page.keyboard.press('ArrowRight'); assert.equal(await primary('notes').evaluate(e=>e===document.activeElement),true);
+    await page.evaluate(()=>document.querySelector('#pinnedStage').removeAttribute('dir'));
     await reorder('notes',3);
     await trigger('reading').focus(); await page.keyboard.press('Enter');
     await clean(); await page.mouse.up();
     assert.deepEqual(await order(),original,'keyboard menu cancels pending drag');
     await page.keyboard.press('Escape');
-    await trigger('notes').focus(); await page.keyboard.press('Enter');
+    await openMenu('notes');
     assert.equal(await page.locator('#pinnedMenu [data-move="-1"]').isVisible(),false);
     assert.equal(await page.locator('#pinnedMenu [data-move="1"]').evaluate(e=>e===document.activeElement),true);
     await page.keyboard.down('Enter');
     for(let i=0;i<3;i++) await page.keyboard.down('Enter');
     await page.keyboard.up('Enter');
     assert.deepEqual(await order(),['reading','notes','weekend','ideas']);
-    assert.equal(await page.locator('#pinnedMenu').isVisible(),false,'held Enter does not reopen');
-    assert.equal(await trigger('notes').evaluate(e=>e===document.activeElement),true);
-    await page.keyboard.press('ArrowUp'); await page.keyboard.press('Home'); await page.keyboard.press('Space');
+    assert.equal(await page.locator('#pinnedMenu').isVisible(),false);
+    assert.equal(await primary('notes').evaluate(e=>e===document.activeElement),true);
+    await openMenu('notes'); await page.keyboard.press('Home'); await page.keyboard.press('Space');
     assert.deepEqual(await order(),original);
-    await trigger('ideas').click();
+    await openMenu('ideas');
     assert.equal(await page.locator('#pinnedMenu [data-move="1"]').isVisible(),false);
     await page.keyboard.press('Escape');
     assert.equal(await trigger('ideas').evaluate(e=>e===document.activeElement),true);
-    await trigger('reading').click(); await page.keyboard.press('Tab');
+    await openMenu('reading'); await page.keyboard.press('Tab');
     assert.equal(await page.locator('#pinnedMenu').isVisible(),false);
-    assert.equal(await trigger('weekend').evaluate(e=>e===document.activeElement),true);
-    await trigger('notes').click(); await page.locator('#modeTrack button').first().click();
+    assert.equal(await page.evaluate(()=>document.activeElement.closest('#pinnedList')===null),true);
+    await openMenu('notes'); await page.locator('#modeTrack button').first().click();
     assert.equal(await page.locator('#pinnedMenu').isVisible(),false);
-    console.log('PASS menu boundaries, Enter/Space, held-key guard, arrows, Escape, Tab and focus return');
+    console.log('PASS row roving focus, RTL, action navigation, menu boundaries and focus return');
 
     await page.locator('#modeTrack [data-mode="Code"]').focus();
     await page.keyboard.press('ArrowLeft');
@@ -118,8 +168,8 @@ const types = {'.html':'text/html', '.js':'text/javascript', '.css':'text/css', 
     await page.locator('#modeCount').click();
     assert.equal(await page.locator('#modeTrack [aria-current="page"]').getAttribute('data-mode'),'Chat');
     await page.locator('#languageBtn').click(); await page.locator('[data-locale="zh-Hans"]').click();
-    await trigger('notes').click();
-    assert.equal(await page.locator('#pinnedMenu [data-move="1"]').innerText(),'下移');
+    await openMenu('notes');
+    assert.equal(await page.locator('#pinnedMenu [data-move="1"] > span:last-child').innerText(),'下移');
     await page.keyboard.press('Escape');
     await page.locator('#resetPinned').click();
     assert.equal(await page.locator('#pinnedStatus').innerText(),'已恢复原来的顺序');
@@ -128,11 +178,19 @@ const types = {'.html':'text/html', '.js':'text/javascript', '.css':'text/css', 
     await page.emulateMedia({reducedMotion:'reduce'});
     await reorder('notes',3);
     assert.equal(await list.locator('[data-pin="reading"]').evaluate(e=>getComputedStyle(e).transitionDuration),'0s');
+    assert.equal(await page.locator('.pinned-ghost-surface').evaluate(e=>getComputedStyle(e).transitionDuration),'0s');
     await page.mouse.up(); await reset();
+    await page.emulateMedia({reducedMotion:'no-preference'});
+    await page.evaluate(()=>document.documentElement.dataset.reduceMotion='true');
+    await reorder('notes',3);
+    assert.equal(await list.locator('[data-pin="reading"]').evaluate(e=>getComputedStyle(e).transitionDuration),'0s');
+    assert.equal(await page.locator('.pinned-ghost-surface').evaluate(e=>getComputedStyle(e).transitionDuration),'0s');
+    await page.mouse.up(); await reset();
+    await page.evaluate(()=>delete document.documentElement.dataset.reduceMotion);
     for(const narrow of [390,320]) {
       await page.setViewportSize({width:narrow,height:844});
       await reorder('notes',3); await page.mouse.up(); await reset();
-      await trigger('ideas').click();
+      await openMenu('ideas');
       const box = await page.locator('#pinnedMenu').boundingBox();
       assert.ok(box.x>=0 && box.x+box.width<=narrow);
       await page.keyboard.press('Escape');
