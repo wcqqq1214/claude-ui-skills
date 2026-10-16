@@ -3,6 +3,7 @@
 const DemoI18n = (() => {
   const chinese = {
   "Progress": "进度",
+  "Done": "已完成",
   "Replay to watch the steps unfold. Expand earlier steps to read them again.": "重播以查看步骤逐渐展开，点击较早的步骤可再次查看。",
   "Hide earlier steps": "收起较早的步骤",
   "{0} earlier step": "前面的 {0} 个步骤",
