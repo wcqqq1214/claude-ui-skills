@@ -87,6 +87,15 @@ function initReadingFlowDemo() {
       setOpen(false);
     }
   });
+  handle.addEventListener('blur', () => {
+    if (!desired || handle.getClientRects().length) return;
+    // Layout can clear focus before ResizeObserver runs. Do not override a
+    // subsequent deliberate focus move to another visible control.
+    queueMicrotask(() => {
+      if (desired && $('#workspace').hasAttribute('data-active') &&
+          document.activeElement === document.body) close.focus({preventScroll: true});
+    });
+  });
   handle.addEventListener('pointerdown', event => {
     if (event.button !== 0 || !event.isPrimary || drag || !desired) return;
     event.preventDefault();
@@ -125,7 +134,10 @@ function initReadingFlowDemo() {
     notes.scrollTop = 0;
   });
   new ResizeObserver(() => {
-    if (stage.clientWidth <= 700) finishDrag(false);
+    if (stage.clientWidth <= 700) {
+      finishDrag(false);
+      if (desired && document.activeElement === handle) close.focus({preventScroll: true});
+    }
     syncWidth();
   }).observe(stage);
   motion.addEventListener('change', settle);
