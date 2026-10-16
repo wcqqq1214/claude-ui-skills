@@ -210,29 +210,26 @@
                 </div>
               </article>
               <article class="card controls-card slider-card">
-                <div class="slider-block">
-                  <div class="range-shell"
-                  ><div class="range-track"
-                    ><div class="range-fill-origin"
-                      ><div class="range-fill-clip"><div class="range-fill"></div></div></div></div
-                  ><div class="range-stops" aria-hidden="true"
-                    ><i></i><i></i><i class="recommended"></i><i></i></div
-                  ><div class="range-carriage" aria-hidden="true"
-                    ><div class="range-position"><div class="range-thumb"></div></div></div
-                  ><input
-                    id="effortRange"
-                    aria-label="Effort"
-                    type="range"
-                    min="0"
-                    max="3"
-                    step="1"
-                    value="2"
-                    aria-valuetext="Level 3 of 4" /></div>
+                <div class="slider-block effort-entry">
+                  <button id="effortPopoverTrigger" class="effort-trigger" type="button" aria-haspopup="dialog" aria-expanded="false" aria-controls="effortPopover" aria-label="Effort: High"><span id="effortPopoverValue" translate="no">High</span></button>
+                  <dialog id="effortPopover" class="effort-popup" aria-labelledby="effortPopoverTitle" tabindex="-1">
+                    <div class="effort-heading"><span id="effortPopoverTitle">Effort</span><span id="effortAnimatedLabel" class="effort-label" aria-hidden="true" translate="no">High</span></div>
+                    <div class="effort-slider-group">
+                      <div class="effort-scale" aria-hidden="true"><span>Faster</span><span>Smarter</span></div>
+                      <div class="range-shell" id="effortPopoverTrack" dir="ltr">
+                        <div class="range-track"><div class="range-fill-origin"><div class="range-fill-clip"><div class="range-fill"></div></div></div></div>
+                        <div class="range-stops" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+                        <div class="range-carriage" aria-hidden="true"><div class="range-position"><div class="range-thumb"></div></div></div>
+                        <input id="effortRange" aria-label="Effort" type="range" min="0" max="3" step="1" value="2" aria-valuetext="High" />
+                      </div>
+                    </div>
+                  </dialog>
                 </div>
                 <div class="controls-caption">
                   <h3>Discrete slider</h3>
-                  <p>The fill follows the thumb, which grows while pressed.</p>
-                  <p class="controls-params">120ms · 1.12× press scale · 4 stops</p>
+                  <p>Open the current level to adjust effort.</p>
+                  <p>Drag to preview · Release to select · Arrow keys adjust</p>
+                  <p>Esc closes · Reopen to see your selection</p>
                 </div>
               </article>
             </div>
