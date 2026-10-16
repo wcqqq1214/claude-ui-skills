@@ -16,3 +16,7 @@ Use these for a small set of status cards and a nearby drop target whose active 
 - Re-entry reads the current visual state before canceling an exit, and stale completions cannot hide a newly active overlay.
 
 The status shapes, card content and keyboard Enter/Space drop substitute are local. No running-state pulse, page-wide scrim, upload, file parsing or task execution is implemented. Check selection, focus navigation, drop/reset and interrupted overlay feedback; keyboard substitution does not prove physical drag coverage.
+
+## Progress list
+
+The same [tasks chapter](../../showcase/index.html#tasks) includes a progress list. Expand earlier steps to revisit them, or use Replay to watch the sample unfold. `initProgressDemo()` lives in the linked tasks JS and shares the existing chapter entry.
