@@ -6,7 +6,6 @@
   initComposerDemo();
   initFeedbackDemo();
   initWorkspaceDemo();
-  initReadingFlowDemo();
   const showToast = initMicroDemo();
   initImagesDemo();
   initReadingDemo();
