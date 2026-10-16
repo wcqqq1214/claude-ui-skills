@@ -46,16 +46,6 @@
       "bytes": 8571
     },
     {
-      "name": "components/reading-flow.css",
-      "sha256": "da3ad6a09e3f138dba0e8b8b3d943728af254569bb86e45838671e45e2f0234a",
-      "bytes": 3248
-    },
-    {
-      "name": "components/reading-flow.js",
-      "sha256": "6f628ad2bb2a8ab5d3ac6e0a6c2aeb316cbe9102b5d42123914209a73c81d287",
-      "bytes": 6258
-    },
-    {
       "name": "components/status-assets/default-loop.webp",
       "sha256": "b696a8fef1599e111042c23f8286c87104cda53535cd9f71d0626503190f681e",
       "bytes": 5586
@@ -174,6 +164,16 @@
       "name": "components/modes.js",
       "sha256": "08d7d5f73a651230381114be0078121461b1553734334b02050d37cf410a756b",
       "bytes": 2391
+    },
+    {
+      "name": "components/reading-flow.css",
+      "sha256": "da3ad6a09e3f138dba0e8b8b3d943728af254569bb86e45838671e45e2f0234a",
+      "bytes": 3248
+    },
+    {
+      "name": "components/reading-flow.js",
+      "sha256": "6f628ad2bb2a8ab5d3ac6e0a6c2aeb316cbe9102b5d42123914209a73c81d287",
+      "bytes": 6258
     },
     {
       "name": "components/reading.css",
