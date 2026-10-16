@@ -197,13 +197,13 @@
     },
     {
       "name": "components/tasks.css",
-      "sha256": "143cd01934747c8829b935ba028b1c161189fec7a5fa75b08d429d165b57c0a8",
-      "bytes": 4019
+      "sha256": "af6e0912e004228bf207cdbd4f0e76717deece5b19894bb7d05eae54b9f5f874",
+      "bytes": 12131
     },
     {
       "name": "components/tasks.js",
-      "sha256": "4aba02bce7078e8b0a5e7051b67424f84d8231e2eb421cba62354a0bd9b9b811",
-      "bytes": 3730
+      "sha256": "80fb91e308e69819b6e63ee89329dc8572694f62cb39594e31a1267db6740038",
+      "bytes": 11261
     },
     {
       "name": "components/type.css",
@@ -272,18 +272,18 @@
     },
     {
       "name": "i18n.js",
-      "sha256": "816d19bd0740980c197ecfcd1174e9cb27010f4c9952ef19163cbe93c07d992b",
-      "bytes": 25042
+      "sha256": "55b2c34cddcf4879f6feff8abeccf898b76319d3d06c7301f1695e7a26e3d575",
+      "bytes": 26050
     },
     {
       "name": "icons.js",
-      "sha256": "35354b134172f5f5064863268daefde890d72f819bd6c217476cc59faafde1b2",
-      "bytes": 2040
+      "sha256": "c460c56412ba384d3bdc403e3f3690359307de92d6096efda1ca7422c8ccc9f8",
+      "bytes": 2082
     },
     {
       "name": "index.html",
-      "sha256": "dbfe1a0ffd20d9dc72ea8c53dc8071969d4f5c2f31283bb5a35ac9cbc65e9c59",
-      "bytes": 51513
+      "sha256": "b7c026a367bc9893a3dceacae78810a6125cbc21dda41b247136c50e7386a7b9",
+      "bytes": 52892
     },
     {
       "name": "landscape-dusk.svg",
