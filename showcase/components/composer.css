@@ -295,3 +295,5 @@
 [data-theme='dark'] .composer-mention[data-selected]::before { background: #032042; }
 .composer-mention-content::selection { background: transparent; }
 [data-theme='dark'] .composer-mention-popup { font-variation-settings: "GRAD" 0, "wght" 360; }
+.composer-mention-menu:focus-visible, .composer-mention-menu button:focus-visible,
+.composer-mention-option:focus-visible { outline: none; }

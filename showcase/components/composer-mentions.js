@@ -62,27 +62,33 @@ function initComposerMentions() {
   function positionPopup() {
     if (popup.hidden || !queryRange) return;
     if (!editor.getClientRects().length) return close();
-    const anchor = queryRange.getBoundingClientRect();
+    const caret = queryRange.cloneRange();
+    caret.collapse(true);
+    const anchor = caret.getBoundingClientRect();
     const viewport = window.visualViewport;
     const left = viewport?.offsetLeft || 0, top = viewport?.offsetTop || 0;
     const width = viewport?.width || innerWidth, height = viewport?.height || innerHeight;
     popup.style.maxWidth = Math.max(0, width - 32) + 'px';
     popup.style.maxHeight = Math.min(384, height - 32) + 'px';
     popup.style.left = Math.max(left + 16, Math.min(anchor.left, left + width - popup.offsetWidth - 16)) + 'px';
-    // Use a caret-bottom anchor with sideOffset 24, then flip near the viewport edge.
-    const above = anchor.bottom - 24 - popup.offsetHeight;
-    popup.style.top = Math.max(top + 16, Math.min(above >= top + 16 ? above : anchor.bottom + 24, top + height - popup.offsetHeight - 16)) + 'px';
+    // Anchor at the trigger caret bottom + 4 with sideOffset 24, then flip near the viewport edge.
+    const above = anchor.bottom + 4 - 24 - popup.offsetHeight;
+    popup.style.top = Math.max(top + 16, Math.min(above >= top + 16 ? above : anchor.bottom + 4 + 24, top + height - popup.offsetHeight - 16)) + 'px';
   }
   function update() {
     const selection = selectionRange();
     for (const node of editor.querySelectorAll('.composer-mention')) {
-      node.toggleAttribute('data-selected', !!selection && !selection.collapsed && selection.intersectsNode(node));
+      const index = Array.prototype.indexOf.call(node.parentNode.childNodes, node);
+      node.toggleAttribute('data-selected', !!selection && selection.startContainer === node.parentNode &&
+        selection.endContainer === node.parentNode && selection.startOffset === index && selection.endOffset === index + 1);
     }
     if (composing || document.activeElement !== editor) return close();
     editor.dataset.empty = String(!editor.textContent && !editor.querySelector('.composer-mention'));
     const found = queryAtCaret();
-    if (!found || !label().toLocaleLowerCase().includes(found.query.toLocaleLowerCase())) return close();
-    if (dismissed && dismissed.container === found.range.startContainer && dismissed.offset === found.range.startOffset && dismissed.query === found.query) return close();
+    if (!found) { dismissed = null; return close(); }
+    if (!label().toLocaleLowerCase().includes(found.query.toLocaleLowerCase())) return close();
+    const query = '@' + found.query;
+    if (dismissed && (dismissed.length === 1 ? query === dismissed : query.startsWith(dismissed))) return close();
     dismissed = null;
     queryRange = found.range;
     popup.hidden = false;
@@ -114,7 +120,7 @@ function initComposerMentions() {
   }
   option.addEventListener('pointerdown', event => event.preventDefault());
   option.addEventListener('click', insert);
-  editor.addEventListener('input', () => { dismissed = null; update(); });
+  editor.addEventListener('input', update);
   editor.addEventListener('compositionstart', () => { composing = true; close(); });
   editor.addEventListener('compositionend', () => { composing = false; update(); });
   editor.addEventListener('keydown', event => {
@@ -125,7 +131,7 @@ function initComposerMentions() {
       if (event.key === 'Escape') {
         event.preventDefault(); event.stopPropagation();
         const found = queryAtCaret();
-        dismissed = found && {container: found.range.startContainer, offset: found.range.startOffset, query: found.query};
+        dismissed = found ? '@' + found.query : null;
         close(); return;
       }
     }
