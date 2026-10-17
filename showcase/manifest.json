@@ -122,8 +122,8 @@
     },
     {
       "name": "components/gallery.css",
-      "sha256": "4e78f1d468b9472659c8737467894f98357140ed636c32059b924b8e33aab9dd",
-      "bytes": 2416
+      "sha256": "4184ad7f4547f7216fc5db003d4115d5b115f98acb29faff7166c8684c35c785",
+      "bytes": 2522
     },
     {
       "name": "components/gallery.js",
@@ -152,8 +152,8 @@
     },
     {
       "name": "components/micro.css",
-      "sha256": "396825001f3cbb8a6b115a9b6d4b3c4b062e33978176d2018a1f206c4378da95",
-      "bytes": 3587
+      "sha256": "e29f6f940e19b61e64a40b8308830083bde431ea75379e0b50e90134444866e7",
+      "bytes": 3693
     },
     {
       "name": "components/micro.js",
@@ -172,8 +172,8 @@
     },
     {
       "name": "components/reading.css",
-      "sha256": "d941d48c0178bff1eedcaffefaeed02bff274c4acee5b9aa8d34d5185a580ac2",
-      "bytes": 9546
+      "sha256": "cbf78484be9705c18f394113b61c95ee96954fe08b556f3b78a1f12140357b04",
+      "bytes": 9549
     },
     {
       "name": "components/reading.js",
@@ -182,8 +182,8 @@
     },
     {
       "name": "components/recovery.css",
-      "sha256": "eccd8813342a375be2eb265beb308511180b08d9f73a4a1678e011ca2e120149",
-      "bytes": 3963
+      "sha256": "caea6854b36350c0d74a7d0934a594814837f37bfcaf02165d42c6a08f36d53e",
+      "bytes": 4068
     },
     {
       "name": "components/recovery.js",
@@ -222,8 +222,8 @@
     },
     {
       "name": "components/workspace.css",
-      "sha256": "a4816fa9f3c3005d7f2d5b46315211f366a54488c5e776d4641ee77fa5447146",
-      "bytes": 5576
+      "sha256": "2a14fb79b3c75b60ca4a3cb797073d2973c8a7dd1accc356f7a23007c6436026",
+      "bytes": 5641
     },
     {
       "name": "components/workspace.js",
@@ -232,8 +232,8 @@
     },
     {
       "name": "fonts.css",
-      "sha256": "6353433fea24d7fbe91279b8588c5ee9397fb6ba34599d039fb4e18a2eadd116",
-      "bytes": 5943
+      "sha256": "2a774ecade833982715010ac9e902cf0767660cc1a93f54ee25145123157f1d3",
+      "bytes": 6135
     },
     {
       "name": "fonts/anthropic-mono-italic-variable.woff2",
@@ -282,8 +282,8 @@
     },
     {
       "name": "icons.js",
-      "sha256": "ccef993c7079c4baa00f7ced59b009ebd33b18dbef544268a494cb5b51afe33f",
-      "bytes": 11239
+      "sha256": "fa0d9a48840f130656726d98602c680407c1294fc8ef58d39f368dc769e36c96",
+      "bytes": 11447
     },
     {
       "name": "index.html",
@@ -322,8 +322,8 @@
     },
     {
       "name": "style.css",
-      "sha256": "a81bc2fa9984fba050fd4e6db91d1513357014999e66bf5fbb361c7fcc404572",
-      "bytes": 15768
+      "sha256": "883a579c2cf429c4e00bd0a5084b86a553a099f0068c8c86865d60d23b2ab49c",
+      "bytes": 15874
     }
   ],
   "network_dependencies": [],
