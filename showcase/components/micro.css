@@ -4,10 +4,38 @@
   min-height: 360px;
 }
 .micro-stage {
-  padding: 35px 23px 40px;
-  display: flex;
-  gap: 17px;
+  padding: 28px 22px;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
+}
+.micro-example {
+  display: grid;
+  grid-template-columns: 48px minmax(0, 1fr);
+  gap: 12px;
   align-items: center;
+}
+.micro-example + .micro-example {
+  border-inline-start: 1px solid var(--line);
+  padding-inline-start: 20px;
+}
+.micro-demo-control {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  min-height: 48px;
+}
+.micro-example-copy h3 { font-size: 12px; font-weight: var(--medium); line-height: 1.5; }
+.micro-example-copy p { margin-top: 4px; color: var(--secondary); font-size: 11px; line-height: 1.6; }
+@media (max-width: 480px) {
+  .micro-stage { grid-template-columns: minmax(0, 1fr); gap: 16px; }
+  .micro-example + .micro-example {
+    border-inline-start: 0;
+    border-top: 1px solid var(--line);
+    padding-inline-start: 0;
+    padding-top: 16px;
+  }
 }
 .round-tool {
   display: inline-flex;
@@ -191,8 +219,6 @@
 }
 
 
-.ghost-example { display: flex; align-items: center; gap: 12px; min-width: 0; }
-.ghost-example p { color: var(--muted); font-size: 11px; line-height: 1.5; }
 .ghost-button {
   position: relative;
   isolation: isolate;
