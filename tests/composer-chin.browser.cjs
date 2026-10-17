@@ -74,7 +74,7 @@ const types = {'.html':'text/html', '.js':'text/javascript', '.css':'text/css', 
         assert.equal(await range.inputValue(),'679');
         await page.evaluate(()=>location.hash='controls'); await settle();
         await page.evaluate(()=>location.hash='composer'); await settle();
-        assert.equal(await input.inputValue(),'保留这段草稿\nA second line');
+        assert.equal(await input.innerText(),'保留这段草稿\nA second line');
         assert.equal(await page.locator('.composer-attachment').count(),2);
       }
       console.log(`PASS ${touch?'touch':'mouse'}: three modes in both languages, hysteresis, repeated resizing, keyboard, chapter return and preserved draft`);

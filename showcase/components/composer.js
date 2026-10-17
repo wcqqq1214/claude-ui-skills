@@ -2,6 +2,7 @@
 function initComposerDemo() {
   initComposerAttachments();
   initComposerChin();
+  initComposerMentions();
   const prompt = $('#promptInput');
   function resizeInput() {
     if (!prompt.clientWidth) return;

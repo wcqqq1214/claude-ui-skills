@@ -242,7 +242,12 @@
             <div class="card composer-card">
               <div class="composer-box">
                 <div class="composer-attachments" id="composerAttachments" role="group" aria-label="Mock attachments"></div>
-                <textarea id="promptInput" rows="1" placeholder="Type a few lines…" aria-label="Demo input"></textarea>
+                <div id="promptInput" class="composer-editor" contenteditable="true" role="textbox" aria-multiline="true" aria-label="Demo input" aria-autocomplete="list" aria-controls="composerMentionList" data-placeholder="Type a few lines…" translate="no"></div>
+                <div id="composerMentionList" class="composer-mention-popup" role="listbox" aria-label="Mention suggestions" hidden>
+                  <div class="composer-mention-heading" aria-hidden="true">Artifacts</div>
+                  <button id="composerMentionOption" class="composer-mention-option" type="button" role="option" aria-selected="true" tabindex="-1"><span data-ui-icon="Palette" data-icon-size="16" aria-hidden="true"></span><span class="composer-mention-title">Landscape illustration</span><span class="composer-mention-description">Design</span></button>
+                </div>
+                <div id="composerMentionMenu" class="composer-mention-popup composer-mention-menu" role="menu" tabindex="-1" hidden><button type="button" role="menuitem" tabindex="-1">Delete</button></div>
                 <div class="composer-chin" id="composerChin" data-picker-mode="words-and-carets">
                   <div class="composer-chin-row">
                     <div class="composer-chin-pickers" id="composerPickers">
@@ -265,6 +270,7 @@
                 <output id="composerWidthOutput" for="composerWidth">680 px</output>
                 <button class="button small subtle" id="addMockAttachment" type="button" aria-label="Add mock attachment" title="Add mock attachment"><span data-ui-icon="File" aria-hidden="true"></span><span>Add attachment</span></button>
               </div>
+              <p class="composer-hint">Type @ to reference the sample artwork. Choose with Enter or Tab, then keep typing. Esc dismisses the list.</p>
               <p class="composer-hint" id="composerHint">Narrow the input to watch the project label simplify. Project and model are fixed previews.</p>
             </div>
           </section>
@@ -877,6 +883,7 @@
     <script src="components/type.js"></script>
     <script src="components/controls.js"></script>
     <script src="components/segmented.js"></script>
+    <script src="components/composer-mentions.js"></script>
     <script src="components/composer.js"></script>
     <script src="components/feedback.js"></script>
     <script src="components/workspace.js"></script>
