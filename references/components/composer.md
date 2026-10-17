@@ -21,6 +21,8 @@ Use for: the composer surface and its hover/focus states, `@` Artifact reference
 | Editor height | Follows `scrollHeight`; demo cap 130px |
 | Mention popup | Opens above the caret, flips below when short of room; 16px viewport padding; max height 384px |
 | Project row | Three modes: words + caret → words → icon (16px; 20px on coarse pointers) |
+| Row text | 12px; 10px when the row is ≤ 400px wide. Coarse pointers: 13px, and 11px when narrow |
+| Row pickers | 20px tall, 5px radius, 12px text; on coarse pointers 32px tall, 8px radius, 13px text |
 | Press feedback | Fill shrinks by `clamp(.5px, height / 32, 1.5px)` per side (scale ≥ .8); releases over 450ms `--ease-spring` |
 | Attachment row enter | From opacity 0, translateY(-8px); 200ms `--ease-out-cubic` |
 | Tile enter | From opacity 0, scale(.92) translateY(4px); 180ms `--ease-out-cubic` |
@@ -35,6 +37,7 @@ Use for: the composer surface and its hover/focus states, `@` Artifact reference
 - Width changes remeasure the draft, including when the chapter becomes visible again.
 - The project row folds to the next mode when its content stops fitting. It unfolds only when the wider mode fits with 2px to spare and the labels are unchanged. Keep the same trigger element across modes so focus survives resizing.
 - A tile is removed with its X, Delete or Backspace. Modified keys, IME composition and held-key repeats are ignored.
+- On hover-capable devices the remove control appears on hover and focus; on coarse or no-hover input it stays visible.
 - After a removal, focus moves to the next remove control, else the previous one, else the editor.
 - The last tile skips the removal transition. Browsers without View Transitions, and hidden documents, update directly. An interrupted removal still applies once.
 - Filenames stay as written across language switches; action labels translate.

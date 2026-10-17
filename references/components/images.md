@@ -18,7 +18,8 @@ Use for: one image that opens from a visible thumbnail and returns to the same p
 | Preview surface | `.375rem` radius; shadow `0 4px 32px` black 30% plus a .5px ring at 25% |
 | Open / close | View Transition, 350ms open and 250ms close, `--ease-snap` |
 | Decoration | Radius and shadow animate from the thumbnail's values to the preview's |
-| Close button | 32px; 60ms hover and focus feedback |
+| Close button | 24×24px, 6px radius, 16px icon; on coarse pointers 32×32px, 8px radius, 20px icon |
+| Close feedback | Hover and focus over 60ms; press scales to .9375 over 60ms ease-out and releases over 450ms `--ease-spring` |
 
 ## Rules
 

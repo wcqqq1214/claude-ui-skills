@@ -21,7 +21,8 @@ Use for: a small set of status cards; a nearby drop target whose active boundary
 | Glow enter | 200ms `--ease-out-cubic` after 80ms |
 | Overlay exit | Current layer state → opacity 0, scale .95; 200ms ease-out |
 | Progress folding | Completed steps beyond the two most recent fold behind an "earlier steps" toggle |
-| Progress entry | New step 180ms `--ease-out`; the current step's label shimmers with `--ease-shimmer` |
+| Progress entry | New step text and rail 220ms `--ease-out`; current-step node 180ms `--ease-out` |
+| Current step | Label shimmers with `--ease-shimmer` |
 
 ## Rules
 

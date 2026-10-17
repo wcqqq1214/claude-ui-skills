@@ -23,6 +23,6 @@ Choose the user-facing scenario, then read that chapter's linked HTML, JS and CS
 
 [app.js](../showcase/app.js) initializes the examples once, after the translated markup and component definitions are loaded by [index.html](../showcase/index.html). Chapter scripts contain the actual event bindings and sample content. [shared.js](../showcase/shared.js) provides `$`/`$$`, `nextFrame()`, `imageTransform()` and `easeOutCubic` (the WAAPI copy of `--ease-out-cubic`); [i18n.js](../showcase/i18n.js) and [icons.js](../showcase/icons.js) supply Chinese translations of the English-authored demo content and font icons, respectively.
 
-Component CSS relies on [style.css](../showcase/style.css) for the border-box reset, shared buttons, surface and `--ease-*` tokens and page layout, plus [fonts.css](../showcase/fonts.css) for font roles. Read the chapter's additional cross-component dependencies before adapting it. 
+Component CSS relies on [style.css](../showcase/style.css) for the border-box reset, shared buttons, surface and `--ease-*` tokens and page layout, plus [fonts.css](../showcase/fonts.css) for font roles. Read the chapter's additional cross-component dependencies before adapting it.
 
 The linked component guides describe each chapter's demonstrated behavior and local adaptations.

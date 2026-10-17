@@ -57,7 +57,7 @@ Values as used by the demo's components. The demo shell (sidebar, chapter stage,
 | 14px | Dialog | Expanded table dialog |
 | 16px | Large images | Gallery slides |
 | Pill | Switches, badges, handles | Switch, running badge, gallery navigation, resize pill |
-| 50% | Round buttons | Attachment remove, image close |
+| 50% | Round buttons and dots | Attachment remove, gallery close, scroll-return button, progress nodes |
 
 A nested corner is the outer radius minus the inset: the segmented track is 8px, its thumb 7px and its buttons 6px.
 
