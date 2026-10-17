@@ -6,7 +6,7 @@ Use this for one image that opens from a visible thumbnail and returns to the sa
 
 [HTML](../../showcase/index.html#images) · [JS](../../showcase/components/images.js) · [CSS](../../showcase/components/images.css)
 
-`initImagesDemo()` binds the thumbnail and dialog; `setOpen()` coordinates opening, closing and interruption. The shared `.image-close` style is in [style.css](../../showcase/style.css).
+`initImagesDemo()` binds the thumbnail and dialog; `setOpen()` coordinates opening, closing and interruption.
 
 ## Interaction
 
