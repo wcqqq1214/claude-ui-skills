@@ -40,7 +40,7 @@ function initGalleryDemo() {
       }
       if (e.target === img || (e.target === slide && e.detail === 0 && !e.pointerType)) {
         e.stopPropagation();
-        toggleZoom(e.target === img ? e : null);
+        if (!drag) toggleZoom(e.target === img ? e : null);
       }
     };
     slide.onkeydown = (e) => {
@@ -77,7 +77,6 @@ function initGalleryDemo() {
   }
   function resetZoom() { setZoom(null); }
   function toggleZoom(point = null) {
-    if (drag) return;
     if (zoom) resetZoom();
     else {
       const fit = measureZoom();
@@ -226,6 +225,7 @@ function initGalleryDemo() {
     const dx = e.clientX - drag.x, dy = e.clientY - drag.y;
     if (!drag.moved && Math.hypot(dx, dy) < 4) return;
     drag.moved = true;
+    suppressClick = true;
     drag.tx = GalleryZoom.clamp(zoom.tx + dx, zoom.maxTx);
     drag.ty = GalleryZoom.clamp(zoom.ty + dy, zoom.maxTy);
     paintZoom({ ...zoom, tx: drag.tx, ty: drag.ty });

@@ -61,10 +61,30 @@ const types = {'.html':'text/html','.js':'text/javascript','.css':'text/css','.s
       assert.equal(metrics.slideDuration,motion==='reduce'?'0s':'0.3s');
       if(motion==='reduce')assert.equal(metrics.transitions.length,0);
       else assert.equal(metrics.transitions[0].duration,'0.18s');
+      // A pointer targets its landing point; keyboard zoom remains centered.
+      const fitted=await page.locator('.gallery-slide.current img').boundingBox();
+      const natural=await page.locator('.gallery-slide.current img').evaluate(e=>e.naturalWidth);
+      const scale=Math.max(natural/fitted.width,2);
+      const clickX=Math.floor(fitted.x+fitted.width*.2), clickY=Math.floor(fitted.y+fitted.height*.3);
+      await page.mouse.click(clickX,clickY);
+      const pointerMatrix=await page.locator('.gallery-slide.current img').evaluate(e=>{const m=new DOMMatrix(getComputedStyle(e).transform);return {scale:m.a,x:m.e,y:m.f};});
+      const expectedX=Math.min((fitted.x+fitted.width/2-clickX)*(scale-1),Math.max(0,(fitted.width*scale-width)/2));
+      const expectedY=Math.min((fitted.y+fitted.height/2-clickY)*(scale-1),Math.max(0,(fitted.height*scale-800)/2));
+      assert.ok(Math.abs(pointerMatrix.scale-scale)<.0001);
+      assert.ok(Math.abs(pointerMatrix.x-expectedX)<.01);assert.ok(Math.abs(pointerMatrix.y-expectedY)<.01,JSON.stringify({pointerMatrix,expectedX,expectedY,fitted,scale,width}));
+      await page.keyboard.press('Enter');
+      await page.locator('#closeGallery').focus();
       // Tab order includes the aria-disabled endpoint.
       await page.keyboard.press('Tab');
       assert.equal(await page.locator('.gallery-slide.current').evaluate(e=>e===document.activeElement),true);
       await page.keyboard.press('Enter');assert.equal(await page.locator('.gallery-slide.current').getAttribute('aria-pressed'),'true');
+      const center=await page.locator('.gallery-slide.current img').evaluate(e=>{const m=new DOMMatrix(getComputedStyle(e).transform);return {x:m.e,y:m.f};});
+      assert.equal(center.x,0);assert.equal(center.y,0);
+      await page.mouse.move(width/2,400);await page.mouse.down();await page.mouse.move(width/2+4,400);await page.mouse.up();
+      assert.equal(await page.locator('.gallery-slide.current').getAttribute('aria-pressed'),'true','4px drag must not become a zoom-out click');
+      const afterDrag=await page.locator('.gallery-slide.current img').getAttribute('style');
+      await page.mouse.move(width/2,748);await page.mouse.wheel(0,70);
+      await page.waitForFunction(before=>document.querySelector('.gallery-slide.current img').getAttribute('style')!==before,afterDrag);
       await page.keyboard.press('Tab');assert.equal(await page.locator('#galleryPrev').evaluate(e=>e===document.activeElement),true);
       await page.keyboard.press('Enter');assert.equal(await page.locator('.gallery-slide.current').getAttribute('aria-pressed'),'true');
       await page.keyboard.press('Tab');await page.keyboard.press('Enter');
@@ -108,6 +128,56 @@ const types = {'.html':'text/html','.js':'text/javascript','.css':'text/css','.s
       const fits=await page.evaluate(()=>{const f=document.querySelector('#galleryFilename');f.textContent='A'.repeat(250)+'.svg';const a=f.getBoundingClientRect(),n=document.querySelector('.gallery-navigation').getBoundingClientRect();return a.x>=0&&a.right<=innerWidth&&(a.bottom<=n.top||a.right<=n.left);});
       assert.equal(fits,true);await close();
     }
+    // Keep the three observed native paths separate from the presentation checks.
+    await page.setViewportSize({width:607,height:800});await open();
+    const current=()=>page.locator('.gallery-slide.current');
+    const transform=()=>current().locator('img').evaluate(e=>{const m=new DOMMatrix(getComputedStyle(e).transform);return {x:m.e,y:m.f,scale:m.a};});
+    const wheel=async(deltaY,x)=>{await current().locator('img').evaluate((e,{deltaY,x})=>e.dispatchEvent(new WheelEvent('wheel',{bubbles:true,cancelable:true,ctrlKey:true,deltaY,clientX:x,clientY:400})),{deltaY,x});};
+    await wheel(-1,0);await wheel(-Math.log(2/1.25)/.01,303);
+    assert.ok(Math.abs((await transform()).x-121.7)<.01,'retain ideal pan through an expanded boundary '+JSON.stringify(await transform()));
+    await wheel(1000,303.5);assert.equal(await current().getAttribute('aria-pressed'),'false');
+    // A mismatched pointer must neither take over nor finish a real mouse drag.
+    await current().focus();await page.keyboard.press('Enter');
+    await page.mouse.move(300,400);await page.mouse.down();
+    await current().locator('img').evaluate(e=>{
+      e.dispatchEvent(new PointerEvent('pointerdown',{bubbles:true,pointerId:99,button:0,clientX:300,clientY:400}));
+      e.dispatchEvent(new PointerEvent('pointercancel',{bubbles:true,pointerId:99}));
+    });
+    await page.mouse.move(340,400);await page.mouse.up();
+    assert.ok(Math.abs((await transform()).x-40)<.01);
+    // Click capture already applies during a held drag; keyboard reset remains available.
+    await page.mouse.move(300,400);await page.mouse.down();await page.mouse.move(310,400);
+    await current().locator('img').evaluate(e=>e.click());
+    assert.equal(await current().getAttribute('aria-pressed'),'true');
+    await page.keyboard.press('Enter');assert.equal(await current().getAttribute('aria-pressed'),'false');
+    await page.mouse.up();
+    // 3px still clicks; 4px has already been checked as a drag in each viewport.
+    await page.keyboard.press('Enter');await page.mouse.move(300,400);await page.mouse.down();await page.mouse.move(303,400);await page.mouse.up();
+    assert.equal(await current().getAttribute('aria-pressed'),'false');
+    // Active image animation and zero geometry reject measurement, then recover.
+    await current().locator('img').evaluate(e=>{e.auditAnimation=e.animate([{opacity:.4},{opacity:1}],{duration:10000});});
+    await current().focus();await page.keyboard.press('Enter');assert.equal(await current().getAttribute('aria-pressed'),'false');
+    await current().locator('img').evaluate(e=>e.auditAnimation.cancel());
+    await current().locator('img').evaluate(e=>{e.style.width='0px';e.style.height='0px';});
+    await page.keyboard.press('Enter');assert.equal(await current().getAttribute('aria-pressed'),'false');
+    await current().locator('img').evaluate(e=>{e.style.removeProperty('width');e.style.removeProperty('height');});
+    await page.keyboard.press('Enter');assert.equal(await current().getAttribute('aria-pressed'),'true');
+    await page.keyboard.press('ArrowRight');
+    await page.waitForFunction(()=>document.querySelectorAll('.gallery-slide.current img')[0].getAnimations().every(a=>a.playState!=='running'));
+    await current().focus();await page.keyboard.press('Enter');
+    assert.equal(await current().getAttribute('aria-pressed'),'true');
+    await page.mouse.move(450,400);await page.mouse.down();await page.mouse.move(80,400,{steps:8});await page.mouse.up();
+    // Clear the post-drag click guard on the next timer task.
+    await page.evaluate(()=>new Promise(resolve=>setTimeout(resolve,0)));
+    await page.mouse.click(585,350);
+    assert.equal(await page.locator('#galleryCount').textContent(),'2 / 3');assert.equal(await current().getAttribute('aria-pressed'),'false');
+    await page.mouse.click(585,350);assert.equal(await page.locator('#galleryCount').textContent(),'3 / 3');
+    await close();await open();
+    // Neighbor slide under the 16px close-button buffer dismisses rather than navigating.
+    await page.mouse.click(585,60);await dialog.waitFor({state:'hidden'});await settle();
+    assert.equal(await page.locator('#galleryCount').textContent(),'1 / 3');
+    assert.equal(await opener.evaluate(e=>e===document.activeElement),true);
+    console.log('PASS pointer focal point, ideal pan, footer wheel, drag threshold, pointer ownership, measurement guards, neighbor reset and close buffer');
     // Older engines still open/close and restore focus without View Transitions.
     await page.evaluate(()=>document.startViewTransition=undefined);await open();await close();
     assert.deepEqual(errors,[]);console.log('PASS fast toggles, drag/reset, RTL, long filenames, View Transition fallback; no browser errors');

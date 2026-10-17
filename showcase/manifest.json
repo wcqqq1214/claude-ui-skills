@@ -127,8 +127,8 @@
     },
     {
       "name": "components/gallery.js",
-      "sha256": "e98fa4e09ac99bbc7cc279647a7ae5a2cb4ec7587a1ab33701fd16f661e484ee",
-      "bytes": 11493
+      "sha256": "467892fe4dd1e2d9b90d9c897013cc8cd66f8e486725ff772671bc1d839334b8",
+      "bytes": 11508
     },
     {
       "name": "components/images.css",
@@ -272,8 +272,8 @@
     },
     {
       "name": "gallery-zoom.js",
-      "sha256": "f14dc340db410f65e3418a68c59e1a069da6e647afabefaee9005dd501c4a37c",
-      "bytes": 2195
+      "sha256": "49cdc31461de04cc68fdd5bd05f4743963c03f2465f0d01e1cc94776202bdd1a",
+      "bytes": 2208
     },
     {
       "name": "i18n.js",

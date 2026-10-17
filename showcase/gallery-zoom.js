@@ -1,5 +1,5 @@
 'use strict';
-// Wheel scale transition used by components/gallery.js.
+// Zoom geometry and scale transitions used by components/gallery.js.
 // Page deltas use 16 for zoom; viewport-sized units belong to panning only.
 const GalleryZoom = {
   clamp(value, limit) { return Math.min(limit, Math.max(-limit, value)); },
