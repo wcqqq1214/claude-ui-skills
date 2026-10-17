@@ -129,6 +129,9 @@ function initImagesDemo() {
   window.addEventListener('pagehide', () => {
     ++revision;
     transition?.skipTransition();
+    transition = null;
+    opened = false;
+    imageDialog.close();
     clearNames();
     root.classList.remove(active, closing, noOrigin);
     origin.style.visibility = '';

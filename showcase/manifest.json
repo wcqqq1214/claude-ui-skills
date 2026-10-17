@@ -132,13 +132,13 @@
     },
     {
       "name": "components/images.css",
-      "sha256": "5ed8cb92087e559f4abdbec13a658df9d034551d164e2208be82aa6e1cadca96",
-      "bytes": 3546
+      "sha256": "1e402057dc4e1e6f045d2aefc52a06115010a6101c0b104f653a6e5d4b39902f",
+      "bytes": 3796
     },
     {
       "name": "components/images.js",
-      "sha256": "cb25e844c837a5aef38a04a02fb9806aabea801d4f03dd35b7ce61d265e0637c",
-      "bytes": 6283
+      "sha256": "800f30a5e21271cd319dcbff14206f74ae14c532ac22178f171b1f0d3cc3226b",
+      "bytes": 6351
     },
     {
       "name": "components/menus.css",
