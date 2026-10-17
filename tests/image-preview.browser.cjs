@@ -44,6 +44,29 @@ const types = {'.html':'text/html','.js':'text/javascript','.css':'text/css','.s
       const thumbnail=await page.locator('#imageOrigin img').evaluate(e=>{const r=e.getBoundingClientRect();return {width:r.width,height:r.height,fit:getComputedStyle(e).objectFit};});
       assert.deepEqual(thumbnail,{width:120,height:120,fit:'contain'});
       const origin=page.locator('#imageOrigin'),dialog=page.locator('#imageDialog');
+      for (const theme of ['light','dark']) {
+        await page.evaluate(t=>document.documentElement.dataset.theme=t,theme);
+        await origin.focus();
+        const ring=await origin.evaluate(e=>({outline:getComputedStyle(e).outlineStyle,shadow:getComputedStyle(e,'::after').boxShadow}));
+        assert.equal(ring.outline,'none');
+        assert.ok(ring.shadow.includes('rgb(42, 120, 214) 0px 0px 0px 1px'));
+        assert.ok(ring.shadow.includes(theme==='light'?'rgb(205, 226, 251)':'rgba(24, 79, 149, 0.6)'));
+      }
+      await page.emulateMedia({forcedColors:'active'});
+      assert.equal(await origin.locator('.image-origin-body').evaluate(e=>getComputedStyle(e,'::after').outlineStyle),'solid');
+      await page.emulateMedia({forcedColors:'none'});
+      for (const reduce of ['none','system','app']) {
+        await page.emulateMedia({reducedMotion:reduce==='system'?'reduce':'no-preference'});
+        await page.evaluate(v=>document.documentElement.dataset.reduceMotion=String(v==='app'),reduce);
+        const box=await origin.boundingBox();
+        await page.mouse.move(box.x+box.width/2,box.y+box.height/2);
+        await page.mouse.down();
+        const press=await origin.evaluate(e=>({fill:getComputedStyle(e,'::before').transitionDuration,ring:getComputedStyle(e,'::after').transitionDuration,body:getComputedStyle(e.querySelector('.image-origin-body')).transitionDuration,imageClip:getComputedStyle(e.querySelector('img')).clipPath}));
+        assert.deepEqual(press,{fill:reduce==='none'?'0.06s':'0s',ring:reduce==='none'?'0.06s':'0s',body:reduce==='none'?'0.06s':'0s',imageClip:'none'});
+        await page.mouse.move(0,0);await page.mouse.up();
+      }
+      await page.emulateMedia({reducedMotion:'no-preference'});
+      await page.evaluate(()=>delete document.documentElement.dataset.reduceMotion);
       const settled=()=>page.waitForFunction(()=>!document.documentElement.classList.contains('image-preview-active'));
       const open=async()=>{await origin.click();await dialog.waitFor({state:'visible'});await settled();};
       const close=async(method='escape')=>{
