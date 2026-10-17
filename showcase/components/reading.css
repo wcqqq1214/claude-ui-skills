@@ -369,8 +369,8 @@
   opacity: 0;
   scale: 0.98;
   transition:
-    opacity 200ms var(--out),
-    scale 200ms var(--out),
+    opacity 200ms var(--ease-out),
+    scale 200ms var(--ease-out),
     display 200ms allow-discrete,
     overlay 200ms allow-discrete;
 }
@@ -382,7 +382,7 @@
   background: rgb(0 0 0 / 40%);
   opacity: 0;
   transition:
-    opacity 200ms var(--out),
+    opacity 200ms var(--ease-out),
     display 200ms allow-discrete,
     overlay 200ms allow-discrete;
 }

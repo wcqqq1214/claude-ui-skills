@@ -22,8 +22,8 @@
     },
     {
       "name": "components/composer.css",
-      "sha256": "7db932f7c458ebfc953446080f367bd72c7260f85e08081fcfef98701eea8fb9",
-      "bytes": 12602
+      "sha256": "ffb7aa65af2806147465795cc208c4ed5ad31959db7ee0fc3dc186ea56b27bb5",
+      "bytes": 12400
     },
     {
       "name": "components/composer.js",
@@ -32,8 +32,8 @@
     },
     {
       "name": "components/controls.css",
-      "sha256": "759adba378227e683aa65d0d3ff7fd6941797c787d8a1746c4069b05f61938f7",
-      "bytes": 8794
+      "sha256": "77d2e572b02c61f385cc72f38b7db44c95cd35f7cebe69171e05788ae771671d",
+      "bytes": 8824
     },
     {
       "name": "components/controls.js",
@@ -42,8 +42,8 @@
     },
     {
       "name": "components/feedback.css",
-      "sha256": "734456701044d014a9ffdb74acdfd08423c335729d99f4346540e0733cb86d08",
-      "bytes": 6667
+      "sha256": "1bd1511b53ca71e0ebcc2d90b506fc24d932536a9f22f19cb083824f0f2e0b8d",
+      "bytes": 6603
     },
     {
       "name": "components/feedback.js",
@@ -127,8 +127,8 @@
     },
     {
       "name": "components/gallery.css",
-      "sha256": "a205ceb8054a87532702c097362374bc8dddd055d7cd8fee10475a2909b1a166",
-      "bytes": 4875
+      "sha256": "f2785ccc60db73fa4f096797f905e174df4e2dbf542d7313e75288d91ad6574b",
+      "bytes": 4869
     },
     {
       "name": "components/gallery.js",
@@ -137,8 +137,8 @@
     },
     {
       "name": "components/images.css",
-      "sha256": "bd889125cf6f79d4b6b7d7e99d6068366b0c56f143708beccfd66524a67ae0bb",
-      "bytes": 8280
+      "sha256": "3100a49d08c3c1ec0dd4cb9d155afdd1dcdc9e5d87620e05de5c29076c20a38f",
+      "bytes": 8022
     },
     {
       "name": "components/images.js",
@@ -147,8 +147,8 @@
     },
     {
       "name": "components/menus.css",
-      "sha256": "55811e232be5b90e15e9ff3e1be632da52253388edc8f885b52c4a297755b1d0",
-      "bytes": 9328
+      "sha256": "fac03a139d6d9e50a0b198b0b14d27a7c5d28057e7674ef586c983868b1d77b7",
+      "bytes": 9342
     },
     {
       "name": "components/menus.js",
@@ -157,8 +157,8 @@
     },
     {
       "name": "components/micro.css",
-      "sha256": "075bfa6399c5343df2dd8a149a598ed8dc458da63e1f38154d9ec30c05769bd6",
-      "bytes": 6653
+      "sha256": "a1b0a066f8fa72a64b4f7c8d49cd4da3598a7203672f783cdd822c65288c1fd0",
+      "bytes": 6548
     },
     {
       "name": "components/micro.js",
@@ -167,8 +167,8 @@
     },
     {
       "name": "components/modes.css",
-      "sha256": "3044ead9443f55f652e925de658709e49996025a356bb790e2c0cfe35734116e",
-      "bytes": 12755
+      "sha256": "699bfa7d7b2b00dcc5e5d7bbaaa8d4b96d3378963952b29147708e89d3a3371d",
+      "bytes": 12713
     },
     {
       "name": "components/modes.js",
@@ -177,8 +177,8 @@
     },
     {
       "name": "components/reading.css",
-      "sha256": "cbf78484be9705c18f394113b61c95ee96954fe08b556f3b78a1f12140357b04",
-      "bytes": 9549
+      "sha256": "46a75923991b3ddfba9c9f80be9cda1b6ca1a056e7efe70c50bf558179d8cea1",
+      "bytes": 9564
     },
     {
       "name": "components/reading.js",
@@ -187,8 +187,8 @@
     },
     {
       "name": "components/recovery.css",
-      "sha256": "caea6854b36350c0d74a7d0934a594814837f37bfcaf02165d42c6a08f36d53e",
-      "bytes": 4068
+      "sha256": "84a31e8fe9ea71d3a56848f06f4a8b2bfbfb7b959d474648b0ce04af4cad09cd",
+      "bytes": 3984
     },
     {
       "name": "components/recovery.js",
@@ -197,28 +197,28 @@
     },
     {
       "name": "components/segmented.css",
-      "sha256": "25b2e65c91d8f24e6414c641022bc3e605446378763db856f1c8a72c51773f2c",
-      "bytes": 2153
+      "sha256": "2917fd932cd01f54a17d1e3694bc962d82f34d17f46730b90fa75cb7f40367f6",
+      "bytes": 2150
     },
     {
       "name": "components/segmented.js",
-      "sha256": "79ac5d732501915227fc0f9631701ad5a6379aea9a39f163e71a13b0e2546192",
-      "bytes": 3405
+      "sha256": "766f27c6a51f0840d03945277fb62158bc3f30df9ca477506111679c2bf3fe0b",
+      "bytes": 3486
     },
     {
       "name": "components/tasks.css",
-      "sha256": "5ab1d0ceb5b1e1078d3113d3cbb4c87cc31446c42c921f56aed94496b72846de",
-      "bytes": 13966
+      "sha256": "9d92c87c5374339689c53451ed58a3f900330843adc832637a5c628d482f4d37",
+      "bytes": 13948
     },
     {
       "name": "components/tasks.js",
-      "sha256": "ab60aa605fb64237f4b9b46e86998b28034316a7896731559f435535e9a1ad99",
-      "bytes": 14561
+      "sha256": "5f093670aa32f2a33d7175b5048b3c38f07beaf02988604fae0350ff0575a69d",
+      "bytes": 14542
     },
     {
       "name": "components/type.css",
-      "sha256": "ffd447a4fe0e9724592482cdb1ab46620b936fe664c8ab4ac35746cef7442483",
-      "bytes": 5204
+      "sha256": "49ba23872d980a6eb8b144b575542f941bb7e07f14a3558b6302b57ea80a8c70",
+      "bytes": 5200
     },
     {
       "name": "components/type.js",
@@ -227,8 +227,8 @@
     },
     {
       "name": "components/workspace.css",
-      "sha256": "a15001fc9445d9de9c695adb43e023be94682d378cfbd2afe6c6b827db2bbc7c",
-      "bytes": 5694
+      "sha256": "44d9aaa618e43bdcd3f8945ca7a8319033a5f4497b7676205fd414b96b0a0c19",
+      "bytes": 5682
     },
     {
       "name": "components/workspace.js",
@@ -312,13 +312,13 @@
     },
     {
       "name": "shared.js",
-      "sha256": "8fb1366584dd34b6f814c17298b8c7651af10f9483920246b764405abcbaae18",
-      "bytes": 548
+      "sha256": "b320131b2c9e8b0d5bdb6f61a3b2a8ab1f3b6586df7b001705c61f8ad17913f2",
+      "bytes": 651
     },
     {
       "name": "shell.css",
-      "sha256": "b864a9b3004512ea873c232ed699c3dc892f3cd3bdf55791786efe2756fe923a",
-      "bytes": 1401
+      "sha256": "afe94f33834cf63742ab718befcace254bf64e592c0818f313ab06a799722323",
+      "bytes": 1406
     },
     {
       "name": "shell.js",
@@ -327,8 +327,8 @@
     },
     {
       "name": "style.css",
-      "sha256": "883a579c2cf429c4e00bd0a5084b86a553a099f0068c8c86865d60d23b2ab49c",
-      "bytes": 15874
+      "sha256": "aa4ef739ec8ea0de53c7701193d67f40da30bed238b0915c190895ae7921522e",
+      "bytes": 16407
     }
   ],
   "network_dependencies": [],

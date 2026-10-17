@@ -106,8 +106,8 @@
     0 2px 4px rgb(11 11 11 / 7%),
     0 6px 16px rgb(11 11 11 / 8%);
   transition:
-    transform 200ms cubic-bezier(0.165, 0.84, 0.44, 1),
-    opacity 200ms cubic-bezier(0.165, 0.84, 0.44, 1);
+    transform 200ms var(--ease-out),
+    opacity 200ms var(--ease-out);
 }
 [data-theme='dark'] .stack-toast {
   background: #20201f;
@@ -130,8 +130,8 @@
   opacity: 1;
   visibility: visible;
   transition:
-    opacity 200ms cubic-bezier(0.165, 0.84, 0.44, 1),
-    visibility 200ms cubic-bezier(0.165, 0.84, 0.44, 1);
+    opacity 200ms var(--ease-out),
+    visibility 200ms var(--ease-out);
 }
 .stack-toast[data-starting-style] {
   opacity: 0;
@@ -184,7 +184,7 @@
   border-radius: 6px;
   padding: 4px;
   margin: -2px -4px -4px;
-  transition: background-color 60ms cubic-bezier(0.4, 0, 0.2, 1);
+  transition: background-color 60ms var(--ease-standard);
 }
 .toast-dismiss svg {
   display: block;

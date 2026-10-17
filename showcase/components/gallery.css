@@ -184,7 +184,7 @@
   }
 }
 .gallery-rail { transition: transform 300ms ease-out; }
-.gallery-slide img { transition: opacity 300ms cubic-bezier(.4, 0, .2, 1); }
+.gallery-slide img { transition: opacity 300ms var(--ease-standard); }
 @media (forced-colors: active) {
   .gallery-dialog button:not(:focus-visible) { outline-style: none; }
 }

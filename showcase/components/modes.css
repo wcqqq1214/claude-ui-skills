@@ -199,11 +199,11 @@
   background: var(--mode-thumb);
   border-radius: 6px;
   transition:
-    transform 120ms cubic-bezier(0.32, 0.72, 0, 1),
-    background-color 300ms cubic-bezier(0.32, 0.72, 0, 1);
+    transform 120ms var(--ease-snap),
+    background-color 300ms var(--ease-snap);
 }
 .mode-thumb[data-snap] {
-  transition: background-color 300ms cubic-bezier(0.32, 0.72, 0, 1);
+  transition: background-color 300ms var(--ease-snap);
 }
 @container (max-width:254px) {
   .mode-track:not(.two) button:not([aria-current='page']) .mode-label {

@@ -4,6 +4,7 @@
 function setupSegment(root, callback) {
   const buttons = [...root.querySelectorAll('[role=radio]')];
   const thumb = root.querySelector('.segment-thumb');
+  // Same curve as --ease-snap; kept local so setupSegment() needs no shared.js.
   const easing = 'cubic-bezier(.32,.72,0,1)';
   let selected = buttons.findIndex(button => button.getAttribute('aria-checked') === 'true');
   let geometry = null;

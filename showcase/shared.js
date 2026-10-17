@@ -2,7 +2,8 @@
 // Small helpers shared by the page-lifetime demos.
 const $ = (s) => document.querySelector(s),
   $$ = (s) => [...document.querySelectorAll(s)];
-const snap = 'cubic-bezier(.32,.72,0,1)';
+// WAAPI cannot read CSS variables; keep this copy equal to --ease-out-cubic in style.css.
+const easeOutCubic = 'cubic-bezier(.215,.61,.355,1)';
 const nextFrame = () =>
   new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
 function imageTransform(from, to) {

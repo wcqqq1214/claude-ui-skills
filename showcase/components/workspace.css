@@ -114,7 +114,7 @@
   inset-block: 0;
   width: 12px;
   transform: translateX(-50%);
-  transition: box-shadow 60ms cubic-bezier(.4,0,.2,1);
+  transition: box-shadow 60ms var(--ease-standard);
 }
 .resize-handle::after {
   top: 50%;
@@ -125,7 +125,7 @@
   color: var(--muted);
   background: currentColor;
   opacity: 0;
-  transition: opacity 200ms cubic-bezier(.4,0,.2,1), color 200ms cubic-bezier(.4,0,.2,1), background-color 200ms cubic-bezier(.4,0,.2,1);
+  transition: opacity 200ms var(--ease-standard), color 200ms var(--ease-standard), background-color 200ms var(--ease-standard);
   transition-delay: 200ms;
 }
 .resize-handle:hover::after { opacity: 1; }

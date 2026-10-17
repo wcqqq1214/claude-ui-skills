@@ -83,8 +83,8 @@
   visibility: hidden;
   pointer-events: none;
   transition:
-    opacity 120ms var(--snap),
-    scale 120ms var(--snap),
+    opacity 120ms var(--ease-snap),
+    scale 120ms var(--ease-snap),
     visibility 0s linear 120ms;
 }
 [data-theme='dark'] .tooltip,
@@ -234,7 +234,7 @@
   background: transparent;
   color: var(--text);
   user-select: none;
-  transition: box-shadow 60ms cubic-bezier(.165,.84,.44,1);
+  transition: box-shadow 60ms var(--ease-out);
 }
 .ghost-button-fill {
   position: absolute;
@@ -242,14 +242,14 @@
   inset: 0;
   border-radius: inherit;
   transform-origin: center;
-  transition: transform 450ms linear(0,.2459,.6526,.9468,1.0764,1.0915,1.0585,1.0219,.9993,.9914,.9921,.9957,.9988,1.0004,1);
+  transition: transform 450ms var(--ease-spring);
 }
 .ghost-button-fill::before {
   content: '';
   position: absolute;
   inset: 0;
   border-radius: inherit;
-  transition: background-color 60ms cubic-bezier(.165,.84,.44,1), box-shadow 60ms cubic-bezier(.165,.84,.44,1);
+  transition: background-color 60ms var(--ease-out), box-shadow 60ms var(--ease-out);
 }
 @media (hover: hover) {
   .ghost-button:hover .ghost-button-fill::before { background: rgb(11 11 11 / 5%); }

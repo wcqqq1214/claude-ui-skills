@@ -15,10 +15,10 @@
     0 0 0 var(--composer-outer) var(--composer-active-ring);
   background: #fff;
   transition:
-    background-color 200ms cubic-bezier(0.4, 0, 0.2, 1),
-    border-color 200ms cubic-bezier(0.4, 0, 0.2, 1),
-    box-shadow 200ms cubic-bezier(0.4, 0, 0.2, 1),
-    opacity 200ms cubic-bezier(0.4, 0, 0.2, 1);
+    background-color 200ms var(--ease-standard),
+    border-color 200ms var(--ease-standard),
+    box-shadow 200ms var(--ease-standard),
+    opacity 200ms var(--ease-standard);
 }
 [data-theme='dark'] .composer-box {
   --composer-ring: rgb(255 255 255 / 10%);
@@ -114,7 +114,7 @@
   line-height: 17px;
   white-space: nowrap;
   user-select: none;
-  transition: box-shadow 60ms cubic-bezier(.4,0,.2,1);
+  transition: box-shadow 60ms var(--ease-standard);
 }
 .composer-picker-fill {
   --cds-btn-press-sx: .975;
@@ -123,14 +123,14 @@
   z-index: -1;
   inset: 0;
   border-radius: inherit;
-  transition: transform 450ms linear(0, .2459, .6526, .9468, 1.0764, 1.0915, 1.0585, 1.0219, .9993, .9914, .9921, .9957, .9988, 1.0004, 1);
+  transition: transform 450ms var(--ease-spring);
 }
 .composer-picker-fill::before {
   content: '';
   position: absolute;
   inset: 0;
   border-radius: inherit;
-  transition: background-color 60ms cubic-bezier(.165,.84,.44,1), box-shadow 60ms cubic-bezier(.165,.84,.44,1);
+  transition: background-color 60ms var(--ease-out), box-shadow 60ms var(--ease-out);
 }
 .composer-picker-content { display: inline-flex; min-width: 0; align-items: center; gap: 4px; }
 .composer-project-label { overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
@@ -175,7 +175,7 @@
   flex-wrap: wrap;
   gap: 6px;
   padding: 8px 4px 10px;
-  transition: opacity 200ms cubic-bezier(.215,.61,.355,1), transform 200ms cubic-bezier(.215,.61,.355,1);
+  transition: opacity 200ms var(--ease-out-cubic), transform 200ms var(--ease-out-cubic);
 }
 .composer-attachments:empty { display: none; }
 .composer-attachment {
@@ -191,7 +191,7 @@
   background: var(--surface-popover);
   box-shadow: inset 0 0 0 var(--hairline) var(--composer-strong);
   transform-origin: left center;
-  transition: transform 180ms cubic-bezier(.215,.61,.355,1), opacity 180ms cubic-bezier(.215,.61,.355,1);
+  transition: transform 180ms var(--ease-out-cubic), opacity 180ms var(--ease-out-cubic);
 }
 .composer-attachment-name {
   font-size: 12px;
@@ -237,11 +237,11 @@
 }
 :root:active-view-transition-type(demo-attachments)::view-transition-group(.demo-attachment) {
   animation-duration: 180ms;
-  animation-timing-function: cubic-bezier(.215,.61,.355,1);
+  animation-timing-function: var(--ease-out-cubic);
 }
 @keyframes demo-attachment-out { to { opacity: 0; transform: scale(.5); } }
 :root:active-view-transition-type(demo-attachments)::view-transition-old(.demo-attachment):only-child {
-  animation: 130ms cubic-bezier(.55,.055,.675,.19) forwards demo-attachment-out;
+  animation: 130ms var(--ease-in-cubic) forwards demo-attachment-out;
 }
 
 @media (hover: hover) {

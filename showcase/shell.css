@@ -2,7 +2,7 @@
 .top-actions{flex-shrink:0}
 .shell-controls{display:flex;align-items:center;gap:8px}
 .shell-control{position:relative}
-.shell-icon{width:32px;height:32px;border:1px solid transparent;box-shadow:var(--surface-ring);border-radius:9px;color:var(--secondary);transition:color 120ms var(--snap)}
+.shell-icon{width:32px;height:32px;border:1px solid transparent;box-shadow:var(--surface-ring);border-radius:9px;color:var(--secondary);transition:color 120ms var(--ease-snap)}
 .shell-icon:hover,.shell-icon[aria-expanded="true"]{background:transparent;color:var(--text)}
 .shell-icon svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.65;stroke-linecap:round;stroke-linejoin:round}
 .shell-menu{position:absolute;top:calc(100% + 8px);right:0;min-width:152px;padding:5px;border:1px solid transparent;border-radius:10px;background:var(--surface-popover);box-shadow:var(--popover-shadow);z-index:1}

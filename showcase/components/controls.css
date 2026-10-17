@@ -160,7 +160,7 @@
   border-radius: 50%;
   background: var(--control-handle);
   box-shadow: var(--switch-shadow);
-  transition: transform calc(120ms * var(--controls-duration-scale)) var(--overshoot);
+  transition: transform calc(120ms * var(--controls-duration-scale)) var(--ease-overshoot);
 }
 .switch[aria-checked='true'] > span {
   transform: translateX(calc(var(--h) * 0.8));
@@ -192,8 +192,8 @@
   justify-content: center;
   flex-shrink: 0;
   transition:
-    background calc(60ms * var(--controls-duration-scale)) var(--out),
-    border-color calc(60ms * var(--controls-duration-scale)) var(--out);
+    background calc(60ms * var(--controls-duration-scale)) var(--ease-out),
+    border-color calc(60ms * var(--controls-duration-scale)) var(--ease-out);
 }
 @media (hover: hover) {
   .check-label:hover input:not(:checked):not(:disabled) + .check-box {
@@ -205,7 +205,7 @@
   height: 16px;
   flex-shrink: 0;
   clip-path: inset(0 100% 0 0);
-  transition: clip-path calc(120ms * var(--controls-duration-scale)) var(--out);
+  transition: clip-path calc(120ms * var(--controls-duration-scale)) var(--ease-out);
   stroke: white;
   fill: none;
   stroke-width: 1.7;
@@ -316,7 +316,7 @@
 .range-fill-clip,
 .range-fill,
 .range-position {
-  transition: transform calc(120ms * var(--controls-duration-scale)) var(--out);
+  transition: transform calc(120ms * var(--controls-duration-scale)) var(--ease-out);
 }
 .range-thumb {
   position: absolute;
@@ -330,7 +330,7 @@
   box-shadow:
     0 0 0 1px var(--control-handle-ring),
     0 0 12px var(--control-handle-depth);
-  transition: scale calc(120ms * var(--controls-duration-scale)) var(--overshoot);
+  transition: scale calc(120ms * var(--controls-duration-scale)) var(--ease-overshoot);
   pointer-events: none;
 }
 .range-shell.dragging .range-thumb {

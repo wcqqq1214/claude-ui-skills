@@ -65,7 +65,7 @@
   padding: 8px 10px;
   font-size: 12px;
   box-shadow: inset 0 0 0 1px var(--line);
-  transition: box-shadow 60ms cubic-bezier(.4, 0, .2, 1);
+  transition: box-shadow 60ms var(--ease-standard);
 }
 [data-theme='dark'] .local-search {
   --search-field: rgb(255 255 255 / 5%);
@@ -142,16 +142,16 @@
   min-height: 0;
 }
 .palette-thumb[data-returning] {
-  animation: palette-thumb-return 120ms var(--out);
+  animation: palette-thumb-return 120ms var(--ease-out);
 }
 .palette-card[data-opening] {
-  animation: palette-card-morph 200ms var(--out);
+  animation: palette-card-morph 200ms var(--ease-out);
 }
 .palette-card[data-opening] .palette-header {
-  animation: palette-title-in 200ms var(--out);
+  animation: palette-title-in 200ms var(--ease-out);
 }
 .palette-card[data-opening] .palette-actions {
-  animation: palette-card-unfold 200ms var(--out);
+  animation: palette-card-unfold 200ms var(--ease-out);
 }
 .palette-card[data-opening] .palette-inner {
   overflow: hidden;

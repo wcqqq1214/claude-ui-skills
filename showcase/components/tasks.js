@@ -49,7 +49,7 @@ function initTasksDemo() {
     if (wasVisible && from)
       dropOverlay.animate([from, { opacity: 1, transform: 'scale(1)' }], {
         duration: 150,
-        easing: 'cubic-bezier(.215,.61,.355,1)'
+        easing: easeOutCubic
       });
   }
   function finishDrop() {
