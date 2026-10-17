@@ -2,6 +2,7 @@
 'use strict';
 const DemoI18n = (() => {
   const chinese = {
+  "Width limit": "宽度上限",
   "Project": "项目",
   "Model: Sonnet 4.6": "模型：Sonnet 4.6",
   "Narrow the input to watch the project label simplify. Project and model are fixed previews.": "缩窄输入框，观察项目文字逐步收起。项目与模型仅作固定预览。",
