@@ -121,7 +121,7 @@ function initComposerAttachments() {
   window.addEventListener('pagehide', () => { transition?.skipTransition(); releaseKey?.(); });
 }
 
-// Keep the sample composer open with no project selected.
+// Composer chin: the always-open variant with an empty project picker.
 function initComposerChin() {
   const chin = $('#composerChin'), pickers = $('#composerPickers');
   const spacer = $('#composerChinSpacer'), project = $('#composerProject');

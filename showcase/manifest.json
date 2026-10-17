@@ -27,8 +27,8 @@
     },
     {
       "name": "components/composer.js",
-      "sha256": "aece3ee541bc0a4a55a5d40122c73489700f061cf397be7b514f0a3dccee8324",
-      "bytes": 9579
+      "sha256": "1bf971f0611088a995bf71b1fe83e388cddc0051f605d300a90dbe6de338fb96",
+      "bytes": 9592
     },
     {
       "name": "components/controls.css",
@@ -172,8 +172,8 @@
     },
     {
       "name": "components/modes.js",
-      "sha256": "0f9c67c59c1a54a0e8f7c03a0378b894ff5c33c0a47e763f0b46847473655dbb",
-      "bytes": 17245
+      "sha256": "ff75fd3a60883b151830bc890d0c6125cb9712864801293c1c35de69ea9c8732",
+      "bytes": 17268
     },
     {
       "name": "components/reading.css",
@@ -207,8 +207,8 @@
     },
     {
       "name": "components/tasks.css",
-      "sha256": "0a8967c5a74e74dbb253f40a60888468e528fdf5e85011b9d38944d78169c8e3",
-      "bytes": 13957
+      "sha256": "5ab1d0ceb5b1e1078d3113d3cbb4c87cc31446c42c921f56aed94496b72846de",
+      "bytes": 13966
     },
     {
       "name": "components/tasks.js",

@@ -7,7 +7,7 @@ function initModesDemo() {
   let selectedMode = modeButtons[0];
   const codeMode = modeButtons.find(button => button.dataset.mode === 'Code');
   const indicator = codeMode.querySelector('.mode-activity-indicator');
-  // Fixed running sample; suppress attention in the current mode.
+  // Fixed running sample; the running badge stays hidden while its own mode is selected.
   function updateCodeActivity() {
     codeMode.setAttribute('aria-label', selectedMode === codeMode ? 'Code' : DemoI18n.t('{0}, working', 'Code'));
     if (selectedMode === codeMode) indicator.replaceChildren();
