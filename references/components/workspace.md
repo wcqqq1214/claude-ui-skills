@@ -11,7 +11,7 @@ Use this for a file list alongside a preview, where readers can change files, sw
 ## Design and adaptation
 
 - The list header shows the measured width beside a local drag hint; a temporary `data-resizing` attribute emphasizes it during pointer drag and is cleared on finish/cancel. Long sample names use ellipsis in both the list and preview header, with native titles retaining the full name. These presentation aids are local.
-- The filename can shrink and ellipsize through `min-width:0`; right-side actions retain their natural width. File switching preserves the current Preview/Code choice.
+- File rows explicitly retain local minimum heights of 38px on desktop and 31px at ≤620px, with centered icon slots; these dimensions belong to the local example. The filename can shrink and ellipsize through `min-width:0`; right-side actions retain their natural width. File switching preserves the current Preview/Code choice.
 - The file-panel example starts at 244px, bounded to 160–520px and 60% of the container. CSS constrains the rendered width while keeping the chosen width for later expansion. Keep these bounds when reproducing this example.
 - Arrows request 8px steps; Shift+arrows use 32px. Home/End request the bounds; Enter/Space or double-clicking the resize handle restores 244px. Ignore Ctrl/Meta/Alt, resize keys during drag and repeated endpoint/reset keys. Shift modifies only arrow steps.
 - Drag commits only after movement exceeds 3px; canceled or unchanged drags restore the stored width. Expansion hides/inerts the list and removes the separator from Tab order.

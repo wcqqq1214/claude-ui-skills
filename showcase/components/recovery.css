@@ -173,7 +173,12 @@
 }
 .stack-toast .toast-dismiss {
   flex: none;
-  display: block;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  line-height: 1;
   color: inherit;
   background: transparent;
   border-radius: 6px;
