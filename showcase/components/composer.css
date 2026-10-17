@@ -104,6 +104,8 @@
   transition: box-shadow 60ms cubic-bezier(.4,0,.2,1);
 }
 .composer-picker-fill {
+  --cds-btn-press-sx: .975;
+  --cds-btn-press-sy: .975;
   position: absolute;
   z-index: -1;
   inset: 0;
@@ -234,7 +236,7 @@
   [data-theme='dark'] .composer-picker:hover .composer-picker-fill::before { background: rgb(255 255 255 / 7.5%); }
 }
 .composer-picker:active .composer-picker-fill {
-  transform: scale(.975);
+  transform: scale(var(--cds-btn-press-sx), var(--cds-btn-press-sy));
   transition: transform 60ms ease-out;
 }
 @media (prefers-reduced-motion: reduce) {
@@ -252,3 +254,7 @@
 [data-reduce-motion='true'] .composer-picker .composer-picker-fill { transition: none; }
 .composer-picker:focus-visible .composer-picker-fill::before { box-shadow: inset 0 0 0 1px #f9f9f7; }
 [data-theme='dark'] .composer-picker:focus-visible .composer-picker-fill::before { box-shadow: inset 0 0 0 1px #0b0b0b; }
+
+@media (forced-colors: active) {
+  .composer-picker:focus-visible { outline: 2px solid transparent; outline-offset: 2px; }
+}

@@ -17,13 +17,13 @@
     },
     {
       "name": "components/composer.css",
-      "sha256": "75828764873c9561bb2f676225a4a62bc99db46029086e237640dca739e994ab",
-      "bytes": 8825
+      "sha256": "8619a69dc95c12c13706d0bb516278a00b0150d93177465c4605a32eb0b826d5",
+      "bytes": 9051
     },
     {
       "name": "components/composer.js",
-      "sha256": "1a5a2ccebb41c79716c458d1dca4255150efad53e71e8bf8e9b3a62bca3cd4e4",
-      "bytes": 8521
+      "sha256": "7eef1c5bb8188fce04f40248bb326ac4a340ee6bc4647082f5cccad19b8773e3",
+      "bytes": 9566
     },
     {
       "name": "components/controls.css",
