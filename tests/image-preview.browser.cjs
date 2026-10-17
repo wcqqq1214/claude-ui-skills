@@ -64,8 +64,8 @@ const types = {'.html':'text/html','.js':'text/javascript','.css':'text/css','.s
           return {imageWidth:image.width,size:[r.width,r.height],offset:[r.x-image.x,r.y-image.y],icon:getComputedStyle(button.querySelector('.study-icon')).fontSize};
         });
         assert.ok(Math.abs(layout.imageWidth-(width===1280?640:width-32))<.1);
-        assert.deepEqual(layout.size,[24,24]);assert.equal(layout.icon,'16px');
-        assert.ok(layout.offset.every((v,i)=>Math.abs(v-(width===1280?[646,0]:[width-62,6])[i])<.1));
+        assert.deepEqual(layout.size,touch?[32,32]:[24,24]);assert.equal(layout.icon,touch?'20px':'16px');
+        assert.ok(layout.offset.every((v,i)=>Math.abs(v-(width===1280?[646,0]:[width-(touch?70:62),6])[i])<.1));
         if(process.env.IMAGE_SCREENSHOT_DIR && !touch && theme==='light' && width!==390){
           await mkdir(process.env.IMAGE_SCREENSHOT_DIR,{recursive:true});
           await page.screenshot({path:resolve(process.env.IMAGE_SCREENSHOT_DIR,`preview-${width}.png`)});
@@ -122,11 +122,11 @@ const types = {'.html':'text/html','.js':'text/javascript','.css':'text/css','.s
         await open();
         const geometry=await page.evaluate(()=>{
           const a=document.querySelector('#imagePreviewSurface').getBoundingClientRect(),b=document.querySelector('#closeImage').getBoundingClientRect();
-          return {width:a.width,height:a.height,x:a.x,buttonX:b.x,buttonY:b.y-a.y,right:a.right};
+          return {width:a.width,height:a.height,x:a.x,buttonX:b.x,buttonY:b.y-a.y,buttonWidth:b.width,right:a.right};
         });
         assert.ok(geometry.height<=height-64+.1);
         assert.equal(geometry.buttonY,width<640?6:0);
-        assert.equal(geometry.buttonX,width<640?(dir==='ltr'?geometry.right-30:geometry.x+6):(dir==='ltr'?geometry.right+6:geometry.x-30));
+        assert.equal(geometry.buttonX,width<640?(dir==='ltr'?geometry.right-geometry.buttonWidth-6:geometry.x+6):(dir==='ltr'?geometry.right+6:geometry.x-geometry.buttonWidth-6));
         await close();
       }
       await page.evaluate(()=>document.documentElement.removeAttribute('dir'));
@@ -182,6 +182,11 @@ const types = {'.html':'text/html','.js':'text/javascript','.css':'text/css','.s
       await page.evaluate(()=>document.startViewTransition=undefined);await open();await close();
       assert.equal(await page.evaluate(()=>previewTransitions.length),afterReset);
       await page.evaluate(()=>location.hash='gallery');await page.evaluate(()=>location.hash='images');await open();await close();
+      if(touch){
+        await origin.tap();await dialog.waitFor({state:'visible'});await settled();
+        await page.locator('#closeImage').tap();await dialog.waitFor({state:'hidden'});await settled();
+        assert.equal(await origin.evaluate(e=>e===document.activeElement),true);
+      }
       console.log(`PASS ${touch?'touch':'mouse'}: decoration, 1280/390/320 light/dark, keyboard/focus ownership, RTL/breakpoint/short viewport, dismissal, repeat/interruption, offscreen origin, contain, reduced motion and unsupported fallback`);
       await context.close();
     }

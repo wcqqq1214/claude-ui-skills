@@ -6,6 +6,14 @@ function initImagesDemo() {
   const name = 'demo-image-preview', active = 'image-preview-active',
     closing = 'image-preview-closing', noOrigin = 'image-preview-no-origin';
   let opened = false, revision = 0, transition = null, returnFocus = null;
+  const coarsePointer = matchMedia('(pointer: coarse)');
+  function updateCloseIcon() {
+    const slot = closeButton.querySelector('[data-ui-icon]'), size = coarsePointer.matches ? 20 : 16;
+    slot.style.fontSize = `${size}px`;
+    slot.replaceChildren(DemoIcons.create('X', size));
+  }
+  updateCloseIcon();
+  coarsePointer.addEventListener('change', updateCloseIcon);
 
   function radius(element, fallback) {
     for (let depth = 0; element && depth < 5; depth++, element = element.parentElement) {
