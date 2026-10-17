@@ -42,7 +42,7 @@ const types = {'.html':'text/html','.js':'text/javascript','.css':'text/css','.s
       await page.goto(url);await page.evaluate(()=>document.fonts.ready);
       assert.equal(await page.locator('.image-zoom-icon').count(),0);
       const thumbnail=await page.locator('#imageOrigin img').evaluate(e=>{const r=e.getBoundingClientRect();return {width:r.width,height:r.height,fit:getComputedStyle(e).objectFit};});
-      assert.deepEqual(thumbnail,{width:120,height:120,fit:'contain'});
+      assert.deepEqual(thumbnail,{width:480,height:312,fit:'contain'});
       const origin=page.locator('#imageOrigin'),dialog=page.locator('#imageDialog');
       for (const theme of ['light','dark']) {
         await page.evaluate(t=>document.documentElement.dataset.theme=t,theme);
@@ -83,7 +83,7 @@ const types = {'.html':'text/html','.js':'text/javascript','.css':'text/css','.s
         await page.setViewportSize({width,height:900});await page.evaluate(t=>document.documentElement.dataset.theme=t,theme);
         await open();
         const metrics=await page.locator('#imagePreviewSurface').evaluate(e=>{const r=e.getBoundingClientRect(),s=getComputedStyle(e);return {radius:s.borderRadius,shadow:s.boxShadow,inside:r.left>=0&&r.right<=innerWidth&&r.top>=0&&r.bottom<=innerHeight,overflow:document.documentElement.scrollWidth>innerWidth};});
-        assert.equal(await page.evaluate(()=>document.documentElement.style.getPropertyValue('--image-preview-source-inset')),'17.5% 0% 17.5% 0%');
+        assert.equal(await page.evaluate(()=>document.documentElement.style.getPropertyValue('--image-preview-source-inset')),'0%');
         assert.equal(metrics.radius,'6px');assert.equal(metrics.inside,true);assert.equal(metrics.overflow,false);
         assert.ok(metrics.shadow.includes('0.3')&&metrics.shadow.includes('0.25'));
         const layout=await page.evaluate(()=>{
@@ -104,8 +104,8 @@ const types = {'.html':'text/html','.js':'text/javascript','.css':'text/css','.s
       for(let i=0;i<records.length;i++){
         assert.equal(records[i].duration,i%2?'0.25s':'0.35s');
         const frames=records[i].frames[0];assert.ok(frames?.length>=2);
-        assert.equal(frames[0].borderTopLeftRadius,i%2?'6px':'0px');
-        assert.equal(frames.at(-1).borderTopLeftRadius,i%2?'0px':'6px');
+        assert.equal(frames[0].borderTopLeftRadius,i%2?'6px':'9px');
+        assert.equal(frames.at(-1).borderTopLeftRadius,i%2?'9px':'6px');
       }
       await page.setViewportSize({width:1280,height:900});
       for(const method of ['button','image','backdrop','escape']){await open();await close(method);}
@@ -171,7 +171,7 @@ const types = {'.html':'text/html','.js':'text/javascript','.css':'text/css','.s
       await origin.evaluate(e=>e.style.removeProperty('transform'));
       await open();await close();
       // Geometry: contain letterboxing, non-centered placement, and scale-down.
-      await page.locator('#imageOrigin img').evaluate(e=>{e.style.height='360px';e.style.objectFit='contain';e.style.objectPosition='25% 75%';});
+      await page.locator('#imageOrigin img').evaluate(e=>{e.style.width='240px';e.style.height='360px';e.style.maxHeight='none';e.style.objectFit='contain';e.style.objectPosition='25% 75%';});
       await open();
       const geometry=await page.evaluate(()=>({inset:document.documentElement.style.getPropertyValue('--image-preview-source-inset'),radius:document.documentElement.style.getPropertyValue('--image-preview-source-radius')}));
       assert.notEqual(geometry.inset,'0%');assert.equal(geometry.radius,'0px');await close();

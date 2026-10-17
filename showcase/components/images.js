@@ -6,6 +6,16 @@ function initImagesDemo() {
   const name = 'demo-image-preview', active = 'image-preview-active',
     closing = 'image-preview-closing', noOrigin = 'image-preview-no-origin';
   let opened = false, revision = 0, transition = null, returnFocus = null;
+  const tileResize = new ResizeObserver(([entry]) => {
+    const size = entry.borderBoxSize?.[0];
+    const width = size?.inlineSize ?? originButton.offsetWidth,
+      height = size?.blockSize ?? originButton.offsetHeight;
+    if (width > 0 && height > 0) {
+      originButton.style.setProperty('--image-press-x', Math.max(.8, 1 - 4 / width));
+      originButton.style.setProperty('--image-press-y', Math.max(.8, 1 - 4 / height));
+    }
+  });
+  tileResize.observe(originButton);
   const coarsePointer = matchMedia('(pointer: coarse)');
   function updateCloseIcon() {
     const slot = closeButton.querySelector('[data-ui-icon]'), size = coarsePointer.matches ? 20 : 16;
