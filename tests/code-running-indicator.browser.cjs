@@ -63,6 +63,54 @@ const types = {'.html':'text/html', '.js':'text/javascript', '.css':'text/css', 
         assert.equal(await page.locator('#modeWidth').inputValue(),'360');
         assert.equal(await code.locator('.mode-label').isVisible(),true);
       }
+      // Native mode pills reverse horizontal navigation in RTL, without selecting.
+      for(const direction of ['rtl','ltr']) {
+        await page.evaluate(dir=>document.documentElement.dir=dir,direction);
+        for(const two of [false,true]) {
+          if(two)await page.locator('#modeCount').click();
+          const buttons=two?[chat,code]:[chat,cowork,code];
+          for(let i=0;i<buttons.length;i++)for(const key of ['ArrowLeft','ArrowRight']) {
+            await buttons[i].focus();await page.keyboard.press(key);
+            const delta=(key==='ArrowRight')===(direction==='ltr')?1:-1;
+            assert.equal(await buttons[(i+delta+buttons.length)%buttons.length].evaluate(e=>e===document.activeElement),true);
+            assert.equal(await chat.getAttribute('aria-current'),'page');assert.equal(await dot.count(),1);
+          }
+          await chat.focus();
+          for(const modifier of ['metaKey','ctrlKey','altKey']) {
+            const result=await chat.evaluate((e,modifier)=>({accepted:e.dispatchEvent(new KeyboardEvent('keydown',{key:'ArrowRight',[modifier]:true,bubbles:true,cancelable:true})),focused:e===document.activeElement}),modifier);
+            assert.deepEqual(result,{accepted:true,focused:true});
+          }
+          await code.press('Enter');assert.equal(await dot.count(),0);
+          await chat.press('Space');assert.equal(await dot.count(),1);
+          if(two)await page.locator('#modeCount').click();
+        }
+      }
+      const thumb=page.locator('.mode-thumb');
+      for(const preference of ['system','app','both']) {
+        await page.emulateMedia({reducedMotion:preference==='app'?'no-preference':'reduce'});
+        await page.evaluate(p=>{if(p==='system')delete document.documentElement.dataset.reduceMotion;else document.documentElement.dataset.reduceMotion='true';},preference);
+        // Include ResizeObserver's data-snap branch and repeated real selections.
+        for(const limit of [160,360]) {
+          await page.locator('#modeWidth').evaluate((e,v)=>{e.value=v;e.dispatchEvent(new Event('input',{bubbles:true}));},limit);await settle();
+          assert.equal(await thumb.evaluate(e=>getComputedStyle(e).transitionDuration),'0s');
+          for(const button of [code,chat,code,chat]) {
+            await button.click();await settle();
+            assert.equal(await thumb.evaluate(e=>getComputedStyle(e).transitionDuration),'0s');
+            assert.equal(await thumb.evaluate(e=>e.getAnimations().length),0);
+            const alignment=await button.evaluate(e=>{const a=e.getBoundingClientRect(),b=document.querySelector('.mode-thumb').getBoundingClientRect();return Math.abs(a.left-b.left)+Math.abs(a.width-b.width);});
+            // Native positioning uses integer offsetLeft/offsetWidth.
+            assert.ok(alignment<=1, `${preference} width ${limit}: rounding error ${alignment}`);
+          }
+        }
+        await page.evaluate(()=>location.hash='composer');await settle();await page.evaluate(()=>location.hash='modes');await settle();
+        assert.equal(await thumb.evaluate(e=>getComputedStyle(e).transitionDuration),'0s');
+      }
+      await page.emulateMedia({reducedMotion:'no-preference'});
+      await page.evaluate(()=>delete document.documentElement.dataset.reduceMotion);
+      await code.click();await settle();
+      assert.equal(await thumb.evaluate(e=>getComputedStyle(e).transitionDuration),'0.12s, 0.3s');
+      await chat.click();
+      console.log(`PASS ${touch?'touch':'mouse'}: RTL/LTR wrap, hidden item, modifiers, selection semantics, system/app thumb motion and restoration`);
       for(const theme of ['light','dark'])for(const width of [1280,390,320]) {
         await page.evaluate(t=>document.documentElement.dataset.theme=t,theme);await page.setViewportSize({width,height:900});
         for(const limit of [160,300,360]) {
