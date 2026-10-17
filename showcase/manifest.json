@@ -162,8 +162,8 @@
     },
     {
       "name": "components/modes.css",
-      "sha256": "4488d0363459f8a7cc49397ec39fb748232a12ae39a902db85c527869c8bc20e",
-      "bytes": 13226
+      "sha256": "ecb368268bd61e99ff2b0460663a2b109aa4eb10d557495ac568c97b10464f6f",
+      "bytes": 13305
     },
     {
       "name": "components/modes.js",

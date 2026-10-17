@@ -74,6 +74,7 @@ const types = {'.html':'text/html', '.js':'text/javascript', '.css':'text/css', 
       }
       await page.emulateMedia({reducedMotion:'reduce'});await settle();
       assert.equal(await dot.evaluate(e=>getComputedStyle(e).animationName),'none');
+      assert.equal(await dot.evaluate(e=>getComputedStyle(e).animationDuration),'1e-05s');
       assert.equal(await dot.evaluate(e=>getComputedStyle(e).opacity),'1');
       await code.click();await chat.click();assert.equal(await dot.evaluate(e=>e.getAnimations().length),0);
       await page.emulateMedia({reducedMotion:'no-preference'});

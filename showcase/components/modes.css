@@ -267,5 +267,5 @@
   animation: mode-running-blink 1.2s ease-in-out infinite;
 }
 @keyframes mode-running-blink { 0%, to { opacity: .3; } 50% { opacity: 1; } }
-@media (prefers-reduced-motion: reduce) { .mode-running { animation: none; } }
+@media (prefers-reduced-motion: reduce) { .mode-running { animation: none; animation-duration: .01ms !important; animation-iteration-count: 1 !important; } }
 [data-reduce-motion='true'] .mode-running { animation-duration: .01ms !important; animation-iteration-count: 1 !important; }
