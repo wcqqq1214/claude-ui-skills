@@ -77,7 +77,7 @@ const types = {'.html':'text/html', '.js':'text/javascript', '.css':'text/css', 
         await page.locator('#imageDialog').waitFor({state:'visible'});
         await page.waitForFunction(()=>!document.documentElement.classList.contains('image-preview-active'));
         await centered('#closeImage .study-icon', true);
-        assert.deepEqual(await page.locator('#closeImage').evaluate(e=>[e.offsetWidth,e.offsetHeight]), [35,35]);
+        assert.deepEqual(await page.locator('#closeImage').evaluate(e=>[e.offsetWidth,e.offsetHeight]), [24,24]);
         await page.locator('#closeImage').focus();
         await page.keyboard.press('Enter');
         await page.locator('#imageDialog').waitFor({state:'hidden'});

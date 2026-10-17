@@ -788,20 +788,24 @@
         </div>
       </main>
     </div>
-    <dialog id="imageDialog" class="image-dialog" aria-label="Enlarged image preview"
-      ><button
-        class="image-close"
-        id="closeImage"
-        aria-label="Close image preview"
-        data-ui-icon="X"
-        data-icon-size="20"
-      ></button
-      ><div class="image-preview-surface" id="imagePreviewSurface"><img
-        src="landscape.svg"
-        alt="Enlarged view of teal mountains and a clay-colored sun under a beige sky"
-        id="largeImage"
-        draggable="false"
-    /></div></dialog>
+    <dialog id="imageDialog" class="image-dialog" aria-label="Enlarged image preview">
+      <div class="image-preview-column">
+        <div class="image-preview-frame" id="imagePreviewFrame">
+          <div class="image-preview-actions" role="toolbar" aria-orientation="vertical" aria-label="Image preview actions">
+            <button class="image-preview-close" id="closeImage" type="button" aria-label="Close image preview">
+              <span class="image-preview-squish" aria-hidden="true"><span class="image-preview-paint"></span></span>
+              <span data-ui-icon="X" data-icon-size="16" aria-hidden="true"></span>
+            </button>
+          </div>
+          <div class="image-preview-surface" id="imagePreviewSurface"><img
+            src="landscape.svg"
+            alt="Enlarged view of teal mountains and a clay-colored sun under a beige sky"
+            id="largeImage"
+            draggable="false"
+          /></div>
+        </div>
+      </div>
+    </dialog>
     <div class="toast-region" aria-live="polite" aria-atomic="true"
       ><div id="toast" class="stack-toast" style="--toast-index: 0" hidden inert
         ><div class="stack-toast-content"

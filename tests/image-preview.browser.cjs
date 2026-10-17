@@ -59,6 +59,13 @@ const types = {'.html':'text/html','.js':'text/javascript','.css':'text/css','.s
         const metrics=await page.locator('#imagePreviewSurface').evaluate(e=>{const r=e.getBoundingClientRect(),s=getComputedStyle(e);return {radius:s.borderRadius,shadow:s.boxShadow,inside:r.left>=0&&r.right<=innerWidth&&r.top>=0&&r.bottom<=innerHeight,overflow:document.documentElement.scrollWidth>innerWidth};});
         assert.equal(metrics.radius,'6px');assert.equal(metrics.inside,true);assert.equal(metrics.overflow,false);
         assert.ok(metrics.shadow.includes('0.3')&&metrics.shadow.includes('0.25'));
+        const layout=await page.evaluate(()=>{
+          const image=document.querySelector('#largeImage').getBoundingClientRect(),button=document.querySelector('#closeImage'),r=button.getBoundingClientRect();
+          return {imageWidth:image.width,size:[r.width,r.height],offset:[r.x-image.x,r.y-image.y],icon:getComputedStyle(button.querySelector('.study-icon')).fontSize};
+        });
+        assert.ok(Math.abs(layout.imageWidth-(width===1280?640:width-32))<.1);
+        assert.deepEqual(layout.size,touch?[32,32]:[24,24]);assert.equal(layout.icon,touch?'20px':'16px');
+        assert.ok(layout.offset.every((v,i)=>Math.abs(v-(width===1280?[646,0]:[width-(touch?70:62),6])[i])<.1));
         if(process.env.IMAGE_SCREENSHOT_DIR && !touch && theme==='light' && width!==390){
           await mkdir(process.env.IMAGE_SCREENSHOT_DIR,{recursive:true});
           await page.screenshot({path:resolve(process.env.IMAGE_SCREENSHOT_DIR,`preview-${width}.png`)});
@@ -79,11 +86,51 @@ const types = {'.html':'text/html','.js':'text/javascript','.css':'text/css','.s
         await origin.focus();await page.keyboard.press(key);await dialog.waitFor({state:'visible'});await settled();
         assert.equal(await page.locator('#closeImage').evaluate(e=>e===document.activeElement),true);
         await page.keyboard.press('Tab');
-        assert.equal(await dialog.evaluate(e=>document.activeElement===document.body || e.contains(document.activeElement)),true);
+        assert.equal(await dialog.evaluate(e=>document.activeElement.id==='closeImage'),true);
         await page.keyboard.press('Shift+Tab');
         assert.equal(await page.locator('#closeImage').evaluate(e=>e===document.activeElement),true);
         await close();
       }
+      // Toolbar keys keep the sole close action focused; activation closes on Enter/Space.
+      for(const key of ['ArrowUp','ArrowDown','ArrowLeft','ArrowRight','Home','End']){
+        await open();await page.keyboard.press(key);
+        assert.equal(await page.locator('#closeImage').evaluate(e=>e===document.activeElement),true);await close();
+      }
+      for(const key of ['Enter','Space']){
+        await open();await page.keyboard.press(key);await dialog.waitFor({state:'hidden'});await settled();
+        assert.equal(await origin.evaluate(e=>e===document.activeElement),true);
+      }
+      // A newer modal owns focus; closing this preview must not take it back.
+      await open();
+      await page.evaluate(()=>{
+        const overlay=document.createElement('dialog');overlay.id='focusFixture';
+        overlay.innerHTML='<input aria-label="Focus fixture">';document.body.append(overlay);overlay.showModal();
+        document.querySelector('#closeImage').click();
+      });
+      await dialog.waitFor({state:'hidden'});await settled();
+      assert.equal(await page.evaluate(()=>document.activeElement===document.querySelector('#focusFixture input')),true);
+      await page.evaluate(()=>{const e=document.querySelector('#focusFixture');e.close();e.remove();});
+      await open();
+      await origin.evaluate(e=>{window.detachedOrigin={element:e,parent:e.parentElement,next:e.nextSibling};e.remove();});
+      await page.keyboard.press('Escape');await dialog.waitFor({state:'hidden'});await settled();
+      assert.notEqual(await page.evaluate(()=>document.activeElement.id),'closeImage');
+      await page.evaluate(()=>{const {element,parent,next}=window.detachedOrigin;parent.insertBefore(element,next);delete window.detachedOrigin;});
+      await open();await close();
+      // Check the responsive breakpoint, RTL anchoring and short windows.
+      for(const [width,height] of [[639,900],[640,900],[768,900],[1280,360]])for(const dir of ['ltr','rtl']){
+        await page.setViewportSize({width,height});await page.evaluate(v=>document.documentElement.dir=v,dir);
+        await open();
+        const geometry=await page.evaluate(()=>{
+          const a=document.querySelector('#imagePreviewSurface').getBoundingClientRect(),b=document.querySelector('#closeImage').getBoundingClientRect();
+          return {width:a.width,height:a.height,x:a.x,buttonX:b.x,buttonY:b.y-a.y,buttonWidth:b.width,right:a.right};
+        });
+        assert.ok(geometry.height<=height-64+.1);
+        assert.equal(geometry.buttonY,width<640?6:0);
+        assert.equal(geometry.buttonX,width<640?(dir==='ltr'?geometry.right-geometry.buttonWidth-6:geometry.x+6):(dir==='ltr'?geometry.right+6:geometry.x-geometry.buttonWidth-6));
+        await close();
+      }
+      await page.evaluate(()=>document.documentElement.removeAttribute('dir'));
+      await page.setViewportSize({width:1280,height:900});
       // Interrupt before the entering transition finishes, then open again.
       for(let i=0;i<3;i++){
         await origin.click();await dialog.waitFor({state:'visible'});await page.keyboard.press('Escape');
@@ -108,7 +155,22 @@ const types = {'.html':'text/html','.js':'text/javascript','.css':'text/css','.s
         await open();await close();assert.equal(await page.evaluate(()=>previewTransitions.length),count);
         assert.equal(await page.evaluate(()=>document.getAnimations().filter(a=>a.animationName?.startsWith('image-preview')).length),0);
       }
+      // Reduced motion removes the spring, but preserves the pressed shape.
+      await open();await page.locator('#closeImage').hover();await page.mouse.down();
+      assert.equal(await page.locator('.image-preview-squish').evaluate(e=>getComputedStyle(e).transitionDuration),'0s');
+      assert.equal(await page.locator('.image-preview-squish').evaluate(e=>getComputedStyle(e).transform),'matrix(0.9375, 0, 0, 0.9375, 0, 0)');
+      await page.mouse.up();await dialog.waitFor({state:'hidden'});await settled();
       await page.emulateMedia({reducedMotion:'no-preference'});
+      await page.evaluate(()=>document.documentElement.dataset.reduceMotion='true');
+      await open();await page.locator('#closeImage').hover();await page.mouse.down();
+      assert.equal(await page.locator('.image-preview-squish').evaluate(e=>getComputedStyle(e).transitionDuration),'0s');
+      await page.mouse.up();await dialog.waitFor({state:'hidden'});await settled();
+      await page.evaluate(()=>delete document.documentElement.dataset.reduceMotion);
+      await page.emulateMedia({forcedColors:'active'});await origin.focus();await page.keyboard.press('Enter');
+      await dialog.waitFor({state:'visible'});await settled();
+      assert.equal(await page.locator('#closeImage').evaluate(e=>getComputedStyle(e).outlineStyle),'solid');
+      assert.equal(await page.locator('#closeImage').evaluate(e=>getComputedStyle(e).outlineWidth),'2px');await close();
+      await page.emulateMedia({forcedColors:'none'});
       const count=await page.evaluate(()=>previewTransitions.length);await open();await close();
       assert.equal(await page.evaluate(()=>previewTransitions.length),count+2);
       // Returning from pagehide must not leave a stale open request or hidden source.
@@ -120,7 +182,12 @@ const types = {'.html':'text/html','.js':'text/javascript','.css':'text/css','.s
       await page.evaluate(()=>document.startViewTransition=undefined);await open();await close();
       assert.equal(await page.evaluate(()=>previewTransitions.length),afterReset);
       await page.evaluate(()=>location.hash='gallery');await page.evaluate(()=>location.hash='images');await open();await close();
-      console.log(`PASS ${touch?'touch':'mouse'}: decoration, 1280/390/320 light/dark, keyboard, dismissal, repeat/interruption, offscreen origin, contain, reduced motion and unsupported fallback`);
+      if(touch){
+        await origin.tap();await dialog.waitFor({state:'visible'});await settled();
+        await page.locator('#closeImage').tap();await dialog.waitFor({state:'hidden'});await settled();
+        assert.equal(await origin.evaluate(e=>e===document.activeElement),true);
+      }
+      console.log(`PASS ${touch?'touch':'mouse'}: decoration, 1280/390/320 light/dark, keyboard/focus ownership, RTL/breakpoint/short viewport, dismissal, repeat/interruption, offscreen origin, contain, reduced motion and unsupported fallback`);
       await context.close();
     }
     assert.deepEqual(errors,[]);console.log('PASS no script or asset errors');

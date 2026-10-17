@@ -2,10 +2,18 @@
 function initImagesDemo() {
   const imageDialog = $('#imageDialog'), originButton = $('#imageOrigin'),
     origin = originButton.querySelector('img'), target = $('#imagePreviewSurface'),
-    root = document.documentElement;
+    closeButton = $('#closeImage'), root = document.documentElement;
   const name = 'demo-image-preview', active = 'image-preview-active',
     closing = 'image-preview-closing', noOrigin = 'image-preview-no-origin';
-  let opened = false, revision = 0, transition = null;
+  let opened = false, revision = 0, transition = null, returnFocus = null;
+  const coarsePointer = matchMedia('(pointer: coarse)');
+  function updateCloseIcon() {
+    const slot = closeButton.querySelector('[data-ui-icon]'), size = coarsePointer.matches ? 20 : 16;
+    slot.style.fontSize = `${size}px`;
+    slot.replaceChildren(DemoIcons.create('X', size));
+  }
+  updateCloseIcon();
+  coarsePointer.addEventListener('change', updateCloseIcon);
 
   function radius(element, fallback) {
     for (let depth = 0; element && depth < 5; depth++, element = element.parentElement) {
@@ -72,13 +80,19 @@ function initImagesDemo() {
     if (open) {
       if (!imageDialog.open) imageDialog.showModal();
     } else {
-      imageDialog.close();
+      const focused = document.activeElement;
+      const outside = focused && focused !== document.body && !imageDialog.contains(focused);
       origin.style.visibility = '';
-      if (originButton.isConnected) originButton.focus({ preventScroll: true });
+      imageDialog.close();
+      if (outside) {
+        if (focused.isConnected && document.activeElement !== focused) focused.focus({ preventScroll: true });
+      } else if (returnFocus?.isConnected) returnFocus.focus({ preventScroll: true });
+      returnFocus = null;
     }
   }
   function setOpen(open) {
     if (opened === open) return;
+    if (open && !imageDialog.open) returnFocus = document.activeElement;
     opened = open;
     const current = ++revision;
     transition?.skipTransition();
@@ -122,15 +136,28 @@ function initImagesDemo() {
     }
   }
   originButton.onclick = () => setOpen(true);
-  $('#closeImage').onclick = () => setOpen(false);
+  closeButton.onclick = () => setOpen(false);
   target.onclick = () => setOpen(false);
-  imageDialog.onclick = event => { if (event.target === imageDialog) setOpen(false); };
+  $('#imagePreviewFrame').onclick = event => event.stopPropagation();
+  imageDialog.onclick = () => setOpen(false);
+  imageDialog.addEventListener('keydown', event => {
+    if (event.altKey || event.ctrlKey || event.metaKey) return;
+    // The preview's toolbar has only its close action in this branch.
+    if (event.key === 'Tab') {
+      event.preventDefault();
+      closeButton.focus({ preventScroll: true });
+    } else if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) {
+      event.preventDefault();
+      event.stopPropagation();
+    }
+  });
   imageDialog.addEventListener('cancel', event => { event.preventDefault(); setOpen(false); });
   window.addEventListener('pagehide', () => {
     ++revision;
     transition?.skipTransition();
     transition = null;
     opened = false;
+    returnFocus = null;
     imageDialog.close();
     clearNames();
     root.classList.remove(active, closing, noOrigin);

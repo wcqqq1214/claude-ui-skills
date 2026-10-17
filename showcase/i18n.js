@@ -287,6 +287,7 @@ const DemoI18n = (() => {
   "Notice with action": "带操作通知",
   "UI examples · Unofficial": "界面示例 · 非官方",
   "Enlarged image preview": "放大图片预览",
+  "Image preview actions": "图片预览操作",
   "Close image preview": "关闭图片预览",
   "Enlarged view of teal mountains and a clay-colored sun under a beige sky": "米色天空下的蓝绿色山峦与陶土色太阳，放大预览",
   "Close notice": "关闭通知",
