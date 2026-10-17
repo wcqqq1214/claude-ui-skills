@@ -52,6 +52,12 @@ const types = {'.html':'text/html', '.js':'text/javascript', '.css':'text/css', 
     await advance(250);
     assert.equal(await fold.getAttribute('aria-expanded'), 'false');
     assert.equal(await earlier.evaluate(e=>e.inert),true);
+    await fold.focus(); await page.keyboard.press('Tab'); await page.keyboard.press('Shift+Tab');
+    for (const [theme, inner] of [['light','rgb(249, 249, 247)'],['dark','rgb(11, 11, 11)']]) {
+      await page.evaluate(theme=>document.documentElement.dataset.theme=theme,theme);
+      const shadow = await page.locator('.progress-fold-label').evaluate(e=>getComputedStyle(e).boxShadow);
+      assert.ok(shadow.startsWith(inner + ' 0px 0px 0px 1px inset'), shadow);
+    }
     console.log('PASS fold boundary, native Enter/Space, interrupted toggles and focus');
 
     await replay.click(); await advance(100);
@@ -130,6 +136,105 @@ const types = {'.html':'text/html', '.js':'text/javascript', '.css':'text/css', 
     assert.equal(await earlier.evaluate(e=>e.inert),true);
     assert.deepEqual(errors,[]);
     console.log('PASS reduced-motion static feedback, immediate keyboard fold, no active animations and no page/load errors');
+
+    // The app override keeps CSS transitions, unlike the system motion preference.
+    await page.emulateMedia({reducedMotion:'no-preference'});
+    await page.evaluate(()=>document.documentElement.dataset.reduceMotion='true');
+    await replay.click(); await advance(300);
+    assert.equal(await progress.locator('.progress-sweep').evaluate(e=>getComputedStyle(e).display),'none');
+    await advance(6750);
+    assert.equal(await progress.locator('.status-shimmer-clone').evaluate(e=>getComputedStyle(e).display),'none');
+    assert.equal(await progress.locator('.progress-clay').evaluate(e=>getComputedStyle(e).animationIterationCount),'1');
+    assert.equal(await progress.evaluate(e=>e.getAnimations({subtree:true}).filter(a=>a.playState==='running').length),0);
+    assert.equal(await earlier.evaluate(e=>getComputedStyle(e).transitionDuration),'0.2s');
+    await fold.press('Enter'); await advance(300);
+    assert.ok((await earlier.boundingBox()).height>0);
+    await page.evaluate(()=>delete document.documentElement.dataset.reduceMotion); await advance(100);
+    assert.equal(await progress.locator('.progress-clay').evaluate(e=>getComputedStyle(e).animationIterationCount),'infinite');
+    console.log('PASS app motion override, retained fold transition and preference restoration');
+
+    // Use a real clock for clone replacement: preserved phase, rather than a fresh sweep.
+    const motion = await browser.newPage({viewport:{width:1280,height:900}});
+    motion.setDefaultTimeout(5000);
+    motion.on('pageerror',e=>errors.push(e.message));
+    await motion.goto(url+'#tasks');
+    const current = motion.locator('.progress-row[data-state="in_progress"] .status-shimmer');
+    await motion.waitForFunction(()=>document.querySelector('.progress-row[data-state="in_progress"] .status-shimmer')?.dataset.shimmerMode==='composited');
+    await motion.waitForTimeout(400);
+    const beforeClone = await current.evaluate(e=>{
+      window.auditClone=e.lastElementChild;
+      const a=window.auditClone.getAnimations({subtree:true}).find(a=>a.effect.pseudoElement==='::after');
+      return a.startTime;
+    });
+    assert.equal(typeof beforeClone,'number');
+    await motion.evaluate(()=>DemoI18n.select('zh-Hans'));
+    const afterClone = await current.evaluate(e=>{
+      const clone=e.lastElementChild;
+      return {same:clone===window.auditClone,inert:clone.inert,text:clone.textContent,
+        start:clone.getAnimations({subtree:true}).find(a=>a.effect.pseudoElement==='::after').startTime};
+    });
+    assert.equal(afterClone.same,false); assert.equal(afterClone.inert,true);
+    assert.equal(afterClone.start,beforeClone); assert.ok(afterClone.text.includes('初稿'));
+    await current.evaluate(e=>window.auditClone=e.lastElementChild);
+    await motion.locator('#progressFold').press('Enter');
+    assert.equal(await current.evaluate(e=>e.lastElementChild===window.auditClone),true,'unchanged content retains its clone');
+    await motion.evaluate(()=>document.querySelector('#progressList').dataset.playing='false');
+    await motion.waitForTimeout(50);
+    const pausedTime=await current.evaluate(e=>e.lastElementChild.getAnimations({subtree:true}).find(a=>a.effect.pseudoElement==='::after').currentTime);
+    await motion.evaluate(()=>DemoI18n.select('en'));
+    const paused=await current.evaluate(e=>{
+      const a=e.lastElementChild.getAnimations({subtree:true}).find(a=>a.effect.pseudoElement==='::after');
+      return {state:a.playState,time:a.currentTime};
+    });
+    assert.equal(paused.state,'paused'); assert.equal(paused.time,pausedTime);
+    await motion.evaluate(()=>document.querySelector('#progressList').dataset.playing='true');
+    await motion.evaluate(()=>document.documentElement.dir='rtl');
+    assert.equal(await current.locator('.status-shimmer-clone').evaluate(e=>getComputedStyle(e,'::after').animationName),'progress-shimmer-band-rtl');
+    await motion.emulateMedia({forcedColors:'active'});
+    assert.equal(await current.locator('.status-shimmer-clone').evaluate(e=>getComputedStyle(e).display),'none');
+    await motion.close();
+
+    for (const scenario of ['clamped','no-observer','no-compositing']) {
+      const fallback=await browser.newPage();
+      fallback.setDefaultTimeout(5000);
+      fallback.on('pageerror',e=>errors.push(e.message));
+      if (scenario==='clamped') await fallback.route('**/components/tasks.css',async route=>{
+        const response=await route.fetch();
+        await route.fulfill({response,body:(await response.text())+'\n.progress-text { -webkit-line-clamp: 1; }'});
+      });
+      if (scenario==='no-compositing') await fallback.addInitScript(()=>{
+        const supports=CSS.supports.bind(CSS);
+        CSS.supports=(...args)=>args[0]==='(-webkit-mask-clip: text) and (-webkit-app-region: drag)'?false:supports(...args);
+      });
+      await fallback.goto(url+'#tasks');
+      if (scenario==='no-observer') await fallback.evaluate(()=>{
+        const Observer=window.ResizeObserver;
+        window.ResizeObserver=undefined;
+        try {
+          const old=document.querySelector('.progress-row[data-state="in_progress"] .status-shimmer');
+          const fixture=createProgressShimmer(); old.replaceWith(fixture.element);
+          fixture.update(true,'Working without ResizeObserver');
+        } finally { window.ResizeObserver=Observer; }
+      });
+      await fallback.waitForFunction(()=>document.querySelector('.progress-row[data-state="in_progress"] .status-shimmer')?.dataset.shimmerMode==='fallback');
+      const label=fallback.locator('.progress-row[data-state="in_progress"] .status-shimmer');
+      assert.equal(await label.locator('.status-shimmer-clone').count(),0);
+      assert.equal(await label.evaluate(e=>getComputedStyle(e).animationName),'status-shimmer-shine');
+      assert.ok((await label.evaluate(e=>getComputedStyle(e).backgroundImage)).includes('linear-gradient'));
+      await fallback.evaluate(()=>document.documentElement.dir='rtl');
+      assert.equal(await label.evaluate(e=>getComputedStyle(e).animationName),'progress-shimmer-shine-rtl');
+      await fallback.emulateMedia({forcedColors:'active'});
+      assert.equal(await label.evaluate(e=>getComputedStyle(e).animationName),'none');
+      assert.equal(await label.evaluate(e=>getComputedStyle(e).backgroundImage),'none');
+      await fallback.emulateMedia({forcedColors:'none',reducedMotion:'reduce'});
+      assert.equal(await label.evaluate(e=>getComputedStyle(e).webkitTextFillColor===getComputedStyle(e).color),true);
+      assert.equal(await label.evaluate(e=>getComputedStyle(e).animationName),'none');
+      assert.equal(await label.evaluate(e=>getComputedStyle(e).backgroundImage),'none');
+      await fallback.close();
+    }
+    assert.deepEqual(errors,[]);
+    console.log('PASS shimmer content replacement preserves phase, RTL, forced colors and layout/capability fallbacks');
+
   } finally {
     await browser?.close(); await new Promise(r=>server.close(r));
   }
