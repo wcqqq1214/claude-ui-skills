@@ -32,12 +32,16 @@ function initGalleryDemo() {
     slide.onclick = (e) => {
       if (galleryClosing || suppressClick) return;
       if (i !== galleryIndex) {
-        switchGallery(i);
+        const close = $('#closeGallery').getBoundingClientRect();
+        const nearClose = e.clientX >= close.left - 16 && e.clientX <= close.right + 16 &&
+          e.clientY >= close.top - 16 && e.clientY <= close.bottom + 16;
+        if (!zoom && !nearClose) { e.stopPropagation(); switchGallery(i); }
         return;
       }
-      if (e.target === img || (e.target === slide && e.detail === 0 && !e.pointerType)) toggleZoom(e.target === img ? e : null);
-      else if (zoom) resetZoom();
-      else closeGallery();
+      if (e.target === img || (e.target === slide && e.detail === 0 && !e.pointerType)) {
+        e.stopPropagation();
+        toggleZoom(e.target === img ? e : null);
+      }
     };
     slide.onkeydown = (e) => {
       if (e.key === ' ' || e.key === 'Enter') {
@@ -174,9 +178,9 @@ function initGalleryDemo() {
   $$('[data-gallery]').forEach(
     (b) => (b.onclick = () => openGallery(Number(b.dataset.gallery), b))
   );
-  $('#closeGallery').onclick = closeGallery;
-  $('#galleryPrev').onclick = () => { if (galleryIndex > 0) switchGallery(galleryIndex - 1); };
-  $('#galleryNext').onclick = () => { if (galleryIndex < gallerySlides.length - 1) switchGallery(galleryIndex + 1); };
+  $('#closeGallery').onclick = (e) => { e.stopPropagation(); closeGallery(); };
+  $('#galleryPrev').onclick = (e) => { e.stopPropagation(); if (galleryIndex > 0) switchGallery(galleryIndex - 1); };
+  $('#galleryNext').onclick = (e) => { e.stopPropagation(); if (galleryIndex < gallerySlides.length - 1) switchGallery(galleryIndex + 1); };
   $('.gallery-bottom').onclick = (e) => e.stopPropagation();
   galleryDialog.addEventListener('cancel', (e) => {
     e.preventDefault();
@@ -204,10 +208,12 @@ function initGalleryDemo() {
     }
   });
   galleryDialog.addEventListener('click', (e) => {
-    if (e.target === galleryDialog || e.target === galleryRail || e.target === $('#galleryViewport') || e.target === $('.gallery-bottom-shade')) {
-      if (zoom) resetZoom();
-      else closeGallery();
-    }
+    if (suppressClick) e.stopPropagation();
+  }, true);
+  galleryDialog.addEventListener('click', () => {
+    if (galleryClosing) return;
+    if (zoom) resetZoom();
+    else closeGallery();
   });
   galleryRail.addEventListener('pointerdown', (e) => {
     if (!zoom || e.button !== 0 || e.target !== currentImage() || drag) return;
