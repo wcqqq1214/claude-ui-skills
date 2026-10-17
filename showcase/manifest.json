@@ -202,8 +202,8 @@
     },
     {
       "name": "components/tasks.css",
-      "sha256": "01ca208f81d0aa4dad0827cc8619f5952ad3d0a5843199327afeff595594af89",
-      "bytes": 14827
+      "sha256": "809995c605694b7ea58f84795a99ace269f16bd8d836c4416ea2da6797d417c7",
+      "bytes": 14920
     },
     {
       "name": "components/tasks.js",

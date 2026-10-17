@@ -285,13 +285,15 @@ button.progress-fold-button { font-weight: var(--regular); outline: none; }
   background-repeat: no-repeat; background-size: 400% 100%; background-position: 83.333% 0;
   animation: status-shimmer-shine 3s linear infinite;
 }
-:root[dir='rtl'] .progress-list .status-shimmer[data-shimmer-mode='fallback']:dir(rtl) {
-  background-image: linear-gradient(240deg, var(--shimmer-base) 37.5%, var(--shimmer-peak) 50%, var(--shimmer-base) 62.5%);
-  animation-name: progress-shimmer-shine-rtl;
-}
-:root[dir='rtl'] .progress-list .status-shimmer-clone:dir(rtl)::after {
-  background-image: linear-gradient(240deg, transparent 37.5%, var(--shimmer-peak) 50%, transparent 62.5%);
-  animation-name: progress-shimmer-band-rtl; translate: -12.5%;
+@media (prefers-reduced-motion: no-preference) and (forced-colors: none) {
+  :root[dir='rtl'] .progress-list .status-shimmer[data-shimmer-mode='fallback']:dir(rtl) {
+    background-image: linear-gradient(240deg, var(--shimmer-base) 37.5%, var(--shimmer-peak) 50%, var(--shimmer-base) 62.5%);
+    animation-name: progress-shimmer-shine-rtl;
+  }
+  :root[dir='rtl'] .progress-list .status-shimmer-clone:dir(rtl)::after {
+    background-image: linear-gradient(240deg, transparent 37.5%, var(--shimmer-peak) 50%, transparent 62.5%);
+    animation-name: progress-shimmer-band-rtl; translate: -12.5%;
+  }
 }
 @keyframes progress-shimmer-shine-rtl {
   0%,15% { background-position: 16.667% 0; animation-timing-function: cubic-bezier(.714,.121,.211,.888); }
