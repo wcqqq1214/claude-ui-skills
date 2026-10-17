@@ -238,7 +238,7 @@
   transition: transform 60ms ease-out;
 }
 @media (prefers-reduced-motion: reduce) {
-  .composer-picker .composer-picker-fill { transition: none; }
+  .composer-chin .composer-picker .composer-picker-fill { transition: none; }
 }
 
 @media (pointer: coarse), (hover: none) {
