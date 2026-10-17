@@ -179,7 +179,7 @@
   border-top: 1px dashed var(--line);
   pointer-events: none;
 }
-.reading-baseline-default .study-icon {
+.reading-baseline-default [data-ui-icon] {
   vertical-align: baseline;
 }
 .reading-number-sample,

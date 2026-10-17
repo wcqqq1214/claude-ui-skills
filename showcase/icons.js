@@ -419,6 +419,12 @@ const DemoIcons = (() => {
     icon.append(String.fromCodePoint(glyphs[name]));
     return icon;
   }
-  document.querySelectorAll('[data-ui-icon]').forEach(host => host.replaceChildren(create(host.dataset.uiIcon, Number(host.dataset.iconSize)||16)));
+  document.querySelectorAll('[data-ui-icon]').forEach(host => {
+    const size = Number(host.dataset.iconSize) || 16;
+    const icon = create(host.dataset.uiIcon, size);
+    // Inline slots use the icon's em, while button dimensions stay independent.
+    if (host.tagName === 'SPAN') host.style.fontSize = size + 'px';
+    host.replaceChildren(icon);
+  });
   return Object.freeze({create, names: Object.freeze(Object.keys(glyphs))});
 })();

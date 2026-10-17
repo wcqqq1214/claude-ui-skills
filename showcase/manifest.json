@@ -172,8 +172,8 @@
     },
     {
       "name": "components/reading.css",
-      "sha256": "d941d48c0178bff1eedcaffefaeed02bff274c4acee5b9aa8d34d5185a580ac2",
-      "bytes": 9546
+      "sha256": "cbf78484be9705c18f394113b61c95ee96954fe08b556f3b78a1f12140357b04",
+      "bytes": 9549
     },
     {
       "name": "components/reading.js",
@@ -232,8 +232,8 @@
     },
     {
       "name": "fonts.css",
-      "sha256": "6353433fea24d7fbe91279b8588c5ee9397fb6ba34599d039fb4e18a2eadd116",
-      "bytes": 5943
+      "sha256": "2a774ecade833982715010ac9e902cf0767660cc1a93f54ee25145123157f1d3",
+      "bytes": 6135
     },
     {
       "name": "fonts/anthropic-mono-italic-variable.woff2",
@@ -282,8 +282,8 @@
     },
     {
       "name": "icons.js",
-      "sha256": "ccef993c7079c4baa00f7ced59b009ebd33b18dbef544268a494cb5b51afe33f",
-      "bytes": 11239
+      "sha256": "fa0d9a48840f130656726d98602c680407c1294fc8ef58d39f368dc769e36c96",
+      "bytes": 11447
     },
     {
       "name": "index.html",
