@@ -36,9 +36,9 @@ const types = {'.html':'text/html','.js':'text/javascript','.css':'text/css','.s
     const settle=()=>page.waitForFunction(()=>!document.documentElement.classList.contains('gallery-crossfade'));
     const open=async()=>{await opener.click();await dialog.waitFor({state:'visible'});await settle();};
     const close=async()=>{await page.keyboard.press('Escape');await dialog.waitFor({state:'hidden'});await settle();assert.equal(await opener.evaluate(e=>e===document.activeElement),true);};
-    for(const motion of ['no-preference','reduce'])for(const width of [1280,640,639,390,320]){
+    for(const width of [1280,640,639,390,320]){
       await page.setViewportSize({width,height:800});
-      await page.emulateMedia({reducedMotion:motion,colorScheme:width%2?'dark':'light'});
+      await page.emulateMedia({colorScheme:width%2?'dark':'light'});
       await page.evaluate(()=>window.galleryTransitions=[]);
       await open();
       assert.equal(await page.locator('#closeGallery').evaluate(e=>e===document.activeElement),true);
@@ -57,10 +57,9 @@ const types = {'.html':'text/html','.js':'text/javascript','.css':'text/css','.s
       assert.ok(metrics.image.w<=width*.75+.1&&metrics.image.h<=560.1);
       if(width<640){assert.equal(metrics.filename.bottom,metrics.bottom.y);assert.equal(metrics.filename.x,24);assert.equal(metrics.filename.right,width-24);}
       else {assert.equal(metrics.filename.x,24);assert.ok(metrics.filename.right<metrics.nav.x);}
-      assert.equal(metrics.railDuration,motion==='reduce'?'0s':'0.3s');
-      assert.equal(metrics.slideDuration,motion==='reduce'?'0s':'0.3s');
-      if(motion==='reduce')assert.equal(metrics.transitions.length,0);
-      else assert.equal(metrics.transitions[0].duration,'0.18s');
+      assert.equal(metrics.railDuration,'0.3s');
+      assert.equal(metrics.slideDuration,'0.3s');
+      assert.equal(metrics.transitions[0].duration,'0.18s');
       // A pointer targets its landing point; keyboard zoom remains centered.
       const fitted=await page.locator('.gallery-slide.current img').boundingBox();
       const natural=await page.locator('.gallery-slide.current img').evaluate(e=>e.naturalWidth);
@@ -99,9 +98,8 @@ const types = {'.html':'text/html','.js':'text/javascript','.css':'text/css','.s
       await page.keyboard.press('Tab');assert.equal(await page.locator('#closeGallery').evaluate(e=>e===document.activeElement),true);
       await page.keyboard.press('Shift+Tab');assert.equal(await page.locator('#galleryNext').evaluate(e=>e===document.activeElement),true);
       await page.keyboard.press('Home');await close();await open();await close();
-      console.log(`PASS gallery chrome, filename, keyboard, reset, repeat: ${width}px ${motion}`);
+      console.log(`PASS gallery chrome, filename, keyboard, reset, repeat: ${width}px`);
     }
-    await page.emulateMedia({reducedMotion:'no-preference'});
     await page.setViewportSize({width:1280,height:800});
     // Immediate close/reopen must leave no stale transition or lost modal.
     for(let i=0;i<4;i++){

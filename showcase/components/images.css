@@ -78,14 +78,6 @@
   transition: transform 60ms ease-out;
 }
 .image-origin:active .image-origin-body { clip-path: inset(2px round 9px); transition: clip-path 60ms ease-out; }
-[data-reduce-motion='true'] .image-origin::before,
-[data-reduce-motion='true'] .image-origin::after,
-[data-reduce-motion='true'] .image-origin .image-origin-body { transition: none; }
-@media (prefers-reduced-motion: reduce) {
-  .image-origin::before, .image-origin::after,
-  .image-origin:active::before, .image-origin:active::after,
-  .image-origin:active .image-origin-body, .image-origin-body { transition: none; }
-}
 .image-hint { margin: 16px 0 0; color: var(--secondary); font-size: 13px; line-height: 1.5; text-align: center; }
 .image-dialog {
   padding: 1rem;
@@ -175,10 +167,7 @@
 @media (forced-colors: active) {
   .image-preview-close:focus-visible { outline-style: solid; }
 }
-[data-reduce-motion="true"] .image-preview-squish { transition: none; }
-@media (prefers-reduced-motion: reduce) {
-  .image-preview-close .image-preview-squish { transition: none; }
-}
+
 .image-preview-surface {
   width: fit-content;
   border-radius: .375rem;

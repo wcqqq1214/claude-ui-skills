@@ -55,18 +55,12 @@ const types = {'.html':'text/html','.js':'text/javascript','.css':'text/css','.s
       await page.emulateMedia({forcedColors:'active'});
       assert.equal(await origin.locator('.image-origin-body').evaluate(e=>getComputedStyle(e,'::after').outlineStyle),'solid');
       await page.emulateMedia({forcedColors:'none'});
-      for (const reduce of ['none','system','app']) {
-        await page.emulateMedia({reducedMotion:reduce==='system'?'reduce':'no-preference'});
-        await page.evaluate(v=>document.documentElement.dataset.reduceMotion=String(v==='app'),reduce);
-        const box=await origin.boundingBox();
-        await page.mouse.move(box.x+box.width/2,box.y+box.height/2);
-        await page.mouse.down();
-        const press=await origin.evaluate(e=>({fill:getComputedStyle(e,'::before').transitionDuration,ring:getComputedStyle(e,'::after').transitionDuration,body:getComputedStyle(e.querySelector('.image-origin-body')).transitionDuration,imageClip:getComputedStyle(e.querySelector('img')).clipPath}));
-        assert.deepEqual(press,{fill:reduce==='none'?'0.06s':'0s',ring:reduce==='none'?'0.06s':'0s',body:reduce==='none'?'0.06s':'0s',imageClip:'none'});
-        await page.mouse.move(0,0);await page.mouse.up();
-      }
-      await page.emulateMedia({reducedMotion:'no-preference'});
-      await page.evaluate(()=>delete document.documentElement.dataset.reduceMotion);
+      const box=await origin.boundingBox();
+      await page.mouse.move(box.x+box.width/2,box.y+box.height/2);
+      await page.mouse.down();
+      const press=await origin.evaluate(e=>({fill:getComputedStyle(e,'::before').transitionDuration,ring:getComputedStyle(e,'::after').transitionDuration,body:getComputedStyle(e.querySelector('.image-origin-body')).transitionDuration,imageClip:getComputedStyle(e.querySelector('img')).clipPath}));
+      assert.deepEqual(press,{fill:'0.06s',ring:'0.06s',body:'0.06s',imageClip:'none'});
+      await page.mouse.move(0,0);await page.mouse.up();
       const settled=()=>page.waitForFunction(()=>!document.documentElement.classList.contains('image-preview-active'));
       const open=async()=>{await origin.click();await dialog.waitFor({state:'visible'});await settled();};
       const close=async(method='escape')=>{
@@ -176,23 +170,6 @@ const types = {'.html':'text/html','.js':'text/javascript','.css':'text/css','.s
       const geometry=await page.evaluate(()=>({inset:document.documentElement.style.getPropertyValue('--image-preview-source-inset'),radius:document.documentElement.style.getPropertyValue('--image-preview-source-radius')}));
       assert.notEqual(geometry.inset,'0%');assert.equal(geometry.radius,'0px');await close();
       await page.locator('#imageOrigin img').evaluate(e=>e.removeAttribute('style'));
-      for(const width of [1280,390,320]){
-        await page.setViewportSize({width,height:900});await page.emulateMedia({reducedMotion:'reduce'});
-        const count=await page.evaluate(()=>previewTransitions.length);
-        await open();await close();assert.equal(await page.evaluate(()=>previewTransitions.length),count);
-        assert.equal(await page.evaluate(()=>document.getAnimations().filter(a=>a.animationName?.startsWith('image-preview')).length),0);
-      }
-      // Reduced motion removes the spring, but preserves the pressed shape.
-      await open();await page.locator('#closeImage').hover();await page.mouse.down();
-      assert.equal(await page.locator('.image-preview-squish').evaluate(e=>getComputedStyle(e).transitionDuration),'0s');
-      assert.equal(await page.locator('.image-preview-squish').evaluate(e=>getComputedStyle(e).transform),'matrix(0.9375, 0, 0, 0.9375, 0, 0)');
-      await page.mouse.up();await dialog.waitFor({state:'hidden'});await settled();
-      await page.emulateMedia({reducedMotion:'no-preference'});
-      await page.evaluate(()=>document.documentElement.dataset.reduceMotion='true');
-      await open();await page.locator('#closeImage').hover();await page.mouse.down();
-      assert.equal(await page.locator('.image-preview-squish').evaluate(e=>getComputedStyle(e).transitionDuration),'0s');
-      await page.mouse.up();await dialog.waitFor({state:'hidden'});await settled();
-      await page.evaluate(()=>delete document.documentElement.dataset.reduceMotion);
       await page.emulateMedia({forcedColors:'active'});await origin.focus();await page.keyboard.press('Enter');
       await dialog.waitFor({state:'visible'});await settled();
       assert.equal(await page.locator('#closeImage').evaluate(e=>getComputedStyle(e).outlineStyle),'solid');
@@ -214,7 +191,7 @@ const types = {'.html':'text/html','.js':'text/javascript','.css':'text/css','.s
         await page.locator('#closeImage').tap();await dialog.waitFor({state:'hidden'});await settled();
         assert.equal(await origin.evaluate(e=>e===document.activeElement),true);
       }
-      console.log(`PASS ${touch?'touch':'mouse'}: decoration, 1280/390/320 light/dark, keyboard/focus ownership, RTL/breakpoint/short viewport, dismissal, repeat/interruption, offscreen origin, contain, reduced motion and unsupported fallback`);
+      console.log(`PASS ${touch?'touch':'mouse'}: decoration, 1280/390/320 light/dark, keyboard/focus ownership, RTL/breakpoint/short viewport, dismissal, repeat/interruption, offscreen origin, contain and unsupported fallback`);
       await context.close();
     }
     assert.deepEqual(errors,[]);console.log('PASS no script or asset errors');

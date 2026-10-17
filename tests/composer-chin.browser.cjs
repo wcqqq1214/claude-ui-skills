@@ -170,25 +170,10 @@ const types = {'.html':'text/html', '.js':'text/javascript', '.css':'text/css', 
       assert.equal(await page.locator('#addMockAttachment').isEnabled(),true);
       await page.waitForFunction(()=>!document.querySelector(':root:active-view-transition-type(demo-attachments)'));
       assert.equal(await page.locator('.composer-attachment-remove').first().evaluate(e=>e===document.activeElement),true);
-      for (const preference of ['system','app']) {
-        await page.emulateMedia({reducedMotion:preference==='system'?'reduce':'no-preference'});
-        await page.evaluate(p=>{if(p==='app')document.documentElement.dataset.reduceMotion='true';else delete document.documentElement.dataset.reduceMotion;},preference);
-        await width(680); await width(156);
-        assert.equal(await mode(),'icons');
-        const fill=project.locator('.composer-picker-fill');
-        assert.equal(await fill.evaluate(e=>getComputedStyle(e).transitionDuration),'0s');
-        assert.equal(await fill.evaluate(e=>getComputedStyle(e,'::before').transitionDuration),'0.06s, 0.06s');
-        await project.focus(); await page.keyboard.down('Space');
-        assert.equal(await fill.evaluate(e=>getComputedStyle(e).transform),'matrix(0.9375, 0, 0, 0.9375, 0, 0)');
-        await page.keyboard.up('Space');
-        assert.equal(await fill.evaluate(e=>getComputedStyle(e).transform),'none');
-      }
-      await page.emulateMedia({reducedMotion:'no-preference'});
-      await page.evaluate(()=>delete document.documentElement.dataset.reduceMotion);
       await width(680);
       assert.equal(await mode(),'words-and-carets');
       assert.equal(await project.locator('.composer-picker-fill').evaluate(e=>getComputedStyle(e).transitionDuration),'0.45s');
-      console.log(`PASS ${touch?'touch':'mouse'}: both themes at 1280/390/320, attachment regression, system/app motion preferences and restoration`);
+      console.log(`PASS ${touch?'touch':'mouse'}: both themes at 1280/390/320, attachment regression`);
       if (process.env.COMPOSER_SCREENSHOT_DIR) {
         await page.setViewportSize({width:1280,height:900});
         await page.screenshot({path:resolve(process.env.COMPOSER_SCREENSHOT_DIR,`demo-${touch?'touch':'mouse'}.png`),fullPage:true});

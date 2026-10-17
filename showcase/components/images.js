@@ -110,7 +110,7 @@ function initImagesDemo() {
     clearNames();
     root.classList.remove(active, closing, noOrigin);
     const animate = typeof document.startViewTransition === 'function' &&
-      !matchMedia('(prefers-reduced-motion: reduce)').matches && (open || imageDialog.open);
+      (open || imageDialog.open);
     if (!animate) { render(open); return; }
     const visible = visibleOrigin();
     sourceDecoration(open || visible);

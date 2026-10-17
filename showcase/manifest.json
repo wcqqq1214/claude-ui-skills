@@ -17,8 +17,8 @@
     },
     {
       "name": "components/composer.css",
-      "sha256": "8bec6b37b7dcc17b9bfc02b283e3d2443ba038f5bb5f60186c592dc301d27cb2",
-      "bytes": 9129
+      "sha256": "cd1a03e9deb675def1cea340b7c91af6c4713a14f85b5af277d1d925dfc132f7",
+      "bytes": 8918
     },
     {
       "name": "components/composer.js",
@@ -122,23 +122,23 @@
     },
     {
       "name": "components/gallery.css",
-      "sha256": "be94053c3e1d8f523153fe3fcecb2530feab3f80e006cd107ebc62605144c4d9",
-      "bytes": 4930
+      "sha256": "a205ceb8054a87532702c097362374bc8dddd055d7cd8fee10475a2909b1a166",
+      "bytes": 4875
     },
     {
       "name": "components/gallery.js",
-      "sha256": "467892fe4dd1e2d9b90d9c897013cc8cd66f8e486725ff772671bc1d839334b8",
-      "bytes": 11508
+      "sha256": "f1653043022fd8526d6b37f027566873d94f3903fb4431885422c4bb56001f30",
+      "bytes": 11314
     },
     {
       "name": "components/images.css",
-      "sha256": "595ef3797c3b83e0e51dc2d16dff1a1141d73d190044dabef9ca40d906acba40",
-      "bytes": 8882
+      "sha256": "bd889125cf6f79d4b6b7d7e99d6068366b0c56f143708beccfd66524a67ae0bb",
+      "bytes": 8280
     },
     {
       "name": "components/images.js",
-      "sha256": "80373ba8e4bd347488e3f9ea15c6aca2a100c8e9a8769d19a6faf441fa97a28e",
-      "bytes": 8153
+      "sha256": "5071f2cbd44a89b3375246c345e48a6091c951e7ca494f7dd182daf9bcc947bd",
+      "bytes": 8094
     },
     {
       "name": "components/menus.css",
@@ -152,8 +152,8 @@
     },
     {
       "name": "components/micro.css",
-      "sha256": "e29f6f940e19b61e64a40b8308830083bde431ea75379e0b50e90134444866e7",
-      "bytes": 3693
+      "sha256": "0e3c048636cedb219e52ef1f6512fc3f911018f6b51c154baa453da87a043c38",
+      "bytes": 5979
     },
     {
       "name": "components/micro.js",
@@ -162,8 +162,8 @@
     },
     {
       "name": "components/modes.css",
-      "sha256": "e06d9b2f6332103a1c14812f7367a2c307a460fd20034a97233462f4afc2e224",
-      "bytes": 13539
+      "sha256": "3044ead9443f55f652e925de658709e49996025a356bb790e2c0cfe35734116e",
+      "bytes": 12755
     },
     {
       "name": "components/modes.js",
@@ -202,8 +202,8 @@
     },
     {
       "name": "components/tasks.css",
-      "sha256": "809995c605694b7ea58f84795a99ace269f16bd8d836c4416ea2da6797d417c7",
-      "bytes": 14920
+      "sha256": "0a8967c5a74e74dbb253f40a60888468e528fdf5e85011b9d38944d78169c8e3",
+      "bytes": 13957
     },
     {
       "name": "components/tasks.js",
@@ -277,8 +277,8 @@
     },
     {
       "name": "i18n.js",
-      "sha256": "2ce5ae55bda52f69723f5c6d0f234617c5448dee667846e91c46712f9b653adb",
-      "bytes": 26843
+      "sha256": "c0497161857feb0c39ba7fa04e04f9dcab2e388b640eebe0b2740e88b102c8ce",
+      "bytes": 27017
     },
     {
       "name": "icons.js",
@@ -287,8 +287,8 @@
     },
     {
       "name": "index.html",
-      "sha256": "8ba66ef3692b6257420e39644a10d8bcf60f2fedfd09340ccefddac7887eca54",
-      "bytes": 55612
+      "sha256": "7d33ed16f6c112da933d14ab50799b94143850664e3f28c9d78787455f82d7e8",
+      "bytes": 57977
     },
     {
       "name": "landscape-dusk.svg",
@@ -312,8 +312,8 @@
     },
     {
       "name": "shell.css",
-      "sha256": "09bd9d865a3e507e518e3790f1e46f19f7682c08bfac3ed6b99c246947b3c126",
-      "bytes": 1469
+      "sha256": "b864a9b3004512ea873c232ed699c3dc892f3cd3bdf55791786efe2756fe923a",
+      "bytes": 1401
     },
     {
       "name": "shell.js",

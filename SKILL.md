@@ -15,7 +15,7 @@ Read the chapter's markup, state transitions, styles and named consumers togethe
 
 ## Adapt within scope
 
-- Work only on UI, frontend presentation and motion. Preserve unrelated behavior. Do not add backend behavior, authentication, tool execution, reconnection, feature-flag changes or a reduced-motion mode.
+- Work only on UI, frontend presentation and motion. Preserve unrelated behavior. Do not add backend behavior, authentication, tool execution, reconnection or feature-flag changes. Reduced-motion adaptation is outside this skill and demo’s scope.
 - Preserve relationships between geometry, timing, selection, focus and visibility. Separate those relationships from sample text, page layout and demonstration controls. Map shared tokens to the target theme rather than copying the entire showcase shell.
 - Keep local adaptations and unsupported effects explicit. The demo does not include code-editor cursor or selection effects or a standalone static-code state example. Timeline collapse is a local interaction example.
 - Additional source collection requires an explicit request. Stop if a safety or approval review blocks it.

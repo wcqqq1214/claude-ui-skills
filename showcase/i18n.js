@@ -3,6 +3,8 @@
 const DemoI18n = (() => {
   const chinese = {
   "Click the thumbnail to preview. Click the image or press Esc to return.": "点击缩略图预览，点击图片或按 Esc 返回。",
+  "Ghost button": "幽灵按钮",
+  "Hover to look around; move away to reset. A motion preview only.": "悬停让眼睛环顾，移开后回正。此处仅展示动效。",
   "{0}, working": "{0}，正在运行",
   "Code is working in this example. Switch to Code to hide its background indicator; switch away to see it again.": "本例中的 Code 正在运行。切换到 Code 隐藏后台角标，切换到其他模式再次查看。",
   "Width limit": "宽度上限",
