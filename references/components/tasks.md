@@ -1,22 +1,41 @@
-# Cards and local drop feedback
+# Cards, drop feedback and progress
 
-Use these for a small set of status cards and a nearby drop target whose active boundary is clear without covering the page.
+Use for: a small set of status cards; a nearby drop target whose active boundary is clear without covering the page; and a progress list that reveals steps as work advances.
 
-## Read the running code
+## Code
 
-[HTML](../../showcase/index.html#tasks) · [JS](../../showcase/components/tasks.js) · [CSS](../../showcase/components/tasks.css)
+[HTML](../../showcase/index.html#tasks) · [tasks.js](../../showcase/components/tasks.js) · [tasks.css](../../showcase/components/tasks.css)
 
-`initTasksDemo()` binds card selection and the local drag source/target. `showDropState()` / `finishDrop()` own the overlay, interrupted animation and exit revision; `addLocalFile()` changes sample text only.
+- `initTasksDemo()` binds card selection and the drag source/target.
+- `showDropState()` / `finishDrop()` own the overlay, interrupted animation and exit revision; `addLocalFile()` changes sample text only.
+- `initProgressDemo()` renders the progress list; `createProgressShimmer()` draws the shimmer on the step in progress.
 
-## Design and adaptation
+## Parameters
 
-- Card background, border and shadow transition over 150ms. Preserve single-line titles, status badges and theme-blue selection. Arrows move focus between cards; click toggles detail.
-- The overlay has three pointer-transparent layers: dashed unhit boundary, 2px inset hit ring and 24px inner glow. Hit-state changes take 60ms.
-- Overlay entry takes 150ms from opacity 0/scale 1.005. Glow enters over 200ms after 80ms. Exit keeps the current layer state while animating to opacity 0/scale .95 over 200ms ease-out.
-- Re-entry reads the current visual state before canceling an exit, and stale completions cannot hide a newly active overlay.
+| Part | Value |
+| --- | --- |
+| Card transition | Background, border and shadow over 150ms `--ease-standard` |
+| Drop overlay | Three pointer-transparent layers: dashed unhit boundary, 2px inset hit ring, 24px inner glow (accent at 20%) |
+| Hit change | 60ms |
+| Overlay enter | From opacity 0, scale 1.005; 150ms `--ease-out-cubic` |
+| Glow enter | 200ms `--ease-out-cubic` after 80ms |
+| Overlay exit | Current layer state → opacity 0, scale .95; 200ms ease-out |
+| Progress folding | Completed steps beyond the two most recent fold behind an "earlier steps" toggle |
+| Progress entry | New step 180ms `--ease-out`; the current step's label shimmers with `--ease-shimmer` |
 
-The status shapes, card content and keyboard Enter/Space drop substitute are local. No running-state pulse, page-wide scrim, upload, file parsing or task execution is implemented. Check selection, focus navigation, drop/reset and interrupted overlay feedback; keyboard substitution does not prove physical drag coverage.
+## Rules
 
-## Progress list
+- Cards keep single-line titles, status badges and blue selection. Arrows move focus between cards; click toggles the detail.
+- Re-entering the target reads the current visual state before cancelling an exit; a stale completion never hides a newly active overlay.
+- Progress rows are reconciled in place: an unchanged row keeps its entrance and shimmer state.
+- The fold toggle sets `aria-expanded`; folded rows are inert.
+- Each row announces its state (done, in progress, not started) to assistive technology.
 
-The same [tasks chapter](../../showcase/index.html#tasks) includes a progress list. Expand earlier steps to revisit them, or use Replay to watch the sample unfold. `initProgressDemo()` lives in the linked tasks JS and shares the existing chapter entry.
+## Check
+
+- [ ] Card selection and focus navigation
+- [ ] Drop, reset and interrupted overlay feedback
+- [ ] Progress replay, folding and expanding earlier steps
+- [ ] Language changes during progress playback
+
+Related component guides: [component index](../components.md).

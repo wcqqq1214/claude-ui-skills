@@ -1,21 +1,44 @@
 # File panel and resizing
 
-Use this for a file list alongside a preview, where readers can change files, switch view format and give content more room without losing their place.
+Use for: a file list beside a preview, where readers switch files and view format and give the content more room without losing their place.
 
-## Read the running code
+## Code
 
-[HTML](../../showcase/index.html#workspace) · [JS](../../showcase/components/workspace.js) · [CSS](../../showcase/components/workspace.css)
+[HTML](../../showcase/index.html#workspace) · [workspace.js](../../showcase/components/workspace.js) · [workspace.css](../../showcase/components/workspace.css)
 
-`initWorkspaceDemo()` owns `renderFile()`, `commitPane()`, drag lifecycle and scoped F6 navigation. `fileSegment` uses the [segmented component](segmented.md), including its JS/CSS and the shared [icon map](../../showcase/icons.js); expansion calls `refresh()` after changing layout.
+- `initWorkspaceDemo()` owns `renderFile()`, `commitPane()`, the drag lifecycle and scoped F6 navigation.
+- `fileSegment` uses the [segmented control](segmented.md) and the [icon map](../../showcase/icons.js); expansion calls `refresh()` after the layout changes.
 
-## Design and adaptation
+## Parameters
 
-- The list header shows the measured width beside a local drag hint; a temporary `data-resizing` attribute emphasizes it during pointer drag and is cleared on finish/cancel. Long sample names use ellipsis in both the list and preview header, with native titles retaining the full name. These presentation aids are local.
-- File rows explicitly retain local minimum heights of 38px on desktop and 31px at ≤620px, with centered icon slots; these dimensions belong to the local example. The filename can shrink and ellipsize through `min-width:0`; right-side actions retain their natural width. File switching preserves the current Preview/Code choice.
-- The file-panel example starts at 244px, bounded to 160–520px and 60% of the container. CSS constrains the rendered width while keeping the chosen width for later expansion. Keep these bounds when reproducing this example.
-- Arrows request 8px steps; Shift+arrows use 32px. Home/End request the bounds; Enter/Space or double-clicking the resize handle restores 244px. Ignore Ctrl/Meta/Alt, resize keys during drag and repeated endpoint/reset keys. Shift modifies only arrow steps.
-- Drag commits only after movement exceeds 3px; canceled or unchanged drags restore the stored width. Expansion hides/inerts the list and removes the separator from Tab order.
-- The resize handle uses 12px hit area, centered 3px-wide pill capped at 48px high, hidden at rest; hover uses a 200ms delay and 200ms transition, drag uses secondary text color and 120ms with no delay. Keyboard focus removes the height cap, uses the accent fill and the focus shadow. Other resize-handle appearances are not demonstrated.
-- F6 / Shift+F6 cycle only through the component's visible regions: file list, selected view option and content. Keep the focusable content region and selected segmented radio together.
+| Part | Value |
+| --- | --- |
+| List width | Starts at 244px; bounded to 160–520px and 60% of the container |
+| Keyboard resize | Arrows 8px, Shift+arrows 32px; Home/End to the bounds; Enter, Space or double-click resets to 244px |
+| Drag threshold | 3px |
+| Handle | 12px hit area; centered 3px pill capped at 48px tall, hidden at rest |
+| Handle hover | Appears after a 200ms delay over 200ms |
+| Handle drag | Secondary text color; 120ms, no delay |
+| Handle focus | Height cap removed, accent fill, focus shadow |
+| View switch | Compact segmented control with Eye/Code glyphs; 200ms indicator |
 
-The toolbar title keeps its 20px File icon and translated label in a centered flex group, with a local 10px gap; it does not reuse the reading example’s inline baseline offset. The sample CSS mirrors the running grid declaration. The file-view control uses the bundled Eye/Code glyphs in square buttons; accessible names and native title hints translate with the page. Native title hints provide the labels in this demo. The compact indicator keeps its existing 200ms curve from the segmented guide. Sample files, the three-region focus cycle, narrow horizontal file list and pointercancel restoration are local choices. There is no file IO or rename workflow. Check resize bounds, expand/restore, translated content, long filenames and the shared compact view control.
+## Rules
+
+- CSS constrains the rendered width while the chosen width is kept for the next expansion. Use this panel's bounds rather than another panel's.
+- Ignore Ctrl/Meta/Alt, resize keys during a drag, and repeated endpoint or reset keys. Shift changes only the arrow step.
+- A drag commits only after 3px of movement; a cancelled or unchanged drag restores the stored width, including on `pointercancel`.
+- Expanding hides and inerts the list and takes the separator out of the Tab order.
+- Switching files keeps the current Preview/Code choice.
+- The toolbar title centers its 20px File icon and label in a flex group, without the inline baseline offset.
+- F6 and Shift+F6 cycle through the visible regions: file list, selected view option, content.
+- Long names ellipsize in the list and the preview header through `min-width: 0`; native titles keep the full name; actions on the right keep their natural width.
+
+## Check
+
+- [ ] Resize bounds by pointer and keyboard
+- [ ] Expand and restore repeatedly
+- [ ] F6 cycle with the list collapsed and expanded
+- [ ] Translated content and long filenames
+- [ ] The compact view control
+
+Related component guides: [component index](../components.md).

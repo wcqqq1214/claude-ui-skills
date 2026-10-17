@@ -1,21 +1,51 @@
 # Input and attachments
 
-Use this for Claude-inspired input surfaces, hover/focus transitions, Artifact inline references, and attachment entrance, removal and reflow. The editable sample demonstrates appearance and growth, not a chat workflow.
+Use for: the composer surface and its hover/focus states, `@` Artifact references, the project row that folds as width shrinks, and attachment entrance, removal and reflow.
 
-## Read the running code
+## Code
 
-[HTML](../../showcase/index.html#composer) · [JS](../../showcase/components/composer.js) · [References](../../showcase/components/composer-mentions.js) · [CSS](../../showcase/components/composer.css)
+[HTML](../../showcase/index.html#composer) · [composer.js](../../showcase/components/composer.js) · [composer-mentions.js](../../showcase/components/composer-mentions.js) · [composer.css](../../showcase/components/composer.css)
 
-`initComposerDemo()` binds `resizeInput()` to input and width changes; `initComposerAttachments()` owns the fixed filename tiles, add/remove controls and their View Transition lifecycle. Read `.composer-box`, `.composer-attachments`, `.composer-attachment`, `addSample()` and `remove()` together.
+- `initComposerDemo()`: `resizeInput()` on input and width changes.
+- `initComposerMentions()`: `@` candidates, selection, popup placement and atomic references.
+- `initComposerChin()`: the project/model row and its folding modes.
+- `initComposerAttachments()`: tiles, add/remove controls and the View Transition lifecycle (`addSample()`, `remove()`).
+- Read together with `.composer-box`, `.composer-attachments` and `.composer-attachment`.
 
-## Design and adaptation
+## Parameters
 
-- Resize the editor from its scroll height, capped at 130px in this demo. The contenteditable sample keeps multiline editing and adds `@` Artifact candidates, Enter/Tab selection, Escape dismissal and atomic inline references. It has no sending workflow. Width changes remeasure the draft, including when returning to the chapter.
-- The composer uses a 12px radius, an outer ring in light mode and an inset ring in dark mode. Hover strengthens the ring except over internal buttons; focus raises shadow alpha from 3.5% to 7.5% with a 200ms transition.
+| Part | Value |
+| --- | --- |
+| Box | 12px radius; ring outer in light, inset in dark |
+| Focus shadow | Alpha 3.5% → 7.5%, 200ms `--ease-standard` |
+| Editor height | Follows `scrollHeight`; demo cap 130px |
+| Mention popup | Opens above the caret, flips below when short of room; 16px viewport padding; max height 384px |
+| Project row | Three modes: words + caret → words → icon (16px; 20px on coarse pointers) |
+| Press feedback | Fill shrinks by `clamp(.5px, height / 32, 1.5px)` per side (scale ≥ .8); releases over 450ms `--ease-spring` |
+| Attachment row enter | From opacity 0, translateY(-8px); 200ms `--ease-out-cubic` |
+| Tile enter | From opacity 0, scale(.92) translateY(4px); 180ms `--ease-out-cubic` |
+| Tile reflow and removal | Survivors move over 180ms; a removed tile fades and scales to .5 over 130ms `--ease-in-cubic` |
+| Tile geometry | 120px tiles, 6px gap, 20px remove control |
 
-- `.composer-attachments` enters from opacity 0 / translateY(-8px) over 200ms; individual `.composer-attachment` tiles enter from opacity 0 / scale(.92) translateY(4px) over 180ms. Both use cubic-bezier(.215,.61,.355,1). Typed View Transitions move surviving tiles over 180ms and fade/scale removed tiles to .5 over 130ms with cubic-bezier(.55,.055,.675,.19). The last tile skips that removal transition; unsupported or hidden documents update directly. Interrupted removals still apply once.
-- The demo starts with two fixed mock attachments, using the same `addSample()` path as the labeled Add attachment control; the control adds up to three fixed filenames. Remove with X, Delete or Backspace; modified keys, IME composition and held-key repeats are ignored. Keyboard focus moves to the next removal control, then the previous one, then the input. Filenames stay unchanged across language switches; accessible action labels translate.
+## Rules
 
-The attachment example animates local sample tiles. The 120px tiles, 6px gap and 20px removal control use default sizing; sample names, four-line labels, tile typography/surfaces, immediate empty-container collapse, focus targeting and addition control are local adaptations. This small demo does not reproduce every filename-tail, restored-draft, clipped-container or gesture branch. There is no file chooser, file reading, upload or sending. Validate add/remove/re-add, interrupted removal, last-tile cleanup, wrapping, language/theme changes and keyboard return.
+- Hover strengthens the ring, except while the pointer is over an internal button.
+- Typing `@` opens Artifact candidates. Enter or Tab inserts, arrows stop at the first and last row, and Escape dismisses. Focus stays in the editor throughout.
+- An inserted reference is one atomic inline node: Backspace removes it whole and undo restores it.
+- Width changes remeasure the draft, including when the chapter becomes visible again.
+- The project row folds to the next mode when its content stops fitting. It unfolds only when the wider mode fits with 2px to spare and the labels are unchanged. Keep the same trigger element across modes so focus survives resizing.
+- A tile is removed with its X, Delete or Backspace. Modified keys, IME composition and held-key repeats are ignored.
+- After a removal, focus moves to the next remove control, else the previous one, else the editor.
+- The last tile skips the removal transition. Browsers without View Transitions, and hidden documents, update directly. An interrupted removal still applies once.
+- Filenames stay as written across language switches; action labels translate.
 
-The labeled attachment control, two initial sample tiles, parameter caption and centered, unframed desktop presentation are local choices, not Claude startup behavior. The editor cap, padding and toolbar are local bindings. Check hover versus focus, multiline growth, draft retention across chapter/language changes and narrow wrapping.
+## Check
+
+- [ ] Hover versus focus on the box
+- [ ] Multiline growth to the cap; draft kept across chapter and language changes
+- [ ] `@` insert with Enter and Tab, Escape, Backspace and undo over a reference
+- [ ] Project row at each mode boundary, narrowing and widening
+- [ ] Add, remove, re-add; interrupted removal; last-tile cleanup
+- [ ] Narrow wrapping, both themes, both languages, keyboard focus return
+
+Related component guides: [component index](../components.md).

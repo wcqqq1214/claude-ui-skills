@@ -1,20 +1,45 @@
 # Menus, local search and palette cards
 
-Use these examples when focus needs to preview an option without committing it, when search groups disappear during filtering, when selecting a search result needs to reveal its destination, or when a search result’s artifact thumbnail becomes an action menu.
+Use for: a submenu where focus previews an option without committing it; search whose groups disappear while filtering; revealing a selected result's destination; and an artifact thumbnail that turns into an action menu.
 
-## Read the running code
+## Code
 
-[HTML](../../showcase/index.html#menus) · [JS](../../showcase/components/menus.js) · [CSS](../../showcase/components/menus.css)
+[HTML](../../showcase/index.html#menus) · [menus.js](../../showcase/components/menus.js) · [menus.css](../../showcase/components/menus.css)
 
-`initMenusDemo()` owns the parent/submenu pair and `renderSearch()`. `bindArtifactActions()` owns the mock artifact row, `#paletteThumb`, `#paletteCard`, keyboard selection and local action feedback. `highlightSearchTarget(row, title)` owns scroll settling and the destination highlight. The three `.search-destination` rows in `#menus` are its actual consumers; `.feature-anchor-*` in the CSS supplies both animations.
+- `initMenusDemo()`: the parent/submenu pair and `renderSearch()`.
+- `highlightSearchTarget(row, title)`: scroll settling and the destination highlight; the three `.search-destination` rows consume it and `.feature-anchor-*` supplies both animations.
+- `bindArtifactActions()`: the artifact row, `#paletteThumb`, `#paletteCard`, keyboard selection and action feedback.
 
-## Design and adaptation
+## Parameters
 
-- Keep focus preview separate from committed selection. Arrows browse submenu items; native Enter/Space/click commits. Escape/ArrowLeft closes one submenu level and returns to its owner; the next Escape returns to the trigger.
-- Group headings appear only when the raw query is exactly empty. A whitespace-only query still renders flat results, although demo matching trims it. Empty results receive a local status message.
-- Search focus follows the settings field: no input outline, a 1px inset idle/hover ring, and a focus shadow with a 1px page-background inset, 1px accent ring and 6px blur/1px spread glow (60ms). `.local-search:focus-visible` applies the focus ring to this single input. In both themes, initial settings focus uses `focus({ preventScroll: true, focusVisible: false })`; clicking that still-focused input stays neutral, while a click after blur or Tab re-entry shows the ring. This inline demo has no dialog initialization and adds no autofocus or pointer suppression. The light glow is `#cde2fb`; dark uses `#184f95` at 60%.
-- Selecting a result clears the query, focuses its existing local row heading without scrolling, then centers it smoothly. Wait at least 250ms and three successive position deltas <0.5px, capped at 1500ms. User input suppresses the extra centering correction. The 1950ms ease-out SVG underline and 22% warning-yellow row wash reveal through 17.9%, hold through 53.8%, then fade; animation end or the 2050ms fallback cleans up. A new selection cancels the previous run.
-- The artifact example expands a visible thumbnail into an action card. The row’s Actions button or Alt/Option+Enter opens it. The demo measures the thumbnail offset, then animates shell translation, title opacity and action-area grid expansion separately over 200ms ease-out. Closing back to the same ready thumbnail translates it from the action card over 120ms with the same ease-out curve (`palette-thumb-return`); animation end clears the return state. Reopening cancels the return, and chapter/page exit clears it without playback. The demo uses a 280px card and a 16:10 thumbnail, with narrow-width capping and in-card placement.
-- Focus the first action after two frames; the demo guards against stealing a user-directed focus move and cancels pending focus on close. Arrow keys browse; Enter/Space/click or digits 1–3 select. Escape, ArrowLeft or Alt/Option+Enter closes from either the trigger or menu, including before deferred focus completes. Open and Copy link report a simulated action; Pin/Unpin changes only local state. No file navigation, clipboard write or account change occurs.
+| Part | Value |
+| --- | --- |
+| Search field | No outline; 1px inset ring at idle and hover |
+| Search focus | 1px page-color inset, 1px accent ring and a 6px blur / 1px spread glow over 60ms; glow `#cde2fb` light, `#184f95` at 60% dark |
+| Scroll settle | At least 250ms and three successive position changes under .5px; capped at 1500ms |
+| Destination highlight | 1950ms ease-out: SVG underline plus a 22% warning-yellow row wash that reveals to 17.9%, holds to 53.8%, then fades; cleanup on animation end or a 2050ms fallback |
+| Palette card open | 200ms `--ease-out`: shell translation, title opacity and action-area grid expansion animate separately |
+| Palette card close | 120ms `--ease-out` translation back into the thumbnail (`palette-thumb-return`) |
+| Palette card | 280px wide, 16:10 thumbnail |
 
-The demo initially focuses the selected submenu item; that is a local adaptation, distinct from an observed original menu opening on Low while High stayed selected. This submenu is not the discrete Slider's preview/commit path, whose exact keyboard timing remains unverified. The three-card layout (selection and search on the left, artifact actions on the right on wide screens), command-palette context label, sample illustration and click hint, in-flow menus that expand their own card rather than cover adjacent examples, search data/filtering, fixed local destinations and destination focus are local presentation choices. Search stays in this chapter and does not change its URL or activate another chapter; settings label matching and deferred row discovery are not reproduced. Highlight parameters describe the local demo. The fixed sample artifact, available actions, outside dismissal and focus return are local adaptations. Return geometry uses the current rendered rectangles, including an interrupted opening; the fixed image must be loaded. In Claude Desktop 2.42304.0, Search → Artifacts was observed showing the thumbnail; Option+Enter opened the floating card with Open, Copy link and Pin, focusing Open, and Escape/ArrowLeft returned to the thumbnail. Recording confirmed translation, title reveal and action-area expansion on opening; closing immediately restores the thumbnail before it moves back. The demo uses 200ms opening and 120ms closing transitions; the recording does not establish the original application's exact timing or easing. Thumbnail loading/failure placeholders, selection changes and collision placement are not reproduced. Check nested Escape, preview versus selection, blank/space queries, repeated destination selection, language/theme changes during highlighting and rapid palette open/close.
+## Rules
+
+- Submenus keep focus preview apart from selection. Arrows move focus; Enter, Space or click commits.
+- Escape or ArrowLeft closes one submenu level and returns focus to its owner; the next Escape returns to the trigger.
+- Group headings appear only when the raw query is exactly empty; a whitespace-only query renders flat results. Empty results get a status message.
+- The search ring follows keyboard focus. Programmatic initial focus uses `focus({ preventScroll: true, focusVisible: false })`. Clicking the still-focused field stays neutral; clicking after blur, or Tab re-entry, shows the ring.
+- Selecting a result clears the query, focuses the destination heading without scrolling, then centers it smoothly once scrolling settles. User input cancels the extra centering, and a new selection cancels the previous highlight.
+- The row's Actions button or Alt/Option+Enter opens the card from the thumbnail already on screen; measure the thumbnail offset first.
+- Focus the first action after two frames, unless the user has moved focus meanwhile; closing cancels the pending focus.
+- In the card, arrows move focus and Enter, Space, click or digits 1–3 choose. Escape, ArrowLeft or Alt/Option+Enter close it from the trigger or the menu, including before the deferred focus lands.
+- Closing returns into the ready thumbnail from the current rectangles, including an interrupted opening; the image must be loaded. Reopening cancels the return, and leaving the page clears it without playback.
+
+## Check
+
+- [ ] Nested Escape; preview versus selection
+- [ ] Empty, blank and space-only queries
+- [ ] Selecting the same destination repeatedly
+- [ ] Language and theme changes during a highlight
+- [ ] Rapid palette open/close
+
+Related component guides: [component index](../components.md).

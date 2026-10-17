@@ -1,21 +1,42 @@
 # Segmented control
 
-Use this for a small, fixed set of mutually exclusive views or options: preview/code, display modes or short filters. The reading views, status selector and compact file toolbar share one control; no standalone demo chapter is needed. Unlike [sidebar modes](modes.md), arrows select immediately and the indicator uses 200ms rather than 120ms.
+Use for: a small fixed set of mutually exclusive views or options, such as preview/code, display modes or short filters. Arrows select immediately, unlike [sidebar modes](modes.md), where arrows only move focus.
 
-## Read the running code
+## Code
 
-[File-panel HTML](../../showcase/index.html#workspace) · [Reading HTML](../../showcase/index.html#reading) · [JS](../../showcase/components/segmented.js) · [CSS](../../showcase/components/segmented.css)
+[segmented.js](../../showcase/components/segmented.js) · [segmented.css](../../showcase/components/segmented.css) · consumers: [file panel](../../showcase/index.html#workspace), [reading views](../../showcase/index.html#reading), status selector in [waiting](feedback.md)
 
-`setupSegment(root, callback)` owns selection, keyboard navigation, geometry and resize observation. In [workspace.js](../../showcase/components/workspace.js), `fileSegment` updates `renderFile()` and expansion calls `refresh()`. [reading.js](../../showcase/components/reading.js) binds the standard `#readingViews` control to `#readingLayoutPanel` / `#readingCodePanel`. [feedback.js](../../showcase/components/feedback.js) also reuses it for status selection and refreshes geometry after translation.
+- `setupSegment(root, callback)` owns selection, keyboard navigation, geometry and resize observation. The callback runs on initialization and on each selection and owns content updates.
+- `select(index, focus)` changes the selection; `refresh()` remeasures without animation.
+- Consumers: `fileSegment` in [workspace.js](../../showcase/components/workspace.js) calls `renderFile()` and `refresh()` after expansion; [reading.js](../../showcase/components/reading.js) binds `#readingViews`; [feedback.js](../../showcase/components/feedback.js) refreshes after translation.
 
-## Design and adaptation
+## Parameters
 
-- Measure the selected option instead of dividing the track equally. The indicator follows both position and width, including translated labels. `position()` rounds viewport edges to device pixels and converts them back to local coordinates.
-- Animate from the current visible geometry over 200ms with `cubic-bezier(.32,.72,0,1)`. Rapid changes interrupt smoothly. Resize remeasurement aligns directly; an unchanged target leaves the current animation alone.
-- Keep selection, focus and content synchronized: one selected radio is in Tab order; arrows wrap, Home/End select endpoints. The callback runs on initialization and each selection and owns content updates.
-- Keep one `.segment-thumb`, fixed `button[role=radio]` options with `data-value`, and exactly one initial `aria-checked="true"` / `tabindex="0"`. Initialize once after markup and translation. `select(index, focus)` changes selection; `refresh()` remeasures without animation, including host label updates that do not resize the root.
-- The standard track is 32px high with 14px labels; `.compact` is 24px/13px. Track padding is 1px. Keep the left transform origin, natural button widths and `flex-shrink:0` together.
+| Part | Value |
+| --- | --- |
+| Indicator | Follows the selected option's measured position and width; 200ms `--ease-snap` from the current visible geometry |
+| Standard | 32px track, 14px labels |
+| Compact (`.compact`) | 24px track, 13px labels |
+| Radius | Track 8px (compact 6px); the thumb is 1px smaller and the buttons 2px smaller |
+| Track padding | 1px |
+| Pixel snapping | `position()` rounds viewport edges to device pixels, then converts back to local coordinates |
 
-Use the shared border-box reset, UI font and `--regular` weight from [style.css](../../showcase/style.css) / [fonts.css](../../showcase/fonts.css). `setupSegment()` has no `DemoI18n` dependency; consumers own translated labels and call `refresh()` after label changes when needed.
+## Rules
 
-Consumer layouts, sample content and the 1150px button-padding rule are local choices; they do not represent additional original control variants. Options are fixed and the observer has page lifetime; the host owns cleanup. Dynamic/disabled options and a tab-panel API are outside this example. Check rapid selection/reversal, keyboard endpoints, language/width changes and the compact file consumer.
+- Measure the selected option instead of dividing the track equally, so translated labels keep their width.
+- Rapid changes interrupt smoothly from the visible position. A resize aligns directly; an unchanged target leaves the running animation alone.
+- Markup: one `.segment-thumb`; fixed `button[role=radio]` options with `data-value`; exactly one initial `aria-checked="true"` with `tabindex="0"`.
+- Initialize once, after the markup and its translation are in place.
+- Only the selected radio is in the Tab order. Arrows wrap; Home and End select the ends.
+- Keep the left transform origin, natural button widths and `flex-shrink: 0` together.
+- Uses the border-box reset, UI font and `--regular` weight from [style.css](../../showcase/style.css) and [fonts.css](../../showcase/fonts.css). It has no translation dependency: consumers own their labels and call `refresh()` after a label change.
+- The resize observer lives for the page; the host owns cleanup.
+
+## Check
+
+- [ ] Rapid selection and reversal
+- [ ] Keyboard ends and wrapping
+- [ ] Language and width changes
+- [ ] The compact file-panel consumer
+
+Related component guides: [component index](../components.md).

@@ -1,24 +1,40 @@
 # Text reveal and local scrolling
 
-Choose the standalone effect: grapheme reveal, body fade, user bubble, working dots or scroll following. The five cards share one chapter; they do not require replaying a combined chat sequence.
+Use for: one of five standalone effects: grapheme reveal, body fade, a user message bubble, working dots, or scroll following while content streams in. Each works on its own; there is no combined chat sequence to replay.
 
-## Read the running code
+## Code
 
-[HTML](../../showcase/index.html#type) · [JS](../../showcase/components/type.js) · [CSS](../../showcase/components/type.css)
+[HTML](../../showcase/index.html#type) · [type.js](../../showcase/components/type.js) · [type.css](../../showcase/components/type.css) · [default loop sheet](../../showcase/components/status-assets/default-loop.webp)
 
-`bindTypeEffectCards()` owns `#graphemeExample` (`renderTypeTitle()`), `#bodyFadeExample` (`replayBody()`) and `#workingExample` (`syncWorking()`). `#bubbleExample` is static HTML/CSS. Each one-shot effect replays when its card enters view and has its own replay button; body timers clear on exit. Loading pauses offscreen or in a hidden document. `#workingPreview` is a local hover/focus demonstration, not a scroll action.
+- `bindTypeEffectCards()`: `#graphemeExample` (`renderTypeTitle()`), `#bodyFadeExample` (`replayBody()`), `#workingExample` (`syncWorking()`). `#bubbleExample` is static HTML/CSS.
+- `initTypeDemo()`: the scroll sample (`#scrollExample`, `#typeScroll`, `#typeReading`, `#typeEnd`, `#typeBottom`) with `replayType()`, `stopTypePlayback()`, `followType()` and `updateTypeBottom()`.
+- `animateTypeWorkingMark()` plays the default loop sheet for both loading presentations; bring the asset with the code.
 
-`initTypeDemo()` owns `#scrollExample`, `#typeScroll`, `#typeReading`, `#typeEnd` and `#typeBottom`. `replayType()` and `stopTypePlayback()` control the scroll sample's timers; it starts only when its chapter is active and at least 25% of its scroll region intersects the viewport, and stops on exit. `followType()` and `updateTypeBottom()` retain scroll/visibility rules.
+## Parameters
 
-Both loading presentations call `animateTypeWorkingMark()` with the same [default loop sheet](../../showcase/components/status-assets/default-loop.webp). Include this asset when adapting the linked JS/CSS. The two-column card grid, 25% playback threshold, standalone triggers and sample copy are local presentation choices for this demo.
+| Part | Value |
+| --- | --- |
+| Grapheme reveal | Each span from 6px blur over 90ms `--ease-out-cubic`, delayed by index × 30ms |
+| Body fade | 100ms linear, `backwards` fill; timed separately from the grapheme reveal |
+| User bubble | Right-aligned; 10px radius; 12px horizontal / 8px vertical padding; max width 85%; fill `rgb(11 11 11 / 5%)` light, `rgb(255 255 255 / 5%)` dark, over the host surface; no border or shadow |
+| Follow | Active while pinned and the bottom gap exceeds 2px |
+| Resume | Scrolling down to within 1px of the bottom |
+| Return button | Appears when unpinned and the end marker is beyond a 200px extension; 200ms transition; inert while hidden |
+| Bottom fade | 8px extension, 3rem tall, host `--surface` color, 150ms; ignores pointers |
+| Working mark | 40 frames of 48px in a 20px slot, 33.33ms per frame (≈ 1.333s), `steps(40, jump-none)`; hover or focus-visible crossfades to the arrow over 200ms |
 
-## Design and adaptation
+## Rules
 
-- `.type-user-row` and `.type-user-bubble` in the linked HTML/CSS show one static, right-aligned user message. The base neutral defaults resolve to a 10px radius, 12px horizontal / 8px vertical padding and an 85% maximum width at a 16px root and scale 1. The fill is `rgb(11 11 11 / 5%)` in light mode and `rgb(255 255 255 / 5%)` in dark mode, composited over the host surface, without an added border or shadow. These values describe the local example. Author-specific and density overrides are not demonstrated. The sample copy, 14px text, 1.6 line height are local adaptations. The separate scroll sample remains unboxed.
-- The standalone text sample uses a local 18px font size; its heading element does not establish where Claude uses this effect. Its spans reveal from 6px blur over 90ms, with index ×30ms delay and `cubic-bezier(.215,.61,.355,1)`. Body chunks instead use a 100ms linear backwards fade. Keep the separate body-fade sample on its own timing.
-- Content growth follows only while pinned and when the bottom gap exceeds 2px. Upward input releases follow; manually scrolling downward to within 1px of the bottom resumes it. Preserve both resize observations so language and width changes remeasure content.
-- The return button appears only when unpinned and the end marker is outside a 200px extension. The separate fade uses an 8px extension, 3rem height, the host `--surface` color and a 150ms transition. Its layer ignores pointers. The button has a 200ms transition and is inert while hidden.
-- Returning jumps immediately to the bottom, restores follow and moves keyboard focus from the disappearing button to the scroll region. Replay cancels previous sample timers and resets follow.
-- While local paragraphs are arriving, the visible return button plays 40 authored 48px frames in a 20px slot, at 33.3333ms per frame (about 1.333s), with `steps(40, jump-none)`. Hover/focus-visible reveals the arrow through a 200ms crossfade; completion restores it. Hidden/completed playback pauses, replay cancels it, and unavailable artwork keeps the arrow. The local mark repeats a contraction and expansion animation.
+- Upward input releases following. Keep both resize observations so language and width changes remeasure.
+- Returning jumps straight to the bottom, restores following and moves focus from the disappearing button to the scroll region.
+- Replay cancels earlier timers and resets following.
+- One-shot effects replay when their card enters view, each with its own replay button; body timers clear when the card leaves. Loading pauses offscreen and in hidden documents.
+- The working mark pauses when hidden or complete, replay cancels it, and missing artwork leaves the arrow in place.
 
-The 300px local viewport, fixed paragraphs/pacing, simplified touch handling and card colors are demo choices. Scroll replay clears appended paragraphs and holds the scroll position at the top for a static introduction (without blocking manual scrolling). Automatic following begins with the first paragraph. The first three paragraphs arrive at 0.4, 1.1 and 1.8 seconds; the remaining five arrive at 2-second intervals (last at 11.8 seconds); upward scrolling becomes available as the content overflows. This pacing is a local presentation choice, not a Claude streaming parameter. The button demonstrates only the default loop, omitting entry/exit sheets and cross-mount phase continuity. This is not a generation pipeline or the original page/composer layout. Check replay, upward pause, manual/button return, language changes and narrow wrapping without moving the outer page.
+## Check
+
+- [ ] Replay; pausing by scrolling up; manual and button return
+- [ ] Language changes and narrow wrapping, without moving the outer page
+- [ ] Working mark hover, focus and completion
+
+Related component guides: [component index](../components.md).

@@ -1,6 +1,6 @@
 # Scope and behavior
 
-Claude UI Skills is an unofficial reference for UI, frontend presentation, typography, motion, controls, menus, reading, panels, focus and visible feedback. It does not cover protocols, authentication, backend execution, reconnection algorithms or feature-flag changes. Reduced-motion adaptation is outside the skill and demo’s scope.
+Claude UI Skills is an unofficial reference for UI, frontend presentation, typography, motion, controls, menus, reading, panels, focus and visible feedback. It does not cover protocols, authentication, backend execution, reconnection algorithms or feature-flag changes. The demo has no reduced-motion variants; adaptations keep the target app's existing reduced-motion handling.
 
 ## Implementation references
 

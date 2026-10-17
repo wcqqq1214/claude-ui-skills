@@ -33,8 +33,8 @@ Curves are tokens in [style.css](showcase/style.css); durations stay literal in 
 | Token | Curve | Duration | Use for |
 | --- | --- | --- | --- |
 | `--ease-standard` | `cubic-bezier(.4,0,.2,1)` | 60ms; 150–300ms | Hover and focus color on controls; card surfaces, composer focus shadow, resize handle, gallery slide |
-| `--ease-snap` | `cubic-bezier(.32,.72,0,1)` | 120ms (segmented 200ms) | Geometry snapping to a target: mode and segmented indicators, tooltips, navigation hover |
-| `--ease-out` | `cubic-bezier(.165,.84,.44,1)` | 60ms; 150–220ms | Fill layers on hover; surfaces entering or leaving: toasts, dialogs, palette card, text fades |
+| `--ease-snap` | `cubic-bezier(.32,.72,0,1)` | 120ms; 200–350ms | Geometry snapping to a target: mode indicator, tooltips, navigation hover (120ms); segmented indicator (200ms); image preview open/close (350/250ms) |
+| `--ease-out` | `cubic-bezier(.165,.84,.44,1)` | 60–220ms | Fill layers on hover (60ms); slider position and checkbox stroke (120ms); surfaces entering or leaving: toasts, dialogs, palette card, text fades (150–220ms) |
 | `--ease-out-cubic` | `cubic-bezier(.215,.61,.355,1)` | 90–200ms | Arrivals: grapheme reveal, attachment tiles (180ms), drop overlay and glow |
 | `--ease-in-cubic` | `cubic-bezier(.55,.055,.675,.19)` | 130ms | Departures: removed attachment tiles |
 | `--ease-out-expo` | `cubic-bezier(.19,1,.22,1)` | 200ms | Disclosure: accordion chevron and collapse |

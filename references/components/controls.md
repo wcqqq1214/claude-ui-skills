@@ -1,18 +1,39 @@
 # Switch, checkbox and discrete slider
 
-Use these for a binary setting, an independent choice, or a small ordered scale. They deliberately use different feedback rather than sharing one animation.
+Use for: a binary setting (switch), an independent choice (checkbox) or a small ordered scale (discrete slider). Each control has its own feedback; they do not share one animation.
 
-## Read the running code
+## Code
 
-[HTML](../../showcase/index.html#controls) · [JS](../../showcase/components/controls.js) · [CSS](../../showcase/components/controls.css)
+[HTML](../../showcase/index.html#controls) · [controls.js](../../showcase/components/controls.js) · [controls.css](../../showcase/components/controls.css)
 
-`initControlsDemo()` binds `#demoSwitch` and `#effortRange`; the checkbox remains a native input. `updateEffort()` maps the four discrete values to `--pos` and `aria-valuetext`. The `.range-fill-origin` / `.range-fill-clip` / `.range-fill` layers move together.
+- `initControlsDemo()` binds `#demoSwitch` and `#effortRange`; the checkbox is a native input.
+- `updateEffort()` maps the four stops to `--pos` and `aria-valuetext`.
+- `.range-fill-origin`, `.range-fill-clip` and `.range-fill` move together.
 
-## Design and adaptation
+## Parameters
 
-- Switch travel takes 120ms; the checkbox stroke enters over 200ms and exits over 120ms. Both use 20px controls. The checkbox has a 5px radius and 16px graphic, centered without visible label copy in this demo.
-- The slider is 32px high with an 8px radius. Track height is control height−4px; handle width is height−8px; endpoints inset half the handle width. Preserve the layered clipping, not only a percentage fill. Position transitions take 120ms and the handle scales to 1.12 while dragging.
-- Selected fills use #2a78d6 and hover #3987e5. Unselected checkbox borders use black/light or white/dark at 20%, increasing to 40% on hover-capable devices over 60ms. Keep focus layers, theme-dependent handle shadows and selected/unselected colors distinct.
-- Pointer release, cancellation and blur all clear drag feedback. The hidden native range owns keyboard input and exposes the same state as the visual layers.
+| Part | Value |
+| --- | --- |
+| Switch | 20px control; thumb travel 120ms `--ease-overshoot` |
+| Checkbox | 20px control, 5px radius, 16px graphic; stroke enters over 200ms, exits over 120ms, `--ease-out` |
+| Checkbox border | Text color at 20%, 40% on hover (hover-capable devices), 60ms |
+| Slider | 32px high, 8px radius; track = height − 4px; handle width = height − 8px; endpoints inset by half the handle |
+| Slider motion | Position 120ms `--ease-out`; handle scales to 1.12 while dragging, 120ms `--ease-overshoot` |
+| Selected fill | `#2a78d6`, hover `#3987e5` |
+| Value text | `Level {position} of {total}` |
 
-The three demo cards retain accessible names and show a name, one effect description and fixed base parameters; the toolbar identifies 0.2× playback separately. Slider values use `Level {position} of {total}` text with positional i18n placeholders; Chinese translations and four stops are local samples. Demo-only CSS zoom magnifies the switch/checkbox 2× and slider 1.5×; its base width is capped at 360px and shrinks with the container. The turtle button (`#controlsSlow`) toggles `--controls-duration-scale` between 5 (one-fifth speed, enabled by default) and 1 (original speed), preserving easing and state. Magnification, slow playback, the icon and card layout are viewing aids for this demo. Continuous-slider and overlay/lean variants remain outside this example. Check keyboard/pointer changes, cancellation, endpoints, both speeds and themes.
+## Rules
+
+- Durations in controls.css are multiplied by `--controls-duration-scale`, the demo's slow-motion switch. Port them at scale 1.
+- Port the slider's three clipping layers together rather than reducing them to a percentage-width fill.
+- Pointer release, pointer cancel and blur all clear drag feedback.
+- The hidden native range owns keyboard input and exposes the same state as the visual layers.
+- Keep focus layers, theme-dependent handle shadows and the selected/unselected colors distinct.
+
+## Check
+
+- [ ] Keyboard and pointer changes, including cancellation
+- [ ] Both slider endpoints
+- [ ] Both playback speeds and both themes
+
+Related component guides: [component index](../components.md).

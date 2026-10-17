@@ -1,29 +1,51 @@
-# Reading measure and wide tables
+# Reading, code and tables
 
-Use this for prose containing headings, inline and fenced code, long identifiers, inline icons and tables that may exceed their local container.
+Use for: prose with headings, inline and fenced code, long identifiers, inline icons, numbers that update in place, and tables that may be wider than their container.
 
-## Read the running code
+## Code
 
-[HTML](../../showcase/index.html#reading) · [JS](../../showcase/components/reading.js) · [CSS](../../showcase/components/reading.css)
+[HTML](../../showcase/index.html#reading) · [reading.js](../../showcase/components/reading.js) · [reading.css](../../showcase/components/reading.css)
 
-`initReadingDemo()` binds width selection through `updateReadingMeasure()`, the expanded table and `bindReadingCodeCopy()` for the fenced sample. `measureTable()` observes both viewport and table, showing the expansion control only when `scrollWidth > clientWidth + 3`. Read `.measure-prose`, `.reading-code-block`, `.table-viewport` and `.table-dialog` together with [font roles](../visual.md).
+- `initReadingDemo()` binds the width control through `updateReadingMeasure()`, the expanded table and `bindReadingCodeCopy()`.
+- `measureTable()` observes the viewport and the table and shows the expand control only when `scrollWidth > clientWidth + 3`.
+- `bindReadingNumberSample()` drives the proportional and tabular number samples from one interval.
+- The two views reuse `setupSegment()` from [segmented](segmented.md); inactive panels are `hidden`.
+- Read `.measure-prose`, `.reading-code-block`, `.table-viewport` and `.table-dialog` together with the [type roles](../visual.md#typography).
 
-Technical captions sit beside the running comparisons: wrapping, icon offset, tabular figures, theme weights and copy timing. The fenced sample shows the inline-code rules used by this chapter; the width readout is explicitly a Demo cap. The code/table view uses two local columns (stacked at ≤760px), making table overflow and its CSS edge shadows observable on desktop without altering the table minimum width or shadow parameters.
+## Parameters
 
-The two local views reuse `setupSegment()` from [segmented.js](../../showcase/components/segmented.js) and [segmented.css](../../showcase/components/segmented.css). Inactive panels use `hidden`; the number group’s intersection observer pauses it when hidden. Switching to code/table view remeasures table overflow.
+| Part | Value |
+| --- | --- |
+| Prose | Serif; demo body 15px, line height 1.6, measure ≤ 36em (`--reading-measure`) |
+| Wrapping | Headings `balance`, paragraphs `pretty`; long identifiers may break |
+| Inline icon | `-.125em` baseline offset on the inline host: a 16px icon sits 2px lower in 15px text |
+| Inline code | .9em, line height 1, .4em radius, .0625em/.25em padding; text `#8e2626` light, `#ec7e7e` dark; fill at 5% and .5px border at 10% of `rgb(11 11 11)` (light) or white (dark); `pre-wrap`, `break-word` |
+| Fenced code | `--surface-popover` at 50%; .5px `--line` border; radius `var(--msg-block-radius, .5rem)`; 14px padding; .875rem/1.625 Mono; language label .6875rem/1.0625rem secondary |
+| Copy feedback | Copy → Check after the clipboard write succeeds; resets after 2000ms |
+| Numbers | `tabular-nums` by default; the comparison sample switches only `font-variant-numeric` |
+| Tables | Body ×.9375, line height 1.5, cell padding .5em/.875em; grid lines 1px |
+| Table headers | Line height 1.3, bottom aligned, balanced wrapping, 5% fill, 10% inset edge |
+| Edge shadows | Two 3rem panel-color masks over two 1.5rem neutral-20% gradients; attachment local/local/scroll/scroll |
+| Table dialog | Width from `min(720px, 100vw − 3rem)` up to `100vw − 3rem`; enter and exit 200ms `--ease-out` with scale .98; scrim 40% black light, 50% dark |
 
-## Design and adaptation
+## Rules
 
-- The demo fixes body size at 15px, maximum prose measure at 36em and line height at ×1.6. This combination is a local presentation choice. `#readingWidth` adjusts the local `.measure-prose` cap from 12–36em through `--reading-measure`, clamped by its container. The readout and translated `aria-valuetext` report the cap, not the available width. This is a length relationship, not a guaranteed character count.
-- The width slider/range is a local demonstration control, not a Claude setting. It reflows only the title, paragraphs and identifiers. Baseline, number and weight comparisons sit outside `.measure-prose`; fenced code and the table live in the second view with their own horizontal scrolling. The demo uses heading `balance` and paragraph `pretty` wrapping. Keep the existing long inline-code wrapping distinct from fenced code; test both languages, range endpoints and narrow containers.
-- Headings balance; prose uses pretty wrapping, which cannot guarantee every orphan disappears. Long identifiers may break when needed. The `.reading-baseline-comparison` uses identical File glyphs and text: `.reading-baseline-default [data-ui-icon]` restores `vertical-align: baseline`, while the other sample inherits `-.125em` directly from [fonts.css](../../showcase/fonts.css). [icons.js](../../showcase/icons.js) creates both at 16px, so the offset is 2px down, based on the icon host's matching em at the fixed 15px body size. Only the inline icon host carries the offset; the inner glyph uses flex layout without another baseline shift. A zero-size, baseline-aligned marker draws a decorative dashed ruler without setting the icon or text position. The comparison layout and labels are local teaching aids, not a Claude UI; narrow containers stack the prose and comparisons while each comparison keeps its two columns. Font/fallback metrics affect perceived alignment, so do not claim universal optical alignment. Numeric content uses tabular figures.
-- `bindReadingNumberSample()` updates the proportional and tabular samples from the same frame and single interval. Both use the bundled Sans face, size and fixed format; `.reading-number-proportional` changes only `font-variant-numeric` to `proportional-nums`, while `.reading-number-value` defaults to `tabular-nums`. Width differences come from the font, not a simulated wobble. Decorative side markers follow each value’s intrinsic width; they do not constrain or animate it. While the comparison group is visible, the fixed `00:00.00` format advances by seven simulated hundredths every 50ms and wraps after `00:59.99`, without a replay control. An intersection observer on `.reading-number-sample` pauses updates when the entire group is offscreen; document visibility and page lifecycle events pause/resume the single interval. The rule controls the demo's numeric alignment. Values, format, pacing and layout are local presentation choices, not elapsed time or Token statistics. Tabular figures require font support and do not prevent width changes when digit counts change; this sample keeps its format fixed. Check equal rendered widths, automatic updates, offscreen/background pause and resume, both languages and narrow wrapping.
-- `.reading-weight-comparison` repeats the same Sans samples at fixed 500/600 and theme-controlled `--medium`/`--bold` weights from [style.css](../../showcase/style.css). Both columns match at 500/600 in light mode; the theme column uses 460/560 in dark mode. Fixed English samples (`lang="en"`, `translate="no"`) keep the bundled Latin face observable in either language; Chinese mode also retains translated samples below, while English mode hides that redundant row. The rulers, comparison layout and labels are local teaching aids. It reuses the established weight mapping, without changing the host theme or claiming equal perceived weight; Chinese glyphs use system fallback fonts and may not respond identically.
-- Inline code uses `.measure-prose code:not(pre code)` in the linked CSS: light/dark text `#8e2626`/`#ec7e7e`, neutral `rgb(11 11 11)`/white at 5% for fill and 10% for the 0.5px border (`--line`). Type is .9em with line height 1, .4em rounding and .0625em/.25em padding; `pre-wrap` and `break-word` allow long code to wrap. These values describe the demo's inline-code presentation. Preserve the translucent fill rather than baking in a surface color, and do not apply this rule to fenced code or consumers with their own color overrides.
-- Fenced code uses `.reading-code-block`: surface-3 (`--surface-popover`) at 50%, a 0.5px `--line` border, radius `var(--msg-block-radius,.5rem)`, 14px padding and .875rem/1.625 code type. Its explicit CSS language keeps lines unwrapped inside `.reading-code-viewport`; the language label uses the default .6875rem/1.0625rem secondary text (host density can override this). Hover, focus-within and coarse/non-hover input reveal the sticky copy action. These values describe the demo's fenced-code presentation. The sample deliberately has no syntax color scheme.
-- `bindReadingCodeCopy()` copies the displayed text without trimming and changes Copy to Check only after clipboard success, with a translated `role=status` announcement. Each latest successful request restarts the 2000ms reset; stale results are ignored and page exit clears pending feedback. The stable button label remains “Copy to clipboard”. Dark-mode Copy/Check and keyboard activation were visually verified; the reset timing describes the local demo. The native tooltip, failure announcement and page lifecycle cleanup are local adaptations, not claims about Claude's tooltip or failure presentation.
-- Tables use body ×.9375 type, 1.5 line height and .5em/.875em cell padding. Headers use 1.3 line height, bottom alignment, balanced wrapping, a 5% fill and 10% inset edge. Grid lines remain 1px.
-- Horizontal edge shadows combine two 3rem panel masks and two 1.5rem neutral-20% gradients with local/local/scroll/scroll attachment. Keep the light/dark panel colors aligned.
-- The expanded native dialog clones translated table content and reuses its prose sizing. Desktop width follows content within the min(720px,100vw−3rem) lower bound and 100vw−3rem upper bound. Entry/exit uses 200ms `var(--out)` (`cubic-bezier(.165,.84,.44,1)` from [style.css](../../showcase/style.css)) and scale .98; scrims are 40%/50% black.
+- Apply the inline-code rule (`.measure-prose code:not(pre code)`) only to inline code. Fenced code and components with their own colors keep their styles. Keep the fill translucent rather than baking in a surface color.
+- Fenced code keeps lines unwrapped inside `.reading-code-viewport`. The sticky copy action appears on hover, on focus within, and always on coarse or non-hover input.
+- Copy the displayed text without trimming. The button's label stays "Copy to clipboard"; a `role=status` region announces the result. Each newer success restarts the reset; stale results are ignored; leaving the page clears pending feedback.
+- Offset only the inline icon host, once; the glyph inside uses flex layout without a second shift.
+- Tabular figures need font support and do not stop width changes when the digit count changes; keep the format fixed.
+- The edge-shadow masks use the table's panel color in each theme; keep them matched when theming.
+- Switching to the code/table view remeasures table overflow.
+- The expanded dialog clones the translated table and reuses its prose sizing; Escape closes it and returns focus.
+- Offscreen or hidden number samples pause their interval; page visibility pauses and resumes it.
 
-The 720px sample table, outer frame, native-dialog lifecycle and ≤620px dialog sizing are local adaptations. Nested dialogs and mobile-keyboard viewports are not covered. Check copy/repeat/failure feedback, both languages, long words, local overflow, expand/close and focus return.
+## Check
+
+- [ ] Both languages; width-control endpoints; narrow containers; long words
+- [ ] Inline versus fenced code in both themes
+- [ ] Copy success, repeat and failure
+- [ ] Local overflow, expand, close and focus return
+- [ ] Equal rendered widths for the tabular sample; offscreen pause and resume
+
+Related component guides: [component index](../components.md).
