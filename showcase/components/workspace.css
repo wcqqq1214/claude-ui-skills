@@ -38,10 +38,13 @@
 .workspace-card:has(.resize-handle:focus-visible) .numeric {
   color: var(--clay);
 }
-.workspace-toolbar .document-icon {
-  font-size: 17px;
-  margin-right: 7px;
+.workspace-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
 }
+.workspace-title-label { min-width: 0; }
 .workspace-layout {
   display: grid;
   grid-template-columns: clamp(160px, var(--pane-width), min(520px, 60%)) 5px minmax(0, 1fr);

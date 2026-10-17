@@ -222,8 +222,8 @@
     },
     {
       "name": "components/workspace.css",
-      "sha256": "2a14fb79b3c75b60ca4a3cb797073d2973c8a7dd1accc356f7a23007c6436026",
-      "bytes": 5641
+      "sha256": "a15001fc9445d9de9c695adb43e023be94682d378cfbd2afe6c6b827db2bbc7c",
+      "bytes": 5694
     },
     {
       "name": "components/workspace.js",
@@ -287,8 +287,8 @@
     },
     {
       "name": "index.html",
-      "sha256": "291a88343de7298a5f8d484816adacaad9b672f00d3f116a63329c4c19ff7dc4",
-      "bytes": 52921
+      "sha256": "089f8faff4b6bb63330c82071e80671b770cbe83285f4615a32c1c6940fc6cd6",
+      "bytes": 52988
     },
     {
       "name": "landscape-dusk.svg",
