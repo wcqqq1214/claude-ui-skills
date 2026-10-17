@@ -74,11 +74,14 @@ const types = {'.html':'text/html', '.js':'text/javascript', '.css':'text/css', 
       await go('images');
       for (let i=0;i<2;i++) {
         await page.locator('#imageOrigin').click();
+        await page.locator('#imageDialog').waitFor({state:'visible'});
+        await page.waitForFunction(()=>!document.documentElement.classList.contains('image-preview-active'));
         await centered('#closeImage .study-icon', true);
         assert.deepEqual(await page.locator('#closeImage').evaluate(e=>[e.offsetWidth,e.offsetHeight]), [35,35]);
         await page.locator('#closeImage').focus();
         await page.keyboard.press('Enter');
         await page.locator('#imageDialog').waitFor({state:'hidden'});
+        await page.waitForFunction(()=>!document.documentElement.classList.contains('image-preview-active'));
         assert.equal(await page.evaluate(()=>document.activeElement.id), 'imageOrigin');
       }
       await go('gallery');
