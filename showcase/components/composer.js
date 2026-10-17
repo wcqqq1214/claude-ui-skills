@@ -127,7 +127,24 @@ function initComposerChin() {
   const content = project.querySelector('.composer-picker-content');
   const label = project.querySelector('[data-picker-label]');
   const caret = project.querySelector('.composer-project-caret');
-  const icon = DemoIcons.create('Projects', 16);
+  const touch = matchMedia('(pointer: coarse), (hover: none)');
+  let icon = DemoIcons.create('Projects', touch.matches ? 20 : 16);
+  // Measure the button press-animation layer on pointer down and initial Space.
+  for (const button of chin.querySelectorAll('.composer-picker')) {
+    const fill = button.querySelector('.composer-picker-fill');
+    function measurePress() {
+      const distance = Math.min(1.5, Math.max(.5, button.offsetHeight / 32));
+      if (fill.offsetWidth <= 0 || fill.offsetHeight <= 0) return;
+      fill.style.setProperty('--cds-btn-press-sx', Math.max(.8, 1 - 2 * distance / fill.offsetWidth));
+      fill.style.setProperty('--cds-btn-press-sy', Math.max(.8, 1 - 2 * distance / fill.offsetHeight));
+    }
+    button.addEventListener('pointerdown', measurePress, { capture: true });
+    button.addEventListener('keydown', event => {
+      if (event.key !== ' ' && event.key !== 'Enter') return;
+      if (event.key === ' ' && !event.repeat) measurePress();
+      if (event.repeat) event.preventDefault();
+    });
+  }
   const modes = ['words-and-carets', 'words', 'icons'];
   const need = [null, null], seenAs = [null, null, null];
   let mode = 0;
@@ -196,14 +213,18 @@ function initComposerChin() {
     $('.composer-box').style.setProperty('--composer-demo-width', width.value + 'px');
     output.textContent = width.value + ' px';
   }
-  const touch = matchMedia('(pointer: coarse), (hover: none)');
   function updateMinimum() {
     // Demo frame bounds keep the fixed samples usable at either input density.
     width.min = touch.matches ? '168' : '156';
     updateFrame();
   }
   width.addEventListener('input', updateFrame);
-  touch.addEventListener('change', updateMinimum);
+  touch.addEventListener('change', () => {
+    icon = DemoIcons.create('Projects', touch.matches ? 20 : 16);
+    render();
+    updateMinimum();
+    measure();
+  });
   updateMinimum();
   measure();
 }

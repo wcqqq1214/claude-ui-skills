@@ -49,6 +49,7 @@ const types = {'.html':'text/html', '.js':'text/javascript', '.css':'text/css', 
         }
         assert.deepEqual(sequence, ['words','icons']);
         assert.equal(await project.locator('[data-glyph="Projects"]').count(),1);
+        assert.deepEqual(await project.locator('[data-glyph="Projects"]').evaluate(e=>{const r=e.getBoundingClientRect();return [r.width,r.height];}),touch?[20,20]:[16,16]);
         assert.equal(await project.getAttribute('aria-label'),language==='en'?'Project':'项目');
         const recovered = [];
         for (let value=Number(await range.getAttribute('min'));value<=240;value++) {
@@ -95,6 +96,69 @@ const types = {'.html':'text/html', '.js':'text/javascript', '.css':'text/css', 
         await project.focus();
         assert.ok((await project.evaluate(e=>getComputedStyle(e).boxShadow)).includes('6px 1px'));
       }
+      // Presses remeasure after resizing; the text itself stays unscaled.
+      await page.setViewportSize({width:1280,height:900});
+      for (const target of [680,180,168,680]) {
+        await width(target);
+        for (const button of [project,page.locator('.composer-model')]) {
+          const fill = button.locator('.composer-picker-fill');
+          for (const method of ['pointer','Space']) {
+            if (method==='pointer') { await button.hover(); await page.mouse.down(); }
+            else { await button.focus(); await page.keyboard.down('Space'); }
+            await fill.evaluate(e=>Promise.all(e.getAnimations().map(a=>a.finished)));
+            const pressed = await button.evaluate(e=>{
+              const fill=e.querySelector('.composer-picker-fill');
+              const m=new DOMMatrixReadOnly(getComputedStyle(fill).transform);
+              return {insetX:(1-m.a)*fill.offsetWidth/2,insetY:(1-m.d)*fill.offsetHeight/2,
+                height:e.offsetHeight,transition:getComputedStyle(fill).transitionDuration,
+                textTransform:getComputedStyle(e.querySelector('.composer-picker-content')).transform};
+            });
+            const expected=touch?1:((await mode())==='icons' && button===project ? .75 : .625);
+            assert.ok(Math.abs(pressed.insetX-expected)<.001,JSON.stringify(pressed));
+            assert.ok(Math.abs(pressed.insetY-expected)<.001,JSON.stringify(pressed));
+            assert.equal(pressed.transition,'0.06s');
+            assert.equal(pressed.textTransform,'none');
+            if (method==='pointer') await page.mouse.up();
+            else {
+              assert.equal(await button.evaluate(e=>e.dispatchEvent(new KeyboardEvent('keydown',{key:' ',repeat:true,bubbles:true,cancelable:true}))),false);
+              await page.keyboard.up('Space');
+            }
+            assert.equal(await fill.evaluate(e=>getComputedStyle(e).transitionDuration),'0.45s');
+            await page.waitForFunction(e=>getComputedStyle(e).transform==='none',await fill.elementHandle());
+          }
+        }
+      }
+      // Native outline-hidden restores an outline when forced colors suppress shadows.
+      for (const theme of ['light','dark']) {
+        await page.evaluate(t=>document.documentElement.dataset.theme=t,theme);
+        await page.emulateMedia({forcedColors:'active'});
+        for (const target of [680,168]) {
+          await width(target);
+          await project.focus();
+          for (const button of [project,page.locator('.composer-model')]) {
+            await page.waitForTimeout(250);
+            const focus=await button.evaluate(e=>{const s=getComputedStyle(e);return {focused:e.matches(':focus-visible'),style:s.outlineStyle,width:s.outlineWidth,offset:s.outlineOffset,shadow:s.boxShadow};});
+            assert.deepEqual(focus,{focused:true,style:'solid',width:'2px',offset:'2px',shadow:'none'});
+            await page.keyboard.press('Tab');
+          }
+        }
+        await page.emulateMedia({forcedColors:'none'});
+        await project.focus();
+        assert.equal(await project.evaluate(e=>getComputedStyle(e).outlineStyle),'none');
+        assert.ok((await project.evaluate(e=>getComputedStyle(e).boxShadow)).includes('6px 1px'));
+      }
+      console.log(`PASS ${touch?'touch':'mouse'}: size-dependent pointer/Space press, release, repeat keys and forced-color focus in both themes`);
+      // Changing input density while mounted updates the icon without replacing the trigger.
+      const cdp=await context.newCDPSession(page);
+      for (const enabled of [!touch,touch]) {
+        await project.focus();
+        await cdp.send('Emulation.setTouchEmulationEnabled',{enabled});
+        await page.waitForFunction(w=>document.querySelector('#composerWidth').min===w,enabled?'168':'156');
+        await width(168);
+        assert.equal(await project.locator('[data-glyph="Projects"]').evaluate(e=>e.getBoundingClientRect().width),enabled?20:16);
+        assert.equal(await page.evaluate(()=>document.activeElement.id),'composerProject');
+      }
+      await cdp.detach();
       // Existing attachment lifecycle remains usable at the new minimum frame width.
       await width(156);
       await page.locator('#addMockAttachment').click();
@@ -115,7 +179,7 @@ const types = {'.html':'text/html', '.js':'text/javascript', '.css':'text/css', 
         assert.equal(await fill.evaluate(e=>getComputedStyle(e).transitionDuration),'0s');
         assert.equal(await fill.evaluate(e=>getComputedStyle(e,'::before').transitionDuration),'0.06s, 0.06s');
         await project.focus(); await page.keyboard.down('Space');
-        assert.equal(await fill.evaluate(e=>getComputedStyle(e).transform),'matrix(0.975, 0, 0, 0.975, 0, 0)');
+        assert.equal(await fill.evaluate(e=>getComputedStyle(e).transform),'matrix(0.9375, 0, 0, 0.9375, 0, 0)');
         await page.keyboard.up('Space');
         assert.equal(await fill.evaluate(e=>getComputedStyle(e).transform),'none');
       }
