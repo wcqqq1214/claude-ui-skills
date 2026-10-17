@@ -8,7 +8,6 @@
 .image-origin {
   --image-focus-page: #f9f9f7;
   --image-focus-glow: #cde2fb;
-  --image-tile-spring: var(--ease-spring);
   position: relative;
   isolation: isolate;
   display: block;
@@ -26,7 +25,7 @@
   inset: 0;
   border-radius: inherit;
   pointer-events: none;
-  transition: transform 450ms var(--image-tile-spring);
+  transition: transform 450ms var(--ease-spring);
 }
 .image-origin::before {
   z-index: -1;
@@ -63,7 +62,7 @@
   overflow: hidden;
   border-radius: inherit;
   clip-path: inset(0 round 9px);
-  transition: clip-path 450ms var(--image-tile-spring);
+  transition: clip-path 450ms var(--ease-spring);
 }
 .image-origin img {
   display: block;
