@@ -61,11 +61,6 @@
       "bytes": 1102
     },
     {
-      "name": "components/status-assets/progress-clay.png",
-      "sha256": "788766e752c0f9b956bad98241ea02a6d793d23cad2b91bc0eafe1343b574826",
-      "bytes": 451
-    },
-    {
       "name": "components/status-assets/think-in.webp",
       "sha256": "7b9238ebe807aa35855afb82297148fc5dd1c13b29688bddd3439ece7ca4e9bd",
       "bytes": 2314
@@ -329,6 +324,11 @@
       "name": "style.css",
       "sha256": "aa4ef739ec8ea0de53c7701193d67f40da30bed238b0915c190895ae7921522e",
       "bytes": 16407
+    },
+    {
+      "name": "components/status-assets/progress-clay.png",
+      "sha256": "788766e752c0f9b956bad98241ea02a6d793d23cad2b91bc0eafe1343b574826",
+      "bytes": 451
     }
   ],
   "network_dependencies": [],
