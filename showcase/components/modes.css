@@ -246,6 +246,7 @@
 /* Running indicator pulses in the mode icon's corner. */
 .mode-activity { display: grid; }
 .mode-activity-icon {
+  display: flex;
   grid-column-start: 1; grid-row-start: 1;
   --mode-dot-r: calc(.1875rem * var(--cds-rem-scale, 1));
   --mode-dot-x: calc(100% - var(--mode-dot-r) + 1px);
@@ -262,7 +263,7 @@
 }
 .mode-running {
   display: block; width: calc(.375rem * var(--cds-rem-scale, 1)); height: calc(.375rem * var(--cds-rem-scale, 1));
-  border-radius: 9999px; background: var(--mode-muted); box-shadow: 0 0 0 .5px transparent;
+  border-radius: 2147483647px; background: var(--mode-muted); box-shadow: 0 0 0 .5px transparent;
   animation: mode-running-blink 1.2s ease-in-out infinite;
 }
 @keyframes mode-running-blink { 0%, to { opacity: .3; } 50% { opacity: 1; } }
