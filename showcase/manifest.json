@@ -162,13 +162,13 @@
     },
     {
       "name": "components/modes.css",
-      "sha256": "ecb368268bd61e99ff2b0460663a2b109aa4eb10d557495ac568c97b10464f6f",
-      "bytes": 13305
+      "sha256": "e06d9b2f6332103a1c14812f7367a2c307a460fd20034a97233462f4afc2e224",
+      "bytes": 13539
     },
     {
       "name": "components/modes.js",
-      "sha256": "d246b0abb2a91cb95911d517848eed0d9b7fee90aaf579c0c4d53033572bac47",
-      "bytes": 17131
+      "sha256": "0f9c67c59c1a54a0e8f7c03a0378b894ff5c33c0a47e763f0b46847473655dbb",
+      "bytes": 17245
     },
     {
       "name": "components/reading.css",

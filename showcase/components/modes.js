@@ -65,8 +65,9 @@ function initModesDemo() {
         i = options.indexOf(b);
       if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') {
         e.preventDefault();
-        const next =
-          options[(i + (e.key === 'ArrowRight' ? 1 : options.length - 1)) % options.length];
+        const rtl = getComputedStyle(modeTrack).direction === 'rtl';
+        const forward = e.key === (rtl ? 'ArrowLeft' : 'ArrowRight');
+        const next = options[(i + (forward ? 1 : options.length - 1)) % options.length];
         next.focus();
       }
     };
