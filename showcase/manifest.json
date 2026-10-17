@@ -122,13 +122,13 @@
     },
     {
       "name": "components/gallery.css",
-      "sha256": "a92fbd0636dc0c200a6469d85adc9bc48b944531a39c5e880a1a056f4505ef92",
-      "bytes": 4384
+      "sha256": "3ae109b2a7143369bb3cb4afcc1561f972db76eeda01e0ade306075379802e7d",
+      "bytes": 4556
     },
     {
       "name": "components/gallery.js",
-      "sha256": "46f5f73b5391aadb0507dde673437ce94af37afb8668b69284fd858ff54f93ca",
-      "bytes": 9024
+      "sha256": "05a37269dd1c6cff0dcdbac2fd6c19120ab53ba1535bb5498a3999d6edffb86b",
+      "bytes": 10824
     },
     {
       "name": "components/images.css",

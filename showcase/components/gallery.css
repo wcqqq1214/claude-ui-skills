@@ -179,3 +179,6 @@
   .gallery-dialog button:not(:focus-visible) { outline-style: none; }
 }
 body:has(#galleryDialog[open]) { overflow: hidden; }
+
+html.gallery-crossfade :not(html) { view-transition-name: none !important; }
+html.gallery-crossfade::view-transition-group(root) { animation-duration: 180ms !important; }
