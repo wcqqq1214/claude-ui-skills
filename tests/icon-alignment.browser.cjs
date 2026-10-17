@@ -86,12 +86,14 @@ const types = {'.html':'text/html', '.js':'text/javascript', '.css':'text/css', 
       }
       await go('gallery');
       await page.locator('#gallery img').first().click();
+      await page.locator('#galleryDialog').waitFor({state:'visible'});
+      await page.waitForFunction(()=>!document.documentElement.classList.contains('gallery-crossfade'));
       await centered('#galleryDialog button > .study-icon', true);
       await page.locator('#galleryNext').focus();
       await page.keyboard.press('Enter');
-      assert.equal(await page.locator('#galleryCount').textContent(), '2 / 3');
+      assert.equal(await page.locator('#galleryCount').textContent(), width===1280?'2 of 3':'2 / 3');
       await page.locator('#galleryPrev').click();
-      assert.equal(await page.locator('#galleryCount').textContent(), '1 / 3');
+      assert.equal(await page.locator('#galleryCount').textContent(), width===1280?'1 of 3':'1 / 3');
       await page.locator('#closeGallery').click();
       await page.locator('#galleryDialog').waitFor({state:'hidden'});
       await go('recovery');

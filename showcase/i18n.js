@@ -295,6 +295,7 @@ const DemoI18n = (() => {
   "Motion parameters": "动效参数",
   "Close expanded table": "关闭展开表格",
   "Expanded table content": "展开表格内容",
+  "{0} of {1}": "{0} / {1}",
   "Example gallery": "示例图库",
   "Close gallery": "关闭图库",
   "Previous image": "上一张",

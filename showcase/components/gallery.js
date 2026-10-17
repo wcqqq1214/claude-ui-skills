@@ -37,7 +37,7 @@ function initGalleryDemo() {
         switchGallery(i);
         return;
       }
-      if (e.target === img) toggleZoom();
+      if (e.target === img || (e.target === slide && e.detail === 0 && !e.pointerType)) toggleZoom();
       else if (galleryScale > 1) resetZoom();
       else closeGallery();
     };
@@ -111,7 +111,7 @@ function initGalleryDemo() {
     galleryRail.style.transform = rtl
       ? `translateX(calc(-12.5vw + ${galleryIndex * 75}vw + ${galleryIndex * 32}px))`
       : `translateX(calc(12.5vw - ${galleryIndex * 75}vw - ${galleryIndex * 32}px))`;
-    $('#galleryCount').textContent = `${galleryIndex + 1} / ${gallerySlides.length}`;
+    DemoI18n.text($('#galleryCount'), () => DemoI18n.t('{0} of {1}', galleryIndex + 1, gallerySlides.length));
     $('#galleryPrev').setAttribute('aria-disabled', String(galleryIndex === 0));
     $('#galleryNext').setAttribute('aria-disabled', String(galleryIndex === gallerySlides.length - 1));
     $('#galleryFilename').textContent = galleryFiles[galleryIndex];
@@ -138,7 +138,7 @@ function initGalleryDemo() {
         resetZoom();
         const focused = document.activeElement;
         const outsideInput = !galleryDialog.contains(focused) &&
-          focused?.matches('input:not([disabled]), textarea:not([disabled]), [contenteditable="true"]');
+          focused?.matches('input:not([disabled]), textarea:not([disabled]), [contenteditable]:not([contenteditable="false"])');
         galleryDialog.close();
         if (outsideInput && focused.isConnected) focused.focus({ preventScroll: true });
         else if (galleryOrigin?.isConnected) galleryOrigin.focus({ preventScroll: true });
