@@ -22,7 +22,7 @@ Read the chapter's markup, state transitions, styles and named consumers togethe
 
 ## Verify and report
 
-Test the changed interaction's trigger, state transition, exit and focus return, including relevant narrow-container and language changes. For numerical thresholds, test the controlling boundary. Run the target project's applicable checks and use a browser when available; report unperformed visual or physical-gesture checks.
+Test the changed interaction's trigger, state transition, exit and focus return, including relevant narrow-container and language changes. For numerical thresholds, test the controlling boundary. When shared icon styles change, check static and dynamic consumers in controls, inline text and overlays for alignment, clipping, row height and hit-area changes. Run the target project's applicable checks and use a browser when available; report unperformed visual or physical-gesture checks.
 
 Report the frontend files/functions used, local adaptations, checks and remaining uncertainty. Do not claim pixel parity, complete Claude runtime verification, GPU acceleration or performance gains from static code or a working demo.
 
