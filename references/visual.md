@@ -8,7 +8,7 @@ Use this for theme roles, typography, static icons and shared surface hierarchy.
 | --- | --- |
 | [style.css](../showcase/style.css) | Light/dark tokens, panel/ring/shadow roles, shared controls, separator hairlines and page layout |
 | [fonts.css](../showcase/fonts.css) | Font assets, Sans/Serif/Mono roles, CJK fallbacks, weight axes and icon baseline |
-| [icons.js](../showcase/icons.js) | `DemoIcons.create`, glyph mapping and size/stroke-to-weight conversion |
+| [icons.js](../showcase/icons.js) | `DemoIcons.create`, all 371 static icon names, 24 secondary layers and size/stroke-to-weight conversion |
 | [shell.js](../showcase/shell.js) / [shell.css](../showcase/shell.css) | Demo theme/language controls and navigation; local shell, not a reusable original component |
 
 ## Theme and surfaces
@@ -31,6 +31,8 @@ The bundled Sans/Serif text fonts support weight 300–800 and optical size 16�
 
 Simplified Chinese response fallback is PingFang SC → Microsoft YaHei → Noto Sans CJK SC. Sans also places system-ui before its CJK chain. Chinese glyphs come from system fallback, not an additional bundled Chinese font. The demo does not implement Claude's chat-font settings.
 
-`DemoIcons.create` uses the matching Anthropicons font with ligatures disabled, automatic optical size and a weight independent of theme text. Regular 16px icons resolve to about 533.3 weight, regular 20px to about 433.3, and strong to 700. Apply the inline baseline offset once, on the icon. Static Chat/Cowork/Code glyphs are used by [sidebar modes](components/modes.md); decorative shapes and checkbox strokes remain local.
+Use [icons.js](../showcase/icons.js) with [fonts.css](../showcase/fonts.css) and its matching [Anthropicons font](../showcase/fonts/anthropicons-variable.woff2). `DemoIcons.names` lists all 371 static names, including icons not placed in the demo; `DemoIcons.create('Download', 20)` returns a decorative icon element. Sizes are 12, 16, 20, 24, 28 and 32. Give the containing button or control its accessible name. The script also fills existing `data-ui-icon` hosts when loaded after the markup.
 
-Map these roles into the target theme instead of copying the page shell. Check Chinese/English fallback, inline baselines, both themes and actual component focus/hover states. Font placement, shell layout and surface assignments are local adaptations; animated/duotone icons and a full icon library are outside coverage.
+The renderer disables ligatures, uses automatic optical size and keeps icon weight independent of theme text. Regular 16px icons resolve to about 533.3 weight and regular 20px to about 433.3. The 24 icons with secondary layers combine their mapped glyphs at 40% secondary color, with a forced-colors fallback; these layers form one icon. Apply the inline baseline offset once. In [sidebar modes](components/modes.md), only selected Code uses 700 in normal display; forced-colors uses 700 for every selected mode. Decorative shapes and checkbox strokes remain local.
+
+Map these roles into the target theme instead of copying the page shell. Check Chinese/English fallback, inline baselines, both themes and actual component focus/hover states. Use the font and mapping as one source; a parallel static SVG collection is not required. This covers the shipped 371-name static set, not every legacy alias, custom SVG, logo or animated/RTL icon behavior. Font placement, shell layout and surface assignments remain local adaptations.

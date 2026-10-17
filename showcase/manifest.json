@@ -232,8 +232,8 @@
     },
     {
       "name": "fonts.css",
-      "sha256": "1316542c91675b84382a6149c7452196766d7c39d722811e01eb4649c1f6f37a",
-      "bytes": 5390
+      "sha256": "6353433fea24d7fbe91279b8588c5ee9397fb6ba34599d039fb4e18a2eadd116",
+      "bytes": 5943
     },
     {
       "name": "fonts/anthropic-mono-italic-variable.woff2",
@@ -282,8 +282,8 @@
     },
     {
       "name": "icons.js",
-      "sha256": "c460c56412ba384d3bdc403e3f3690359307de92d6096efda1ca7422c8ccc9f8",
-      "bytes": 2082
+      "sha256": "ccef993c7079c4baa00f7ced59b009ebd33b18dbef544268a494cb5b51afe33f",
+      "bytes": 11239
     },
     {
       "name": "index.html",
