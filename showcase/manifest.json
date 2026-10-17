@@ -122,8 +122,8 @@
     },
     {
       "name": "components/gallery.css",
-      "sha256": "bf4466ecf04d92bad73c1db6ab44731fc30cf1b6e5bc7b40f27142edf99a4ae1",
-      "bytes": 4626
+      "sha256": "be94053c3e1d8f523153fe3fcecb2530feab3f80e006cd107ebc62605144c4d9",
+      "bytes": 4930
     },
     {
       "name": "components/gallery.js",
