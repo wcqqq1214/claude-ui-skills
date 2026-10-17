@@ -243,11 +243,29 @@
               <div class="composer-box">
                 <div class="composer-attachments" id="composerAttachments" role="group" aria-label="Mock attachments"></div>
                 <textarea id="promptInput" rows="1" placeholder="Type a few lines…" aria-label="Demo input"></textarea>
-                <div class="composer-chin">
-                  <button class="icon-button composer-action" id="addMockAttachment" type="button" aria-label="Add mock attachment" title="Add mock attachment"><span data-ui-icon="File" aria-hidden="true"></span><span>Add attachment</span></button>
+                <div class="composer-chin" id="composerChin" data-picker-mode="words-and-carets">
+                  <div class="composer-chin-row">
+                    <div class="composer-chin-pickers" id="composerPickers">
+                      <div class="composer-project-slot" data-home-project-slot>
+                        <button class="composer-picker" id="composerProject" type="button" aria-label="Project" aria-describedby="composerHint">
+                          <span class="composer-picker-fill" aria-hidden="true"></span><span class="composer-picker-content"><span class="composer-project-label" data-picker-label>Project</span><span class="composer-project-caret" data-ui-icon="CaretDown" data-icon-size="12" aria-hidden="true"></span></span>
+                        </button>
+                      </div>
+                      <span class="composer-chin-spacer" id="composerChinSpacer" aria-hidden="true"></span>
+                    </div>
+                    <div class="composer-chin-trailing">
+                      <button class="composer-picker composer-model" type="button" aria-label="Model: Sonnet 4.6" aria-describedby="composerHint"><span class="composer-picker-fill" aria-hidden="true"></span><span class="composer-picker-content" translate="no">Sonnet 4.6</span></button>
+                    </div>
+                  </div>
                 </div>
               </div>
-              <div class="composer-hint">Focus 200ms · Add/move 180ms · Remove 130ms</div>
+              <div class="demo-controls composer-demo-controls">
+                <label for="composerWidth">Container width</label>
+                <input type="range" id="composerWidth" min="156" max="680" value="680" />
+                <output id="composerWidthOutput" for="composerWidth">680 px</output>
+                <button class="button small subtle" id="addMockAttachment" type="button" aria-label="Add mock attachment" title="Add mock attachment"><span data-ui-icon="File" aria-hidden="true"></span><span>Add attachment</span></button>
+              </div>
+              <p class="composer-hint" id="composerHint">Narrow the input to watch the project label simplify. Project and model are fixed previews.</p>
             </div>
           </section>
           <section class="specimen wide" id="feedback">

@@ -1,6 +1,7 @@
 'use strict';
 function initComposerDemo() {
   initComposerAttachments();
+  initComposerChin();
   const prompt = $('#promptInput');
   function resizeInput() {
     if (!prompt.clientWidth) return;
@@ -117,4 +118,92 @@ function initComposerAttachments() {
   addSample();
   addSample();
   window.addEventListener('pagehide', () => { transition?.skipTransition(); releaseKey?.(); });
+}
+
+// Keep the sample composer open with no project selected.
+function initComposerChin() {
+  const chin = $('#composerChin'), pickers = $('#composerPickers');
+  const spacer = $('#composerChinSpacer'), project = $('#composerProject');
+  const content = project.querySelector('.composer-picker-content');
+  const label = project.querySelector('[data-picker-label]');
+  const caret = project.querySelector('.composer-project-caret');
+  const icon = DemoIcons.create('Projects', 16);
+  const modes = ['words-and-carets', 'words', 'icons'];
+  const need = [null, null], seenAs = [null, null, null];
+  let mode = 0;
+  function signature() {
+    return [pickers.querySelector('[data-home-project-slot]')?.textContent ?? '',
+      ...Array.from(pickers.querySelectorAll('button')).map(button =>
+        button.getAttribute('aria-label') ?? button.textContent)].join('|');
+  }
+  function requiredWidth() {
+    const overflow = element => element ? Math.max(0, element.scrollWidth - element.clientWidth) : 0;
+    const width = pickers.getBoundingClientRect().width;
+    const free = spacer.getBoundingClientRect().width;
+    const slot = pickers.querySelector('[data-home-project-slot]');
+    const text = slot?.querySelector('[data-picker-label]') ?? null;
+    let required = width - free + overflow(pickers);
+    const selected = slot !== null && slot.offsetWidth > 0 &&
+      ![DemoI18n.t('Project')].includes(text?.textContent ?? '');
+    if (slot && selected) {
+      const slotWidth = slot.getBoundingClientRect().width;
+      const clipped = text ? overflow(text) : free < 1 ? Infinity : 0;
+      if (clipped > 0) required += Math.max(0, Math.min(64, slotWidth + clipped) - slotWidth);
+    } else required += overflow(text) + 1;
+    return required;
+  }
+  function render() {
+    chin.dataset.pickerMode = modes[mode];
+    // Keep the trigger node so resizing does not discard keyboard focus.
+    if (mode === 2) content.replaceChildren(icon);
+    else {
+      label.textContent = DemoI18n.t('Project');
+      content.replaceChildren(label, ...(mode === 0 ? [caret] : []));
+    }
+  }
+  function measure() {
+    // Showcase chapters stay mounted while hidden.
+    if (!pickers.getClientRects().length) return;
+    const width = pickers.getBoundingClientRect().width;
+    const text = mode > 0 ? signature() : null;
+    const previous = mode > 0 ? need[mode - 1] : null;
+    if (mode > 0 && previous !== null && seenAs[mode] === null) seenAs[mode] = text;
+    let next = mode;
+    if (mode < 2) {
+      const required = requiredWidth();
+      need[mode] = required;
+      seenAs[mode + 1] = null;
+      if (required > width) next = mode + 1;
+    }
+    if (next === mode && mode > 0 &&
+        (previous === null || seenAs[mode] !== text || previous + 2 <= width)) next = mode - 1;
+    if (next !== mode) {
+      mode = next;
+      render();
+      measure();
+    }
+  }
+  const resize = new ResizeObserver(measure);
+  resize.observe(pickers);
+  resize.observe(spacer);
+  new MutationObserver(measure).observe(pickers, {
+    subtree: true, childList: true, characterData: true,
+    attributes: true, attributeFilter: ['aria-label'],
+  });
+  DemoI18n.onChange(() => { render(); measure(); });
+  const width = $('#composerWidth'), output = $('#composerWidthOutput');
+  function updateFrame() {
+    $('.composer-box').style.setProperty('--composer-demo-width', width.value + 'px');
+    output.textContent = width.value + ' px';
+  }
+  const touch = matchMedia('(pointer: coarse), (hover: none)');
+  function updateMinimum() {
+    // Demo frame bounds keep the fixed samples usable at either input density.
+    width.min = touch.matches ? '168' : '156';
+    updateFrame();
+  }
+  width.addEventListener('input', updateFrame);
+  touch.addEventListener('change', updateMinimum);
+  updateMinimum();
+  measure();
 }
