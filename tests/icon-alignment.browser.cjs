@@ -102,6 +102,27 @@ const types = {'.html':'text/html', '.js':'text/javascript', '.css':'text/css', 
       await page.locator('#actionNotification').click();
       await centered('#notificationStack .stack-toast:not(.behind) .toast-dismiss .study-icon', true);
       await go('workspace');
+      const titleGeometry = () => page.locator('.workspace-title').evaluate(title => {
+        const icon=title.querySelector('.study-icon').getBoundingClientRect();
+        const label=title.querySelector('.workspace-title-label');
+        const box=label.getBoundingClientRect();
+        const range=document.createRange(); range.selectNodeContents(label);
+        const text=range.getBoundingClientRect();
+        return {center:Math.abs(icon.y+icon.height/2-box.y-box.height/2),
+          textCenter:Math.abs(icon.y+icon.height/2-text.y-text.height/2),
+          gap:box.left-icon.right, title:label.textContent.trim(),
+          overflow:title.scrollWidth>title.clientWidth};
+      });
+      for (const locale of ['en','zh-Hans']) {
+        await page.locator('#languageBtn').click();
+        await page.locator(`[data-locale="${locale}"]`).click();
+        const geometry=await titleGeometry();
+        assert.ok(geometry.center<.1, `title icon/label box offset ${geometry.center}`);
+        assert.ok(geometry.textCenter<1, `title icon/text range offset ${geometry.textCenter}`);
+        assert.ok(Math.abs(geometry.gap-10)<.1);
+        assert.equal(geometry.overflow,false);
+        assert.equal(geometry.title, locale==='en'?'Resize, switch, restore':'拖动、切换与还原');
+      }
       const rows=await page.locator('.file').evaluateAll(els=>els.map(e=>{
         const r=e.getBoundingClientRect(),icon=e.querySelector('.study-icon').getBoundingClientRect();
         return {height:r.height,center:Math.abs(icon.y+icon.height/2-r.y-r.height/2),
