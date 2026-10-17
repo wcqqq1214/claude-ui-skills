@@ -16,9 +16,7 @@ function initGalleryDemo() {
   const gallerySlides = galleryFiles.map((src, i) => {
     const slide = document.createElement('div');
     slide.className = 'gallery-slide';
-    slide.setAttribute('role', 'button');
     DemoI18n.attr(slide, 'aria-label', () => DemoI18n.t('Image {0}, click to zoom', i + 1));
-    slide.setAttribute('aria-pressed', 'false');
     slide.tabIndex = -1;
     const img = document.createElement('img');
     img.src = src;
@@ -94,13 +92,22 @@ function initGalleryDemo() {
     gallerySlides.forEach((s, j) => {
       s.classList.toggle('current', j === galleryIndex);
       s.tabIndex = j === galleryIndex ? 0 : -1;
-      s.setAttribute('aria-pressed', 'false');
+      s.setAttribute('aria-hidden', String(j !== galleryIndex));
+      if (j === galleryIndex) {
+        s.setAttribute('role', 'button');
+        s.setAttribute('aria-pressed', 'false');
+      } else {
+        s.removeAttribute('role');
+        s.removeAttribute('aria-pressed');
+      }
     });
     galleryRail.style.transform = `translateX(calc(12.5vw - ${galleryIndex * 75}vw - ${galleryIndex * 32}px))`;
     $('#galleryCount').textContent = `${galleryIndex + 1} / ${gallerySlides.length}`;
-    $('#galleryPrev').disabled = galleryIndex === 0;
-    $('#galleryNext').disabled = galleryIndex === gallerySlides.length - 1;
-    if (focus) currentSlide().focus({ preventScroll: true });
+    $('#galleryPrev').setAttribute('aria-disabled', String(galleryIndex === 0));
+    $('#galleryNext').setAttribute('aria-disabled', String(galleryIndex === gallerySlides.length - 1));
+    $('#galleryFilename').textContent = galleryFiles[galleryIndex];
+    $('#galleryFilename').title = galleryFiles[galleryIndex];
+    if (focus && !document.activeElement?.closest('button, a')) currentSlide().focus({ preventScroll: true });
   }
   async function openGallery(i, origin) {
     if (galleryDialog.open) return;
@@ -121,7 +128,7 @@ function initGalleryDemo() {
     );
     await galleryAnimation.finished.catch(() => {});
     galleryRail.style.transition = '';
-    if (galleryDialog.open && !galleryClosing) currentSlide().focus({ preventScroll: true });
+
   }
   async function closeGallery() {
     if (galleryClosing || !galleryDialog.open) return;
@@ -151,8 +158,9 @@ function initGalleryDemo() {
     (b) => (b.onclick = () => openGallery(Number(b.dataset.gallery), b))
   );
   $('#closeGallery').onclick = closeGallery;
-  $('#galleryPrev').onclick = () => switchGallery(galleryIndex - 1);
-  $('#galleryNext').onclick = () => switchGallery(galleryIndex + 1);
+  $('#galleryPrev').onclick = () => { if (galleryIndex > 0) switchGallery(galleryIndex - 1); };
+  $('#galleryNext').onclick = () => { if (galleryIndex < gallerySlides.length - 1) switchGallery(galleryIndex + 1); };
+  $('.gallery-bottom').onclick = (e) => e.stopPropagation();
   galleryDialog.addEventListener('cancel', (e) => {
     e.preventDefault();
     closeGallery();

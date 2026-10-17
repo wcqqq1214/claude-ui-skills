@@ -122,13 +122,13 @@
     },
     {
       "name": "components/gallery.css",
-      "sha256": "4184ad7f4547f7216fc5db003d4115d5b115f98acb29faff7166c8684c35c785",
-      "bytes": 2522
+      "sha256": "a92fbd0636dc0c200a6469d85adc9bc48b944531a39c5e880a1a056f4505ef92",
+      "bytes": 4384
     },
     {
       "name": "components/gallery.js",
-      "sha256": "da834d70c5eaf984eebc9dec3361fac6e2bd524f9dfce7ac7edb40dd0b890291",
-      "bytes": 8593
+      "sha256": "46f5f73b5391aadb0507dde673437ce94af37afb8668b69284fd858ff54f93ca",
+      "bytes": 9024
     },
     {
       "name": "components/images.css",
@@ -287,8 +287,8 @@
     },
     {
       "name": "index.html",
-      "sha256": "e992fc503a567f88ed70bfcbfe1bd1cb0d90e4e8e7ae3db510814f575ee2b488",
-      "bytes": 55481
+      "sha256": "d6e6efd263811f554674dcc0633c76742798d0763ced44ca8b2d2c0965c442b9",
+      "bytes": 55746
     },
     {
       "name": "landscape-dusk.svg",

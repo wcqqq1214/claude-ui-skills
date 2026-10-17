@@ -842,29 +842,24 @@
       ></div
     ></dialog>
     <dialog id="galleryDialog" class="gallery-dialog" aria-label="Example gallery"
-      ><button
-        class="image-close"
-        id="closeGallery"
-        aria-label="Close gallery"
-        data-ui-icon="X"
-        data-icon-size="20"
-      ></button
-      ><div class="gallery-rail" id="galleryRail"></div
-      ><div class="gallery-bottom"
-        ><button
-          id="galleryPrev"
-          aria-label="Previous image"
-          data-ui-icon="ArrowLeft"
-          data-icon-size="20"
-        ></button
-        ><span id="galleryCount" aria-live="polite" aria-atomic="true"></span
-        ><button
-          id="galleryNext"
-          aria-label="Next image"
-          data-ui-icon="ArrowRight"
-          data-icon-size="20"
+      ><div class="gallery-header"
+        ><button class="gallery-close" id="closeGallery" aria-label="Close gallery"
+          data-ui-icon="X" data-icon-size="16" autofocus
         ></button></div
-      ><p class="gallery-help">← → Browse · Enter Zoom · Drag Pan · Esc Close</p></dialog
+      ><div class="gallery-viewport" id="galleryViewport"
+        ><div class="gallery-rail" id="galleryRail"></div
+        ><div class="gallery-bottom-shade"></div
+        ><div class="gallery-bottom"
+          ><div class="gallery-attribution"><bdi id="galleryFilename" translate="no"></bdi></div
+          ><div class="gallery-navigation"
+            ><button id="galleryPrev" aria-label="Previous image" aria-disabled="true"
+              data-ui-icon="CaretLeft" data-icon-size="20"
+            ></button
+            ><span id="galleryCount" aria-live="polite" aria-atomic="true"></span
+            ><button id="galleryNext" aria-label="Next image" aria-disabled="false"
+              data-ui-icon="CaretRight" data-icon-size="20"
+            ></button></div
+          ><div class="gallery-bottom-spacer"></div></div></div></dialog
     >
     <script>
       DemoI18n.translateDocument();
