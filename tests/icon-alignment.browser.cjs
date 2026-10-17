@@ -61,7 +61,57 @@ const types = {'.html':'text/html', '.js':'text/javascript', '.css':'text/css', 
       }));
       assert.equal(samples.length,2);
       assert.ok(Math.abs(samples[1]-samples[0]-2)<0.1,`baseline offset ${samples}`);
+      await go('micro');
+      await centered('#tipTarget .study-icon', true);
+      await page.locator('#tipTarget').focus();
+      await page.locator('#demoTooltip.visible').waitFor();
+      await page.locator('#toastBtn').click();
+      await centered('#closeToast .study-icon', true);
+      assert.deepEqual(await page.locator('#closeToast').evaluate(e=>[e.offsetWidth,e.offsetHeight]), [24,24]);
+      await page.locator('#closeToast').focus();
+      await page.keyboard.press('Enter');
+      await page.locator('#toast[hidden]').waitFor({state:'attached'});
+      await go('images');
+      for (let i=0;i<2;i++) {
+        await page.locator('#imageOrigin').click();
+        await centered('#closeImage .study-icon', true);
+        assert.deepEqual(await page.locator('#closeImage').evaluate(e=>[e.offsetWidth,e.offsetHeight]), [35,35]);
+        await page.locator('#closeImage').focus();
+        await page.keyboard.press('Enter');
+        await page.locator('#imageDialog').waitFor({state:'hidden'});
+        assert.equal(await page.evaluate(()=>document.activeElement.id), 'imageOrigin');
+      }
+      await go('gallery');
+      await page.locator('#gallery img').first().click();
+      await centered('#galleryDialog button > .study-icon', true);
+      await page.locator('#galleryNext').focus();
+      await page.keyboard.press('Enter');
+      assert.equal(await page.locator('#galleryCount').textContent(), '2 / 3');
+      await page.locator('#galleryPrev').click();
+      assert.equal(await page.locator('#galleryCount').textContent(), '1 / 3');
+      await page.locator('#closeGallery').click();
+      await page.locator('#galleryDialog').waitFor({state:'hidden'});
+      await go('recovery');
+      const frontClose=page.locator('#notificationStack .stack-toast:not(.behind):not([data-ending-style]) .toast-dismiss');
+      await centered('#notificationStack .stack-toast:not(.behind) .toast-dismiss .study-icon', true);
+      assert.deepEqual(await frontClose.evaluate(e=>[e.offsetWidth,e.offsetHeight]), [24,24]);
+      await frontClose.focus();
+      await page.keyboard.press('Enter');
+      await page.locator('#notificationStack .stack-toast').waitFor({state:'detached'});
+      assert.equal(await page.evaluate(()=>document.activeElement.id), 'addNotification');
+      await page.locator('#actionNotification').click();
+      await centered('#notificationStack .stack-toast:not(.behind) .toast-dismiss .study-icon', true);
       await go('workspace');
+      const rows=await page.locator('.file').evaluateAll(els=>els.map(e=>{
+        const r=e.getBoundingClientRect(),icon=e.querySelector('.study-icon').getBoundingClientRect();
+        return {height:r.height,center:Math.abs(icon.y+icon.height/2-r.y-r.height/2),
+          clipped:e.querySelector('.file-name').scrollHeight>e.querySelector('.file-name').clientHeight};
+      }));
+      for (const row of rows) {
+        assert.ok(Math.abs(row.height-(width>620?38:31))<.1, `file row height ${row.height}`);
+        assert.ok(row.center<.1, `file icon center ${row.center}`);
+        assert.equal(row.clipped,false);
+      }
       for (let i=0;i<4;i++) {
         await page.locator('#expandPanel').click();
         await centered('#expandPanel .study-icon',true);
@@ -69,7 +119,7 @@ const types = {'.html':'text/html', '.js':'text/javascript', '.css':'text/css', 
       assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
       assert.deepEqual(errors,[]);
       await page.close();
-      console.log(`PASS icon slot centers, keyboard menus, inline 2px baseline and dynamic panel icons: ${width}px ${theme}`);
+      console.log(`PASS icon slot centers, keyboard menus, inline 2px baseline and image/gallery/tooltip controls, notice dimensions, file row geometry and dynamic panel icons: ${width}px ${theme}`);
     }
   } finally {
     if (browser) await browser.close();
