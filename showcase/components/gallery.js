@@ -7,9 +7,7 @@ function initGalleryDemo() {
   let galleryIndex = 0,
     galleryOrigin = null,
     galleryClosing = false,
-    galleryScale = 1,
-    panX = 0,
-    panY = 0,
+    zoom = null,
     drag = null,
     suppressClick = false,
     galleryOpened = false,
@@ -37,8 +35,8 @@ function initGalleryDemo() {
         switchGallery(i);
         return;
       }
-      if (e.target === img || (e.target === slide && e.detail === 0 && !e.pointerType)) toggleZoom();
-      else if (galleryScale > 1) resetZoom();
+      if (e.target === img || (e.target === slide && e.detail === 0 && !e.pointerType)) toggleZoom(e.target === img ? e : null);
+      else if (zoom) resetZoom();
       else closeGallery();
     };
     slide.onkeydown = (e) => {
@@ -51,42 +49,35 @@ function initGalleryDemo() {
   });
   const currentSlide = () => gallerySlides[galleryIndex],
     currentImage = () => currentSlide().querySelector('img');
-  function maxZoom() {
+  function measureZoom() {
     const img = currentImage();
-    return Math.max(img.naturalWidth / Math.max(img.offsetWidth, 1), 2);
+    if (img.getAnimations?.().some((animation) => animation.playState === 'running')) return null;
+    const fit = img.getBoundingClientRect(), viewport = $('#galleryViewport').getBoundingClientRect();
+    if (!fit.width || !fit.height) return null;
+    return {
+      fitWidth: fit.width, fitHeight: fit.height,
+      fitCenterX: fit.left + fit.width / 2, fitCenterY: fit.top + fit.height / 2,
+      maxScale: Math.max(img.naturalWidth / fit.width, 2),
+      viewportWidth: viewport.width, viewportHeight: viewport.height
+    };
   }
-  function maxPan(size, viewport, scale) {
-    const visible = Math.min(size * scale, viewport * 0.7);
-    return (
-      Math.max(0, (size * scale + viewport) / 2 - visible) *
-      Math.min(1, Math.max(0, (scale - 1.05) / 0.95))
-    );
+  function paintZoom(value) {
+    if (value) currentImage().style.transform = `translate(${value.tx}px, ${value.ty}px) scale(${value.scale})`;
+    else currentImage().style.removeProperty('transform');
   }
-  function applyZoom() {
-    const img = currentImage();
-    panX = Math.min(
-      maxPan(img.offsetWidth, innerWidth, galleryScale),
-      Math.max(-maxPan(img.offsetWidth, innerWidth, galleryScale), panX)
-    );
-    panY = Math.min(
-      maxPan(img.offsetHeight, innerHeight, galleryScale),
-      Math.max(-maxPan(img.offsetHeight, innerHeight, galleryScale), panY)
-    );
-    img.style.transform = `translate(${panX}px,${panY}px) scale(${galleryScale})`;
-    currentSlide().classList.toggle('zoomed', galleryScale > 1);
-    currentSlide().setAttribute('aria-pressed', String(galleryScale > 1));
+  function setZoom(value) {
+    zoom = value;
+    paintZoom(value);
+    currentSlide().classList.toggle('zoomed', !!value);
+    currentSlide().setAttribute('aria-pressed', String(!!value));
   }
-  function resetZoom() {
-    galleryScale = 1;
-    panX = 0;
-    panY = 0;
-    applyZoom();
-  }
-  function toggleZoom() {
-    if (galleryScale > 1) resetZoom();
+  function resetZoom() { setZoom(null); }
+  function toggleZoom(point = null) {
+    if (drag) return;
+    if (zoom) resetZoom();
     else {
-      galleryScale = maxZoom();
-      applyZoom();
+      const fit = measureZoom();
+      if (fit) setZoom(GalleryZoom.clickZoom(fit, point));
     }
   }
   function switchGallery(i, focus = true) {
@@ -214,72 +205,61 @@ function initGalleryDemo() {
   });
   galleryDialog.addEventListener('click', (e) => {
     if (e.target === galleryDialog || e.target === galleryRail || e.target === $('#galleryViewport') || e.target === $('.gallery-bottom-shade')) {
-      if (galleryScale > 1) resetZoom();
+      if (zoom) resetZoom();
       else closeGallery();
     }
   });
   galleryRail.addEventListener('pointerdown', (e) => {
-    if (galleryScale <= 1 || e.button !== 0 || e.target !== currentImage()) return;
-    drag = { id: e.pointerId, x: e.clientX, y: e.clientY, px: panX, py: panY, moved: false };
+    if (!zoom || e.button !== 0 || e.target !== currentImage() || drag) return;
+    suppressClick = false;
+    drag = { id: e.pointerId, x: e.clientX, y: e.clientY, tx: zoom.tx, ty: zoom.ty, moved: false };
     currentImage().setPointerCapture(e.pointerId);
   });
   galleryRail.addEventListener('pointermove', (e) => {
-    if (!drag || e.pointerId !== drag.id) return;
-    const dx = e.clientX - drag.x,
-      dy = e.clientY - drag.y;
-    if (!drag.moved && Math.hypot(dx, dy) <= 4) return;
+    if (!drag || !zoom || e.pointerId !== drag.id) return;
+    const dx = e.clientX - drag.x, dy = e.clientY - drag.y;
+    if (!drag.moved && Math.hypot(dx, dy) < 4) return;
     drag.moved = true;
-    currentSlide().classList.add('dragging');
-    panX = drag.px + dx;
-    panY = drag.py + dy;
-    applyZoom();
+    drag.tx = GalleryZoom.clamp(zoom.tx + dx, zoom.maxTx);
+    drag.ty = GalleryZoom.clamp(zoom.ty + dy, zoom.maxTy);
+    paintZoom({ ...zoom, tx: drag.tx, ty: drag.ty });
   });
-  function endGalleryDrag() {
-    if (!drag) return;
-    suppressClick = drag.moved;
-    const id = drag.id;
+  function endGalleryDrag(e) {
+    if (!drag || (e && e.pointerId !== drag.id)) return;
+    const ended = drag;
     drag = null;
-    currentSlide().classList.remove('dragging');
-    if (currentImage().hasPointerCapture(id)) currentImage().releasePointerCapture(id);
-    setTimeout(() => (suppressClick = false), 0);
+    if (ended.moved) {
+      suppressClick = true;
+      if (zoom) setZoom({ ...zoom, tx: ended.tx, ty: ended.ty, idealTx: ended.tx, idealTy: ended.ty });
+      setTimeout(() => (suppressClick = false), 0);
+    }
+    if (currentImage().hasPointerCapture(ended.id)) currentImage().releasePointerCapture(ended.id);
   }
   galleryRail.addEventListener('pointerup', endGalleryDrag);
   galleryRail.addEventListener('pointercancel', endGalleryDrag);
-  galleryDialog.addEventListener(
-    'wheel',
-    (e) => {
-      if (galleryClosing || drag) return;
-      if ($('.gallery-bottom').contains(e.target)) {
-        if (e.ctrlKey) e.preventDefault();
-        return;
-      }
-      const unitX = e.deltaMode === 1 ? 16 : e.deltaMode === 2 ? innerWidth : 1,
-        unitY = e.deltaMode === 1 ? 16 : e.deltaMode === 2 ? innerHeight : 1;
-      if (e.ctrlKey) {
-        e.preventDefault();
-        const old = galleryScale,
-          next = GalleryZoom.nextScale(old, maxZoom(), e.deltaY, e.deltaMode);
-        if (next === 1) {
-          resetZoom();
-          return;
-        }
-        galleryScale = next;
-        const rect = currentSlide().getBoundingClientRect(),
-          px = e.clientX - (rect.left + rect.width / 2),
-          py = e.clientY - (rect.top + rect.height / 2),
-          ratio = galleryScale / old;
-        panX = px - (px - panX) * ratio;
-        panY = py - (py - panY) * ratio;
-        applyZoom();
-      } else if (galleryScale > 1) {
-        e.preventDefault();
-        panX -= e.deltaX * unitX;
-        panY -= e.deltaY * unitY;
-        applyZoom();
-      }
-    },
-    { passive: false }
-  );
+  galleryDialog.addEventListener('wheel', (e) => {
+    if (galleryClosing || drag) return;
+    const viewport = $('#galleryViewport');
+    const inside = !(e.target instanceof Element) || viewport.contains(e.target) || $('.gallery-header').contains(e.target);
+    const unit = e.deltaMode === 0 ? 1 : 16;
+    if (e.ctrlKey) {
+      e.preventDefault();
+      if (!inside) return;
+      const fit = zoom || measureZoom();
+      if (!fit) return;
+      const next = GalleryZoom.nextScale(zoom?.scale ?? 1, fit.maxScale, e.deltaY, e.deltaMode);
+      if (next === 1) { if (zoom) resetZoom(); return; }
+      if (zoom && next === zoom.scale) return;
+      setZoom(GalleryZoom.scaleAt(fit, zoom, next, e));
+    } else if (inside && zoom) {
+      e.preventDefault();
+      const unitX = e.deltaMode === 2 ? viewport.clientWidth || unit : unit;
+      const unitY = e.deltaMode === 2 ? viewport.clientHeight || unit : unit;
+      const tx = GalleryZoom.clamp(zoom.tx - e.deltaX * unitX, zoom.maxTx);
+      const ty = GalleryZoom.clamp(zoom.ty - e.deltaY * unitY, zoom.maxTy);
+      if (tx !== zoom.tx || ty !== zoom.ty) setZoom({ ...zoom, tx, ty, idealTx: tx, idealTy: ty });
+    }
+  }, { passive: false });
   window.addEventListener('pagehide', () => {
     ++revision;
     galleryTransition?.skipTransition();
@@ -292,6 +272,6 @@ function initGalleryDemo() {
     galleryDialog.close();
   });
   window.addEventListener('resize', () => {
-    if (galleryDialog.open) resetZoom();
+    if (zoom) resetZoom();
   });
 }
