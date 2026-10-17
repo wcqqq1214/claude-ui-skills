@@ -134,14 +134,11 @@ function initProgressDemo() {
     const walked = document.createElement('span'); walked.className = 'progress-walked';
     rail.append(walked); track.append(rail);
     const label = document.createElement('span'); label.className = 'progress-text';
-    const shimmer = document.createElement('span'); shimmer.className = 'status-shimmer';
-    const text = document.createElement('span');
-    const clone = document.createElement('span'); clone.className = 'status-shimmer-clone';
-    clone.setAttribute('aria-hidden', 'true'); clone.setAttribute('translate', 'no'); clone.inert = true;
-    shimmer.append(text, clone); label.append(shimmer);
+    const shimmer = createProgressShimmer();
+    label.append(shimmer.element);
     const status = document.createElement('span'); status.className = 'sr-only';
     row.append(track, label, status);
-    return {row, track, rail, walked, label, shimmer, text, clone, status, node: null};
+    return {row, track, rail, walked, label, shimmer, status, node: null};
   });
   for (let i = 0; i < 4; i++) marks.append(document.createElement('span'));
   function foldCount() {
@@ -155,8 +152,7 @@ function initProgressDemo() {
     $('#progressFoldText').textContent = expanded ? DemoI18n.t('Hide earlier steps') : DemoI18n.t(n === 1 ? '{0} earlier step' : '{0} earlier steps', n);
     todos.forEach((state, i) => {
       const r = rows[i];
-      r.text.textContent = DemoI18n.t(samples[i][state === 'in_progress' ? 1 : 0]);
-      r.clone.textContent = state === 'in_progress' ? r.text.textContent : '';
+      r.shimmer.update(state === 'in_progress', DemoI18n.t(samples[i][state === 'in_progress' ? 1 : 0]));
       r.status.textContent = ', ' + DemoI18n.t(state === 'completed' ? 'Done' : state === 'in_progress' ? 'In progress' : 'Not started');
     });
   }
@@ -216,7 +212,6 @@ function initProgressDemo() {
           r.track.append(r.node);
         }
       }
-      r.shimmer.dataset.shimmering = String(state === 'in_progress');
     });
     place(foldedRows, rows.slice(0, n).map(r => r.row));
     place(currentRows, rows.slice(n, todos.length).map(r => r.row));
@@ -226,6 +221,7 @@ function initProgressDemo() {
   function restart() {
     stop(); expanded = false;
     rows.forEach(r => {
+      r.shimmer.update(false, '');
       r.row.remove(); r.node?.remove(); r.node = null;
       r.label.classList.remove('progress-step-enter'); r.rail.classList.remove('progress-rail-enter');
     });
@@ -257,4 +253,77 @@ function initProgressDemo() {
   window.addEventListener('pagehide', stop);
   DemoI18n.onChange(updateCopy);
   render(); syncVisibility();
+}
+
+// Shimmer animation for the flat progress list.
+function createProgressShimmer() {
+  const element = document.createElement('span');
+  element.className = 'status-shimmer';
+  const text = document.createTextNode('');
+  element.append(text);
+  const view = element.ownerDocument.defaultView;
+  const compositing = view.CSS?.supports('(-webkit-mask-clip: text) and (-webkit-app-region: drag)');
+  let active = false, eligible = true, clone = null, observer = null, lastText = null;
+  function band(node) {
+    return node?.getAnimations?.({subtree: true}).find(animation =>
+      animation.effect?.target === node && animation.effect.pseudoElement === '::after');
+  }
+  function eligibleLayout() {
+    const style = view.getComputedStyle(element);
+    if (!['block', 'inline-block', 'flow-root', 'list-item'].includes(style.display) ||
+        style.webkitLineClamp !== 'none') return false;
+    let parent = element.parentElement;
+    for (let depth = 0; parent && depth < 16; depth++, parent = parent.parentElement) {
+      const style = view.getComputedStyle(parent);
+      if (style.webkitLineClamp !== 'none') return false;
+      if (!['block', 'flow-root', 'list-item', 'contents', 'inline'].includes(style.display)) break;
+    }
+    return true;
+  }
+  function render() {
+    const mode = !active ? 'inactive' : compositing && eligible ? 'composited' : 'fallback';
+    element.dataset.shimmering = String(active);
+    element.dataset.shimmerMode = mode;
+    if (mode !== 'composited') {
+      clone?.remove(); clone = null; lastText = null;
+      return;
+    }
+    if (clone && lastText === text.data) return;
+    const animation = band(clone);
+    const start = animation?.startTime, time = animation?.currentTime;
+    const next = document.createElement('span');
+    next.className = 'status-shimmer-clone';
+    next.setAttribute('aria-hidden', 'true'); next.setAttribute('translate', 'no'); next.inert = true;
+    next.textContent = text.data;
+    if (clone) clone.replaceWith(next); else element.append(next);
+    clone = next; lastText = text.data;
+    const replacement = band(clone);
+    if (replacement) {
+      if (typeof start === 'number' && replacement.playState === 'running') replacement.startTime = start;
+      else if (typeof time === 'number') replacement.currentTime = time;
+    }
+  }
+  return {element, update(nextActive, content) {
+    const changed = nextActive !== active;
+    active = nextActive;
+    if (text.data !== content) text.data = content;
+    if (changed) {
+      observer?.disconnect(); observer = null;
+      eligible = true;
+      if (active && compositing && !view.ResizeObserver) eligible = false;
+    }
+    render();
+    // Check the laid-out host and clone once per activation.
+    if (changed && active && compositing && view.ResizeObserver) {
+      observer = new view.ResizeObserver(() => {
+        observer.disconnect(); eligible = eligibleLayout(); render();
+      });
+      try {
+        observer.observe(element);
+        if (clone) observer.observe(clone);
+      } catch {
+        observer.disconnect(); eligible = false; render();
+      }
+    }
+  }};
 }

@@ -202,13 +202,13 @@
     },
     {
       "name": "components/tasks.css",
-      "sha256": "4800bca2ed769df012ef4f84a8b34530e606d0b45d022b74f4f9a156b96b49ed",
-      "bytes": 13484
+      "sha256": "01ca208f81d0aa4dad0827cc8619f5952ad3d0a5843199327afeff595594af89",
+      "bytes": 14827
     },
     {
       "name": "components/tasks.js",
-      "sha256": "306b51f64d875474dacb387e944f06c876632a124e9ca660b07918ab0a0b3adb",
-      "bytes": 11869
+      "sha256": "ab60aa605fb64237f4b9b46e86998b28034316a7896731559f435535e9a1ad99",
+      "bytes": 14561
     },
     {
       "name": "components/type.css",
