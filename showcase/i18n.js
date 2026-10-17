@@ -2,6 +2,8 @@
 'use strict';
 const DemoI18n = (() => {
   const chinese = {
+  "{0}, working": "{0}，正在运行",
+  "Code is working in this example. Switch to Code to hide its background indicator; switch away to see it again.": "本例中的 Code 正在运行。切换到 Code 隐藏后台角标，切换到其他模式再次查看。",
   "Width limit": "宽度上限",
   "Project": "项目",
   "Model: Sonnet 4.6": "模型：Sonnet 4.6",

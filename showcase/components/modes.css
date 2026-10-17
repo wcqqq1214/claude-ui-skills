@@ -242,3 +242,29 @@
     padding-top: 22px;
   }
 }
+
+/* Running indicator pulses in the mode icon's corner. */
+.mode-activity { display: grid; }
+.mode-activity-icon {
+  grid-column-start: 1; grid-row-start: 1;
+  --mode-dot-r: calc(.1875rem * var(--cds-rem-scale, 1));
+  --mode-dot-x: calc(100% - var(--mode-dot-r) + 1px);
+}
+.mode-activity-icon:dir(rtl) { --mode-dot-x: calc(var(--mode-dot-r) - 1px); }
+@media (forced-colors: none) {
+  .mode-activity-icon:has(~ .mode-activity-indicator > *) {
+    mask-image: radial-gradient(circle at var(--mode-dot-x) calc(var(--mode-dot-r) - 1px), transparent calc(var(--mode-dot-r) + 2px), black calc(var(--mode-dot-r) + 2.5px));
+  }
+}
+.mode-activity-indicator {
+  position: relative; grid-column-start: 1; grid-row-start: 1;
+  margin-inline-end: -1px; margin-top: -1px; align-self: start; justify-self: end;
+}
+.mode-running {
+  display: block; width: calc(.375rem * var(--cds-rem-scale, 1)); height: calc(.375rem * var(--cds-rem-scale, 1));
+  border-radius: 9999px; background: var(--mode-muted); box-shadow: 0 0 0 .5px transparent;
+  animation: mode-running-blink 1.2s ease-in-out infinite;
+}
+@keyframes mode-running-blink { 0%, to { opacity: .3; } 50% { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .mode-running { animation: none; } }
+[data-reduce-motion='true'] .mode-running { animation-duration: .01ms !important; animation-iteration-count: 1 !important; }
