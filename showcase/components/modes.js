@@ -5,6 +5,28 @@ function initModesDemo() {
   const modeTrack = $('#modeTrack'),
     modeButtons = [...modeTrack.querySelectorAll('button')];
   let selectedMode = modeButtons[0];
+  const codeMode = modeButtons.find(button => button.dataset.mode === 'Code');
+  const indicator = codeMode.querySelector('.mode-activity-indicator');
+  // Fixed running sample; suppress attention in the current mode.
+  function updateCodeActivity() {
+    codeMode.setAttribute('aria-label', selectedMode === codeMode ? 'Code' : DemoI18n.t('{0}, working', 'Code'));
+    if (selectedMode === codeMode) indicator.replaceChildren();
+    else if (!indicator.firstChild) {
+      const dot = document.createElement('span');
+      dot.className = 'mode-running';
+      indicator.append(dot);
+    }
+  }
+  indicator.addEventListener('animationstart', event => {
+    const target = event.target;
+    if (typeof target.getAnimations !== 'function') return;
+    const origin = target.ownerDocument.defaultView?.performance.timeOrigin ?? performance.timeOrigin;
+    for (const animation of target.getAnimations()) {
+      const timing = animation.effect?.getTiming();
+      if (timing?.iterations === Infinity && typeof timing.duration === 'number' && timing.duration > 0)
+        animation.startTime = -(origin % timing.duration);
+    }
+  });
   function visibleModes() {
     return modeButtons.filter((b) => !b.hidden);
   }
@@ -31,6 +53,7 @@ function initModesDemo() {
     DemoI18n.text($('#modeSelection'), () =>
       DemoI18n.t('Selected {0} · Arrows move focus only', b.dataset.mode)
     );
+    updateCodeActivity();
     positionMode(true);
   }
   modeButtons.forEach((b) => {
@@ -48,6 +71,8 @@ function initModesDemo() {
       }
     };
   });
+  DemoI18n.attr(codeMode, 'aria-label', () => selectedMode === codeMode ? 'Code' : DemoI18n.t('{0}, working', 'Code'));
+  updateCodeActivity();
   $('#modeWidth').oninput = (e) => {
     $('#modeContainer').style.width = e.target.value + 'px';
     $('#modeWidthOutput').textContent = e.target.value + ' px';
