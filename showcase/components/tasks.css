@@ -270,13 +270,11 @@ button.progress-fold-button { font-weight: var(--regular); outline: none; }
 @keyframes progress-rail-grow { from { scale: 1 0; } }
 @keyframes progress-node-in { from { opacity: 0; scale: .4; } }
 @keyframes progress-sweep { from { transform: translateY(-100%); } to { transform: translateY(100%); } }
-@media (prefers-reduced-motion: no-preference) {
-  .progress-step-enter { animation: progress-step-in 220ms var(--out); }
-  .progress-rail-enter { transform-origin: top; animation: progress-rail-grow 220ms var(--out); }
-  .progress-node-enter { animation: progress-node-in 180ms var(--out); }
-  .progress-fold-button:hover .progress-fold-marks > span:nth-child(2) { transform: translate(-50%, -1px); }
-  .progress-fold-button:hover .progress-fold-marks > span:nth-child(n+3) { transform: translate(-50%, -2px); }
-}
+.progress-step-enter { animation: progress-step-in 220ms var(--out); }
+.progress-rail-enter { transform-origin: top; animation: progress-rail-grow 220ms var(--out); }
+.progress-node-enter { animation: progress-node-in 180ms var(--out); }
+.progress-fold-button:hover .progress-fold-marks > span:nth-child(2) { transform: translate(-50%, -1px); }
+.progress-fold-button:hover .progress-fold-marks > span:nth-child(n+3) { transform: translate(-50%, -2px); }
 .progress-list[data-playing='false'] *, .progress-list[data-playing='false'] *::after { animation-play-state: paused !important; }
 /* Fall back when the block or line-clamp checks prevent compositing. */
 .progress-list .status-shimmer[data-shimmer-mode='fallback'] {
@@ -285,7 +283,7 @@ button.progress-fold-button { font-weight: var(--regular); outline: none; }
   background-repeat: no-repeat; background-size: 400% 100%; background-position: 83.333% 0;
   animation: status-shimmer-shine 3s linear infinite;
 }
-@media (prefers-reduced-motion: no-preference) and (forced-colors: none) {
+@media (forced-colors: none) {
   :root[dir='rtl'] .progress-list .status-shimmer[data-shimmer-mode='fallback']:dir(rtl) {
     background-image: linear-gradient(240deg, var(--shimmer-base) 37.5%, var(--shimmer-peak) 50%, var(--shimmer-base) 62.5%);
     animation-name: progress-shimmer-shine-rtl;
@@ -303,24 +301,10 @@ button.progress-fold-button { font-weight: var(--regular); outline: none; }
   0%,15% { translate: -12.5%; animation-timing-function: cubic-bezier(.714,.121,.211,.888); }
   85%,100% { translate: -62.5%; }
 }
-@media (prefers-reduced-motion: reduce) {
-  .progress-list *, .progress-list *::after { animation: none !important; transition: none !important; }
-  .progress-list .progress-sweep, .progress-list .status-shimmer-clone { display: none !important; }
-  .progress-list .status-shimmer[data-shimmering='true'] { background: none; -webkit-text-fill-color: currentColor; }
-}
+
 @media (forced-colors: active) {
   .progress-list .status-shimmer[data-shimmering='true'] { animation: none; background: none; -webkit-text-fill-color: CanvasText; }
   .progress-list .status-shimmer-clone { display: none !important; }
 }
 
 [data-theme="dark"] .progress-fold-button:focus-visible .progress-fold-label { box-shadow: inset 0 0 0 1px var(--progress-surface), 0 0 0 1px var(--focus), 0 0 6px 1px rgb(24 79 149 / 60%); }
-
-/* The app preference shortens keyframes; system motion-reduce also removes transitions. */
-[data-reduce-motion='true'] .progress-list *,
-[data-reduce-motion='true'] .progress-list *::before,
-[data-reduce-motion='true'] .progress-list *::after {
-  animation-duration: .01ms !important;
-  animation-iteration-count: 1 !important;
-}
-[data-reduce-motion='true'] .progress-list .status-shimmer-clone,
-html[data-reduce-motion='true'] .progress-list .progress-sweep { display: none !important; }

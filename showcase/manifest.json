@@ -17,8 +17,8 @@
     },
     {
       "name": "components/composer.css",
-      "sha256": "8bec6b37b7dcc17b9bfc02b283e3d2443ba038f5bb5f60186c592dc301d27cb2",
-      "bytes": 9129
+      "sha256": "cd1a03e9deb675def1cea340b7c91af6c4713a14f85b5af277d1d925dfc132f7",
+      "bytes": 8918
     },
     {
       "name": "components/composer.js",
@@ -122,23 +122,23 @@
     },
     {
       "name": "components/gallery.css",
-      "sha256": "bf4466ecf04d92bad73c1db6ab44731fc30cf1b6e5bc7b40f27142edf99a4ae1",
-      "bytes": 4626
+      "sha256": "586f221127e5d5992e4a542c1fbba734a1fb11162a0113243ebd459997841a59",
+      "bytes": 4571
     },
     {
       "name": "components/gallery.js",
-      "sha256": "467892fe4dd1e2d9b90d9c897013cc8cd66f8e486725ff772671bc1d839334b8",
-      "bytes": 11508
+      "sha256": "f1653043022fd8526d6b37f027566873d94f3903fb4431885422c4bb56001f30",
+      "bytes": 11314
     },
     {
       "name": "components/images.css",
-      "sha256": "379147c4ef64cac46fe41cd21019191330fb9452891d4b1df370b5a2362554b5",
-      "bytes": 6667
+      "sha256": "dffd5d99bde4653e4a54282d463a18a80c7ee108bd800f4844a818c81f18c5b4",
+      "bytes": 6485
     },
     {
       "name": "components/images.js",
-      "sha256": "7b6c270b88ca5f4a987e782ac2b5e5bdd6d59a2369e34d5d6a14947719f60896",
-      "bytes": 7674
+      "sha256": "958ab2aec7199dcb2f58ffb31a1806298914dab9ca89b001c20e8d49af486a3f",
+      "bytes": 7615
     },
     {
       "name": "components/menus.css",
@@ -162,8 +162,8 @@
     },
     {
       "name": "components/modes.css",
-      "sha256": "e06d9b2f6332103a1c14812f7367a2c307a460fd20034a97233462f4afc2e224",
-      "bytes": 13539
+      "sha256": "3044ead9443f55f652e925de658709e49996025a356bb790e2c0cfe35734116e",
+      "bytes": 12755
     },
     {
       "name": "components/modes.js",
@@ -202,8 +202,8 @@
     },
     {
       "name": "components/tasks.css",
-      "sha256": "809995c605694b7ea58f84795a99ace269f16bd8d836c4416ea2da6797d417c7",
-      "bytes": 14920
+      "sha256": "0a8967c5a74e74dbb253f40a60888468e528fdf5e85011b9d38944d78169c8e3",
+      "bytes": 13957
     },
     {
       "name": "components/tasks.js",
@@ -312,8 +312,8 @@
     },
     {
       "name": "shell.css",
-      "sha256": "09bd9d865a3e507e518e3790f1e46f19f7682c08bfac3ed6b99c246947b3c126",
-      "bytes": 1469
+      "sha256": "b864a9b3004512ea873c232ed699c3dc892f3cd3bdf55791786efe2756fe923a",
+      "bytes": 1401
     },
     {
       "name": "shell.js",

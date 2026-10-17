@@ -12,4 +12,3 @@
 .shell-menu [aria-checked="true"]{color:var(--text)}
 .shell-check{visibility:hidden;font-size:12px}
 .shell-menu [aria-checked="true"] .shell-check{visibility:visible}
-@media(prefers-reduced-motion:reduce){.shell-icon{transition:none}}
