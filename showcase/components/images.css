@@ -122,10 +122,7 @@
 @media (forced-colors: active) {
   .image-preview-close:focus-visible { outline-style: solid; }
 }
-[data-reduce-motion="true"] .image-preview-squish { transition: none; }
-@media (prefers-reduced-motion: reduce) {
-  .image-preview-close .image-preview-squish { transition: none; }
-}
+
 .image-preview-surface {
   width: fit-content;
   border-radius: .375rem;

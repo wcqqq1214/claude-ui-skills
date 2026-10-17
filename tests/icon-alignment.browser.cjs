@@ -20,7 +20,7 @@ const types = {'.html':'text/html', '.js':'text/javascript', '.css':'text/css', 
   try {
     browser = await chromium.launch({executablePath:process.env.CHROME_BIN, headless:true});
     for (const width of [1280,390,320]) for (const theme of ['light','dark']) {
-      const page = await browser.newPage({viewport:{width,height:900}, colorScheme:theme, reducedMotion:width===320?'reduce':'no-preference'});
+      const page = await browser.newPage({viewport:{width,height:900}, colorScheme:theme});
       const errors = [];
       page.on('pageerror', e => errors.push(e.message));
       page.on('response', r => { if (r.status() >= 400) errors.push(r.url()); });

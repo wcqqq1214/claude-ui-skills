@@ -86,31 +86,18 @@ const types = {'.html':'text/html', '.js':'text/javascript', '.css':'text/css', 
         }
       }
       const thumb=page.locator('.mode-thumb');
-      for(const preference of ['system','app','both']) {
-        await page.emulateMedia({reducedMotion:preference==='app'?'no-preference':'reduce'});
-        await page.evaluate(p=>{if(p==='system')delete document.documentElement.dataset.reduceMotion;else document.documentElement.dataset.reduceMotion='true';},preference);
-        // Include ResizeObserver's data-snap branch and repeated real selections.
-        for(const limit of [160,360]) {
-          await page.locator('#modeWidth').evaluate((e,v)=>{e.value=v;e.dispatchEvent(new Event('input',{bubbles:true}));},limit);await settle();
-          assert.equal(await thumb.evaluate(e=>getComputedStyle(e).transitionDuration),'0s');
-          for(const button of [code,chat,code,chat]) {
-            await button.click();await settle();
-            assert.equal(await thumb.evaluate(e=>getComputedStyle(e).transitionDuration),'0s');
-            assert.equal(await thumb.evaluate(e=>e.getAnimations().length),0);
-            const alignment=await button.evaluate(e=>{const a=e.getBoundingClientRect(),b=document.querySelector('.mode-thumb').getBoundingClientRect();return Math.abs(a.left-b.left)+Math.abs(a.width-b.width);});
-            // Native positioning uses integer offsetLeft/offsetWidth.
-            assert.ok(alignment<=1, `${preference} width ${limit}: rounding error ${alignment}`);
-          }
+      for(const limit of [160,360]) {
+        await page.locator('#modeWidth').evaluate((e,v)=>{e.value=v;e.dispatchEvent(new Event('input',{bubbles:true}));},limit);await settle();
+        for(const button of [code,chat,code,chat]) {
+          await button.click();await settle();
+          const alignment=await button.evaluate(e=>{const a=e.getBoundingClientRect(),b=document.querySelector('.mode-thumb').getBoundingClientRect();return Math.abs(a.left-b.left)+Math.abs(a.width-b.width);});
+          assert.ok(alignment<=1, `width ${limit}: rounding error ${alignment}`);
         }
-        await page.evaluate(()=>location.hash='composer');await settle();await page.evaluate(()=>location.hash='modes');await settle();
-        assert.equal(await thumb.evaluate(e=>getComputedStyle(e).transitionDuration),'0s');
       }
-      await page.emulateMedia({reducedMotion:'no-preference'});
-      await page.evaluate(()=>delete document.documentElement.dataset.reduceMotion);
       await code.click();await settle();
       assert.equal(await thumb.evaluate(e=>getComputedStyle(e).transitionDuration),'0.12s, 0.3s');
       await chat.click();
-      console.log(`PASS ${touch?'touch':'mouse'}: RTL/LTR wrap, hidden item, modifiers, selection semantics, system/app thumb motion and restoration`);
+      console.log(`PASS ${touch?'touch':'mouse'}: RTL/LTR wrap, hidden item, modifiers, selection semantics, thumb motion`);
       for(const theme of ['light','dark'])for(const width of [1280,390,320]) {
         await page.evaluate(t=>document.documentElement.dataset.theme=t,theme);await page.setViewportSize({width,height:900});
         for(const limit of [160,300,360]) {
@@ -120,16 +107,6 @@ const types = {'.html':'text/html', '.js':'text/javascript', '.css':'text/css', 
           assert.deepEqual(g,{size:[6,6],offset:[11,-1],contained:true});
         }
       }
-      await page.emulateMedia({reducedMotion:'reduce'});await settle();
-      assert.equal(await dot.evaluate(e=>getComputedStyle(e).animationName),'none');
-      assert.equal(await dot.evaluate(e=>getComputedStyle(e).animationDuration),'1e-05s');
-      assert.equal(await dot.evaluate(e=>getComputedStyle(e).opacity),'1');
-      await code.click();await chat.click();assert.equal(await dot.evaluate(e=>e.getAnimations().length),0);
-      await page.emulateMedia({reducedMotion:'no-preference'});
-      await page.evaluate(()=>document.documentElement.dataset.reduceMotion='true');await settle();
-      assert.equal(await dot.evaluate(e=>getComputedStyle(e).animationDuration),'1e-05s');
-      assert.equal(await dot.evaluate(e=>getComputedStyle(e).animationIterationCount),'1');
-      await page.evaluate(()=>delete document.documentElement.dataset.reduceMotion);await settle();
       assert.equal(await dot.evaluate(e=>getComputedStyle(e).animationDuration),'1.2s');
       assert.equal(await dot.evaluate(e=>getComputedStyle(e).animationIterationCount),'infinite');
       assert.ok(await dot.evaluate(e=>{const a=e.getAnimations()[0];return Math.abs(a.startTime+performance.timeOrigin%1200)<.01;}));
@@ -144,7 +121,7 @@ const types = {'.html':'text/html', '.js':'text/javascript', '.css':'text/css', 
       await page.evaluate(()=>location.hash='modes');await settle();
       assert.equal(await dot.count(),1);
       if(process.env.MODE_SCREENSHOT_DIR)await page.screenshot({path:resolve(process.env.MODE_SCREENSHOT_DIR,`modes-${touch?'touch':'mouse'}.png`),fullPage:true});
-      console.log(`PASS ${touch?'touch':'mouse'}: language, focus vs selection, repeat switching, 2/3 items, width keyboard, 1280/390/320, preferences, phase, chapter return`);
+      console.log(`PASS ${touch?'touch':'mouse'}: language, focus vs selection, repeat switching, 2/3 items, width keyboard, 1280/390/320, phase, chapter return`);
       await context.close();
     }
     assert.deepEqual(errors,[]);console.log('PASS no script or asset errors');

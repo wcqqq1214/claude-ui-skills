@@ -13,7 +13,6 @@ function initGalleryDemo() {
     galleryOpened = false,
     galleryTransition = null,
     revision = 0;
-  const motion = matchMedia('(prefers-reduced-motion: reduce)');
   const gallerySlides = galleryFiles.map((src, i) => {
     const slide = document.createElement('div');
     slide.className = 'gallery-slide';
@@ -144,7 +143,7 @@ function initGalleryDemo() {
       galleryTransition = null;
       galleryClosing = false;
     };
-    if (motion.matches || typeof document.startViewTransition !== 'function') {
+    if (typeof document.startViewTransition !== 'function') {
       render();
       finish();
       return;
@@ -171,9 +170,6 @@ function initGalleryDemo() {
     if (!galleryOpened) return;
     setGalleryOpen(false);
   }
-  motion.addEventListener('change', () => {
-    if (motion.matches) galleryTransition?.skipTransition();
-  });
   $$('[data-gallery]').forEach(
     (b) => (b.onclick = () => openGallery(Number(b.dataset.gallery), b))
   );

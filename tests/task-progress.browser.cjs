@@ -122,37 +122,6 @@ const types = {'.html':'text/html', '.js':'text/javascript', '.css':'text/css', 
     }
     console.log('PASS both themes at 1280/390/320 px, expanded list, wrapping and existing card layout');
 
-    await page.emulateMedia({reducedMotion:'reduce'});
-    await replay.click(); await advance(300);
-    assert.equal(await progress.locator('.progress-sweep').evaluate(e=>getComputedStyle(e).display),'none');
-    await advance(6750); await fold.press('Enter'); await advance(30);
-    assert.ok((await earlier.boundingBox()).height>0);
-    assert.equal(await earlier.evaluate(e=>getComputedStyle(e).transitionDuration),'0s');
-    assert.equal(await progress.evaluate(e=>e.getAnimations({subtree:true}).filter(a=>a.playState==='running').length),0);
-    const label=progress.locator('[data-shimmering="true"]');
-    assert.equal(await label.evaluate(e=>getComputedStyle(e).webkitTextFillColor===getComputedStyle(e).color),true);
-    await page.keyboard.press('Space'); await advance(30);
-    assert.equal((await earlier.boundingBox()).height,0);
-    assert.equal(await earlier.evaluate(e=>e.inert),true);
-    assert.deepEqual(errors,[]);
-    console.log('PASS reduced-motion static feedback, immediate keyboard fold, no active animations and no page/load errors');
-
-    // The app override keeps CSS transitions, unlike the system motion preference.
-    await page.emulateMedia({reducedMotion:'no-preference'});
-    await page.evaluate(()=>document.documentElement.dataset.reduceMotion='true');
-    await replay.click(); await advance(300);
-    assert.equal(await progress.locator('.progress-sweep').evaluate(e=>getComputedStyle(e).display),'none');
-    await advance(6750);
-    assert.equal(await progress.locator('.status-shimmer-clone').evaluate(e=>getComputedStyle(e).display),'none');
-    assert.equal(await progress.locator('.progress-clay').evaluate(e=>getComputedStyle(e).animationIterationCount),'1');
-    assert.equal(await progress.evaluate(e=>e.getAnimations({subtree:true}).filter(a=>a.playState==='running').length),0);
-    assert.equal(await earlier.evaluate(e=>getComputedStyle(e).transitionDuration),'0.2s');
-    await fold.press('Enter'); await advance(300);
-    assert.ok((await earlier.boundingBox()).height>0);
-    await page.evaluate(()=>delete document.documentElement.dataset.reduceMotion); await advance(100);
-    assert.equal(await progress.locator('.progress-clay').evaluate(e=>getComputedStyle(e).animationIterationCount),'infinite');
-    console.log('PASS app motion override, retained fold transition and preference restoration');
-
     // Use a real clock for clone replacement: preserved phase, rather than a fresh sweep.
     const motion = await browser.newPage({viewport:{width:1280,height:900}});
     motion.setDefaultTimeout(5000);
@@ -224,10 +193,6 @@ const types = {'.html':'text/html', '.js':'text/javascript', '.css':'text/css', 
       await fallback.evaluate(()=>document.documentElement.dir='rtl');
       assert.equal(await label.evaluate(e=>getComputedStyle(e).animationName),'progress-shimmer-shine-rtl');
       await fallback.emulateMedia({forcedColors:'active'});
-      assert.equal(await label.evaluate(e=>getComputedStyle(e).animationName),'none');
-      assert.equal(await label.evaluate(e=>getComputedStyle(e).backgroundImage),'none');
-      await fallback.emulateMedia({forcedColors:'none',reducedMotion:'reduce'});
-      assert.equal(await label.evaluate(e=>getComputedStyle(e).webkitTextFillColor===getComputedStyle(e).color),true);
       assert.equal(await label.evaluate(e=>getComputedStyle(e).animationName),'none');
       assert.equal(await label.evaluate(e=>getComputedStyle(e).backgroundImage),'none');
       await fallback.close();

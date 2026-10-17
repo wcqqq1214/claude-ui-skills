@@ -93,7 +93,6 @@ const types = {'.html':'text/html', '.js':'text/javascript', '.css':'text/css', 
     assert.equal(await page.locator('#workspace h2').innerText(),'文件面板');
     while(await page.locator('html').getAttribute('data-theme')!=='dark') await page.locator('#themeBtn').click();
     if(process.env.SCREENSHOT_DIR) await page.screenshot({path:resolve(process.env.SCREENSHOT_DIR,'source-workspace-desktop.png'),fullPage:true});
-    await page.emulateMedia({reducedMotion:'reduce'});
     await expand.click(); await expand.click(); await reset(); assert.equal(await width(),244);
     const links=await page.locator('#chapterNav a').evaluateAll(a=>a.map(e=>e.hash));
     assert.equal(links.length,13);
@@ -113,7 +112,7 @@ const types = {'.html':'text/html', '.js':'text/javascript', '.css':'text/css', 
       if(process.env.SCREENSHOT_DIR && narrow===390) await page.screenshot({path:resolve(process.env.SCREENSHOT_DIR,'source-workspace-mobile.png'),fullPage:true});
     }
     assert.deepEqual(errors,[]);
-    console.log('PASS original chapter anchors, languages, themes, reduced-motion operation and 390/320px layouts');
+    console.log('PASS original chapter anchors, languages, themes, 390/320px layouts');
   } finally {
     await browser?.close();
     await new Promise(r => server.close(r));

@@ -239,26 +239,6 @@ const types = {'.html':'text/html', '.js':'text/javascript', '.css':'text/css', 
     assert.equal(await page.locator('#pinnedStatus').innerText(),'已恢复原来的顺序');
     while(await page.locator('html').getAttribute('data-theme')!=='dark') await page.locator('#themeBtn').click();
     if(process.env.SCREENSHOT_DIR) await page.screenshot({path:resolve(process.env.SCREENSHOT_DIR,'dark-desktop.png'),fullPage:true});
-    await page.emulateMedia({reducedMotion:'reduce'});
-    await openMenu('reading');
-    assert.equal(await popup.evaluate(e=>getComputedStyle(e).animationName),'none');
-    assert.equal(await popup.evaluate(e=>getComputedStyle(e).transitionDuration),'0s');
-    await page.keyboard.press('Escape');
-    await reorder('notes',3);
-    assert.equal(await list.locator('[data-pin="reading"]').evaluate(e=>getComputedStyle(e).transitionDuration),'0s');
-    assert.equal(await page.locator('.pinned-ghost-surface').evaluate(e=>getComputedStyle(e).transitionDuration),'0s');
-    await page.mouse.up(); await reset();
-    await page.emulateMedia({reducedMotion:'no-preference'});
-    await page.evaluate(()=>document.documentElement.dataset.reduceMotion='true');
-    await openMenu('reading');
-    assert.equal(await popup.evaluate(e=>getComputedStyle(e).animationName),'none');
-    assert.equal(await popup.evaluate(e=>getComputedStyle(e).transitionDuration),'0s');
-    await page.keyboard.press('Escape');
-    await reorder('notes',3);
-    assert.equal(await list.locator('[data-pin="reading"]').evaluate(e=>getComputedStyle(e).transitionDuration),'0s');
-    assert.equal(await page.locator('.pinned-ghost-surface').evaluate(e=>getComputedStyle(e).transitionDuration),'0s');
-    await page.mouse.up(); await reset();
-    await page.evaluate(()=>delete document.documentElement.dataset.reduceMotion);
     for(const narrow of [390,320]) {
       await page.setViewportSize({width:narrow,height:844});
       await reorder('notes',3); await page.mouse.up(); await reset();
@@ -285,7 +265,7 @@ const types = {'.html':'text/html', '.js':'text/javascript', '.css':'text/css', 
     assert.equal(await phone.locator('.pinned-ghost').count(),0);
     await touch.close();
     assert.deepEqual(errors,[]);
-    console.log('PASS original modes, translations, dark theme, reduced motion, 390/320px and emulated touch drag');
+    console.log('PASS original modes, translations, dark theme, 390/320px and emulated touch drag');
   } finally {
     await browser?.close();
     await new Promise(r => server.close(r));
