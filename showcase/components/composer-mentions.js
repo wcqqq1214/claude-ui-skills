@@ -4,10 +4,10 @@ function initComposerMentions() {
   const editor = $('#promptInput'), popup = $('#composerMentionList');
   const option = $('#composerMentionOption'), menu = $('#composerMentionMenu');
   const remove = menu.querySelector('button');
-  let queryRange = null, composing = false, dismissed = null, contextNode = null;
+  let queryRange = null, composing = false, dismissed = null, contextNode = null, contextSelection = null;
   const label = () => option.querySelector('.composer-mention-title').textContent;
   function localize() {
-    editor.dataset.placeholder = DemoI18n.t('Type a few lines…');
+    $('#composerPlaceholder').textContent = DemoI18n.t('Type a few lines…');
     editor.setAttribute('aria-label', DemoI18n.t('Demo input'));
     close();
   }
@@ -82,8 +82,10 @@ function initComposerMentions() {
       node.toggleAttribute('data-selected', !!selection && selection.startContainer === node.parentNode &&
         selection.endContainer === node.parentNode && selection.startOffset === index && selection.endOffset === index + 1);
     }
+    // An empty paragraph is a caret position, not placeholder text in the editing flow.
+    const empty = !editor.textContent && !editor.querySelector('.composer-mention');
+    $('#composerPlaceholder').hidden = !empty || editor.querySelectorAll('br').length > 1;
     if (composing || document.activeElement !== editor) return close();
-    editor.dataset.empty = String(!editor.textContent && !editor.querySelector('.composer-mention'));
     const found = queryAtCaret();
     if (!found) { dismissed = null; return close(); }
     if (!label().toLocaleLowerCase().includes(found.query.toLocaleLowerCase())) return close();
@@ -142,12 +144,16 @@ function initComposerMentions() {
     document.execCommand('insertText', false, event.clipboardData.getData('text/plain'));
   });
   function closeMenu(restore = false) {
+    const saved = contextSelection;
     menu.hidden = true;
-    if (restore && contextNode?.isConnected) {
-      const range = document.createRange(); range.setStartAfter(contextNode); range.collapse(true); selectRange(range);
-    }
     contextNode = null;
+    contextSelection = null;
+    if (restore && saved && editor.contains(saved.commonAncestorContainer)) selectRange(saved);
   }
+  editor.addEventListener('pointerdown', event => {
+    // Um stops secondary presses from changing the editor selection.
+    if (event.button === 2 && event.target.closest('.composer-mention')) event.preventDefault();
+  });
   editor.addEventListener('click', event => {
     const node = event.target.closest('.composer-mention');
     if (!node) return;
@@ -157,7 +163,7 @@ function initComposerMentions() {
     const node = event.target.closest('.composer-mention');
     if (!node) return;
     event.preventDefault(); close(); closeMenu(); contextNode = node;
-    const selected = document.createRange(); selected.selectNode(node); selectRange(selected); update();
+    contextSelection = selectionRange()?.cloneRange() || null;
     menu.hidden = false;
     menu.style.left = Math.max(16, Math.min(event.clientX, innerWidth - menu.offsetWidth - 16)) + 'px';
     menu.style.top = Math.max(16, Math.min(event.clientY, innerHeight - menu.offsetHeight - 16)) + 'px';

@@ -7,7 +7,7 @@ function initComposerDemo() {
   function resizeInput() {
     if (!prompt.clientWidth) return;
     prompt.style.height = 'auto';
-    prompt.style.height = Math.min(prompt.scrollHeight, 130) + 'px';
+    prompt.style.height = prompt.scrollHeight + 'px';
   }
   prompt.addEventListener('input', resizeInput);
   let inputWidth = 0;
@@ -211,7 +211,7 @@ function initComposerChin() {
   DemoI18n.onChange(() => { render(); measure(); });
   const width = $('#composerWidth'), output = $('#composerWidthOutput');
   function updateFrame() {
-    $('.composer-box').style.setProperty('--composer-demo-width', width.value + 'px');
+    $('.composer-frame').style.setProperty('--composer-demo-width', width.value + 'px');
     output.textContent = width.value + ' px';
   }
   function updateMinimum() {

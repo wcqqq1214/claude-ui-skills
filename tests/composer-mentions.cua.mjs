@@ -20,6 +20,14 @@ export default async function verifyMentions(tab, viewport) {
     await editor.press('ControlOrMeta+z'); assert.equal(await mentions.count(),1);
   }
   logs.push('Enter/Tab, one-row clamped arrows, atomic backspace and undo');
+  await editor.fill('@'); await editor.press('Enter');
+  await mentions.first().click({button:'right'});
+  await tab.playwright.locator('#composerMentionMenu').press('Escape');
+  assert.equal(await focused(),'promptInput');
+  await editor.press('Backspace'); assert.equal(await mentions.count(),1);
+  await editor.press('Backspace'); assert.equal(await mentions.count(),0);
+  logs.push('Context Escape preserves the trailing-space caret, matching native two-step Backspace');
+
   await editor.fill('@'); await editor.press('Escape');
   assert.equal(await popup.isVisible(),false); assert.equal(await editor.innerText(),'@');
   await editor.fill('@' + title[0]); await editor.press('Escape');
