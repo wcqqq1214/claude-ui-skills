@@ -40,6 +40,9 @@ const types = {'.html':'text/html','.js':'text/javascript','.css':'text/css','.s
       });
       const url=`http://127.0.0.1:${server.address().port}/showcase/index.html?lang=zh-Hans#images`;
       await page.goto(url);await page.evaluate(()=>document.fonts.ready);
+      assert.equal(await page.locator('.image-zoom-icon').count(),0);
+      const thumbnail=await page.locator('#imageOrigin img').evaluate(e=>{const r=e.getBoundingClientRect();return {width:r.width,height:r.height,fit:getComputedStyle(e).objectFit};});
+      assert.deepEqual(thumbnail,{width:120,height:120,fit:'contain'});
       const origin=page.locator('#imageOrigin'),dialog=page.locator('#imageDialog');
       const settled=()=>page.waitForFunction(()=>!document.documentElement.classList.contains('image-preview-active'));
       const open=async()=>{await origin.click();await dialog.waitFor({state:'visible'});await settled();};
@@ -57,6 +60,7 @@ const types = {'.html':'text/html','.js':'text/javascript','.css':'text/css','.s
         await page.setViewportSize({width,height:900});await page.evaluate(t=>document.documentElement.dataset.theme=t,theme);
         await open();
         const metrics=await page.locator('#imagePreviewSurface').evaluate(e=>{const r=e.getBoundingClientRect(),s=getComputedStyle(e);return {radius:s.borderRadius,shadow:s.boxShadow,inside:r.left>=0&&r.right<=innerWidth&&r.top>=0&&r.bottom<=innerHeight,overflow:document.documentElement.scrollWidth>innerWidth};});
+        assert.equal(await page.evaluate(()=>document.documentElement.style.getPropertyValue('--image-preview-source-inset')),'17.5% 0% 17.5% 0%');
         assert.equal(metrics.radius,'6px');assert.equal(metrics.inside,true);assert.equal(metrics.overflow,false);
         assert.ok(metrics.shadow.includes('0.3')&&metrics.shadow.includes('0.25'));
         const layout=await page.evaluate(()=>{
@@ -77,8 +81,8 @@ const types = {'.html':'text/html','.js':'text/javascript','.css':'text/css','.s
       for(let i=0;i<records.length;i++){
         assert.equal(records[i].duration,i%2?'0.25s':'0.35s');
         const frames=records[i].frames[0];assert.ok(frames?.length>=2);
-        assert.equal(frames[0].borderTopLeftRadius,i%2?'6px':'7px');
-        assert.equal(frames.at(-1).borderTopLeftRadius,i%2?'7px':'6px');
+        assert.equal(frames[0].borderTopLeftRadius,i%2?'6px':'0px');
+        assert.equal(frames.at(-1).borderTopLeftRadius,i%2?'0px':'6px');
       }
       await page.setViewportSize({width:1280,height:900});
       for(const method of ['button','image','backdrop','escape']){await open();await close(method);}
@@ -191,5 +195,5 @@ const types = {'.html':'text/html','.js':'text/javascript','.css':'text/css','.s
       await context.close();
     }
     assert.deepEqual(errors,[]);console.log('PASS no script or asset errors');
-  } finally {await browser.close();await new Promise(r=>server.close(r));}
+  } finally {await browser.close();server.closeAllConnections();await new Promise(r=>server.close(r));}
 })().catch(e=>{console.error(e);process.exitCode=1;});
