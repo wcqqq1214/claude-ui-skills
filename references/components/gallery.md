@@ -40,4 +40,4 @@ Use for: several images sharing one overlay, with neighbor previews, keyboard pa
 - [ ] Close and focus return
 - [ ] Narrow layout below 40rem
 
-Related component guides: [component index](../components.md).
+Local adaptations and limits: [coverage](../../docs/coverage.md#gallery).

@@ -39,4 +39,4 @@ Use for: a small fixed set of mutually exclusive views or options, such as previ
 - [ ] Language and width changes
 - [ ] The compact file-panel consumer
 
-Related component guides: [component index](../components.md).
+Local adaptations and limits: [coverage](../../docs/coverage.md#segmented).

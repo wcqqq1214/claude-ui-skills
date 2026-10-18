@@ -39,4 +39,4 @@ Use for: a small set of status cards; a nearby drop target whose active boundary
 - [ ] Progress replay, folding and expanding earlier steps
 - [ ] Language changes during progress playback
 
-Related component guides: [component index](../components.md).
+Local adaptations and limits: [coverage](../../docs/coverage.md#tasks).

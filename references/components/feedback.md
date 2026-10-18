@@ -48,4 +48,4 @@ Use for: an animated activity mark with a shimmering status line while work is u
 - [ ] Translated status text and loaded content
 - [ ] Accordion focus reachability, open and closed
 
-Related component guides: [component index](../components.md).
+Local adaptations and limits: [coverage](../../docs/coverage.md#feedback).

@@ -25,4 +25,4 @@ Choose the user-facing scenario, then read that chapter's linked HTML, JS and CS
 
 Component CSS relies on [style.css](../showcase/style.css) for the border-box reset, shared buttons, surface and `--ease-*` tokens and page layout, plus [fonts.css](../showcase/fonts.css) for font roles. Read the chapter's additional cross-component dependencies before adapting it.
 
-The linked component guides describe each chapter's demonstrated behavior and local adaptations.
+[Coverage](../docs/coverage.md) records each chapter's local adaptations and limits.

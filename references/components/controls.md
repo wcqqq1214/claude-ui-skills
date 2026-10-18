@@ -36,4 +36,4 @@ Use for: a binary setting (switch), an independent choice (checkbox) or a small 
 - [ ] Both slider endpoints
 - [ ] Both playback speeds and both themes
 
-Related component guides: [component index](../components.md).
+Local adaptations and limits: [coverage](../../docs/coverage.md#controls).

@@ -41,4 +41,4 @@ Use for: a file list beside a preview, where readers switch files and view forma
 - [ ] Translated content and long filenames
 - [ ] The compact view control
 
-Related component guides: [component index](../components.md).
+Local adaptations and limits: [coverage](../../docs/coverage.md#workspace).

@@ -48,4 +48,4 @@ Use for: prose with headings, inline and fenced code, long identifiers, inline i
 - [ ] Local overflow, expand, close and focus return
 - [ ] Equal rendered widths for the tabular sample; offscreen pause and resume
 
-Related component guides: [component index](../components.md).
+Local adaptations and limits: [coverage](../../docs/coverage.md#reading).

@@ -24,11 +24,12 @@ Adapt Claude Desktop–style UI, typography and motion into an existing frontend
 - **Radius by role.** 4px tiny marks · 5–6px rows, tooltips, small icon buttons · 8px buttons, tiles, cards, code blocks · 10px menus, toasts, the user bubble · 12px the composer · 14–16px dialogs and large images · pill for switches, badges and handles. A nested corner is the outer radius minus the inset.
 - **Elevation in three steps.** Panel, popover and dialog shadows each combine the ring with soft depth; nested surfaces keep the ring alone.
 - **Hairlines.** Decorative separators thin to .5/.33/.25px on dense screens; control outlines, focus rings and table grids stay 1px.
-- **Motion is short and quiet.** Most transitions run 60–200ms. Geometry snaps, surfaces ease out, and only press release and the switch/slider handle overshoot.
+- **Motion is short and quiet.** Most transitions run 60–200ms. Geometry snaps, surfaces ease out, and only press release and the switch/slider handle overshoot. Motion explains a state change and keeps the reader's place.
+- **Feedback stays close.** Feedback appears next to its target, focus previews an option without committing it, and drafts survive language, theme and layout changes.
 
 ## Motion vocabulary
 
-Curves are tokens in [style.css](showcase/style.css); durations stay literal in each component. Durations below are the demo's actual usage.
+Curves are tokens in [style.css](showcase/style.css); durations stay literal in each component. Durations below are the demo's actual usage. Use the curve and duration each guide gives: two transitions that share a token are not interchangeable.
 
 | Token | Curve | Duration | Use for |
 | --- | --- | --- | --- |
@@ -47,7 +48,7 @@ Sprite marks (status marks, working dots) step through frames with `steps(n, jum
 ## Scope
 
 - Change presentation only: markup, styles, motion, focus and visible state. Leave data flow, backend calls, auth, tool execution, reconnection and feature flags as they are.
-- Implement effects documented in the [component guides](references/components.md), respecting each chapter's scope and local adaptations.
+- Implement effects that have a guide here. [Coverage](docs/coverage.md) lists the effects deliberately left out and each chapter's local adaptations.
 - The demo has no reduced-motion variants; keep whatever reduced-motion handling the target app already has.
 - Work from the bundled demo; collect new reference material from Claude only when the user asks.
 

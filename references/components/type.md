@@ -37,4 +37,4 @@ Use for: one of five standalone effects: grapheme reveal, body fade, a user mess
 - [ ] Language changes and narrow wrapping, without moving the outer page
 - [ ] Working mark hover, focus and completion
 
-Related component guides: [component index](../components.md).
+Local adaptations and limits: [coverage](../../docs/coverage.md#type).

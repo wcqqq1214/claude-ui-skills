@@ -37,4 +37,4 @@ Use for: top-level mode buttons that stay in natural Tab order, where arrows mov
 - [ ] Rapid resize combined with selection; right-to-left
 - [ ] Pinned drag commit, Escape cancel, menu moves and focus return
 
-Related component guides: [component index](../components.md).
+Local adaptations and limits: [coverage](../../docs/coverage.md#modes).

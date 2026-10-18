@@ -28,7 +28,7 @@ git clone https://github.com/wcqqq1214/claude-ui-skills.git \
 用 $claude-ui-skills 改进这个页面的侧栏与分段控件。
 ```
 
-仅覆盖 UI、前端交互、排版与动效。[范围与行为](docs/scope-and-provenance.md) · [演示说明](showcase/README.md)。
+仅覆盖 UI、前端交互、排版与动效。[范围与覆盖](docs/coverage.md)。
 
 ## 演示
 

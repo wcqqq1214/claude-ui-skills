@@ -28,7 +28,7 @@ git clone https://github.com/wcqqq1214/claude-ui-skills.git \
 Use $claude-ui-skills to adapt this page's sidebar and segmented controls.
 ```
 
-UI, frontend interactions, typography and motion only. [Scope and behavior](docs/scope-and-provenance.md) · [Demo](showcase/README.md).
+UI, frontend interactions, typography and motion only. [Scope and coverage](docs/coverage.md).
 
 ## Demo
 

@@ -36,4 +36,4 @@ Use for: notifications that stay manageable as messages arrive and leave. Presen
 - [ ] Deduplication and action-notice persistence
 - [ ] Queue refill with more than three messages
 
-Related component guides: [component index](../components.md).
+Local adaptations and limits: [coverage](../../docs/coverage.md#recovery).

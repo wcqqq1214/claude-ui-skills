@@ -36,4 +36,4 @@ Use for: short explanations on hover or focus, the full text of a label only whe
 - [ ] Copy success and failure
 - [ ] Repeated notification replacement
 
-Related component guides: [component index](../components.md).
+Local adaptations and limits: [coverage](../../docs/coverage.md#micro).

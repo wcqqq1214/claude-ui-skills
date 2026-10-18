@@ -51,4 +51,4 @@ Use for: the composer surface and its hover/focus states, `@` Artifact reference
 - [ ] Add, remove, re-add; interrupted removal; last-tile cleanup
 - [ ] Narrow wrapping, both themes, both languages, keyboard focus return
 
-Related component guides: [component index](../components.md).
+Local adaptations and limits: [coverage](../../docs/coverage.md#composer).

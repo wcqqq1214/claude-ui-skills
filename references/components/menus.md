@@ -42,4 +42,4 @@ Use for: a submenu where focus previews an option without committing it; search 
 - [ ] Language and theme changes during a highlight
 - [ ] Rapid palette open/close
 
-Related component guides: [component index](../components.md).
+Local adaptations and limits: [coverage](../../docs/coverage.md#menus).

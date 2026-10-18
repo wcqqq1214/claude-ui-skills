@@ -35,4 +35,4 @@ Use for: one image that opens from a visible thumbnail and returns to the same p
 - [ ] Close with the thumbnail scrolled out of view
 - [ ] Focus return, both themes, narrow and short viewports
 
-Related component guides: [component index](../components.md).
+Local adaptations and limits: [coverage](../../docs/coverage.md#images).

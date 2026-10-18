@@ -37,7 +37,7 @@ Browser tests drive an installed Chrome. The runner looks in the usual install l
 
 ## Adaptation boundaries
 
-The layout, sample data, decorative artwork and language/theme controls are local designs. See the [component guides](../references/components.md) for demonstrated behavior and local adaptations.
+The layout, sample data, decorative artwork and language/theme controls are local designs. See [scope and coverage](../docs/coverage.md) for adaptations and verification limits.
 
 [Component guides](../references/components.md)
 
@@ -52,4 +52,4 @@ To deploy:
 3. In Actions, manually run **Deploy demo to Pages** on `main`.
 4. After confirming the site works, set the GitHub About Website to `https://wcqqq1214.github.io/claude-ui-skills/`.
 
-The workflow stages only HTML, CSS, JS and SVG from `showcase/`, CSS and JS from `components/`, `components/status-assets/*.webp`, `components/status-assets/progress-clay.png` and `fonts/*.woff2` at the site root. Repository documentation, the Skill and the manifest are excluded from the site. Component guides and local preview continue to use relative repository paths. Site availability and visibility depend on the GitHub plan and Pages settings.
+The workflow stages only HTML, CSS, JS and SVG from `showcase/`, CSS and JS from `components/`, `components/status-assets/*.webp`, `components/status-assets/progress-clay.png` and `fonts/*.woff2` at the site root. Repository documentation and the Skill are excluded from the site. Component guides and local preview continue to use relative repository paths. Site availability and visibility depend on the GitHub plan and Pages settings.
