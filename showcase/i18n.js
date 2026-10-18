@@ -21,6 +21,8 @@ const DemoI18n = (() => {
   "Send (preview only)": "发送（仅预览）",
   "Progress": "进度",
   "Done": "已完成",
+  "Stopped": "已停止",
+  "Failed": "失败",
   "Replay to watch the steps unfold. Expand earlier steps to read them again.": "重播以查看步骤逐渐展开，点击较早的步骤可再次查看。",
   "Hide earlier steps": "收起较早的步骤",
   "{0} earlier step": "前面的 {0} 个步骤",
@@ -112,7 +114,12 @@ const DemoI18n = (() => {
   "Hover or focus to copy · Check on success · Reset after 2000ms": "悬停或聚焦显示复制 · 成功后打勾 · 2000ms 后复原",
   "Typography details": "排版细节",
   "Code & tables": "代码与表格",
-  "A few quiet details make a page easier to read. Leave room between ideas, and let each sentence find its own rhythm.": "一些细微的安排，让阅读变得轻松。在想法之间留下空隙，让每一句话都有自己的节奏。",
+  // The English paragraph emphasizes one phrase with <em>. System CJK fonts have no italic and synthesis
+  // is off, so the Chinese copy carries the whole sentence in the first text node and no emphasis;
+  // splitting it would also leave the English inter-word spaces inside the Chinese sentence.
+  "A few quiet details make a page easier to read.": "一些细微的安排，让阅读变得轻松。在想法之间留下空隙，让每一句话都有自己的节奏。",
+  "Leave room between ideas": "",
+  ", and let each sentence find its own rhythm.": "",
   "Demo width cap · 36em / 540px": "演示宽度上限 · 36em / 540px",
   "Demo width cap · {0}em / {1}px": "演示宽度上限 · {0}em / {1}px",
   "Resize to see wrapping": "缩窄观察换行",

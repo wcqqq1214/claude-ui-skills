@@ -16,7 +16,7 @@ Use for: one of five standalone effects: grapheme reveal, body fade, a user mess
 | --- | --- |
 | Grapheme reveal | Each span from 6px blur over 90ms `--ease-out-cubic`, delayed by index × 30ms |
 | Body fade | 100ms linear, `backwards` fill; timed separately from the grapheme reveal |
-| User bubble | Right-aligned; 10px radius; 12px horizontal / 8px vertical padding; max width 85%; fill `rgb(11 11 11 / 5%)` light, `rgb(255 255 255 / 5%)` dark, over the host surface; no border or shadow |
+| User bubble | Right-aligned; 10px radius; 12px horizontal / 8px vertical padding; max width 85%; fill `rgb(11 11 11 / 5%)` light, `rgb(255 255 255 / 5%)` dark, over the host surface; no border or shadow; emphasis in the Sans italic face |
 | Follow | Active while pinned and the bottom gap exceeds 2px |
 | Resume | Scrolling down to within 1px of the bottom |
 | Return button | Appears when unpinned and the end marker is beyond a 200px extension; 200ms transition; inert while hidden |

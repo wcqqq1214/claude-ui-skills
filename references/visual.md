@@ -81,6 +81,7 @@ Decorative separator width follows resolution: 1px, then .5px at 2×, 1/3px at 3
 - Light uses 400/500/600 for regular/medium/bold; dark uses 360/460/540/560 for regular/medium/semibold/bold. The [reading guide](components/reading.md) runs a fixed-versus-theme weight comparison.
 - Simplified Chinese falls back through PingFang SC → Microsoft YaHei → Noto Sans CJK SC; Sans puts `system-ui` before that chain. Chinese glyphs come from system fonts.
 - Numbers that update in place use tabular figures.
+- Emphasis (`<em>`) uses the bundled italic faces: Serif italic in prose, Sans italic in UI text such as the user bubble. Mono italic ships with the fonts, but nothing in the demo uses it. `html` sets `font-synthesis: none`, so a family without an italic face renders emphasis upright; system CJK fonts have none, which is why Chinese emphasis shows no slant.
 
 ## Icons
 

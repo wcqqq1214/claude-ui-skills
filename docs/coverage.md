@@ -25,7 +25,7 @@ Not every size, disabled state, tooltip combination, long list, nested overlay, 
 
 ### Text reveal and local scrolling
 
-- **Behavior:** the two-column grid has separate playback triggers. The reveal sample uses 18px text; the bubble uses 14px text with 1.6 line spacing. The scrolling example has a 300px viewport. Replay clears the added paragraphs and pauses at the top; paragraphs appear at 0.4, 1.1 and 1.8s, then every 2s until 11.8s. The view begins following with the first added paragraph. These timings belong to the local example. The activity-mark card demonstrates hover and keyboard focus independently of scrolling.
+- **Behavior:** the two-column grid has separate playback triggers. The reveal sample uses 18px text; the bubble uses 14px text with 1.6 line spacing and an emphasized sample phrase. The scrolling example has a 300px viewport. Replay clears the added paragraphs and pauses at the top; paragraphs appear at 0.4, 1.1 and 1.8s, then every 2s until 11.8s. The view begins following with the first added paragraph. These timings belong to the local example. The activity-mark card demonstrates hover and keyboard focus independently of scrolling.
 - **Limits:** the activity mark repeatedly contracts and expands. Only this loop is shown; separate entrance and exit animations and continuity between separate examples are not demonstrated. The example does not cover a complete streamed conversation or page layout.
 
 <a id="controls"></a>
@@ -80,7 +80,7 @@ Not every size, disabled state, tooltip combination, long list, nested overlay, 
 
 ### Reading, code and tables
 
-- **Behavior:** body text uses 15px type and 1.6 line spacing in a column up to 36em wide. The 12–36em width control reflows the title, paragraphs and identifiers. Code and table examples sit side by side, then stack at widths of 760px or less. Rulers and labels accompany baseline, number and weight comparisons. The English weight samples stay fixed. The number sample advances by seven hundredths every 50ms and wraps after 00:59.99. The 720px sample table sits in a frame and can open in a dialog whose layout adjusts at 620px or less. Copy provides a tooltip and reports failure. The fenced-code sample has no syntax colors.
+- **Behavior:** body text uses 15px type and 1.6 line spacing in a column up to 36em wide. The 12–36em width control reflows the title, paragraphs and identifiers. Code and table examples sit side by side, then stack at widths of 760px or less. Rulers and labels accompany baseline, number and weight comparisons. The English weight samples stay fixed. The number sample advances by seven hundredths every 50ms and wraps after 00:59.99. The 720px sample table sits in a frame and can open in a dialog whose layout adjusts at 620px or less. Copy provides a tooltip and reports failure. The fenced-code sample has no syntax colors. An emphasized phrase appears in the English sample; the Chinese translation has no emphasized phrase.
 - **Limits:** headings and paragraphs adjust their line breaks as the available width changes; some short final lines may remain. Inline and fenced code have separate presentations. Copy feedback changes from Copy to Check, then returns to Copy; keyboard activation and dark-theme feedback were recorded. Number samples keep digits aligned. Equal weight values can look different across typefaces; Chinese fallback glyphs and icon alignment may look different. Nested dialogs and layouts with an on-screen keyboard are not covered.
 
 <a id="gallery"></a>

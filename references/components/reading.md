@@ -17,6 +17,7 @@ Use for: prose with headings, inline and fenced code, long identifiers, inline i
 | Part | Value |
 | --- | --- |
 | Prose | Serif; demo body 15px, line height 1.6, measure ≤ 36em (`--reading-measure`) |
+| Emphasis | `<em>` in the Serif italic face; Chinese text stays upright (no CJK italic, synthesis off) |
 | Wrapping | Headings `balance`, paragraphs `pretty`; long identifiers may break |
 | Inline icon | `-.125em` baseline offset on the inline host: a 16px icon sits 2px lower in 15px text |
 | Inline code | .9em, line height 1, .4em radius, .0625em/.25em padding; text `#8e2626` light, `#ec7e7e` dark; fill at 5% and .5px border at 10% of `rgb(11 11 11)` (light) or white (dark); `pre-wrap`, `break-word` |
