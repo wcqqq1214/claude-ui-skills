@@ -33,7 +33,7 @@ npm test           # unit tests, then every browser test in sequence
 npm run test:browser -- gallery --jobs=3   # a subset, three files at a time
 ```
 
-Browser tests drive an installed Chrome. The runner looks in the usual install locations; set `CHROME_BIN` to use another Chrome or Chromium. Headless Chromium cannot switch back from emulated touch to a fine pointer, so `composer-chin` prints a `SKIP` line for that one step there.
+Browser tests drive an installed Chrome. The runner looks in the usual install locations; set `CHROME_BIN` to use another Chrome or Chromium. Some headless Chromium environments may not restore a fine pointer after touch emulation. `composer-chin` prints a `SKIP` line for a live pointer-switch direction only when the browser's media query does not match the requested input density.
 
 ## Adaptation boundaries
 
