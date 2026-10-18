@@ -40,7 +40,10 @@ const types = {'.html':'text/html','.js':'text/javascript','.css':'text/css','.s
       assert.ok(sample.start<500,'re-entry creates a fresh cycle');
       const positions=await eyes.evaluate(e=>{
         const a=e.getAnimations()[0];a.pause();
-        return [0,700,1400,1900].map(t=>{a.currentTime=t;const m=new DOMMatrix(getComputedStyle(e).transform);return [m.e,m.f];});
+        const sampled=[0,700,1400,1900].map(t=>{a.currentTime=t;const m=new DOMMatrix(getComputedStyle(e).transform);return [m.e,m.f];});
+        // Discard the scripted pause so the next hover starts from a single fresh animation.
+        a.cancel();
+        return sampled;
       });
       assert.deepEqual(positions,[[-1.5,0],[1.5,0],[0,-1.5],[0,0]]);
       await page.mouse.down();

@@ -32,7 +32,13 @@ const types = {'.html':'text/html', '.js':'text/javascript', '.css':'text/css', 
     const progress = page.locator('#progressList');
     const replay = page.locator('#replayProgress');
     const count = () => page.locator('#progressCount').innerText();
-    const advance = async ms => { await page.clock.runFor(ms); if (ms >= 200) await new Promise(r=>setTimeout(r,250)); };
+    // The fake clock drives timers only; CSS transitions run on real frames. After a long step, give styles a
+    // real 250ms and then wait for any finite transition in the list to finish, so a busy machine cannot
+    // measure a fold halfway through its animation.
+    const settleList = () => progress.evaluate(list => Promise.all(list.getAnimations({subtree:true})
+      .filter(a => a.timeline === document.timeline && a.playState === 'running' && a.effect?.getComputedTiming().endTime !== Infinity)
+      .map(a => a.finished.catch(() => {}))));
+    const advance = async ms => { await page.clock.runFor(ms); if (ms >= 200) { await new Promise(r=>setTimeout(r,250)); await settleList(); } };
     const status = () => progress.locator('.progress-row').evaluateAll(rows => rows.map(r=>r.dataset.state));
     await progress.scrollIntoViewIfNeeded();
     await advance(50);

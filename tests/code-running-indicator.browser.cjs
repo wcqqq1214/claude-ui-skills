@@ -28,7 +28,13 @@ const types = {'.html':'text/html', '.js':'text/javascript', '.css':'text/css', 
       await page.evaluate(()=>document.fonts.ready);
       const code=page.locator('#modeTrack [data-mode="Code"]'),chat=page.locator('#modeTrack [data-mode="Chat"]'),cowork=page.locator('#modeTrack [data-mode="Cowork"]');
       const dot=page.locator('.mode-running'),mask=page.locator('.mode-activity-icon');
-      const settle=()=>page.evaluate(()=>new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r))));
+      // Two frames for layout, then let the mode track's finite animations (the 120ms thumb move, the 300ms
+      // background) finish before measuring. Looping and scroll-driven animations never finish, so they are skipped.
+      const settle=()=>page.evaluate(async()=>{
+        await new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)));
+        const finite=document.querySelector('#modeTrack').getAnimations({subtree:true}).filter(a=>a.timeline===document.timeline&&a.playState==='running'&&a.effect?.getComputedTiming().endTime!==Infinity);
+        await Promise.all(finite.map(a=>a.finished.catch(()=>{})));
+      });
       for(const lang of ['en','zh-Hans']) {
         await page.evaluate(l=>DemoI18n.select(l),lang);
         assert.equal(await code.getAttribute('aria-label'),lang==='en'?'Code, working':'Code，正在运行');

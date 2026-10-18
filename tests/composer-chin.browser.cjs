@@ -153,6 +153,10 @@ const types = {'.html':'text/html', '.js':'text/javascript', '.css':'text/css', 
       for (const enabled of [!touch,touch]) {
         await project.focus();
         await cdp.send('Emulation.setTouchEmulationEnabled',{enabled});
+        // Headless Chromium has no real mouse: after touch emulation it keeps reporting hover:none, so the
+        // switch back to a fine pointer cannot happen there. Skip that direction visibly instead of timing out.
+        const reached = await page.evaluate(enabled => matchMedia('(pointer: coarse), (hover: none)').matches === enabled, enabled);
+        if (!reached) { console.log(`SKIP ${touch?'touch':'mouse'}: live switch to a ${enabled?'coarse':'fine'} pointer is not available in this browser`); continue; }
         await page.waitForFunction(w=>document.querySelector('#composerWidth').min===w,enabled?'168':'156');
         await width(168);
         assert.equal(await project.locator('[data-glyph="Projects"]').evaluate(e=>e.getBoundingClientRect().width),enabled?20:16);
