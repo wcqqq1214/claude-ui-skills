@@ -431,13 +431,6 @@ h2 {
   box-shadow: var(--panel-shadow);
   min-width: 0;
 }
-.demo-toolbar {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  padding: 16px 21px;
-  min-height: 54px;
-}
 .spec-footer {
   display: flex;
   gap: 15px;
@@ -462,11 +455,6 @@ h2 {
   display: flex;
   flex-direction: column;
 }
-.muted {
-  font-size: 10px;
-  color: var(--secondary);
-  margin-top: 14px;
-}
 .document-icon {
   font-size: 21px;
   color: var(--clay);
@@ -486,24 +474,6 @@ h2 {
   display: flex;
   justify-content: space-between;
   align-items: center;
-}
-.image-close {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0;
-  line-height: 1;
-  position: absolute;
-  top: 22px;
-  right: 25px;
-  background: #fff2;
-  color: #fff;
-  border: 1px solid #fff3;
-  border-radius: 50%;
-  height: 35px;
-  width: 35px;
-  font-size: 26px;
-  z-index: 2;
 }
 .sidebar nav a,
 .icon-button,
