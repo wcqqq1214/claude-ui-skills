@@ -23,6 +23,18 @@ Visit [Claude UI](http://127.0.0.1:8766/showcase/). All assets are local, with n
 - HTML and component JS contain the English source text; `i18n.js` supplies Chinese translations. Unmapped text stays in English. Language switching preserves input and interaction state. The language menu supports arrow keys, Home/End, Enter/Space and Escape.
 - The page shows one chapter at a time: components, controls and a few parameters. Each chapter has its own hash (for example `#reading`), so links, reload and back/forward keep the chapter; narrow screens choose chapters from the bar at the top. Desktop cards expand with their content instead of adding a second vertical scroll area; longer chapters scroll with the page. Component-owned viewports, such as streaming text, code and tables, retain their local scrolling. Each chapter guide links directly to the running frontend code.
 
+## Tests
+
+From the repository root:
+
+```sh
+npm install        # playwright-core only; no browser download
+npm test           # unit tests, then every browser test in sequence
+npm run test:browser -- gallery --jobs=3   # a subset, three files at a time
+```
+
+Browser tests drive an installed Chrome. The runner looks in the usual install locations; set `CHROME_BIN` to use another Chrome or Chromium. Headless Chromium cannot switch back from emulated touch to a fine pointer, so `composer-chin` prints a `SKIP` line for that one step there.
+
 ## Adaptation boundaries
 
 The layout, sample data, decorative artwork and language/theme controls are local designs. See the [component guides](../references/components.md) for demonstrated behavior and local adaptations.

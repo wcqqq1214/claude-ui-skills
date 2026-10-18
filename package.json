@@ -1,0 +1,14 @@
+{
+  "name": "claude-ui-skills",
+  "private": true,
+  "description": "Agent skill and local showcase for Claude Desktop-style UI and motion.",
+  "license": "MIT",
+  "scripts": {
+    "test": "npm run test:unit && npm run test:browser",
+    "test:unit": "node --test tests/*.test.cjs",
+    "test:browser": "node tests/run-browser.cjs"
+  },
+  "devDependencies": {
+    "playwright-core": "1.56.0"
+  }
+}
