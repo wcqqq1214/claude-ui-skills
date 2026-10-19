@@ -21,7 +21,7 @@ Reference: [Caho1/open-claude-ui](https://github.com/Caho1/open-claude-ui), part
 | --- | --- | --- |
 | 1 | React/TS/Vite/Tailwind, scoped tokens, optional Sans assets, theme/language shell | Implemented |
 | 2 | Switch, Checkbox, DiscreteSlider, SegmentedControl; demo imports; independent consumer | Implemented; verification recorded below |
-| 3 | Typography, reading, code/table, feedback, accordion, tooltips and notices | Pending |
+| 3 | Typography, reading, code/table, feedback, accordion, tooltips and notices | Typography + reading/code/table implemented; activity feedback, accordion, tooltips and notices pending |
 | 4 | Composer, attachments, contenteditable mentions, menus, search and palette | Pending |
 | 5 | Workspace resize, sidebar modes/reorder, images/gallery, drop/task progress | Pending |
 | 6 | Complete chapter navigation, remaining assets, guides, build/deployment migration and legacy removal | Pending |
@@ -54,6 +54,13 @@ First-batch verification on 2026-10-19:
 
 Manual UI verification uses the actual Vite demo. Automated geometry checks and local screenshots establish the migration's behavior, not pixel/frame parity with Claude itself. Existing original-app coverage limits still apply.
 
+## Typography and reading batch
+
+- Added GraphemeReveal, FadeIn, UserMessage, Prose, default-loop WorkingMark, ScrollFollower, CodeBlock and ExpandableTable, plus the typed static Icon/IconButton and visibility/clipboard hooks.
+- Added `#type` and `#reading` React chapters, original bilingual demo copy, Serif/Mono/icon assets, number/baseline/weight comparisons, and demo-owned streaming/replay timers.
+- Added a second source-only consumer and `react-reading.browser.cjs`. It checks emoji/combining graphemes, exact clipboard text, copy races/reset/failure/unmount, table expansion and focus return, scoped theme inheritance, scroll pause/resume and non-stealing append behavior, hidden counter/stream lifecycle, icon baseline, and English/Chinese light/dark layouts at 1280/390/320px.
+- The new reading suite passed after correcting the test's native Home-scroll settling and hidden-element lookup. The first React suite passed against the expanded demo. Final `npm run build` and `npm run test:react` passed (both React browser suites). Production preview confirmed Chinese code/table layout and native dialog expansion.
+
 ## Next batch
 
-Start with the typography/reading and feedback primitives. Move their sample content and replay timers to demo chapters. Keep the existing sprite timing/state machine, copy feedback and focus return as acceptance criteria. Composer work then needs an explicit contenteditable/selection ownership boundary before its DOM mutations are migrated.
+Finish stage 3 with activity feedback, accordion, tooltips/copy notices and notification stacks. Preserve the existing sprite entry/loop/exit state machine and local focus semantics. Composer work then needs an explicit contenteditable/selection ownership boundary before its DOM mutations are migrated.

@@ -14,7 +14,7 @@
 
 ## React 迁移
 
-React + TSX + Tailwind 实现已开始迁移，首批包含开关、复选框、分级滑块和分段控件，新 demo 直接导入这些组件。[运行与导入](demo/README.md) · [迁移进度](docs/react-migration.md)。其余章节暂时保留原版 showcase。
+React + TSX + Tailwind 实现已开始迁移，已迁移基础控件、分段选择、文字呈现、滚动跟随、代码复制和可展开表格，新 demo 直接导入这些组件。[运行与导入](demo/README.md) · [迁移进度](docs/react-migration.md)。其余章节暂时保留原版 showcase。
 
 ## 安装
 

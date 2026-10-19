@@ -13,3 +13,6 @@ button, a, select { -webkit-tap-highlight-color: transparent; }
 button:focus-visible, a:focus-visible, select:focus-visible { outline: 2px solid var(--cui-accent); outline-offset: 4px; }
 html { font-synthesis: none; -webkit-font-smoothing: antialiased; }
 [hidden] { display: none !important; }
+
+.demo-baseline-guide { display: inline-block; position: relative; vertical-align: baseline; width: 0; height: 0; }
+.demo-baseline-guide::after { content: ''; position: absolute; inset: 0 auto auto 0; width: 7.5em; border-top: 1px dashed var(--cui-line); pointer-events: none; }

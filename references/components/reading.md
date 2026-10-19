@@ -2,7 +2,13 @@
 
 Use for: prose with headings, inline and fenced code, long identifiers, inline icons, numbers that update in place, and tables that may be wider than their container.
 
-## Code
+## React implementation
+
+[Prose](../../src/components/typography/Text.tsx) · [CodeBlock](../../src/components/reading/CodeBlock.tsx) · [ExpandableTable](../../src/components/reading/ExpandableTable.tsx) · [Icon](../../src/components/icons/Icon.tsx) · [demo chapter](../../demo/chapters/ReadingChapter.tsx).
+
+The library receives code, table data and translated labels through props. CodeBlock keeps whitespace and ignores late copy completions after unmount. ExpandableTable uses a native dialog with React-rendered data, unique labeling and focus return; pass `active={false}` when hiding the owning view. Font comparisons and the single number-sample interval belong to the demo. Optional font assets are in `src/assets/fonts`, and component CSS uses `--cui-*` tokens. See [setup and API boundaries](../../demo/README.md).
+
+## Original implementation reference
 
 [HTML](../../showcase/index.html#reading) · [reading.js](../../showcase/components/reading.js) · [reading.css](../../showcase/components/reading.css)
 

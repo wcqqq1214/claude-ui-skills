@@ -4,9 +4,13 @@
 @import 'tailwindcss/utilities.css' layer(utilities) source(none);
 @import './tokens.css';
 @import './motion.css';
+@import './reading.css';
+@import './icons.css';
 @source '../components';
 
 @theme inline {
+  --font-cui-serif: var(--cui-font-serif);
+  --font-cui-mono: var(--cui-font-mono);
   --font-cui: var(--cui-font-sans);
   --color-cui-bg: var(--cui-bg);
   --color-cui-surface: var(--cui-surface);

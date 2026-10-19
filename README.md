@@ -14,7 +14,7 @@
 
 ## React migration
 
-A React + TSX + Tailwind implementation is in progress. The first batch provides Switch, Checkbox, DiscreteSlider and SegmentedControl, imported directly by the new demo. [Run and import](demo/README.md) · [Migration stages](docs/react-migration.md). The original showcase remains available for the other chapters.
+A React + TSX + Tailwind implementation is in progress. The new demo directly imports reusable controls, segmented selection, typography, scroll following, code copy and expandable tables. [Run and import](demo/README.md) · [Migration stages](docs/react-migration.md). The original showcase remains available for the other chapters.
 
 ## Install
 
