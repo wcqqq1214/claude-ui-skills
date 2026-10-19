@@ -1,3 +1,4 @@
+const { setTheme, setLanguage, chooseChapter } = require('./demo-helpers.cjs');
 const assert = require('node:assert/strict');
 const { resolve } = require('node:path');
 const { chromium } = require(process.env.PLAYWRIGHT_MODULE || 'playwright-core');
@@ -92,12 +93,17 @@ const { chromium } = require(process.env.PLAYWRIGHT_MODULE || 'playwright-core')
 
     for (const width of [1280, 390, 320]) for (const theme of ['light', 'dark']) for (const locale of ['en', 'zh-Hans']) {
       await page.setViewportSize({ width, height: 1000 }); await page.goto(`${base}/demo/?lang=${locale}#menus`); await page.reload();
-      await page.getByRole('combobox', { name: locale === 'en' ? 'Theme' : '主题', exact: true }).selectOption(theme); await page.evaluate(() => document.fonts.ready);
+      await setTheme(page, theme); await page.evaluate(() => document.fonts.ready);
       const section = page.locator('main section:not([hidden])'); const labels = locale === 'en' ? ['Model settings', 'Thinking effort', 'Artifact actions'] : ['模型设置', '思考深度', '作品操作菜单'];
       await section.getByRole('button', { name: labels[0], exact: false }).click(); await section.getByRole('menuitem').press('ArrowRight');
       assert.equal(await section.getByRole('menuitemradio').count(), 4); await page.keyboard.press('Escape'); await page.keyboard.press('Escape');
       await section.getByRole('button', { name: labels[2], exact: true }).click(); await frames();
-      assert.equal(await section.getByRole('menu').count(), 1); assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true, `${width}/${theme}/${locale} has no overflow`);
+      assert.equal(await section.getByRole('menu').count(), 1);
+      const overflow = await page.evaluate(() => ({
+        width: document.documentElement.scrollWidth, viewport: innerWidth,
+        offenders: [...document.querySelectorAll('body *')].filter(element => element.getClientRects().length).map(element => ({ element: element.tagName, classes: element.className, left: element.getBoundingClientRect().left, right: element.getBoundingClientRect().right })).filter(rect => rect.left < -.5 || rect.right > innerWidth + .5).slice(-15),
+      }));
+      assert.equal(overflow.width <= overflow.viewport, true, `${width}/${theme}/${locale} has no overflow: ${JSON.stringify(overflow)}`);
       const rect = await section.locator('.cui-palette-card').boundingBox(); assert.ok(rect.x >= 0 && rect.x + rect.width <= width + 1);
       await page.keyboard.press('Escape');
     }
@@ -105,8 +111,8 @@ const { chromium } = require(process.env.PLAYWRIGHT_MODULE || 'playwright-core')
     await page.setViewportSize({ width: 1280, height: 1000 });
     await page.goto(`${base}/demo/?lang=en#menus`); await page.reload();
     await page.getByRole('button', { name: 'Appearance', exact: true }).click();
-    await page.getByRole('combobox', { name: 'Language', exact: true }).selectOption('zh-Hans');
-    await page.getByRole('combobox', { name: '主题', exact: true }).selectOption('dark');
+    await setLanguage(page, 'zh-Hans');
+    await setTheme(page, 'dark');
     await page.locator('.cui-feature-anchor-highlight').waitFor();
     assert.equal(await page.locator('.cui-feature-anchor-highlight').textContent(), '外观');
     assert.deepEqual(errors, []); console.log('React menus: independent consumers, keyboard preview/commit, search/filter/focus/settling, interruptible palette return, lifecycle and bilingual responsive layouts passed');

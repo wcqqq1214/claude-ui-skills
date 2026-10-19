@@ -1,3 +1,4 @@
+const { setTheme, setLanguage, chooseChapter } = require('./demo-helpers.cjs');
 const assert = require('node:assert/strict');
 const { resolve } = require('node:path');
 const { chromium } = require(process.env.PLAYWRIGHT_MODULE || 'playwright-core');
@@ -106,7 +107,7 @@ const { chromium } = require(process.env.PLAYWRIGHT_MODULE || 'playwright-core')
       const context = await browser.newContext({ hasTouch: touch }); const demo = await context.newPage(); demo.on('pageerror', error => errors.push(error.message));
       for (const width of [1280, 390, 320]) for (const theme of ['light', 'dark']) for (const locale of ['en', 'zh-Hans']) {
         await demo.setViewportSize({ width, height: 740 }); await demo.goto(`${base}/demo/?lang=${locale}#images`);
-        await demo.getByRole('combobox', { name: locale === 'en' ? 'Theme' : '主题', exact: true }).selectOption(theme);
+        await setTheme(demo, theme);
         await demo.locator('.cui-image-origin').click(); const preview = demo.locator('.cui-image-dialog'); await preview.waitFor({ state: 'visible' });
         await demo.waitForFunction(() => !document.querySelector('style[data-cui-image-transition]'));
         assert.equal(await demo.evaluate(() => document.documentElement.scrollWidth > innerWidth), false);

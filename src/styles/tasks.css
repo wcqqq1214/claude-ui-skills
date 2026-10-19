@@ -5,6 +5,7 @@
 }
 .cui-task-card {
   font-size: 16px;
+  font-weight: var(--cui-medium);
   line-height: 24px;
   display: block;
   min-width: 0;

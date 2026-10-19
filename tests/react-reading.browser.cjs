@@ -1,3 +1,4 @@
+const { setTheme, setLanguage, chooseChapter } = require('./demo-helpers.cjs');
 const assert = require('node:assert/strict');
 const { resolve } = require('node:path');
 const { chromium } = require(process.env.PLAYWRIGHT_MODULE || 'playwright-core');
@@ -47,7 +48,7 @@ const { chromium } = require(process.env.PLAYWRIGHT_MODULE || 'playwright-core')
     assert.equal(await expand.evaluate(element => element === document.activeElement), true, 'dialog returns focus');
     await page.getByRole('button', { name: 'Theme', exact: true }).click();
     await expand.click();
-    assert.equal(await dialog.evaluate(element => getComputedStyle(element).backgroundColor), 'rgb(26, 26, 25)', 'dialog inherits scoped host theme');
+    assert.equal(await dialog.evaluate(element => getComputedStyle(element).backgroundColor), 'rgb(32, 32, 31)', 'dialog inherits the scoped dark popover surface');
     await dialog.getByRole('button', { name: 'Close table' }).click();
     await dialog.waitFor({ state: 'hidden' });
     const scroll = page.getByRole('region', { name: 'Live content' });
@@ -76,7 +77,7 @@ const { chromium } = require(process.env.PLAYWRIGHT_MODULE || 'playwright-core')
     for (const width of [1280, 390, 320]) for (const theme of ['light', 'dark']) {
       await page.setViewportSize({ width, height: 1000 });
       await page.goto(`${base}/demo/?lang=en#reading`);
-      await page.getByRole('combobox', { name: 'Theme', exact: true }).selectOption(theme);
+      await setTheme(page, theme);
       await page.evaluate(() => document.fonts.ready);
       const numbers = page.locator('[data-number-sample]');
       await numbers.first().scrollIntoViewIfNeeded();
@@ -93,10 +94,10 @@ const { chromium } = require(process.env.PLAYWRIGHT_MODULE || 'playwright-core')
       await page.getByRole('dialog').waitFor();
       await page.keyboard.press('Escape');
       await page.getByRole('dialog').waitFor({ state: 'hidden' });
-      await page.getByRole('combobox', { name: 'Language' }).selectOption('zh-Hans');
+      await setLanguage(page, 'zh-Hans');
       assert.equal(await page.getByRole('radio', { name: '代码与表格', exact: true }).getAttribute('aria-checked'), 'true');
       assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), `reading overflow ${width}/${theme}`);
-      await page.getByRole('link', { name: /03 / }).click();
+      await chooseChapter(page, 'type');
       assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), `typography overflow ${width}/${theme}`);
     }
     await page.goto(`${base}/demo/?lang=en#type`);
@@ -104,11 +105,11 @@ const { chromium } = require(process.env.PLAYWRIGHT_MODULE || 'playwright-core')
     await stream.scrollIntoViewIfNeeded();
     await page.getByRole('button', { name: 'Replay scroll following' }).click();
     await page.waitForFunction(() => document.querySelector('[aria-label="Streaming text example"]').textContent.includes('As content unfolds'));
-    await page.getByRole('link', { name: '01 Controls' }).click();
+    await chooseChapter(page, 'controls');
     const stopped = await stream.textContent();
     await page.waitForTimeout(800);
     assert.equal(await stream.textContent(), stopped, 'hidden chapter stops demo arrival timers');
-    await page.getByRole('link', { name: '03 Typography' }).click();
+    await chooseChapter(page, 'type');
     await stream.scrollIntoViewIfNeeded();
     await page.waitForFunction(() => !document.querySelector('[aria-label="Streaming text example"]').textContent.includes('As content unfolds'));
     assert.deepEqual(errors, []);

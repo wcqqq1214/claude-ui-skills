@@ -131,6 +131,8 @@ Not every size, disabled state, tooltip combination, long list, nested overlay, 
 
 ## Recorded validation
 
+[React visual comparison](react-visual-parity.md) records screenshot comparisons with the earlier local demo and their limits.
+
 The following are records of earlier checks, not a new validation run. They apply to the documented interactions and sessions.
 
 **Local demo:** the recorded 2026-10-14 check covered desktop light/dark themes and a 390px layout without whole-page horizontal overflow. Paths included replay, controls and segmented selection, waiting and accordion feedback, panel resize and return, image and gallery opening, closing, paging and zoom, tooltips and copy, menu exit, cards and notification merging. Escape closed the table dialog and returned focus. The check used the keyboard drop demonstration; a full physical-drag or trackpad check was not repeated. Separate checks covered a segmented control displayed at 75% size, small separator movements, interrupted image closing and reopening, skeleton resizing and replay, table overflow and replenishing a nine-notification stack.

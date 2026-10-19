@@ -1,3 +1,4 @@
+const { setTheme, setLanguage, chooseChapter } = require('./demo-helpers.cjs');
 // Covers the independent source consumer, demo state, geometry and native inputs.
 const assert = require('node:assert/strict');
 const { resolve } = require('node:path');
@@ -101,20 +102,20 @@ const { chromium } = require(process.env.PLAYWRIGHT_MODULE || 'playwright-core')
     for (const width of [1280, 390, 320]) for (const theme of ['light', 'dark']) {
       await page.setViewportSize({ width, height: 900 });
       await page.goto(`${base}/demo/?lang=en#controls`);
-      await page.getByRole('combobox', { name: 'Theme', exact: true }).selectOption(theme);
+      await setTheme(page, theme);
       await page.getByRole('switch', { name: 'Switch', exact: true }).click();
       await page.getByRole('checkbox', { name: 'Checkbox', exact: true }).uncheck();
-      await page.getByRole('slider', { name: 'Effort' }).press('Home');
-      await page.getByRole('combobox', { name: 'Language' }).selectOption('zh-Hans');
+      await page.getByRole('slider', { name: 'Thinking effort' }).press('Home');
+      await setLanguage(page, 'zh-Hans');
       assert.equal(await page.getByRole('switch', { name: '开关' }).getAttribute('aria-checked'), 'false');
       assert.equal(await page.getByRole('checkbox', { name: '复选框' }).isChecked(), false);
-      assert.equal(await page.getByRole('slider', { name: '力度' }).inputValue(), '0');
-      assert.equal(await page.getByRole('slider', { name: '力度' }).getAttribute('aria-valuetext'), '第 1 级，共 4 级');
-      await page.getByRole('link', { name: '02 分段控件' }).click();
+      assert.equal(await page.getByRole('slider', { name: '思考强度' }).inputValue(), '0');
+      assert.equal(await page.getByRole('slider', { name: '思考强度' }).getAttribute('aria-valuetext'), '第 1 级，共 4 级');
+      await chooseChapter(page, 'segmented');
       const demoSegment = page.getByRole('radiogroup', { name: '视图格式', exact: true });
       await demoSegment.getByRole('radio', { name: '代码', exact: true }).click();
       await aligned(demoSegment);
-      await page.getByRole('combobox', { name: '语言', exact: true }).selectOption('en');
+      await setLanguage(page, 'en');
       assert.equal(await page.getByRole('radiogroup', { name: 'View format', exact: true }).getByRole('radio', { name: 'Code', exact: true }).getAttribute('aria-checked'), 'true');
       await aligned(page.getByRole('radiogroup', { name: 'View format', exact: true }));
       assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), `overflow ${width}/${theme}`);

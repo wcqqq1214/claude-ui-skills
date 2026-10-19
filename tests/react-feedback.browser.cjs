@@ -1,3 +1,4 @@
+const { setTheme, setLanguage, chooseChapter } = require('./demo-helpers.cjs');
 const assert = require('node:assert/strict');
 const { resolve } = require('node:path');
 const { chromium } = require(process.env.PLAYWRIGHT_MODULE || 'playwright-core');
@@ -127,16 +128,16 @@ const { chromium } = require(process.env.PLAYWRIGHT_MODULE || 'playwright-core')
     for (const width of [1280, 390, 320]) for (const theme of ['light', 'dark']) {
       await page.setViewportSize({ width, height: 1000 });
       await page.goto(`${base}/demo/?lang=en#feedback`);
-      await page.getByRole('combobox', { name: 'Theme', exact: true }).selectOption(theme);
+      await setTheme(page, theme);
       await page.getByRole('button', { name: '3 design observations collected Expand to see the process' }).click();
       await page.getByRole('region', { name: '3 design observations collected Expand to see the process' }).waitFor();
       assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true, `${width}/${theme} no page overflow`);
-      await page.getByRole('combobox', { name: 'Language', exact: true }).selectOption('zh-Hans');
+      await setLanguage(page, 'zh-Hans');
       assert.equal(await page.getByRole('button', { name: '已整理 3 项设计观察 展开查看过程' }).getAttribute('aria-expanded'), 'true', 'locale preserves disclosure');
     }
     await page.setViewportSize({ width: 1280, height: 1000 });
     await page.goto(`${base}/demo/?lang=en#feedback`); await phase('think-loop');
-    await page.getByRole('link', { name: 'Typography', exact: false }).click();
+    await chooseChapter(page, 'type');
     await page.waitForTimeout(100);
     const hiddenTime = await mark.evaluate(element => element.firstElementChild.getAnimations()[0].currentTime);
     await page.waitForTimeout(150);

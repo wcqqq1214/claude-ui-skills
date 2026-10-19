@@ -338,6 +338,7 @@ const chinese: Record<string, string> = {
   "Truncated · Hover or focus to read in full": "已截断 · 悬停或聚焦显示全文",
   "Not truncated · No hint needed": "未截断 · 不显示提示",
   "Focus preview: {0} · Selected: {1}": "聚焦预览：{0} · 已选：{1}",
+  "Focus preview: {0}": "聚焦预览：{0}",
   "Selected: {0}": "已选：{0}",
   "Interface": "界面",
   "Updates": "更新",

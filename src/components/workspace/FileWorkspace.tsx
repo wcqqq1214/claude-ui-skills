@@ -45,22 +45,22 @@ export function FileWorkspace({ files, labels, value, defaultValue, onValueChang
     if (format.current?.contains(document.activeElement)) index = regions.findIndex(node => format.current?.contains(node));
     regions[(index + (event.shiftKey ? regions.length - 1 : 1)) % regions.length]?.focus({ preventScroll: true });
   }}>
-    <div className="flex items-center justify-between gap-3 border-0 border-b border-solid border-cui-line px-5 py-2.5 text-xs">
-      <span className="flex min-w-0 items-center gap-2.5"><Icon name="File" size={20} /><span className="min-w-0">{labels.title}</span></span>
+    <div className="cui-workspace-toolbar flex items-center justify-between gap-3 border-0 border-b border-solid border-transparent px-5 py-2.5 text-xs leading-[1.6]">
+      <span className="flex min-w-0 items-center gap-2.5"><Icon name="File" size={20} className="text-(--cui-clay)" /><span className="min-w-0">{labels.title}</span></span>
       <IconButton ref={expandButton} aria-label={isExpanded ? labels.restore : labels.expand} aria-expanded={isExpanded} onClick={() => { if (expanded === undefined) setLocalExpanded(!isExpanded); onExpandedChange?.(!isExpanded); }}><Icon name={isExpanded ? 'Collapse' : 'Expand'} size={16} /></IconButton>
     </div>
     <div ref={layout} className="cui-workspace-layout">
       <aside ref={list} id={`${id}-files`} aria-label={labels.files} inert={isExpanded || undefined} className="cui-workspace-list">
         <div className="cui-workspace-list-heading flex items-baseline justify-between gap-2 px-2.5">
-          <span className="text-[9px] tracking-[1.4px] text-cui-muted">{labels.files}</span><output className="cui-workspace-width whitespace-nowrap text-xs text-cui-secondary tabular-nums">{pane.width} px</output>
+          <span className="text-[9px] tracking-[1.4px] text-cui-muted">{labels.files}</span><output className="cui-workspace-width whitespace-nowrap font-cui-mono text-xs leading-[1.6] text-cui-secondary tabular-nums">{pane.width} px</output>
         </div><p className="cui-workspace-hint mx-2.5 mt-1.5 mb-4 text-right text-[11px] text-cui-secondary">{labels.resizeHint}</p>
-        {files.map(file => <button type="button" key={file.id} title={file.name} aria-pressed={file.id === selected?.id} className="cui-workspace-file flex min-h-[38px] w-full min-w-0 max-w-full cursor-pointer items-center gap-[9px] rounded-[5px] border-0 bg-transparent px-2.5 py-[9px] text-left text-[11px] whitespace-nowrap text-cui-text aria-pressed:bg-cui-segment-track focus-visible:outline-2 focus-visible:outline-cui-accent" onClick={() => { if (file.id === selected?.id) return; if (value === undefined) setLocalValue(file.id); onValueChange?.(file.id); }}>
-          <Icon name={file.icon ?? 'File'} className="shrink-0 text-cui-muted" /><span className="min-w-0 overflow-hidden text-ellipsis">{file.name}</span>
+        {files.map(file => <button type="button" key={file.id} title={file.name} aria-pressed={file.id === selected?.id} className="cui-workspace-file flex min-h-[38px] w-full min-w-0 max-w-full cursor-pointer items-center gap-[9px] rounded-[5px] border-0 bg-transparent px-2.5 py-[9px] text-left text-[11px] font-(--cui-medium) whitespace-nowrap text-cui-text aria-pressed:bg-(--cui-muted-surface) focus-visible:outline-2 focus-visible:outline-cui-accent" onClick={() => { if (file.id === selected?.id) return; if (value === undefined) setLocalValue(file.id); onValueChange?.(file.id); }}>
+          <Icon name={file.icon ?? 'File'} className="shrink-0" /><span className="min-w-0 overflow-hidden text-ellipsis">{file.name}</span>
         </button>)}
       </aside>
       <div ref={handle} role="separator" tabIndex={isExpanded ? -1 : 0} aria-controls={`${id}-files`} aria-label={labels.resize} aria-orientation="vertical" aria-valuemin={160} aria-valuemax={pane.max} aria-valuenow={pane.width} title={labels.resizeKeys} className="cui-workspace-resizer" {...pane.bindings} />
       <div className="min-w-0">
-        <div className="cui-workspace-preview-toolbar flex items-center justify-between gap-3 border-0 border-b border-solid border-cui-line px-[19px] py-3 text-[10px] text-cui-muted">
+        <div className="cui-workspace-preview-toolbar flex items-center justify-between gap-3 border-0 border-b border-solid border-transparent px-[19px] py-3 text-[10px] text-cui-muted">
           <span title={selected?.name} className="min-w-0 flex-1 overflow-hidden text-ellipsis whitespace-nowrap">{selected?.name ?? labels.empty}</span>
           <div ref={format}><SegmentedControl aria-label={labels.view} size="compact" className="cui-workspace-segment" value={mode} options={[
             { value: 'preview', label: <span aria-label={labels.preview} title={labels.preview}><Icon name="Eye" /></span> },

@@ -1,3 +1,4 @@
+const { setTheme, setLanguage, chooseChapter } = require('./demo-helpers.cjs');
 const assert = require('node:assert/strict');
 const { resolve } = require('node:path');
 const { chromium } = require(process.env.PLAYWRIGHT_MODULE || 'playwright-core');
@@ -122,7 +123,7 @@ const { chromium } = require(process.env.PLAYWRIGHT_MODULE || 'playwright-core')
     const before = await page.locator('[data-changes]').textContent(); await page.getByRole('button', { name: 'Mount', exact: true }).evaluate(element => element.click()); await page.mouse.up(); await frames(); assert.equal(await page.locator('.cui-pinned-ghost').count(), 0); assert.equal(await page.locator('[data-changes]').textContent(), before, 'unmount cannot commit a pending drag');
 
     for (const w of [1280, 390, 320]) for (const theme of ['light', 'dark']) for (const locale of ['en', 'zh-Hans']) {
-      await page.setViewportSize({ width: w, height: 1000 }); await page.goto(`${base}/demo/?lang=${locale}#workspace`); await page.reload(); await page.getByRole('combobox', { name: locale === 'en' ? 'Theme' : '主题', exact: true }).selectOption(theme); await page.evaluate(() => document.fonts.ready);
+      await page.setViewportSize({ width: w, height: 1000 }); await page.goto(`${base}/demo/?lang=${locale}#workspace`); await page.reload(); await setTheme(page, theme); await page.evaluate(() => document.fonts.ready);
       const scope = page.locator('main section:not([hidden])'); await scope.getByRole('radio', { name: locale === 'en' ? 'Code' : '代码', exact: true }).click();
       assert.equal(await scope.locator('.cui-workspace-content pre').count(), 1); assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true);
       await page.goto(`${base}/demo/?lang=${locale}#modes`);

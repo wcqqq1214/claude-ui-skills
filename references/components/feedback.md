@@ -26,7 +26,7 @@ Follow the [source integration instructions](../../demo/README.md). Import compo
 | Shimmer gradient | 120°, stops 37.5/50/62.5%; light uses `--cui-secondary`, dark `--cui-muted`, with a 30%-base/white peak |
 | Shimmer fallback | Text background 400% wide, moving 83.333% → 16.667%; Chromium uses the masked clone with a −62.5% → −12.5% band |
 | Skeleton | Inserted after 500ms, fades in over 150ms; one 2s linear sweep, 105° gradient with 35–65% stops, clipped to the child rectangles |
-| Accordion | Grid track, opacity and chevron over 200ms `--cui-ease-out` |
+| Accordion | Grid track, opacity and chevron over 200ms `--cui-ease-out-expo` |
 
 ## Rules
 

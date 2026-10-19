@@ -89,6 +89,6 @@
 @keyframes cui-skeleton-wave { from { transform: translateX(-100%); } to { transform: translateX(100%); } }
 .cui-accordion {
   display: grid; grid-template-rows: 0fr; opacity: 0;
-  transition: grid-template-rows 200ms var(--cui-ease-out), opacity 200ms var(--cui-ease-out);
+  transition: grid-template-rows 200ms cubic-bezier(.19,1,.22,1), opacity 200ms cubic-bezier(.19,1,.22,1);
 }
 .cui-accordion-open { grid-template-rows: 1fr; opacity: 1; }

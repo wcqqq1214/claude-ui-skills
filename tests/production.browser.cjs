@@ -1,3 +1,4 @@
+const { setTheme, setLanguage, chooseChapter } = require('./demo-helpers.cjs');
 // Exercise the built site through an ordinary static server, without Vite fallback.
 const assert = require('node:assert/strict');
 const http = require('node:http');
@@ -63,7 +64,7 @@ const { chromium } = require(process.env.PLAYWRIGHT_MODULE || 'playwright-core')
       await page.locator('nav a[href="#controls"]').click();
       await page.getByRole('switch', { name: 'Switch', exact: true }).click();
       const checked = await page.getByRole('switch', { name: 'Switch', exact: true }).getAttribute('aria-checked');
-      await page.getByRole('combobox', { name: 'Language', exact: true }).selectOption('zh-Hans');
+      await setLanguage(page, 'zh-Hans');
       await page.locator('nav a[href="#reading"]').click();
       await page.goBack();
       await page.getByRole('switch', { name: '开关', exact: true }).waitFor();
@@ -72,32 +73,75 @@ const { chromium } = require(process.env.PLAYWRIGHT_MODULE || 'playwright-core')
       await page.goForward();
       await page.waitForFunction(() => document.querySelector('nav a[aria-current]')?.getAttribute('href') === '#reading');
       await page.reload();
-      await page.getByRole('combobox', { name: '语言', exact: true }).waitFor();
+      await page.getByRole('button', { name: '语言', exact: true }).waitFor();
       assert.equal(await page.locator('html').getAttribute('lang'), 'zh-Hans');
       await page.goto(`${origin}${base}demo/?lang=en#tasks`);
       await page.waitForFunction(() => document.querySelector('nav a[aria-current]')?.getAttribute('href') === '#tasks');
     }
     // Theme/locale persistence, system updates, invalid hash and narrow layout.
-    await page.getByRole('combobox', { name: 'Theme', exact: true }).selectOption('light');
+    await setTheme(page, 'light');
     await page.emulateMedia({ colorScheme: 'dark' });
     assert.equal(await page.locator('html').getAttribute('data-cui-theme'), 'light');
-    await page.getByRole('combobox', { name: 'Language', exact: true }).selectOption('zh-Hans');
+    await setLanguage(page, 'zh-Hans');
     await page.goto(`${origin}/claude-ui-skills/#unknown`);
-    await page.getByRole('switch', { name: '开关', exact: true }).waitFor();
+    await page.getByRole('heading', { name: '文字呈现', exact: true }).waitFor();
     assert.equal(await page.locator('html').getAttribute('data-cui-theme'), 'light');
-    await page.getByRole('combobox', { name: '主题', exact: true }).selectOption('system');
+    await setTheme(page, 'system');
     await page.waitForFunction(() => document.documentElement.dataset.cuiTheme === 'dark');
     await page.emulateMedia({ colorScheme: 'light' });
     await page.waitForFunction(() => document.documentElement.dataset.cuiTheme === 'light');
     await page.setViewportSize({ width: 320, height: 900 });
     assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true);
+    const picker = page.locator('.demo-chapter-toggle');
+    assert.equal(await picker.getAttribute('aria-expanded'), 'false');
+    await chooseChapter(page, 'reading');
+    assert.equal(await picker.getAttribute('aria-expanded'), 'false');
+    assert.equal(await page.locator('main h1').evaluate(el => el === document.activeElement), true, 'closing the narrow picker restores focus before hiding the link');
+    await page.evaluate(() => window.scrollTo(0, 1000));
+    assert.ok(await page.evaluate(() => scrollY > 0), 'the long narrow chapter has scrolled');
+    await chooseChapter(page, 'type');
+    await page.waitForFunction(() => scrollY === 0);
+    const languageButton = page.locator('.demo-topbar button[aria-haspopup=menu]');
+    await picker.click();
+    await page.locator('nav a').last().focus();
+    await page.keyboard.press('Tab');
+    assert.equal(await languageButton.evaluate(el => el === document.activeElement), true);
+    assert.equal(await picker.getAttribute('aria-expanded'), 'false', 'keyboard focus outside closes the chapter picker');
+    await languageButton.press('ArrowUp');
+    assert.equal(await page.getByRole('menuitemradio', { name: 'English', exact: true }).evaluate(el => el === document.activeElement), true, 'ArrowUp opens on the last menu item');
+    await page.keyboard.press('Escape');
+    await languageButton.press('ArrowDown');
+    const chinese = page.getByRole('menuitemradio', { name: '简体中文', exact: true });
+    assert.equal(await chinese.evaluate(el => el === document.activeElement), true);
+    await chinese.press('End');
+    assert.equal(await page.getByRole('menuitemradio', { name: 'English', exact: true }).evaluate(el => el === document.activeElement), true);
+    await page.keyboard.press('Escape');
+    assert.equal(await languageButton.evaluate(el => el === document.activeElement), true);
+    assert.equal(await page.locator('html').getAttribute('lang'), 'zh-Hans', 'focus preview does not commit a language');
+    // These dimensions were measured through computer-use from dev 0a9c12c,
+    // at the same 1280x720 viewport, rather than inferred from the React CSS.
+    await page.setViewportSize({ width: 1280, height: 720 });
+    await chooseChapter(page, 'controls');
+    const geometry = await page.evaluate(() => {
+      const rect = selector => { const r = document.querySelector(selector).getBoundingClientRect(); return { x: r.x, y: r.y, width: r.width, height: r.height }; };
+      return { grid: rect('.demo-controls-grid'), card: rect('.demo-control-card'), range: rect('.demo-wide .cui-range') };
+    });
+    const original = {
+      grid: { x: 453, y: 165.90625, width: 600, height: 448.1875 },
+      card: { x: 453, y: 223.90625, width: 293, height: 188.09375 },
+      range: { x: 493, y: 453, width: 520, height: 48 },
+    };
+    for (const key of Object.keys(original)) for (const field of Object.keys(original[key])) {
+      assert.ok(Math.abs(geometry[key][field] - original[key][field]) < .25, `${key}.${field}: ${geometry[key][field]} versus original ${original[key][field]}`);
+    }
     // Privacy settings may deny storage; rendering and explicit choices still work.
     const denied = await browser.newContext({ locale: 'zh-CN', colorScheme: 'dark' });
     await denied.addInitScript(() => Object.defineProperty(window, 'localStorage', { get() { throw new DOMException('Denied', 'SecurityError'); } }));
     const deniedPage = await denied.newPage(); observe(deniedPage);
     await deniedPage.goto(`${origin}/`);
-    await deniedPage.getByRole('switch', { name: '开关', exact: true }).waitFor();
-    await deniedPage.getByRole('combobox', { name: '语言', exact: true }).selectOption('en');
+    await deniedPage.getByRole('heading', { name: '文字呈现', exact: true }).waitFor();
+    await chooseChapter(deniedPage, 'controls');
+    await setLanguage(deniedPage, 'en');
     await deniedPage.getByRole('switch', { name: 'Switch', exact: true }).waitFor();
     assert.equal(new URL(deniedPage.url()).searchParams.get('lang'), 'en');
     // Fetch every emitted file through the subpath, including optional font faces.

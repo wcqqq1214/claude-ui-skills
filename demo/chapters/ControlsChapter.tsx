@@ -13,22 +13,20 @@ export function ControlsChapter({ copy, locale }: { copy: Copy; locale: Locale }
     value, label: locale === 'en' ? `Level ${index + 1} of 4` : `第 ${index + 1} 级，共 4 级`, recommended: index === 2,
   }));
   return (
-    <div style={{ '--cui-motion-scale': slow ? 5 : 1 } as CSSProperties}>
-      <div className="mb-4 flex justify-end">
-        <button type="button" aria-pressed={slow} onClick={() => setSlow(!slow)}
-          className="cursor-pointer rounded-lg border border-solid border-cui-line bg-transparent px-3 py-2 text-xs text-cui-secondary aria-pressed:border-cui-accent aria-pressed:text-cui-accent">{copy.slow} {slow ? '⅕×' : '1×'}</button>
+    <div className="demo-controls-grid" style={{ '--cui-motion-scale': slow ? 5 : 1 } as CSSProperties}>
+      <div className="demo-controls-toolbar">
+        <button type="button" aria-label={copy.slow} aria-pressed={slow} onClick={() => setSlow(!slow)}
+          className="demo-slow"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d="M5 15v-3a6 6 0 0 1 12 0v3H5Z M8 7l3 4 3-4 M11 11v4 M7 15l-1 3 M15 15l1 3 M5 12H3" /><path d="M17 11h2a2 2 0 0 1 0 4h-2" /></svg><span>{locale === 'en' ? 'Slow' : '慢速'} · {slow ? '0.2×' : '1×'}</span></button>
       </div>
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-        <Specimen title={copy.switch} description={copy.switchDescription} parameters="20px · 120ms · overshoot">
+        <Specimen title={copy.switch} description={copy.switchDescription} parameters={locale === 'en' ? "120ms · 16px travel · CSS transform" : "120ms · 16px 位移 · CSS transform"}>
           <div className="[zoom:2]"><Switch aria-label={copy.switch} checked={enabled} onCheckedChange={setEnabled} /></div>
         </Specimen>
-        <Specimen title={copy.checkbox} description={copy.checkboxDescription} parameters="200ms in · 120ms out · SVG clip-path">
+        <Specimen title={copy.checkbox} description={copy.checkboxDescription} parameters={locale === 'en' ? "200ms in · 120ms out · SVG clip-path" : "200ms 显现 · 120ms 收回 · SVG clip-path"}>
           <div className="flex [zoom:2]"><Checkbox aria-label={copy.checkbox} checked={checked} onCheckedChange={setChecked} /></div>
         </Specimen>
-        <Specimen title={copy.slider} description={copy.sliderDescription} parameters="120ms · 1.12× · 4 stops" wide>
+        <Specimen title={copy.slider} description={copy.sliderDescription} parameters={locale === 'en' ? "120ms · 1.12× press scale · 4 stops" : "120ms · 1.12× 按压缩放 · 4 档"} wide>
           <div className="w-full max-w-[360px] [zoom:1.5]"><DiscreteSlider aria-label={copy.effort} options={options} value={effort} onValueChange={setEffort} /></div>
         </Specimen>
-      </div>
     </div>
   );
 }

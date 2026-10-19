@@ -10,6 +10,8 @@ export interface ExpandableTableProps {
   columns: readonly TableColumn[];
   rows: readonly TableRow[];
   label: string;
+  heading?: ReactNode;
+  dialogTitle?: ReactNode;
   expandLabel: string;
   closeLabel: string;
   minWidth?: number;
@@ -18,7 +20,7 @@ export interface ExpandableTableProps {
 }
 
 /** Data cells are rendered twice only while the expanded native dialog is open. */
-export function ExpandableTable({ columns, rows, label, expandLabel, closeLabel, minWidth = 720, className, active = true }: ExpandableTableProps) {
+export function ExpandableTable({ columns, rows, label, heading = label, dialogTitle = label, expandLabel, closeLabel, minWidth = 720, className, active = true }: ExpandableTableProps) {
   const viewport = useRef<HTMLDivElement>(null), table = useRef<HTMLTableElement>(null), dialog = useRef<HTMLDialogElement>(null), trigger = useRef<HTMLButtonElement>(null);
   const [overflowing, setOverflowing] = useState(false), [open, setOpen] = useState(false);
   const titleId = useId();
@@ -43,11 +45,11 @@ export function ExpandableTable({ columns, rows, label, expandLabel, closeLabel,
     </table>;
   }
   return <div className={classes('min-w-0', className)}>
-    <div className="mb-3 flex min-h-8 flex-wrap items-center justify-between gap-3"><span className="font-cui text-[13px] font-(--cui-medium)">{label}</span>
-      <button ref={trigger} type="button" hidden={!overflowing} onClick={() => setOpen(true)} className="cursor-pointer rounded-md border-0 bg-cui-segment-track px-2.5 py-1.5 font-cui text-xs text-cui-text focus-visible:outline-2 focus-visible:outline-cui-accent">{expandLabel}</button></div>
+    <div className="mb-4 flex min-h-8 flex-wrap items-center justify-between gap-3"><span className="font-cui text-[13px] leading-[1.6] font-(--cui-medium)">{heading}</span>
+      <button ref={trigger} type="button" hidden={!overflowing} onClick={() => setOpen(true)} className="cui-table-expand cursor-pointer rounded-[7px] border border-solid border-transparent bg-cui-surface px-2.5 py-[5px] font-cui text-[11px] leading-[1.6] font-(--cui-medium) text-cui-text focus-visible:outline-2 focus-visible:outline-cui-accent">{expandLabel}</button></div>
     <div ref={viewport} role="region" aria-label={label} tabIndex={0} data-overflowing={overflowing || undefined} className="cui-table relative max-w-full overflow-auto rounded-lg border border-solid border-cui-line bg-cui-surface font-cui-serif text-[15px] focus-visible:outline-2 focus-visible:outline-cui-accent">{content()}</div>
     <dialog ref={dialog} aria-labelledby={titleId} className="cui-table-dialog" onClose={() => { setOpen(false); if (active && trigger.current?.offsetParent) trigger.current.focus(); }}>
-      <header className="mb-3 flex items-center justify-between gap-4"><h2 id={titleId} className="m-0 font-cui text-base font-(--cui-medium)">{label}</h2><IconButton aria-label={closeLabel} onClick={() => dialog.current?.close()}><Icon name="X" /></IconButton></header>
+      <header className="mb-3 flex items-center justify-between gap-4"><h2 id={titleId} className="m-0 font-cui text-sm font-(--cui-bold)">{dialogTitle}</h2><IconButton aria-label={closeLabel} onClick={() => dialog.current?.close()}><Icon name="X" /></IconButton></header>
       {open ? <div className="cui-table max-w-full overflow-auto rounded-lg border border-solid border-cui-line bg-cui-surface font-cui-serif text-[15px]">{content(true)}</div> : null}
     </dialog>
   </div>;

@@ -1,3 +1,4 @@
+const { setTheme, setLanguage, chooseChapter } = require('./demo-helpers.cjs');
 const assert = require('node:assert/strict');
 const { resolve } = require('node:path');
 const { chromium } = require(process.env.PLAYWRIGHT_MODULE || 'playwright-core');
@@ -117,7 +118,7 @@ const { chromium } = require(process.env.PLAYWRIGHT_MODULE || 'playwright-core')
     assert.deepEqual(errors, []);
     for (const width of [1280, 390, 320]) for (const theme of ['light', 'dark']) for (const locale of ['en', 'zh-Hans']) {
       await page.setViewportSize({ width, height: 800 }); await page.goto(`${base}/demo/?lang=${locale}#gallery`);
-      await page.getByRole('combobox', { name: locale === 'en' ? 'Theme' : '主题', exact: true }).selectOption(theme);
+      await setTheme(page, theme);
       await page.locator('section[aria-label]').filter({ visible: true }).getByRole('button').first().click();
       const preview = page.locator('.cui-gallery-dialog'); await preview.waitFor({ state: 'visible' }); await settle();
       const layout = await preview.evaluate(element => {

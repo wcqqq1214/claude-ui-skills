@@ -1,3 +1,4 @@
+const { setTheme, setLanguage, chooseChapter } = require('./demo-helpers.cjs');
 const assert = require('node:assert/strict');
 const { resolve } = require('node:path');
 const { chromium } = require(process.env.PLAYWRIGHT_MODULE || 'playwright-core');
@@ -48,7 +49,10 @@ const { chromium } = require(process.env.PLAYWRIGHT_MODULE || 'playwright-core')
     await host('Single'); assert.equal(await progress.locator('.cui-progress-rail').evaluate(element => getComputedStyle(element).height), '10px');
     await host('Empty'); assert.equal(await progress.locator('.cui-progress-row').count(), 0); await host('Initial');
     const second = page.getByRole('region', { name: 'Second' }); await host('Controlled fold'); assert.equal(await second.locator('.cui-progress-fold-button').getAttribute('aria-expanded'), 'true'); await second.locator('.cui-progress-fold-button').click(); assert.equal(await second.locator('.cui-progress-fold-button').getAttribute('aria-expanded'), 'false');
-    const cards = page.getByRole('group', { name: 'Tasks', exact: true }); await cards.getByRole('button').first().focus(); await page.keyboard.press('ArrowRight');
+    const cards = page.getByRole('group', { name: 'Tasks', exact: true });
+    assert.equal(await cards.locator('.cui-task-title').first().evaluate(element => getComputedStyle(element).fontWeight), '500');
+    await host('Theme'); assert.equal(await cards.locator('.cui-task-title').first().evaluate(element => getComputedStyle(element).fontWeight), '460'); await host('Theme');
+    await cards.getByRole('button').first().focus(); await page.keyboard.press('ArrowRight');
     assert.equal(await cards.getByRole('button').nth(1).evaluate(element => element === document.activeElement), true); assert.equal(await cards.locator('[aria-expanded="true"]').count(), 0);
     await page.keyboard.press('Enter'); assert.equal(await page.getByRole('region', { name: 'Cards', exact: true }).locator('.cui-task-detail').textContent(), 'stopped details'); await page.keyboard.press('Space'); assert.equal(await cards.locator('[aria-expanded="true"]').count(), 0);
     await host('RTL'); await cards.getByRole('button').first().focus(); await page.keyboard.press('ArrowLeft'); assert.equal(await cards.getByRole('button').nth(1).evaluate(element => element === document.activeElement), true); await host('RTL');
@@ -75,7 +79,7 @@ const { chromium } = require(process.env.PLAYWRIGHT_MODULE || 'playwright-core')
     const status = () => list.locator('.cui-progress-row').evaluateAll(rows => rows.map(row => row.dataset.state));
     await replay.click(); await advance(1850); assert.deepEqual(await status(), ['in_progress', 'pending', 'pending']);
     await advance(3200); assert.equal(await list.locator('.cui-progress-step-enter').count(), 3);
-    await advance(1600); await list.locator('.cui-progress-fold-button').click(); await demo.getByRole('combobox', { name: 'Language', exact: true }).selectOption('zh-Hans'); await advance(5000);
+    await advance(1600); await list.locator('.cui-progress-fold-button').click(); await setLanguage(demo, 'zh-Hans'); await advance(5000);
     assert.equal(await demo.locator('[data-progress-count]').textContent(), '6 / 6'); assert.equal(await list.locator('.cui-progress-fold-button').getAttribute('aria-expanded'), 'true');
     await demo.getByRole('button', { name: '重播', exact: true }).click(); await advance(1000); await demo.getByRole('button', { name: '重播', exact: true }).click(); await advance(1700); assert.equal(await demo.locator('[data-progress-count]').textContent(), '0 / 3');
     await demo.evaluate(() => { location.hash = 'controls'; }); await advance(100); const beforeExit = await status(); await advance(15000); assert.deepEqual(await status(), beforeExit); await demo.evaluate(() => { location.hash = 'tasks'; }); await advance(100);
@@ -88,7 +92,7 @@ const { chromium } = require(process.env.PLAYWRIGHT_MODULE || 'playwright-core')
     await demo.close();
     for (const width of [1280, 390, 320]) for (const theme of ['light', 'dark']) for (const locale of ['en', 'zh-Hans']) {
       await page.setViewportSize({ width, height: 1000 }); await page.goto(`${base}/demo/?lang=${locale}#tasks`);
-      await page.getByRole('combobox', { name: locale === 'en' ? 'Theme' : '主题', exact: true }).selectOption(theme);
+      await setTheme(page, theme);
       await page.locator('.cui-progress-fold-button').click(); await finite(page.locator('.cui-progress-list'));
       assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth), false);
       assert.equal(await page.locator('.cui-progress-text').evaluateAll(nodes => nodes.every(node => node.scrollWidth <= node.clientWidth + 1)), true);

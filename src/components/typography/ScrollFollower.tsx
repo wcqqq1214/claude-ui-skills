@@ -68,17 +68,17 @@ export function ScrollFollower({ label, returnLabel, busy = false, active = true
   }, [active]);
   return <div {...props} className={classes('relative', className)}>
     <div ref={viewport} role="region" aria-label={label} tabIndex={0} style={{ height }} className="overflow-x-hidden overflow-y-auto overscroll-contain [overflow-anchor:none] [scrollbar-gutter:stable] focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-cui-accent">
-      <div ref={content} className="px-6 pt-2.5 pb-6">{children}<span ref={end} aria-hidden="true" className="block h-px" /></div>
+      <div ref={content} className="cui-scroll-content">{children}<span ref={end} aria-hidden="true" className="block h-px" /></div>
     </div>
-    <div aria-hidden="true" className={classes('pointer-events-none absolute inset-x-0 bottom-0 h-12 bg-linear-to-t from-cui-surface to-transparent transition-opacity duration-150', showFade ? 'visible opacity-100' : 'invisible opacity-0')} />
+    <div aria-hidden="true" data-visible={showFade || undefined} className="cui-scroll-fade pointer-events-none absolute inset-x-0 bottom-0 h-12 bg-linear-to-t from-cui-surface to-transparent" />
     <button type="button" aria-label={returnLabel} aria-hidden={!showReturn} inert={!showReturn} tabIndex={showReturn ? 0 : -1}
       onClick={event => {
         if (document.activeElement === event.currentTarget) viewport.current!.focus({ preventScroll: true });
         pinned.current = true; viewport.current!.scrollTo({ top: viewport.current!.scrollHeight, behavior: 'instant' }); lastTop.current = viewport.current!.scrollTop; update();
       }}
-      className={classes('cui-return-button group absolute bottom-5 left-1/2 inline-flex size-9 -translate-x-1/2 cursor-pointer items-center justify-center rounded-full border-[.5px] border-solid border-cui-line bg-[color-mix(in_srgb,var(--cui-surface)_80%,transparent)] p-0 text-cui-text backdrop-blur-[8px] transition-opacity duration-200 hover:bg-cui-surface focus-visible:outline-2 focus-visible:outline-cui-accent', showReturn ? 'pointer-events-auto opacity-100' : 'pointer-events-none opacity-0')}>
-      <span className={classes('absolute inset-0 m-auto size-5 transition-opacity duration-200', busy ? 'opacity-0 group-hover:opacity-100 group-focus-visible:opacity-100' : 'opacity-100')}><Icon name="ArrowDown" size={20} /></span>
-      {busy ? <WorkingMark active={active && showReturn} fallback={<Icon name="ArrowDown" size={20} />} className="absolute inset-0 m-auto transition-opacity duration-200 group-hover:opacity-0 group-focus-visible:opacity-0" /> : null}
+      className={classes('cui-return-button group absolute bottom-5 left-1/2 inline-flex size-9 -translate-x-1/2 cursor-pointer items-center justify-center rounded-full border-[.5px] border-solid border-cui-line bg-[color-mix(in_srgb,var(--cui-surface)_80%,transparent)] p-0 text-cui-text backdrop-blur-[8px] transition-opacity duration-200 ease-[ease] hover:bg-cui-surface focus-visible:outline-2 focus-visible:outline-cui-accent', showReturn ? 'pointer-events-auto opacity-100' : 'pointer-events-none opacity-0')}>
+      <span className={classes('absolute inset-0 m-auto size-5 transition-opacity duration-200 ease-[ease-out]', busy ? 'opacity-0 group-hover:opacity-100 group-focus-visible:opacity-100' : 'opacity-100')}><Icon name="ArrowDown" size={20} /></span>
+      {busy ? <WorkingMark active={active && showReturn} fallback={<Icon name="ArrowDown" size={20} />} className="absolute inset-0 m-auto transition-opacity duration-200 ease-[ease-out] group-hover:opacity-0 group-focus-visible:opacity-0" /> : null}
     </button>
   </div>;
 }

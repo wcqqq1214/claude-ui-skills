@@ -1,3 +1,4 @@
+const { setTheme, setLanguage, chooseChapter } = require('./demo-helpers.cjs');
 const assert = require('node:assert/strict');
 const { resolve } = require('node:path');
 const { chromium } = require(process.env.PLAYWRIGHT_MODULE || 'playwright-core');
@@ -121,13 +122,13 @@ const { chromium } = require(process.env.PLAYWRIGHT_MODULE || 'playwright-core')
       demo.on('pageerror', error => errors.push(error.message));
       for (const w of [1280, 390, 320]) for (const theme of ['light', 'dark']) {
         await demo.setViewportSize({ width: w, height: 1000 }); await demo.goto(`${base}/demo/?lang=en#composer`); await demo.reload();
-        await demo.getByRole('combobox', { name: 'Theme', exact: true }).selectOption(theme); await demo.evaluate(() => document.fonts.ready);
+        await setTheme(demo, theme); await demo.evaluate(() => document.fonts.ready);
         const draft = demo.locator('.cui-composer-editor'); await draft.fill('Keep my draft');
         const slider = demo.getByRole('slider', { name: 'Width limit' }); await slider.focus(); await slider.press('Home');
         await demo.waitForFunction(() => document.querySelector('.cui-composer-chin').dataset.pickerMode === 'icons');
         assert.equal(await demo.locator('.cui-composer-project').evaluate(element => element.offsetWidth), touch ? 32 : 24);
         assert.equal(await demo.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true, 'narrow composer does not overflow');
-        await slider.press('End'); await demo.getByRole('combobox', { name: 'Language', exact: true }).selectOption('zh-Hans');
+        await slider.press('End'); await setLanguage(demo, 'zh-Hans');
         assert.equal(await draft.innerText(), 'Keep my draft');
         const cnEditor = demo.getByRole('textbox', { name: '演示输入框' });
         await cnEditor.fill('@'); const suggestions = demo.getByRole('listbox'); await suggestions.waitFor();

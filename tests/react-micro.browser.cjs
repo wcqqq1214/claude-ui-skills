@@ -1,3 +1,4 @@
+const { setTheme, setLanguage, chooseChapter } = require('./demo-helpers.cjs');
 const assert = require('node:assert/strict');
 const { resolve } = require('node:path');
 const { chromium } = require(process.env.PLAYWRIGHT_MODULE || 'playwright-core');
@@ -120,21 +121,21 @@ const { chromium } = require(process.env.PLAYWRIGHT_MODULE || 'playwright-core')
       await page.goto(`${base}/demo/?lang=en#micro`);
       // Hash-only navigation intentionally retains chapter state; isolate viewport cases.
       await page.reload();
-      await page.getByRole('combobox', { name: 'Theme', exact: true }).selectOption(theme);
+      await setTheme(page, theme);
       await page.evaluate(async () => { await document.fonts.ready; await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))); });
       await page.getByRole('button', { name: 'View design notes', exact: true }).focus();
       const tip = page.getByRole('tooltip', { name: 'View design notes', exact: true }); await tip.waitFor();
       const rect = await tip.boundingBox(); assert.ok(rect.x >= 0 && rect.x + rect.width <= width, 'tip stays inside viewport');
       await page.getByRole('button', { name: 'Show notice', exact: true }).click();
-      await page.getByRole('combobox', { name: 'Language', exact: true }).selectOption('zh-Hans');
+      await setLanguage(page, 'zh-Hans');
       await page.getByText('这条通知将在 6 秒后关闭。', { exact: true }).waitFor();
       assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true, `${width}/${theme} hints have no overflow`);
-      await page.getByRole('link', { name: '07 通知', exact: true }).click();
+      await chooseChapter(page, 'recovery');
       const actionStyle = await page.getByRole('button', { name: '查看', exact: true }).evaluate(element => ({ font: getComputedStyle(element).fontSize, color: getComputedStyle(element).color }));
-      assert.deepEqual(actionStyle, { font: '11px', color: 'rgb(217, 119, 87)' }, 'demo reset must not override component utilities');
+      assert.deepEqual(actionStyle, { font: '11px', color: theme === 'light' ? 'rgb(198, 97, 63)' : 'rgb(217, 119, 87)' }, 'demo reset must not override component utilities');
       await page.getByRole('button', { name: '重复通知', exact: true }).click(); await page.getByRole('button', { name: '重复通知', exact: true }).click();
       await page.getByText('设计笔记已保存（×2）', { exact: true }).waitFor();
-      await page.getByRole('combobox', { name: '语言', exact: true }).selectOption('en');
+      await setLanguage(page, 'en');
       await page.getByText('Design notes saved (×2)', { exact: true }).waitFor();
       assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true, `${width}/${theme} stack has no overflow`);
     }

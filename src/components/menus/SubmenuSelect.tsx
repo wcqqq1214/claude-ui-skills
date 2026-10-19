@@ -39,7 +39,7 @@ export function SubmenuSelect({ label, submenuLabel, options, value, defaultValu
     <button ref={trigger} type="button" aria-haspopup="menu" aria-expanded={level > 0} aria-controls={level ? `${id}-parent` : undefined} disabled={!enabled.length} onClick={() => level ? close(true) : setLevel(1)} onKeyDown={event => {
       if (['ArrowDown', 'ArrowUp'].includes(event.key)) { event.preventDefault(); setLevel(1); }
       if (event.key === 'Escape' && level) { event.preventDefault(); close(true); }
-    }} className="inline-flex cursor-pointer items-center gap-2 rounded-lg border border-solid border-cui-line bg-cui-surface px-3 py-2 text-xs disabled:cursor-default disabled:opacity-50 focus-visible:outline-2 focus-visible:outline-cui-accent">{label}<span aria-hidden="true">⌄</span></button>
+    }} className="cui-submenu-trigger inline-block cursor-pointer rounded-[7px] border border-solid border-transparent bg-cui-surface px-[13px] py-2 text-xs leading-[1.6] font-(--cui-medium) whitespace-nowrap disabled:cursor-default disabled:opacity-50 focus-visible:outline-2 focus-visible:outline-cui-accent">{label} <span aria-hidden="true">⌄</span></button>
     {level > 0 ? <div id={`${id}-parent`} role="menu" aria-label={label} className="cui-local-menu">
       <button ref={owner} type="button" role="menuitem" tabIndex={-1} aria-haspopup="menu" aria-expanded={level === 2} aria-controls={level === 2 ? `${id}-submenu` : undefined} onClick={() => setLevel(2)} onKeyDown={event => {
         if (event.key === 'ArrowRight') { event.preventDefault(); setLevel(2); }
@@ -53,7 +53,7 @@ export function SubmenuSelect({ label, submenuLabel, options, value, defaultValu
           const next = event.key === 'Home' ? 0 : event.key === 'End' ? buttons.length - 1 : (index + (event.key === 'ArrowDown' ? 1 : buttons.length - 1)) % buttons.length;
           buttons[next]?.focus({ preventScroll: true });
         } else if (event.key === 'Escape' || event.key === 'ArrowLeft') { event.preventDefault(); event.stopPropagation(); setLevel(1); }
-      }}>{option.label}{option.value === selected ? <span aria-hidden="true" className="text-[#d97757]">✓</span> : null}</button>)}
+      }}>{option.label}{option.value === selected ? <span aria-hidden="true" className="text-(--cui-clay)">✓</span> : null}</button>)}
       {renderPreview ? <div className="mt-1.5 border-0 border-t border-solid border-cui-line px-3 py-2 text-[10px] leading-[1.6] text-cui-muted">{renderPreview(preview, selected)}</div> : null}
     </div> : null}
   </div>;

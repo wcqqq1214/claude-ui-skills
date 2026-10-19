@@ -6,7 +6,7 @@ Use for: prose with headings, inline and fenced code, long identifiers, inline i
 
 [Prose](../../src/components/typography/Text.tsx) · [CodeBlock](../../src/components/reading/CodeBlock.tsx) · [ExpandableTable](../../src/components/reading/ExpandableTable.tsx) · [Icon](../../src/components/icons/Icon.tsx) · [demo chapter](../../demo/chapters/ReadingChapter.tsx).
 
-The library receives code, table data and translated labels through props. CodeBlock keeps whitespace and ignores late copy completions after unmount. ExpandableTable uses a native dialog with React-rendered data, unique labeling and focus return; pass `active={false}` when hiding the owning view. Font comparisons and the single number-sample interval belong to the demo. Optional font assets are in `src/assets/fonts`, and component CSS uses `--cui-*` tokens. See [setup and API boundaries](../../demo/README.md).
+The library receives code, table data and translated labels through props. CodeBlock keeps whitespace and ignores late copy completions after unmount. ExpandableTable uses a native dialog with React-rendered data, unique labeling and focus return; pass `active={false}` when hiding the owning view. Its optional `heading` and `dialogTitle` let the visible headings differ from the table region's accessible `label`; both default to `label`. Font comparisons and the single number-sample interval belong to the demo. Optional font assets are in `src/assets/fonts`, and component CSS uses `--cui-*` tokens. See [setup and API boundaries](../../demo/README.md).
 
 ## Parameters
 
@@ -17,7 +17,7 @@ The library receives code, table data and translated labels through props. CodeB
 | Wrapping | Headings `balance`, paragraphs `pretty`; long identifiers may break |
 | Inline icon | `-.125em` baseline offset on the inline host: a 16px icon sits 2px lower in 15px text |
 | Inline code | .9em, line height 1, .4em radius, .0625em/.25em padding; text `#8e2626` light, `#ec7e7e` dark; fill at 5% and .5px border at 10% of `rgb(11 11 11)` (light) or white (dark); `pre-wrap`, `break-word` |
-| Fenced code | `--cui-surface` at 50%; .5px `--cui-line` border; radius .5rem; 14px padding; .875rem/1.625 Mono; language label .6875rem/1.0625rem secondary |
+| Fenced code | `--cui-surface-popover` at 50%; .5px `--cui-line` border; radius .5rem; 14px padding; .875rem/1.625 Mono; language label .6875rem/1.0625rem secondary |
 | Copy feedback | Copy → Check after the clipboard write succeeds; resets after 2000ms |
 | Numbers | `tabular-nums` by default; the comparison sample switches only `font-variant-numeric` |
 | Tables | Body ×.9375, line height 1.5, cell padding .5em/.875em; grid lines 1px |
