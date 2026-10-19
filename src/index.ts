@@ -38,3 +38,11 @@ export { CopyButton } from './components/micro/CopyButton';
 export type { CopyButtonProps } from './components/micro/CopyButton';
 export { NotificationStack } from './components/micro/NotificationStack';
 export type { NotificationInput, NotificationStackHandle, NotificationStackProps } from './components/micro/NotificationStack';
+
+export { MentionEditor } from './components/composer/MentionEditor';
+export type { MentionEditorHandle, MentionEditorProps } from './components/composer/MentionEditor';
+export type { MentionOption, ComposerDraft } from './components/composer/mentionEditing';
+export { AttachmentList } from './components/composer/AttachmentList';
+export type { Attachment, AttachmentListProps } from './components/composer/AttachmentList';
+export { ComposerSurface, ComposerPicker, ComposerToolbar } from './components/composer/ComposerToolbar';
+export type { ComposerToolbarProps } from './components/composer/ComposerToolbar';

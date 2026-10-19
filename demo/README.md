@@ -1,6 +1,6 @@
 # React demo
 
-The migration demo imports the public TSX components from `src/index.ts`. It currently covers controls, segmented selection, typography, reading/code/tables, activity feedback, skeletons, disclosure, tooltips, copy feedback and notifications. The original `showcase/` remains the reference for the remaining chapters; the full migration is tracked in [the migration plan](../docs/react-migration.md).
+The migration demo imports the public TSX components from `src/index.ts`. It currently covers controls, segmented selection, typography, reading/code/tables, activity feedback, skeletons, disclosure, tooltips, copy feedback, notifications and the composer. The original `showcase/` remains the reference for the remaining chapters; the full migration is tracked in [the migration plan](../docs/react-migration.md).
 
 ## Run
 
@@ -50,7 +50,7 @@ export function Example() {
 }
 ```
 
-`src/styles/index.css` explicitly scans the adjacent component directory; it imports Tailwind theme/utilities without Preflight. A host already using Tailwind can instead import `tokens.css`, `motion.css`, `reading.css`, `feedback.css`, `micro.css` and `icons.css`, copy the `@theme inline` mappings, and add `@source` for the copied component directory. Keep utility class names literal. The library does not set body styles or load text fonts automatically; `fonts.css` is an optional separate import, or set `--cui-font-sans`, `--cui-font-serif` and `--cui-font-mono` to host fonts. `icons.css` includes its local glyph font; keep that asset when using `Icon`.
+`src/styles/index.css` explicitly scans the adjacent component directory; it imports Tailwind theme/utilities without Preflight. A host already using Tailwind can instead import `tokens.css`, `motion.css`, `reading.css`, `feedback.css`, `micro.css`, `composer.css` and `icons.css`, copy the `@theme inline` mappings, and add `@source` for the copied component directory. Keep utility class names literal. The library does not set body styles or load text fonts automatically; `fonts.css` is an optional separate import, or set `--cui-font-sans`, `--cui-font-serif` and `--cui-font-mono` to host fonts. `icons.css` includes its local glyph font; keep that asset when using `Icon`.
 
 This is source consumption, not a published npm package or a precompiled CSS distribution. [The independent consumer](../tests/fixtures/react-consumer/main.tsx) uses only the source entry and component stylesheet, with no demo assets or scripts.
 
@@ -113,3 +113,41 @@ export function SaveFeedback() {
 - `NotificationStack` exposes notify/dismiss/clear through its ref. Notices take message, optional deduplication key, action (label/onClick), and duration. Ordinary defaults are 6s; actions persist; null duration persists. Repeated keys increment a count; renderMessage customizes/localizes the text. Single mode replaces one entry and can interrupt its exit. defaultNotices is initial-only. Supply dismissLabel and optionally label, empty, fallbackFocus, active and wrapper styles. The host owns placement. Hidden stacks keep deadlines but cannot announce or restore focus; unmount cancels timers.
 
 [Independent consumer](../tests/fixtures/react-micro/main.tsx) and [browser checks](../tests/react-micro.browser.cjs) cover source-only use, tooltip delay/overflow/Escape, ghost press, clipboard lifecycle/fallback, notification queue/focus/deadlines/deduplication/reopening, and bilingual light/dark responsive layouts.
+
+## Composer, references and attachments
+
+Open `/demo/?lang=en#composer` or `/demo/?lang=zh-Hans#composer`.
+
+```tsx
+import { useRef, useState } from 'react';
+import { AttachmentList, ComposerSurface, ComposerToolbar, MentionEditor } from './src';
+import type { MentionEditorHandle } from './src';
+
+export function DraftExample() {
+  const editor = useRef<MentionEditorHandle>(null);
+  const [files, setFiles] = useState([{ id: 'notes', name: 'design-notes.md' }]);
+  return <>
+    <ComposerSurface>
+      <AttachmentList items={files} label="Attachments"
+        removeLabel={file => `Remove ${file.name}`}
+        onRemove={id => setFiles(current => current.filter(file => file.id !== id))}
+        onEmptyFocus={() => editor.current?.focus()} />
+      <MentionEditor ref={editor} label="Draft" placeholder="Type a few lines…"
+        mentionListLabel="References" mentionHeading="Artifacts" deleteLabel="Delete"
+        options={[{ id: 'landscape', title: 'Landscape illustration', description: 'Design' }]}
+        onDraftChange={draft => console.log(draft.text, draft.mentions)} />
+    </ComposerSurface>
+    <ComposerToolbar projectLabel="Project" modelLabel="Sonnet 4.6" />
+  </>;
+}
+```
+
+The browser owns the editable DOM and undo stack. MentionEditor is intentionally uncontrolled: defaultText initializes it, resetKey explicitly resets it, and the ref exposes focus/clear/getDraft. Draft text excludes decorative icon glyphs; ordered mention metadata carries stable IDs and insertion-time titles. This is an editing callback, not a rich-document persistence format. The host owns submission and any draft storage. Enter inserts a newline unless a candidate is active; IME composition, native atomic deletion, undo and plain-text paste remain in the editing island. Localizing labels closes overlays while preserving draft nodes.
+
+The editor defaults to maxHeight `min(40svh, 384px)`; the demo chooses 130px. Width/visibility changes remeasure it. active=false closes overlays but does not make text read-only; hide/inert the host when appropriate. Candidate/context-menu positions remain in the component's theme subtree; avoid transformed ancestors that establish a containing block for fixed positioning.
+
+AttachmentList is controlled: provide unique IDs and a synchronous React state update in onRemove. Its View Transition transaction flushes that update, animates surviving tiles and removes the target once even when interrupted. onEmptyFocus handles the last removal. Native Delete/Backspace/Enter, IME/modifier/repeat guards and touch-visible remove controls are included. File input, upload and sending remain host responsibilities.
+
+ComposerToolbar implements the original empty-project variant. projectLabel/modelLabel/modelAriaLabel and optional callbacks/description/trailing content customize it. It folds by measured space, keeps the same trigger node and unfolds with 2px spare width. ComposerPicker is also exported with native button props/ref and the measured press layer.
+
+[Independent consumer](../tests/fixtures/react-composer/main.tsx) and [browser suite](../tests/react-composer.browser.cjs) verify native undo and IME, safe paste, focus, hidden draft preservation, multiple instances, exact folding boundaries, real attachment transitions, fallback/unmount handling, and bilingual mouse/touch layouts.

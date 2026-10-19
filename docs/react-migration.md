@@ -22,7 +22,7 @@ Reference: [Caho1/open-claude-ui](https://github.com/Caho1/open-claude-ui), part
 | 1 | React/TS/Vite/Tailwind, scoped tokens, optional Sans assets, theme/language shell | Implemented |
 | 2 | Switch, Checkbox, DiscreteSlider, SegmentedControl; demo imports; independent consumer | Implemented; verification recorded below |
 | 3 | Typography, reading, code/table, feedback, accordion, tooltips and notices | Implemented; verification recorded below |
-| 4 | Composer, attachments, contenteditable mentions, menus, search and palette | Pending |
+| 4 | Composer, attachments, contenteditable mentions, menus, search and palette | Composer, attachments and mentions implemented; menus/search/palette pending |
 | 5 | Workspace resize, sidebar modes/reorder, images/gallery, drop/task progress | Pending |
 | 6 | Complete chapter navigation, remaining assets, guides, build/deployment migration and legacy removal | Pending |
 
@@ -76,6 +76,13 @@ Manual UI verification uses the actual Vite demo. Automated geometry checks and 
 
 - Final `npm run build`, `npm run test:react` (all four suites) and `git diff --check` passed. Production preview confirmed Chinese tooltip display, notification stacking/deduplication and component styles. Stage 3 is complete; later stages remain pending.
 
+## Composer batch
+
+- Added `ComposerSurface`, measured `ComposerPicker`/`ComposerToolbar`, controlled `AttachmentList` and native `MentionEditor`. React owns chrome/overlays; an isolated, cleaned-up editing controller owns the contenteditable DOM and browser editing transactions. Draft callbacks exclude decorative glyphs and retain ordered mention IDs/titles. The host owns sample data, submission and persistence.
+- Added the original four-part composer demo: attachment tiles, multiline input with Artifact references, action row and project/model toolbar. Localization and chapter visibility retain the existing draft and attachments. The toolbar preserves its trigger through both folding boundaries and 2px unfolding hysteresis, with mouse/touch densities.
+- Added an independent two-composer fixture. Browser tests cover clamped candidate keyboard selection, Enter/Tab insertion, atomic Backspace/undo, context delete/restore, IME, plain-text paste, serialization, hidden draft preservation, mounting, attachment keyboard/modifier/repeat handling, focus and independent instances. Native View Transition instrumentation confirms the authored exit keyframes; fallback and deferred callbacks after unmount are exercised separately.
+- Final `npm run build`, `npm run test:react` (all five suites) and `git diff --check` passed. Composer checks include English/Chinese at 1280/390/320px in light/dark and mouse/touch contexts. Production preview confirmed Chinese candidate placement, insertion and continued editing.
+
 ## Next batch
 
-Stage 4: Composer, attachment tiles, contenteditable mentions, menus, search and palette. Establish an explicit React/contenteditable selection ownership boundary, retain caret and IME behavior, and keep sample data/actions in the demo. Then migrate workspace/sidebar/image/gallery/drop/task chapters before replacing the legacy build and retiring the original showcase.
+Finish stage 4 with menus, search and palette. Then migrate workspace/sidebar/image/gallery/drop/task chapters before replacing the legacy build and retiring the original showcase.

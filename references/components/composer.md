@@ -2,30 +2,36 @@
 
 Use for: the composer surface and its hover/focus states, `@` Artifact references, the project row that folds as width shrinks, and attachment entrance, removal and reflow.
 
-## Code
+## React implementation
 
-[HTML](../../showcase/index.html#composer) · [composer.js](../../showcase/components/composer.js) · [composer-mentions.js](../../showcase/components/composer-mentions.js) · [composer.css](../../showcase/components/composer.css)
+[ComposerSurface/Toolbar/Picker](../../src/components/composer/ComposerToolbar.tsx) · [MentionEditor](../../src/components/composer/MentionEditor.tsx) · [editing controller](../../src/components/composer/mentionEditing.ts) · [AttachmentList](../../src/components/composer/AttachmentList.tsx) · [styles](../../src/styles/composer.css) · [demo](../../demo/chapters/ComposerChapter.tsx)
 
-- `initComposerDemo()`: `resizeInput()` on input and width changes.
-- `initComposerMentions()`: `@` candidates, selection, popup placement and atomic references.
-- `initComposerChin()`: the project/model row and its folding modes.
-- `initComposerAttachments()`: tiles, add/remove controls and the View Transition lifecycle (`addSample()`, `remove()`).
-- Read together with `.composer-box`, `.composer-attachments` and `.composer-attachment`.
+Follow the [source integration guide](../../demo/README.md). The editor, attachments and compact toolbar can be imported separately. The demo owns sample files, the width slider, locale and disabled send action.
+
+- `ComposerSurface`: normal div props/children and the authored hover/focus ring. `ComposerPicker` takes native button props/ref, with measured press feedback.
+- `ComposerToolbar`: projectLabel, modelLabel/modelAriaLabel, optional action callbacks, describedBy, trailing content and className. This is the empty-project picker variant. It preserves the trigger across words+caret → words → icon modes, including coarse-pointer sizes and 2px unfolding hysteresis.
+- `MentionEditor`: required label/placeholder/mentionListLabel/deleteLabel, optional heading, options with stable id/title/description, defaultText, resetKey, active, maxHeight and onDraftChange. Its ref exposes focus, clear and getDraft. The draft contains display text (without icon glyphs) and ordered mention metadata; it is not a portable rich-document schema.
+- React owns surrounding controls and candidate/context-menu rendering. The browser owns the editable subtree, selection and undo history. Do not insert React children or rewrite innerHTML while typing. defaultText is initial-only until resetKey changes; localization and resizing never replace draft nodes. Existing atom titles keep the wording used at insertion.
+- Options filter by title. Arrows clamp at the first/last result, Enter/Tab insert, Escape dismisses and selection stays in the editor. IME composition cannot accept a candidate. Plain-text paste cannot create reference nodes. The native insertHTML/delete transactions retain Backspace and undo/redo. The host chooses if/when to submit; ordinary Enter remains a newline outside an open candidate list.
+- `AttachmentList`: controlled items (id/name/type), label, removeLabel, onRemove and optional onEmptyFocus. onRemove must synchronously update the items in React; it runs inside the browser snapshot update and flushes that commit so animation geometry matches. Items use unique instance-scoped transition names. Last-tile, hidden-page and unsupported-API removals update directly; interrupted updates run at most once. Unmount cancels pending work and removes held-key guards.
+- active=false closes editor overlays; use a containing hidden/inert state when hiding an entire composer. Draft and attachments can stay mounted across chapter changes.
+
+Original migration reference: [HTML](../../showcase/index.html#composer), [JS](../../showcase/components/composer.js), [mention controller](../../showcase/components/composer-mentions.js), [CSS](../../showcase/components/composer.css).
 
 ## Parameters
 
 | Part | Value |
 | --- | --- |
 | Box | 12px radius; ring outer in light, inset in dark |
-| Focus shadow | Alpha 3.5% → 7.5%, 200ms `--ease-standard` |
+| Focus shadow | Alpha 3.5% → 7.5%, 200ms `--cui-ease-standard` |
 | Editor height | Follows `scrollHeight`; demo cap 130px |
 | Mention popup | Opens above the caret, flips below when short of room; 16px viewport padding; max height 384px |
 | Project row | Three modes: words + caret → words → icon (16px; 20px on coarse pointers) |
 | Row text | 12px; 10px when the row is ≤ 400px wide. Coarse pointers: 13px, and 11px when narrow |
 | Row pickers | 20px tall, 5px radius, 12px text; on coarse pointers 32px tall, 8px radius, 13px text |
-| Press feedback | Fill shrinks by `clamp(.5px, height / 32, 1.5px)` per side (scale ≥ .8); releases over 450ms `--ease-spring` |
-| Attachment row enter | From opacity 0, translateY(-8px); 200ms `--ease-out-cubic` |
-| Tile enter | From opacity 0, scale(.92) translateY(4px); 180ms `--ease-out-cubic` |
+| Press feedback | Fill shrinks by `clamp(.5px, height / 32, 1.5px)` per side (scale ≥ .8); releases over 450ms the authored spring curve |
+| Attachment row enter | From opacity 0, translateY(-8px); 200ms `--cui-ease-out-cubic` |
+| Tile enter | From opacity 0, scale(.92) translateY(4px); 180ms `--cui-ease-out-cubic` |
 | Tile reflow and removal | Survivors move over 180ms; a removed tile fades and scales to .5 over 130ms `--ease-in-cubic` |
 | Tile geometry | 120px tiles, 6px gap, 20px remove control |
 

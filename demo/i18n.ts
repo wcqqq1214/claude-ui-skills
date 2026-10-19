@@ -1,5 +1,6 @@
 export type Locale = 'en' | 'zh-Hans';
 const english = {
+  composer: 'Input & attachments', composerDescription: 'Draft text, reference artwork and keep attachments within reach.',
   micro: 'Hints & feedback', microDescription: 'Small explanations and confirmations, close to the action.',
   recovery: 'Notifications', recoveryDescription: 'Messages stay ordered as new work arrives.',
   feedback: 'Waiting & disclosure', feedbackDescription: 'Activity transitions, shared loading sweeps and expandable details.',
@@ -22,6 +23,7 @@ const english = {
 };
 export type Copy = typeof english;
 const chinese: Copy = {
+  composer: '输入与附件', composerDescription: '撰写内容、引用作品，让附件随手可用。',
   micro: '提示与反馈', microDescription: '在操作附近给出简短说明与确认。',
   recovery: '通知', recoveryDescription: '随着新消息到来，保持清晰的层次与顺序。',
   feedback: '等待与展开', feedbackDescription: '活动状态切换、加载扫光与可展开的细节。',
