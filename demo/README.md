@@ -1,6 +1,6 @@
 # React demo
 
-The migration demo imports the public TSX components from `src/index.ts`. It currently covers controls, segmented selection, typography, reading/code/tables, activity feedback, skeletons and disclosure. The original `showcase/` remains the reference for the remaining chapters; the full migration is tracked in [the migration plan](../docs/react-migration.md).
+The migration demo imports the public TSX components from `src/index.ts`. It currently covers controls, segmented selection, typography, reading/code/tables, activity feedback, skeletons, disclosure, tooltips, copy feedback and notifications. The original `showcase/` remains the reference for the remaining chapters; the full migration is tracked in [the migration plan](../docs/react-migration.md).
 
 ## Run
 
@@ -50,7 +50,7 @@ export function Example() {
 }
 ```
 
-`src/styles/index.css` explicitly scans the adjacent component directory; it imports Tailwind theme/utilities without Preflight. A host already using Tailwind can instead import `tokens.css`, `motion.css`, `reading.css`, `feedback.css` and `icons.css`, copy the `@theme inline` mappings, and add `@source` for the copied component directory. Keep utility class names literal. The library does not set body styles or load text fonts automatically; `fonts.css` is an optional separate import, or set `--cui-font-sans`, `--cui-font-serif` and `--cui-font-mono` to host fonts. `icons.css` includes its local glyph font; keep that asset when using `Icon`.
+`src/styles/index.css` explicitly scans the adjacent component directory; it imports Tailwind theme/utilities without Preflight. A host already using Tailwind can instead import `tokens.css`, `motion.css`, `reading.css`, `feedback.css`, `micro.css` and `icons.css`, copy the `@theme inline` mappings, and add `@source` for the copied component directory. Keep utility class names literal. The library does not set body styles or load text fonts automatically; `fonts.css` is an optional separate import, or set `--cui-font-sans`, `--cui-font-serif` and `--cui-font-mono` to host fonts. `icons.css` includes its local glyph font; keep that asset when using `Icon`.
 
 This is source consumption, not a published npm package or a precompiled CSS distribution. [The independent consumer](../tests/fixtures/react-consumer/main.tsx) uses only the source entry and component stylesheet, with no demo assets or scripts.
 
@@ -82,3 +82,34 @@ Open `/demo/?lang=en#feedback` or `/demo/?lang=zh-Hans#feedback`.
 - `Accordion`: title, children, open/defaultOpen/onOpenChange, disabled, triggerClassName and ordinary wrapper props. Its panel retains content state while closed, is inert, and returns focus to the trigger when necessary. Do not put interactive elements inside title.
 
 [Independent feedback consumer](../tests/fixtures/react-feedback/main.tsx) and [tests](../tests/react-feedback.browser.cjs) cover authored seams, cancellation, pause/resume, failure, remount, shared clip geometry and disclosure focus.
+
+## Hints and notifications
+
+Open `/demo/?lang=en#micro` and `/demo/?lang=en#recovery` (also available with `lang=zh-Hans`).
+
+```tsx
+import { useRef } from 'react';
+import { NotificationStack, Tooltip } from './src';
+import type { NotificationStackHandle } from './src';
+
+export function SaveFeedback() {
+  const notices = useRef<NotificationStackHandle>(null);
+  const trigger = useRef<HTMLButtonElement>(null);
+  return <>
+    <Tooltip content="Save these notes">
+      {binding => <button {...binding} type="button" onClick={() => {
+        notices.current?.notify({ key: 'saved', message: 'Notes saved' });
+      }}>Save</button>}
+    </Tooltip>
+    <button ref={trigger} type="button" onClick={() => notices.current?.clear()}>Clear notices</button>
+    <NotificationStack ref={notices} dismissLabel="Dismiss" fallbackFocus={trigger} />
+  </>;
+}
+```
+
+- `Tooltip` uses a render-function child so the host keeps native trigger semantics. Spread all binding props. Use overflowOnly for ellipsized text, onOverflowChange for a host hint, describedBy to retain an additional description, and active=false when hiding a chapter. It clamps to viewport edges but does not portal outside clipping ancestors.
+- `GhostButton` accepts native button props/ref and requires an accessible name. Its eyes animate only on hover-capable devices, stop while pressed, and stay still on keyboard focus.
+- `CopyButton` takes text and translated copyLabel/copiedLabel/failedLabel, plus optional onCopyResult. It reuses useClipboard, including latest-write-wins, 2s success reset and the temporary textarea fallback when the secure API is unavailable.
+- `NotificationStack` exposes notify/dismiss/clear through its ref. Notices take message, optional deduplication key, action (label/onClick), and duration. Ordinary defaults are 6s; actions persist; null duration persists. Repeated keys increment a count; renderMessage customizes/localizes the text. Single mode replaces one entry and can interrupt its exit. defaultNotices is initial-only. Supply dismissLabel and optionally label, empty, fallbackFocus, active and wrapper styles. The host owns placement. Hidden stacks keep deadlines but cannot announce or restore focus; unmount cancels timers.
+
+[Independent consumer](../tests/fixtures/react-micro/main.tsx) and [browser checks](../tests/react-micro.browser.cjs) cover source-only use, tooltip delay/overflow/Escape, ghost press, clipboard lifecycle/fallback, notification queue/focus/deadlines/deduplication/reopening, and bilingual light/dark responsive layouts.

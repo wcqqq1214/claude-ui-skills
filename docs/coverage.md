@@ -6,7 +6,7 @@ This page describes the visible examples in the [showcase](../showcase/index.htm
 
 ## React migration status
 
-The React demo currently includes controls, segmented selection, typography, scroll following, code copy, expandable tables, activity feedback, skeletons and disclosure. [Migration stages](react-migration.md) track the remaining examples. The coverage below describes the original showcase; the two demos may differ during the transition.
+The React demo currently includes controls, segmented selection, typography, scroll following, code copy, expandable tables, activity feedback, skeletons, disclosure, tooltips and notifications. [Migration stages](react-migration.md) track the remaining examples. The coverage below describes the original showcase; the two demos may differ during the transition.
 
 ## Using the examples
 
@@ -78,7 +78,7 @@ Not every size, disabled state, tooltip combination, long list, nested overlay, 
 ### Tooltips, ghost hover and copy
 
 - **Behavior:** the ghost sample demonstrates a hover animation and has a local label and explanation; it does not open an incognito session or add a tooltip or shortcut. Copy feedback appears in a fixed-position notice up to 360px wide and replaces the previous notice. The overflow-width slider ranges from 100 to 320px, subject to the container width; its readout shows the requested width. Sample filenames are used throughout.
-- **Limits:** automatic repositioning near screen edges, moving between grouped tooltips and keeping a tooltip open while hovering over it are not demonstrated.
+- **Limits:** the original showcase does not reposition tooltips near screen edges. The React example can move a tooltip below its trigger to stay within the viewport, but surrounding containers may still clip it. Moving between grouped tooltips and keeping a tooltip open while hovering over it are not demonstrated.
 
 <a id="reading"></a>
 

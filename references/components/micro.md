@@ -2,13 +2,19 @@
 
 Use for: short explanations on hover or focus, the full text of a label only when it is clipped, a ghost icon that looks around on hover, and a small confirmation after a local action.
 
-## Code
+## React implementation
 
-[HTML](../../showcase/index.html#micro) · [micro.js](../../showcase/components/micro.js) · [micro.css](../../showcase/components/micro.css)
+[Tooltip](../../src/components/micro/Tooltip.tsx) · [GhostButton](../../src/components/micro/GhostButton.tsx) · [CopyButton](../../src/components/micro/CopyButton.tsx) · [useClipboard](../../src/hooks/useClipboard.ts) · [NotificationStack](../../src/components/micro/NotificationStack.tsx) · [styles](../../src/styles/micro.css) · [demo](../../demo/chapters/MicroChapter.tsx)
 
-- `initMicroDemo()` binds ordinary and overflow tips, copying and a single notification, and returns `showToast` to the [notification stack](recovery.md).
-- Read `isTruncated()`, `showOverflowTip()`, `showToast()` and `hideToast()`.
-- Notifications share `.stack-toast` from [recovery.css](../../showcase/components/recovery.css).
+Follow the [source integration guide](../../demo/README.md). Components import no sample copy, demo IDs or global notification provider.
+
+- `Tooltip`: content and a render-function child. Spread its ref, event handlers and `aria-describedby` onto a focusable trigger. It defaults to an inline anchor; overflowOnly uses a block anchor. `active`, `delay` (300ms), `describedBy` and `onOverflowChange` are optional. The default trigger type is HTMLButtonElement; specify a generic element type for other native triggers.
+- `overflowOnly` measures both scroll width and text Range geometry. Resize, text mutations and font completion dismiss and remeasure. Escape dismisses until a new engagement; pointer and keyboard focus are tracked independently. Closing leaves the fading element mounted while removing its accessibility description. The React version also clamps to viewport edges and flips below when space above is insufficient; it is still inline and may be clipped by an overflow ancestor.
+- `GhostButton`: native button props/ref; supply an accessible label and an application action if needed. The demo is a motion preview.
+- `CopyButton`: exact text, copyLabel, copiedLabel, failedLabel, optional onCopyResult and native button props/ref. The callback runs only for the latest live request. Success resets after 2s; failure remains visible. The clipboard hook uses the original textarea fallback when the secure Clipboard API is unavailable, restores focus/selection, and removes its temporary node.
+- `NotificationStack` with `mode="single"` provides the replaceable one-at-a-time notice. The host owns fixed positioning and a fallback focus ref; see [notifications](recovery.md).
+
+Original reference: [HTML](../../showcase/index.html#micro), [JS](../../showcase/components/micro.js), [CSS](../../showcase/components/micro.css).
 
 ## Parameters
 

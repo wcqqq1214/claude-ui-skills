@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
 import { ControlsChapter } from './chapters/ControlsChapter';
 import { TypographyChapter } from './chapters/TypographyChapter';
+import { MicroChapter } from './chapters/MicroChapter';
+import { NotificationsChapter } from './chapters/NotificationsChapter';
 import { FeedbackChapter } from './chapters/FeedbackChapter';
 import { ReadingChapter } from './chapters/ReadingChapter';
 import { SegmentedChapter } from './chapters/SegmentedChapter';
@@ -8,7 +10,7 @@ import { messages } from './i18n';
 import type { Locale } from './i18n';
 
 type Theme = 'system' | 'light' | 'dark';
-const chapters = ['controls', 'segmented', 'type', 'reading', 'feedback'] as const;
+const chapters = ['controls', 'segmented', 'type', 'reading', 'feedback', 'micro', 'recovery'] as const;
 type Chapter = typeof chapters[number];
 function readPreference(key: string) { try { return localStorage.getItem(`cui-demo-${key}`); } catch { return null; } }
 function savePreference(key: string, value: string) { try { localStorage.setItem(`cui-demo-${key}`, value); } catch { /* Storage is optional. */ } }
@@ -81,12 +83,14 @@ export function App() {
               <option value="system">{copy.system}</option><option value="light">{copy.light}</option><option value="dark">{copy.dark}</option>
             </select>
           </div>
-          <header className="mb-8"><p className="mb-3 text-xs text-cui-muted">{copy.introduction}</p><h1 className="text-[28px] leading-tight font-(--cui-medium)">{copy[chapter]}</h1><p className="mt-3 text-sm text-cui-secondary">{{ controls: copy.controlDescription, segmented: copy.segmentDescription, type: copy.typeDescription, reading: copy.readingDescription, feedback: copy.feedbackDescription }[chapter]}</p></header>
+          <header className="mb-8"><p className="mb-3 text-xs text-cui-muted">{copy.introduction}</p><h1 className="text-[28px] leading-tight font-(--cui-medium)">{copy[chapter]}</h1><p className="mt-3 text-sm text-cui-secondary">{{ controls: copy.controlDescription, segmented: copy.segmentDescription, type: copy.typeDescription, reading: copy.readingDescription, feedback: copy.feedbackDescription, micro: copy.microDescription, recovery: copy.recoveryDescription }[chapter]}</p></header>
           <section hidden={chapter !== 'controls'} aria-label={copy.controls}><ControlsChapter copy={copy} locale={locale} /></section>
           <section hidden={chapter !== 'segmented'} aria-label={copy.segmented}><SegmentedChapter copy={copy} /></section>
           <section hidden={chapter !== 'type'} aria-label={copy.type}><TypographyChapter locale={locale} active={chapter === 'type'} /></section>
           <section hidden={chapter !== 'reading'} aria-label={copy.reading}><ReadingChapter locale={locale} active={chapter === 'reading'} /></section>
           <section hidden={chapter !== 'feedback'} aria-label={copy.feedback}><FeedbackChapter locale={locale} active={chapter === 'feedback'} /></section>
+          <section hidden={chapter !== 'micro'} aria-label={copy.micro}><MicroChapter locale={locale} active={chapter === 'micro'} /></section>
+          <section hidden={chapter !== 'recovery'} aria-label={copy.recovery}><NotificationsChapter locale={locale} active={chapter === 'recovery'} /></section>
           <footer className="mt-12 text-[11px] text-cui-muted">{copy.footer}</footer>
         </div>
       </main>

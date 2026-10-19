@@ -21,7 +21,7 @@ Reference: [Caho1/open-claude-ui](https://github.com/Caho1/open-claude-ui), part
 | --- | --- | --- |
 | 1 | React/TS/Vite/Tailwind, scoped tokens, optional Sans assets, theme/language shell | Implemented |
 | 2 | Switch, Checkbox, DiscreteSlider, SegmentedControl; demo imports; independent consumer | Implemented; verification recorded below |
-| 3 | Typography, reading, code/table, feedback, accordion, tooltips and notices | Typography, reading/code/table, activity feedback, skeletons and accordion implemented; tooltips and notices pending |
+| 3 | Typography, reading, code/table, feedback, accordion, tooltips and notices | Implemented; verification recorded below |
 | 4 | Composer, attachments, contenteditable mentions, menus, search and palette | Pending |
 | 5 | Workspace resize, sidebar modes/reorder, images/gallery, drop/task progress | Pending |
 | 6 | Complete chapter navigation, remaining assets, guides, build/deployment migration and legacy removal | Pending |
@@ -68,6 +68,14 @@ Manual UI verification uses the actual Vite demo. Automated geometry checks and 
 - Added `#feedback` in English/Chinese, and a source-only feedback fixture. Tests preserve original handoff cases with a deterministic clock, then exercise real WAAPI playback, focus retention, mounted disclosure state, scoped dark theme, clip resize and 1280/390/320px layouts.
 - Final `npm run build` and all three suites in `npm run test:react` passed, including the StrictMode completion guard and decode failure. Production preview confirmed activity changes, completion and the expanded Chinese timeline.
 
+## Hints and notification batch
+
+- Added native-trigger `Tooltip` with delayed focus/hover, Escape, text-range overflow measurement, resize/font/text updates, viewport clamp and top/bottom placement. Added the original ghost SVG with hover-only eye movement and press/release fill motion, plus `CopyButton` and the original clipboard fallback with focus/selection restoration.
+- Added local `NotificationStack` with a ref API, ordinary/action deadlines, deduplication, three visible layers, measured shared height, focused-item order retention, exit cleanup and safe neighbor/trigger focus return. Single mode uses the same implementation and revives a closing entry without stale removal. React owns all content; sample text, language and fixed placement remain in demo.
+- Added bilingual `#micro` and `#recovery` chapters and a source-only consumer/browser suite. Moved the demo-only reset into the CSS base layer so it no longer overrides component Tailwind font, color and spacing utilities. Tests identified and corrected ghost :active specificity, notification focus at the first reveal frame, and tooltip rearming after scroll. Responsive cases reload between combinations because hash navigation intentionally retains chapter state.
+
+- Final `npm run build`, `npm run test:react` (all four suites) and `git diff --check` passed. Production preview confirmed Chinese tooltip display, notification stacking/deduplication and component styles. Stage 3 is complete; later stages remain pending.
+
 ## Next batch
 
-Finish stage 3 with tooltips/copy notices and notification stacks. Preserve overflow-only tooltip measurement, dismiss/reopen races, deduplication, timer ownership and focus order. Composer work then needs an explicit contenteditable/selection ownership boundary before its DOM mutations are migrated.
+Stage 4: Composer, attachment tiles, contenteditable mentions, menus, search and palette. Establish an explicit React/contenteditable selection ownership boundary, retain caret and IME behavior, and keep sample data/actions in the demo. Then migrate workspace/sidebar/image/gallery/drop/task chapters before replacing the legacy build and retiring the original showcase.
