@@ -2,12 +2,12 @@ const { test: nodeTest } = require('node:test');
 const { readFileSync } = require('node:fs');
 const vm = require('node:vm');
 const assert = require('node:assert/strict');
-const sources = [['legacy', { current: require('../showcase/gallery-zoom.js') }], ['React', { current: null }]];
+const sources = [['React', { current: null }]];
 nodeTest.before(async () => {
   const { transformWithOxc } = await import('vite');
   const source = readFileSync(require.resolve('../src/components/media/galleryZoom.ts'), 'utf8').replace(/^export /gm, '');
   const { code } = await transformWithOxc(source, 'galleryZoom.ts');
-  sources[1][1].current = vm.runInNewContext(code + '; ({ nextScale, clickZoom, scaleAt, bound, clamp })');
+  sources[0][1].current = vm.runInNewContext(code + '; ({ nextScale, clickZoom, scaleAt, bound, clamp })');
 });
 for (const [implementation, source] of sources) {
 const test = (name, run) => nodeTest(`${implementation}: ${name}`, run);

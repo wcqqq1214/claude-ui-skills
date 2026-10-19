@@ -28,15 +28,15 @@ jobs:
         uses: actions/checkout@v6
         with:
           persist-credentials: false
-      - name: Stage demo assets
-        shell: bash
-        run: |
-          site_dir="$RUNNER_TEMP/claude-ui-pages"
-          mkdir -p "$site_dir/fonts" "$site_dir/components/status-assets"
-          cp showcase/*.html showcase/*.css showcase/*.js showcase/*.svg "$site_dir/"
-          cp showcase/components/*.css showcase/components/*.js "$site_dir/components/"
-          cp showcase/components/status-assets/*.webp showcase/components/status-assets/progress-clay.png "$site_dir/components/status-assets/"
-          cp showcase/fonts/*.woff2 "$site_dir/fonts/"
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - name: Install dependencies
+        run: npm ci
+      - name: Build React demo
+        run: npm run build
       - name: Configure Pages
         uses: actions/configure-pages@v5
         with:
@@ -44,7 +44,7 @@ jobs:
       - name: Upload demo
         uses: actions/upload-pages-artifact@v4
         with:
-          path: ${{ runner.temp }}/claude-ui-pages
+          path: dist
       - name: Deploy
         id: deployment
         uses: actions/deploy-pages@v4

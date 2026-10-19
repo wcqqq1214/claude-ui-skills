@@ -15,16 +15,14 @@ Use for: notifications that stay manageable as messages arrive and leave. Presen
 - `active=false` makes the stack inert and disables live announcements/focus restoration. Deadlines continue to run while hidden. Unmount clears its timers and ignores pending exits.
 - The host owns placement and business effects. Pass presentational message content; use action for interactive controls. For dynamic localization, render messages with renderMessage or context-aware React nodes so existing notices update too.
 
-Original reference: [HTML](../../showcase/index.html#recovery), [JS](../../showcase/components/recovery.js), [CSS](../../showcase/components/recovery.css).
-
 ## Parameters
 
 | Part | Value |
 | --- | --- |
 | Visible layers | Three; further entries wait hidden and inert |
 | Rear layers | Each step back moves −14px and scales by −4% |
-| Enter | From translateY(100%), opacity 0; 200ms `--ease-out` |
-| Exit | To scale .85, opacity 0; 200ms `--ease-out` |
+| Enter | From translateY(100%), opacity 0; 200ms `--cui-ease-out` |
+| Exit | To scale .85, opacity 0; 200ms `--cui-ease-out` |
 | Timer | Ordinary notices 6s; action notices persist |
 | Dismiss control | 16px X with 4px padding in an explicit 24×24px centered box |
 | Surface | 10px radius |

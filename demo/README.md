@@ -1,6 +1,6 @@
 # React demo
 
-The migration demo imports the public TSX components from `src/index.ts`. It currently covers controls, segmented selection, typography, reading/code/tables, activity feedback, skeletons, disclosure, tooltips, copy feedback, notifications, the composer, menus, search, artifact action cards, file panels, sidebar modes/pinned lists, image previews, galleries, task cards, drop feedback and progress lists. All chapters are migrated; the original `showcase/` remains a temporary reference until the final build switch; the full migration is tracked in [the migration plan](../docs/react-migration.md).
+The demo imports the public TSX components from `src/index.ts`. Its 14 chapters cover controls, segmented selection, typography, reading, feedback, hints, notifications, composer, menus, workspace, sidebar, image previews, galleries and tasks. Sample data, translations and replay controls belong to the demo. See [the migration record](../docs/react-migration.md).
 
 ## Run
 
@@ -11,16 +11,16 @@ npm ci
 npm run dev
 ```
 
-Open `/demo/` on the printed Vite address. `?lang=en` and `?lang=zh-Hans` select the language; `#controls`, `#segmented`, `#type` and `#reading` select chapters. Theme and language preferences persist locally. Changing chapters, language or theme preserves component state.
+Open the printed Vite address. `/demo/` is an additional entry to the same application. `?lang=en` and `?lang=zh-Hans` select the language; `#controls`, `#segmented`, `#type` and `#reading` select chapters. Theme and language preferences persist locally. Changing chapters, language or theme preserves component state.
 
 ```sh
-npm run build       # typecheck and build dist/demo/index.html
-npm run preview     # open /demo/ on the printed address
+npm run build       # typecheck and build dist/index.html and dist/demo/index.html
+npm run preview     # open the printed address
 npm run test:react  # independent consumer and demo browser checks
-npm test           # original unit and browser checks plus React browser checks
+npm test           # unit checks, fresh production build and all browser checks
 ```
 
-The production build includes local JS, CSS and the optional bundled Sans/Serif/Mono fonts, the icon font and the default and activity sprite sheets. It does not use runtime CDNs. The existing Pages workflow deploys the original showcase when explicitly enabled.
+The production build includes local JS, CSS and the optional bundled Sans/Serif/Mono fonts, the icon font and the default and activity sprite sheets. It does not use runtime CDNs. The [Pages workflow](../.github/workflows/pages.yml) installs dependencies, builds this demo and publishes `dist/`. It remains manual-only, gated on `main` and `PAGES_ENABLED=true`. Relative asset URLs support both the site root and a repository subpath. Source HTML needs Vite; serve the built `dist/` directory for standalone static use.
 
 ## Import the source
 
@@ -50,9 +50,15 @@ export function Example() {
 }
 ```
 
-`src/styles/index.css` explicitly scans the adjacent component directory; it imports Tailwind theme/utilities without Preflight. A host already using Tailwind can instead import `tokens.css`, `motion.css`, `reading.css`, `feedback.css`, `micro.css`, `composer.css` and `icons.css`, copy the `@theme inline` mappings, and add `@source` for the copied component directory. Keep utility class names literal. The library does not set body styles or load text fonts automatically; `fonts.css` is an optional separate import, or set `--cui-font-sans`, `--cui-font-serif` and `--cui-font-mono` to host fonts. `icons.css` includes its local glyph font; keep that asset when using `Icon`.
+`src/styles/index.css` explicitly scans the adjacent component directory; it imports Tailwind theme/utilities without Preflight. A host already using Tailwind should keep a single theme/utilities import and incorporate every component stylesheet import, the `@theme inline` mappings and the component `@source` declaration from this entry. Dropping a stylesheet can remove behavior even when a component still renders. Keep utility class names literal. The library does not set body styles or load text fonts automatically; `fonts.css` is an optional separate import, or set `--cui-font-sans`, `--cui-font-serif` and `--cui-font-mono` to host fonts. `icons.css` includes its local glyph font; keep that asset when using `Icon`.
 
 This is source consumption, not a published npm package or a precompiled CSS distribution. [The independent consumer](../tests/fixtures/react-consumer/main.tsx) uses only the source entry and component stylesheet, with no demo assets or scripts.
+
+## Tests and static delivery
+
+`npm test` runs deterministic zoom/search checks, builds the demo and runs all browser suites. Browser checks use an installed Chrome/Chromium; set `CHROME_BIN` if it is outside the usual locations. `npm run test:production` rebuilds and checks the static site at both `/` and a repository subpath, including assets, all chapters, navigation and saved preferences. `npm run test:react` checks the independent source consumers and chapter interactions.
+
+The public source entry does not import demo code. It requires no backend, routing provider or application globals. A production build is separate from source consumption: this repository does not publish an npm package.
 
 ## Current API boundaries
 

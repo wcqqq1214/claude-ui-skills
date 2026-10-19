@@ -6,7 +6,7 @@ Use for: a file list beside a preview, where readers switch files and view forma
 
 [FileWorkspace.tsx](../../src/components/workspace/FileWorkspace.tsx) · [usePaneResize.ts](../../src/components/workspace/usePaneResize.ts) · [workspace.css](../../src/styles/workspace.css) · [React demo](../../demo/chapters/WorkspaceChapter.tsx)
 
-Import `FileWorkspace` from `src/index.ts` with the shared stylesheet; see [integration](../../demo/README.md#file-panels-and-sidebar-navigation). React owns file, view and expanded state. The private resize hook owns the measured CSS variable and pointer transaction, cancelling capture on inactivity/unmount. The compact view uses [SegmentedControl](../../src/components/segmented/SegmentedControl.tsx), and remeasures after layout changes. Files supply preview React nodes and plain source strings; demo sample content stays outside the component. [Original showcase](../../showcase/index.html#workspace) remains a temporary reference.
+Import `FileWorkspace` from `src/index.ts` with the shared stylesheet; see [integration](../../demo/README.md#file-panels-and-sidebar-navigation). React owns file, view and expanded state. The private resize hook owns the measured CSS variable and pointer transaction, cancelling capture on inactivity/unmount. The compact view uses [SegmentedControl](../../src/components/segmented/SegmentedControl.tsx), and remeasures after layout changes. Files supply preview React nodes and plain source strings; demo sample content stays outside the component.
 
 ## Parameters
 

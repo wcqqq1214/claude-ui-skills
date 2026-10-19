@@ -24,7 +24,7 @@ Reference: [Caho1/open-claude-ui](https://github.com/Caho1/open-claude-ui), part
 | 3 | Typography, reading, code/table, feedback, accordion, tooltips and notices | Implemented; verification recorded below |
 | 4 | Composer, attachments, contenteditable mentions, menus, search and palette | Implemented; verification recorded below |
 | 5 | Workspace resize, sidebar modes/reorder, images/gallery, drop/task progress | Implemented; verification recorded below |
-| 6 | Complete chapter navigation, remaining assets, guides, build/deployment migration and legacy removal | Pending |
+| 6 | Complete chapter navigation, remaining assets, guides, build/deployment migration and legacy removal | Complete; final verification below |
 
 ## Decisions established by the first batch
 
@@ -118,6 +118,29 @@ Manual UI verification uses the actual Vite demo. Automated geometry checks and 
 - Added controlled/uncontrolled task selection and focus-only RTL-aware arrow navigation. Drop feedback retains the three overlay layers and 150ms entry/200ms exit; re-entry samples the current visual position before cancelling exit, and teardown invalidates callbacks. The local demo has keyboard and drag/drop equivalents and rejects unrelated drags.
 - Added an independent consumer/browser suite covering geometry, progression, animation phases/fallbacks, controlled props, independent instances, drop interruption/teardown, replay cancellation and responsive localized demos. Production preview confirmed expanded earlier steps, selected-card details and keyboard drop feedback. The built-in browser's native drag gesture did not change the page; actual HTML drag/drop was verified separately by the Chrome browser suite. Final `npm run build`, `npm run test:react` (all ten suites) and `git diff --check` passed.
 
-## Next batch
+## Final integration
 
-All component chapters are migrated. Final integration covers guides/assets, the static build/deployment path, legacy showcase retirement and standalone demo verification.
+- The root and `/demo/` HTML entries build the same React application and share generated assets. `base: './'` keeps both entries usable under a repository subpath. Development opens the root entry.
+- Pages installs dependencies and builds `dist/`. Deployment requires workflow-dispatch on `main` with `PAGES_ENABLED=true`.
+- Retired `showcase/` and its 18 implementation-bound test files. The deterministic search and zoom tests now run only the migrated TypeScript. [Test coverage mapping](../tests/README.md) identifies the React successors, including a new plain-static-server production suite.
+- Updated the Skill, both READMEs, component/visual guides and integration instructions to use TSX, namespaced styles and the React demo. Source consumption explicitly requires React and a Tailwind 4 build; no package publication is implied.
+- Final CSS review found a missing `--cui-ease-spring` definition used by image press/release styles. Restored the original curve and added a computed-style browser assertion for the 450ms spring, so an invalid transition cannot silently pass again.
+
+Final validation:
+
+- `npm test`: passed, including 10 deterministic tests, strict type checking, a fresh production build and all 11 browser files (10 component suites plus static production delivery).
+- `npm run test:production`: passed independently before the complete run.
+- Documentation file-link audit: no missing local targets. `git diff --check`: passed. No active source/build/guide imports depend on `showcase/`; its name remains only in historical provenance.
+- Native in-app preview at the final root entry confirmed Chinese controls and switch state changes.
+
+Completion audit:
+
+| Requirement | Final evidence |
+| --- | --- |
+| Typed reusable React/Tailwind implementation | Public `src/index.ts`, 34 TSX component files, namespaced styles, strict typecheck |
+| Demo consumes the same components | All 14 `demo/chapters` use the source components; independent fixtures import the public entry without demo code |
+| Existing interaction coverage retained | Component browser suites plus deterministic zoom/search tests; test mapping records retirement of old implementation-bound tests |
+| One maintained implementation | Original showcase removed; source, guides and demo use React |
+| Static build and integration documentation | Two shared-app HTML entries, root/subpath production tests, updated source-consumption guide and manual Pages build |
+
+All six delivery stages are complete. Source consumption requires React and Tailwind 4.

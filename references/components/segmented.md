@@ -6,37 +6,28 @@ Use for: a small fixed set of mutually exclusive views or options, such as previ
 
 [SegmentedControl.tsx](../../src/components/segmented/SegmentedControl.tsx) · [demo chapter](../../demo/chapters/SegmentedChapter.tsx) · [setup and API](../../demo/README.md).
 
-The TSX implementation keeps measured natural widths, pixel snapping, interruption from visible geometry and immediate-selection radio semantics. Use stable option IDs with `value/onValueChange` or `defaultValue`. Observers and animation handles are cleaned up on unmount; instances are independent. Label/size changes remeasure. Disabled options are skipped by keyboard navigation. Initialization does not call `onValueChange`. The original 1150px page-specific padding override stays in the legacy demo; component sizes are controlled by `size` and host styles.
-
-## Original implementation reference
-
-[segmented.js](../../showcase/components/segmented.js) · [segmented.css](../../showcase/components/segmented.css) · consumers: [file panel](../../showcase/index.html#workspace), [reading views](../../showcase/index.html#reading), status selector in [waiting](feedback.md)
-
-- `setupSegment(root, callback)` owns selection, keyboard navigation, geometry and resize observation. The callback runs on initialization and on each selection and owns content updates.
-- `select(index, focus)` changes the selection; `refresh()` remeasures without animation.
-- Consumers: `fileSegment` in [workspace.js](../../showcase/components/workspace.js) calls `renderFile()` and `refresh()` after expansion; [reading.js](../../showcase/components/reading.js) binds `#readingViews`; [feedback.js](../../showcase/components/feedback.js) refreshes after translation.
+The TSX implementation keeps measured natural widths, pixel snapping, interruption from visible geometry and immediate-selection radio semantics. Use stable option IDs with `value/onValueChange` or `defaultValue`. Observers and animation handles are cleaned up on unmount; instances are independent. Label/size changes remeasure. Disabled options are skipped by keyboard navigation. Initialization does not call `onValueChange`. Component sizes are controlled by `size` and host styles.
 
 ## Parameters
 
 | Part | Value |
 | --- | --- |
-| Indicator | Follows the selected option's measured position and width; 200ms `--ease-snap` from the current visible geometry |
+| Indicator | Follows the selected option's measured position and width; 200ms `--cui-ease-snap` from the current visible geometry |
 | Standard | 32px track, 14px labels |
-| Compact (`.compact`) | 24px track, 13px labels |
+| Compact (`size="compact"`) | 24px track, 13px labels |
 | Radius | Track 8px (compact 6px); the thumb is 1px smaller and the buttons 2px smaller |
 | Track padding | 1px |
-| Pixel snapping | `position()` rounds viewport edges to device pixels, then converts back to local coordinates |
+| Pixel snapping | The measurement effect rounds viewport edges to device pixels, then converts back to local coordinates |
 
 ## Rules
 
 - Measure the selected option instead of dividing the track equally, so translated labels keep their width.
 - Rapid changes interrupt smoothly from the visible position. A resize aligns directly; an unchanged target leaves the running animation alone.
-- Markup: one `.segment-thumb`; fixed `button[role=radio]` options with `data-value`; exactly one initial `aria-checked="true"` with `tabindex="0"`.
-- Initialize once, after the markup and its translation are in place.
+- The component renders one measured indicator and `button[role=radio]` options. Supply stable, unique option values.
 - Only the selected radio is in the Tab order. Arrows wrap; Home and End select the ends.
 - Keep the left transform origin, natural button widths and `flex-shrink: 0` together.
-- Uses the border-box reset, UI font and `--regular` weight from [style.css](../../showcase/style.css) and [fonts.css](../../showcase/fonts.css). It has no translation dependency: consumers own their labels and call `refresh()` after a label change.
-- The resize observer lives for the page; the host owns cleanup.
+- Load the shared component stylesheet. Consumers supply translated labels; label changes remeasure automatically.
+- The component cleans up its observer and animation on unmount.
 
 ## Check
 

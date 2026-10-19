@@ -6,7 +6,7 @@ Use for: top-level mode buttons that stay in natural Tab order, where arrows mov
 
 [SidebarModes.tsx](../../src/components/sidebar/SidebarModes.tsx) · [PinnedList.tsx](../../src/components/sidebar/PinnedList.tsx) · [pinnedDrag.ts](../../src/components/sidebar/pinnedDrag.ts) · [sidebar.css](../../src/styles/sidebar.css) · [React demo](../../demo/chapters/SidebarChapter.tsx)
 
-Import the components from `src/index.ts`; [integration](../../demo/README.md#file-panels-and-sidebar-navigation) describes their props. The demo supplies mode icons, the running Code fixture, translated labels and controlled pinned order. The mode component measures the selected button and keeps focus independent from selection. PinnedList renders the list and portal menu; its isolated drag controller owns only the decorative copy, temporary row offsets and pointer capture. The host commits the returned ID order in React state. [Original showcase](../../showcase/index.html#modes) remains a temporary reference.
+Import the components from `src/index.ts`; [integration](../../demo/README.md#file-panels-and-sidebar-navigation) describes their props. The demo supplies mode icons, the running Code fixture, translated labels and controlled pinned order. The mode component measures the selected button and keeps focus independent from selection. PinnedList renders the list and portal menu; its isolated drag controller owns only the decorative copy, temporary row offsets and pointer capture. The host commits the returned ID order in React state.
 
 ## Parameters
 

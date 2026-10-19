@@ -8,25 +8,17 @@ Use for: one of five standalone effects: grapheme reveal, body fade, a user mess
 
 Import through `src/index.ts` and the component stylesheet. The demo owns sample text, arrival timers, replay and viewport activation. `ScrollFollower` accepts host children and a reset key; it owns pinning, resize/end-marker observations and focus return. `WorkingMark` owns only the default sheet loop and pauses offscreen. Source CSS uses namespaced `--cui-*` tokens. See [integration and API boundaries](../../demo/README.md).
 
-## Original implementation reference
-
-[HTML](../../showcase/index.html#type) · [type.js](../../showcase/components/type.js) · [type.css](../../showcase/components/type.css) · [default loop sheet](../../showcase/components/status-assets/default-loop.webp)
-
-- `bindTypeEffectCards()`: `#graphemeExample` (`renderTypeTitle()`), `#bodyFadeExample` (`replayBody()`), `#workingExample` (`syncWorking()`). `#bubbleExample` is static HTML/CSS.
-- `initTypeDemo()`: the scroll sample (`#scrollExample`, `#typeScroll`, `#typeReading`, `#typeEnd`, `#typeBottom`) with `replayType()`, `stopTypePlayback()`, `followType()` and `updateTypeBottom()`.
-- `animateTypeWorkingMark()` plays the default loop sheet for both loading presentations; bring the asset with the code.
-
 ## Parameters
 
 | Part | Value |
 | --- | --- |
-| Grapheme reveal | Each span from 6px blur over 90ms `--ease-out-cubic`, delayed by index × 30ms |
+| Grapheme reveal | Each span from 6px blur over 90ms `--cui-ease-out-cubic`, delayed by index × 30ms |
 | Body fade | 100ms linear, `backwards` fill; timed separately from the grapheme reveal |
 | User bubble | Right-aligned; 10px radius; 12px horizontal / 8px vertical padding; max width 85%; fill `rgb(11 11 11 / 5%)` light, `rgb(255 255 255 / 5%)` dark, over the host surface; no border or shadow; emphasis in the Sans italic face |
 | Follow | Active while pinned and the bottom gap exceeds 2px |
 | Resume | Scrolling down to within 1px of the bottom |
 | Return button | Appears when unpinned and the end marker is beyond a 200px extension; 200ms transition; inert while hidden |
-| Bottom fade | 8px extension, 3rem tall, host `--surface` color, 150ms; ignores pointers |
+| Bottom fade | 8px extension, 3rem tall, host `--cui-surface` color, 150ms; ignores pointers |
 | Working mark | 40 frames of 48px in a 20px slot, 33.33ms per frame (≈ 1.333s), `steps(40, jump-none)`; hover or focus-visible crossfades to the arrow over 200ms |
 
 ## Rules

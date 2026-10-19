@@ -6,40 +6,32 @@ Use for color roles, elevation, radius, separators, typography and icons. Motion
 
 | File | Read for |
 | --- | --- |
-| [style.css](../showcase/style.css) | Light/dark tokens, `--ease-*` curves, ring/shadow roles, shared controls, separator hairlines |
-| [fonts.css](../showcase/fonts.css) | Font assets, Sans/Serif/Mono roles, CJK fallbacks, weight axes, icon baseline |
-| [icons.js](../showcase/icons.js) | `DemoIcons.create`, the 371 static icon names, 24 secondary layers, size-to-weight conversion |
-| [shell.js](../showcase/shell.js) / [shell.css](../showcase/shell.css) | The demo's theme/language controls and navigation; a local shell, not a component to port |
+| [tokens.css](../src/styles/tokens.css) and [component styles](../src/styles/index.css) | Scoped light/dark tokens, motion curves and component surfaces |
+| [fonts.css](../src/styles/fonts.css) | Optional Sans/Serif/Mono assets and fallback stacks |
+| [Icon.tsx](../src/components/icons/Icon.tsx) and [glyphs.ts](../src/components/icons/glyphs.ts) | 371 typed static icon names, 24 secondary layers and size-to-weight conversion |
+| [App.tsx](../demo/App.tsx) / [style.css](../demo/style.css) | Demo theme/language controls, navigation and page defaults |
 
 ## Color roles
 
 | Role | Token | Light | Dark |
 | --- | --- | --- | --- |
-| Page | `--bg` | `#f9f9f7` | `#0b0b0b` |
-| Low surface | `--surface-low` | `#fcfcfb` | `#151515` |
-| Panel | `--surface` | `#fff` | `#1a1a19` |
-| Raised / popover | `--surface-popover` | `#fff` | `#20201f` |
-| Primary text | `--text` | `#0b0b0b` | `#f0efec` |
-| Secondary text | `--secondary` | `#52514e` | `#c3c2b7` |
-| Muted text | `--muted` | `#898781` | `#898781` |
-| Line | `--line` | `#0b0b0b` at 10% | white at 10% |
-| Hover fill | `--hover-fill` | `#0b0b0b` at 5% | white at 7.5% |
-| Brand (clay) | `--clay` | `#c6613f` | `#d97757` |
-| Focus and selection | `--focus` | `#2a78d6` | `#2a78d6` |
+| Page | `--cui-bg` | `#f9f9f7` | `#0b0b0b` |
+| Low surface | `--cui-surface-low` | `#fcfcfb` | `#151515` |
+| Panel | `--cui-surface` | `#fff` | `#1a1a19` |
+| Raised / popover | `--cui-menu-bg` | `#fff` | `#20201f` |
+| Primary text | `--cui-text` | `#0b0b0b` | `#f0efec` |
+| Secondary text | `--cui-secondary` | `#52514e` | `#c3c2b7` |
+| Muted text | `--cui-muted` | `#898781` | `#898781` |
+| Line | `--cui-line` | `#0b0b0b` at 10% | white at 10% |
+| Hover fill | `--cui-menu-hover` | `#0b0b0b` at 5% | white at 7.5% |
+| Brand (clay) | Component-specific clay values | `#c6613f` | `#d97757` |
+| Focus and selection | `--cui-accent` | `#2a78d6` | `#2a78d6` |
 
 Keep the role relationships: nested regions get quieter rather than darker, and one background is never reused for every layer. Menu hover/focus fills use the hover-fill values.
 
 ## Elevation
 
-Every raised surface starts from `--surface-ring`: a 1px `--line` ring, outer in light and inset in dark. A transparent 1px border reserves the geometry where a ring may appear.
-
-| Role | Token | Depth after the ring (light) | Dark depth |
-| --- | --- | --- | --- |
-| Panel, card | `--panel-shadow` | `0 1px 2px` 6% · `0 2px 8px` 8% | second layer 24% black |
-| Popover, menu | `--popover-shadow` | `0 8px 24px` 12% · `0 2px 6px` 8% | 32% · 20% black |
-| Dialog | `--dialog-shadow` | `0 4px 8px` 8% · `0 12px 28px -2px` 8% | second layer 24% black |
-
-Ordinary cards use the panel shadow, [menus](components/menus.md) the popover shadow and table dialogs the dialog shadow. Nested copy surfaces keep the ring and drop the depth.
+Components own their ring and shadow rules. Menus use `--cui-menu-shadow`; tooltips use `--cui-tip-shadow`; image and gallery surfaces retain their own shadows. Read the corresponding stylesheet rather than applying one global elevation class to every surface. Light rings are generally outer and dark rings inset; nested surfaces often keep the ring without additional depth.
 
 ## Radius
 
@@ -67,25 +59,25 @@ Gap: the demo has no shared spacing scale. Each component owns its padding and g
 
 ## Separators
 
-Decorative separator width follows resolution: 1px, then .5px at 2×, 1/3px at 3× and .25px at 4× (`--hairline`). Control outlines, focus rings, menu and document separators and table grid lines keep their own widths. See [reading](components/reading.md), [micro](components/micro.md) and [notification stacks](components/recovery.md) for the consumers. Use each chapter's fixed sizes and keep its padding/icon/height relationships; density variants are outside the demo.
+Decorative separator width follows resolution: 1px, then .5px at 2×, 1/3px at 3× and .25px at 4× (component-specific hairline variables). Control outlines, focus rings, menu and document separators and table grid lines keep their own widths. See [reading](components/reading.md), [micro](components/micro.md) and [notification stacks](components/recovery.md) for the consumers. Use each chapter's fixed sizes and keep its padding/icon/height relationships; density variants are outside the demo.
 
 ## Typography
 
 | Role | Family | Used for |
 | --- | --- | --- |
-| Sans | `--study-sans` | UI: 14px base, 13px compact controls, 12px secondary, 11px captions |
-| Serif | `--study-serif` | Reading: prose, file content, tables |
-| Mono | `--study-mono` | Code, `kbd`, numeric samples |
+| Sans | `--cui-font-sans` | UI: 14px base, 13px compact controls, 12px secondary, 11px captions |
+| Serif | `--cui-font-serif` | Reading: prose, file content, tables |
+| Mono | `--cui-font-mono` | Code, `kbd`, numeric samples |
 
 - The bundled Sans and Serif support weight 300–800 and optical size 16–48; Mono has weight only.
 - Light uses 400/500/600 for regular/medium/bold; dark uses 360/460/540/560 for regular/medium/semibold/bold. The [reading guide](components/reading.md) runs a fixed-versus-theme weight comparison.
-- Simplified Chinese falls back through PingFang SC → Microsoft YaHei → Noto Sans CJK SC; Sans puts `system-ui` before that chain. Chinese glyphs come from system fonts.
+- Simplified Chinese falls back through PingFang SC → Microsoft YaHei; Sans puts `system-ui` before that chain. Chinese glyphs come from system fonts.
 - Numbers that update in place use tabular figures.
-- Emphasis (`<em>`) uses the bundled italic faces: Serif italic in prose, Sans italic in UI text such as the user bubble. Mono italic ships with the fonts, but nothing in the demo uses it. `html` sets `font-synthesis: none`, so a family without an italic face renders emphasis upright; system CJK fonts have none, which is why Chinese emphasis shows no slant.
+- Emphasis (`<em>`) uses the bundled italic faces: Serif italic in prose, Sans italic in UI text such as the user bubble. Mono italic ships with the fonts, but nothing in the demo uses it. The demo’s `html` sets `font-synthesis: none`, so a family without an italic face renders emphasis upright; system CJK fonts have none, which is why Chinese emphasis shows no slant.
 
 ## Icons
 
-- Render static icons with [icons.js](../showcase/icons.js), [fonts.css](../showcase/fonts.css) and the [Anthropicons font](../showcase/fonts/anthropicons-variable.woff2) together. `DemoIcons.create('Download', 20)` returns a decorative icon element; `DemoIcons.names` lists all 371 names. The font is the single icon source; no parallel SVG set is needed. The script also fills existing `data-ui-icon` hosts when it loads after the markup.
+- Render `<Icon name="Download" size={20} />` with the shared component stylesheet. [Icon.tsx](../src/components/icons/Icon.tsx) uses the typed static map and [Anthropicons font](../src/assets/fonts/anthropicons-variable.woff2). Icons are decorative; the host control supplies its accessible name.
 - Sizes are 12, 16, 20, 24, 28 and 32px. Icon weight follows size, independent of theme text: regular 16px resolves to about 533.3 and 20px to about 433.3. Ligatures are off and optical size is automatic.
 - The 24 two-layer icons draw their secondary layer at 40% color, with a forced-colors fallback; the layers form one icon.
 - Give the containing button or control the accessible name.

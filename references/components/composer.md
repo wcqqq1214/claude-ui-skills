@@ -16,8 +16,6 @@ Follow the [source integration guide](../../demo/README.md). The editor, attachm
 - `AttachmentList`: controlled items (id/name/type), label, removeLabel, onRemove and optional onEmptyFocus. onRemove must synchronously update the items in React; it runs inside the browser snapshot update and flushes that commit so animation geometry matches. Items use unique instance-scoped transition names. Last-tile, hidden-page and unsupported-API removals update directly; interrupted updates run at most once. Unmount cancels pending work and removes held-key guards.
 - active=false closes editor overlays; use a containing hidden/inert state when hiding an entire composer. Draft and attachments can stay mounted across chapter changes.
 
-Original migration reference: [HTML](../../showcase/index.html#composer), [JS](../../showcase/components/composer.js), [mention controller](../../showcase/components/composer-mentions.js), [CSS](../../showcase/components/composer.css).
-
 ## Parameters
 
 | Part | Value |
@@ -32,7 +30,7 @@ Original migration reference: [HTML](../../showcase/index.html#composer), [JS](.
 | Press feedback | Fill shrinks by `clamp(.5px, height / 32, 1.5px)` per side (scale ≥ .8); releases over 450ms the authored spring curve |
 | Attachment row enter | From opacity 0, translateY(-8px); 200ms `--cui-ease-out-cubic` |
 | Tile enter | From opacity 0, scale(.92) translateY(4px); 180ms `--cui-ease-out-cubic` |
-| Tile reflow and removal | Survivors move over 180ms; a removed tile fades and scales to .5 over 130ms `--ease-in-cubic` |
+| Tile reflow and removal | Survivors move over 180ms; a removed tile fades and scales to .5 over 130ms `--cui-ease-in-cubic` |
 | Tile geometry | 120px tiles, 6px gap, 20px remove control |
 
 ## Rules

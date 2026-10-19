@@ -3,14 +3,13 @@ const assert = require('node:assert/strict');
 const { readFileSync } = require('node:fs');
 const vm = require('node:vm');
 const sources = [
-  ['legacy', { code: readFileSync(require.resolve('../showcase/components/menus.js'), 'utf8') }, ''],
   ['React', { code: '' }, 'cui-'],
 ];
 
 test.before(async () => {
   const { transformWithOxc } = await import('vite');
   const source = readFileSync(require.resolve('../src/components/menus/searchHighlight.ts'), 'utf8').replace('export function', 'function');
-  sources[1][1].code = (await transformWithOxc(source, 'searchHighlight.ts')).code;
+  sources[0][1].code = (await transformWithOxc(source, 'searchHighlight.ts')).code;
 });
 
 for (const [implementation, source, prefix] of sources) {

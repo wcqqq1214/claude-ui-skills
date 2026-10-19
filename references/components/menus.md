@@ -6,7 +6,7 @@ Use for: a submenu where focus previews an option without committing it; search 
 
 [SubmenuSelect.tsx](../../src/components/menus/SubmenuSelect.tsx) · [GroupedSearch.tsx](../../src/components/menus/GroupedSearch.tsx) · [ArtifactActionsCard.tsx](../../src/components/menus/ArtifactActionsCard.tsx) · [useSearchHighlight.ts](../../src/hooks/useSearchHighlight.ts) · [menus.css](../../src/styles/menus.css) · [React demo](../../demo/chapters/MenusChapter.tsx)
 
-Import from `src/index.ts` with the shared stylesheet; see [integration](../../demo/README.md#menus-search-and-artifact-actions). The components own listeners, pending focus, animations and highlight cancellation. The demo owns translations, sample settings, selected effort, simulated actions and layout. [Original showcase](../../showcase/index.html#menus) remains the temporary visual reference.
+Import from `src/index.ts` with the shared stylesheet; see [integration](../../demo/README.md#menus-search-and-artifact-actions). The components own listeners, pending focus, animations and highlight cancellation. The demo owns translations, sample settings, selected effort, simulated actions and layout.
 
 - `SubmenuSelect`: controlled/uncontrolled selection; focus preview callback/render content; disabled options; nested keyboard dismissal.
 - `GroupedSearch`: typed item IDs/labels/groups, controlled/uncontrolled query and a selection callback. The host chooses the destination.

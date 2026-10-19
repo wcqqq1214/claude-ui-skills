@@ -14,16 +14,14 @@ Follow the [source integration guide](../../demo/README.md). Components import n
 - `CopyButton`: exact text, copyLabel, copiedLabel, failedLabel, optional onCopyResult and native button props/ref. The callback runs only for the latest live request. Success resets after 2s; failure remains visible. The clipboard hook uses the original textarea fallback when the secure Clipboard API is unavailable, restores focus/selection, and removes its temporary node.
 - `NotificationStack` with `mode="single"` provides the replaceable one-at-a-time notice. The host owns fixed positioning and a fallback focus ref; see [notifications](recovery.md).
 
-Original reference: [HTML](../../showcase/index.html#micro), [JS](../../showcase/components/micro.js), [CSS](../../showcase/components/micro.css).
-
 ## Parameters
 
 | Part | Value |
 | --- | --- |
-| Tip timing | 300ms delay, then 120ms opacity and scale from .98 with `--ease-snap` |
+| Tip timing | 300ms delay, then 120ms opacity and scale from .98 with `--cui-ease-snap` |
 | Truncation test | Scroll width and a text Range, with .1px edge tolerance |
 | Ghost eyes | 2.4s ease-in-out loop: left, right, up, center (±1.5px) |
-| Ghost press | Fill scales to .9375 over 60ms ease-out; release takes 450ms `--ease-spring` |
+| Ghost press | Fill scales to .9375 over 60ms ease-out; release takes 450ms `--cui-ease-spring` |
 | Notification | One at a time; 6s timer |
 
 ## Rules
