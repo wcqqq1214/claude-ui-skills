@@ -9,6 +9,8 @@
 @import './micro.css';
 @import './composer.css';
 @import './menus.css';
+@import './workspace.css';
+@import './sidebar.css';
 @import './icons.css';
 @source '../components';
 

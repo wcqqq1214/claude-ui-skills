@@ -1,5 +1,7 @@
 export type Locale = 'en' | 'zh-Hans';
 const english = {
+  modes: 'Sidebar modes', modesDescription: 'Move between modes and keep pinned conversations in order.',
+  workspace: 'File panel', workspaceDescription: 'Resize the list, switch views and restore your working space.',
   menus: 'Menus & search', menusDescription: 'Preview choices, locate settings and reveal artifact actions.',
   composer: 'Input & attachments', composerDescription: 'Draft text, reference artwork and keep attachments within reach.',
   micro: 'Hints & feedback', microDescription: 'Small explanations and confirmations, close to the action.',
@@ -24,6 +26,8 @@ const english = {
 };
 export type Copy = typeof english;
 const chinese: Copy = {
+  modes: '侧栏模式', modesDescription: '切换工作模式，整理置顶会话的顺序。',
+  workspace: '文件面板', workspaceDescription: '调整列表宽度，切换视图，保留工作位置。',
   menus: '菜单与搜索', menusDescription: '预览选项、定位设置，展开作品操作。',
   composer: '输入与附件', composerDescription: '撰写内容、引用作品，让附件随手可用。',
   micro: '提示与反馈', microDescription: '在操作附近给出简短说明与确认。',

@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
 import { ControlsChapter } from './chapters/ControlsChapter';
 import { TypographyChapter } from './chapters/TypographyChapter';
+import { SidebarChapter } from './chapters/SidebarChapter';
+import { WorkspaceChapter } from './chapters/WorkspaceChapter';
 import { MenusChapter } from './chapters/MenusChapter';
 import { ComposerChapter } from './chapters/ComposerChapter';
 import { MicroChapter } from './chapters/MicroChapter';
@@ -12,7 +14,7 @@ import { messages } from './i18n';
 import type { Locale } from './i18n';
 
 type Theme = 'system' | 'light' | 'dark';
-const chapters = ['controls', 'segmented', 'type', 'reading', 'feedback', 'micro', 'recovery', 'composer', 'menus'] as const;
+const chapters = ['controls', 'segmented', 'type', 'reading', 'feedback', 'micro', 'recovery', 'composer', 'menus', 'workspace', 'modes'] as const;
 type Chapter = typeof chapters[number];
 function readPreference(key: string) { try { return localStorage.getItem(`cui-demo-${key}`); } catch { return null; } }
 function savePreference(key: string, value: string) { try { localStorage.setItem(`cui-demo-${key}`, value); } catch { /* Storage is optional. */ } }
@@ -69,7 +71,7 @@ export function App() {
         <p className="mt-1 text-[11px] text-cui-muted">{copy.source}</p>
         <nav aria-label={copy.components} className="mt-6 flex flex-wrap gap-2 md:flex-col">
           {chapters.map((id, index) => <a key={id} href={`#${id}`} aria-current={chapter === id ? 'page' : undefined}
-            className="flex items-center gap-3 rounded-lg px-3 py-2 text-[13px] text-cui-secondary hover:bg-cui-segment-track aria-[current=page]:bg-cui-segment-track aria-[current=page]:text-cui-text"><span className="text-[10px] text-cui-muted">0{index + 1}</span>{copy[id]}</a>)}
+            className="flex items-center gap-3 rounded-lg px-3 py-2 text-[13px] text-cui-secondary hover:bg-cui-segment-track aria-[current=page]:bg-cui-segment-track aria-[current=page]:text-cui-text"><span className="text-[10px] text-cui-muted">{String(index + 1).padStart(2, '0')}</span>{copy[id]}</a>)}
         </nav>
       </aside>
       <main className="px-5 py-7 md:ml-[226px] md:px-10 md:py-10">
@@ -85,7 +87,7 @@ export function App() {
               <option value="system">{copy.system}</option><option value="light">{copy.light}</option><option value="dark">{copy.dark}</option>
             </select>
           </div>
-          <header className="mb-8"><p className="mb-3 text-xs text-cui-muted">{copy.introduction}</p><h1 className="text-[28px] leading-tight font-(--cui-medium)">{copy[chapter]}</h1><p className="mt-3 text-sm text-cui-secondary">{{ controls: copy.controlDescription, segmented: copy.segmentDescription, type: copy.typeDescription, reading: copy.readingDescription, feedback: copy.feedbackDescription, micro: copy.microDescription, recovery: copy.recoveryDescription, composer: copy.composerDescription, menus: copy.menusDescription }[chapter]}</p></header>
+          <header className="mb-8"><p className="mb-3 text-xs text-cui-muted">{copy.introduction}</p><h1 className="text-[28px] leading-tight font-(--cui-medium)">{copy[chapter]}</h1><p className="mt-3 text-sm text-cui-secondary">{{ controls: copy.controlDescription, segmented: copy.segmentDescription, type: copy.typeDescription, reading: copy.readingDescription, feedback: copy.feedbackDescription, micro: copy.microDescription, recovery: copy.recoveryDescription, composer: copy.composerDescription, menus: copy.menusDescription, workspace: copy.workspaceDescription, modes: copy.modesDescription }[chapter]}</p></header>
           <section hidden={chapter !== 'controls'} aria-label={copy.controls}><ControlsChapter copy={copy} locale={locale} /></section>
           <section hidden={chapter !== 'segmented'} aria-label={copy.segmented}><SegmentedChapter copy={copy} /></section>
           <section hidden={chapter !== 'type'} aria-label={copy.type}><TypographyChapter locale={locale} active={chapter === 'type'} /></section>
@@ -95,6 +97,8 @@ export function App() {
           <section hidden={chapter !== 'recovery'} aria-label={copy.recovery}><NotificationsChapter locale={locale} active={chapter === 'recovery'} /></section>
           <section hidden={chapter !== 'composer'} aria-label={copy.composer}><ComposerChapter locale={locale} active={chapter === 'composer'} /></section>
           <section hidden={chapter !== 'menus'} aria-label={copy.menus}><MenusChapter locale={locale} active={chapter === 'menus'} /></section>
+          <section hidden={chapter !== 'workspace'} aria-label={copy.workspace}><WorkspaceChapter locale={locale} active={chapter === 'workspace'} /></section>
+          <section hidden={chapter !== 'modes'} aria-label={copy.modes}><SidebarChapter locale={locale} active={chapter === 'modes'} /></section>
           <footer className="mt-12 text-[11px] text-cui-muted">{copy.footer}</footer>
         </div>
       </main>

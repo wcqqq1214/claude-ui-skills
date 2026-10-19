@@ -9,6 +9,7 @@
   --cui-bold: 600;
   --cui-bg: #f9f9f7;
   --cui-surface: #fff;
+  --cui-surface-low: #fcfcfb;
   --cui-text: #0b0b0b;
   --cui-secondary: #52514e;
   --cui-muted: #898781;
@@ -40,6 +41,7 @@
   --cui-bold: 560;
   --cui-bg: #0b0b0b;
   --cui-surface: #1a1a19;
+  --cui-surface-low: #151515;
   --cui-text: #f0efec;
   --cui-secondary: #c3c2b7;
   --cui-muted: #898781;

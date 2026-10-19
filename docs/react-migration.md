@@ -23,7 +23,7 @@ Reference: [Caho1/open-claude-ui](https://github.com/Caho1/open-claude-ui), part
 | 2 | Switch, Checkbox, DiscreteSlider, SegmentedControl; demo imports; independent consumer | Implemented; verification recorded below |
 | 3 | Typography, reading, code/table, feedback, accordion, tooltips and notices | Implemented; verification recorded below |
 | 4 | Composer, attachments, contenteditable mentions, menus, search and palette | Implemented; verification recorded below |
-| 5 | Workspace resize, sidebar modes/reorder, images/gallery, drop/task progress | Pending |
+| 5 | Workspace resize, sidebar modes/reorder, images/gallery, drop/task progress | Workspace and sidebar implemented; images/gallery/drop/tasks pending |
 | 6 | Complete chapter navigation, remaining assets, guides, build/deployment migration and legacy removal | Pending |
 
 ## Decisions established by the first batch
@@ -90,6 +90,13 @@ Manual UI verification uses the actual Vite demo. Automated geometry checks and 
 - Added a source-only consumer and browser suite for independent instances, controlled props, scoped themes, native keyboard behavior, search cancellation and repeated selection, ready/failed artwork and interrupted return. The original deterministic search tests now also execute the migrated TypeScript controller, including minimum settling, continuous movement cap, user input and disconnection cleanup.
 - Production preview confirmed Chinese focus preview/commit, trigger focus return, the artwork action card and search heading focus. Final `npm run build`, `npm run test:react` (all six suites), `npm run test:unit` (47 tests) and `git diff --check` passed.
 
+## Workspace and sidebar batch
+
+- Added `FileWorkspace` with independent file/view/expanded state, host-provided preview nodes and source strings, measured pane resizing and scoped F6 navigation. The resize hook keeps chosen width through temporary clamping and cancelled drags. Container queries preserve the original stacked layout within narrow hosts. Added bilingual `#workspace` with the original samples.
+- Added `SidebarModes` with focus-only arrow keys, exact content-box folding thresholds, natural Tab order, optional running labels and globally phased pulse. Removed options fall back locally without resurrecting a stale selection. Added controlled `PinnedList` with React-keyed order, roving focus, a scoped-theme portal menu and an isolated 4px drag preview. The host receives IDs only on commit. Resize, scroll, inactive state, pagehide, lost capture and unmount clear pending drag work; the commit path also rechecks viewport geometry before accepting an order.
+- Added a source-only consumer/browser suite covering measured resize boundaries, expansion and F6, mode selection/folding/RTL, pulse/forced colors, drag preview/release/cancellation, lost-button delay, menu moves/focus, portal theme and English/Chinese light/dark layouts at 1280/390/320px. Fixed the demo's navigation numbering for chapters 10 and above and split the original HTML translation into JSX text messages.
+- Production preview confirmed Chinese file/view preservation through expand/restore, menu-based reorder with focus return, and native pointer reorder. Final `npm run build`, `npm run test:react` (all seven suites), `npm run test:unit` (47 tests) and `git diff --check` passed.
+
 ## Next batch
 
-Stage 4 is implemented. Migrate workspace/sidebar/image/gallery/drop/task chapters before replacing the legacy build and retiring the original showcase.
+Finish stage 5 with images/gallery/drop/task chapters, then replace the legacy build and retire the original showcase.

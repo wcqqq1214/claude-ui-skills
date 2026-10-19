@@ -54,3 +54,11 @@ export type { GroupedSearchProps, SearchItem } from './components/menus/GroupedS
 export { ArtifactActionsCard } from './components/menus/ArtifactActionsCard';
 export type { ArtifactActionsCardProps, ArtifactAction } from './components/menus/ArtifactActionsCard';
 export { useSearchHighlight } from './hooks/useSearchHighlight';
+
+export { FileWorkspace } from './components/workspace/FileWorkspace';
+export type { FileWorkspaceProps, WorkspaceFile, WorkspaceView, WorkspaceLabels } from './components/workspace/FileWorkspace';
+
+export { SidebarModes } from './components/sidebar/SidebarModes';
+export type { SidebarModesProps, SidebarMode } from './components/sidebar/SidebarModes';
+export { PinnedList } from './components/sidebar/PinnedList';
+export type { PinnedListProps, PinnedItem } from './components/sidebar/PinnedList';
