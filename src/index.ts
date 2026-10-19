@@ -65,3 +65,6 @@ export type { PinnedListProps, PinnedItem } from './components/sidebar/PinnedLis
 
 export { ImagePreview } from './components/media/ImagePreview';
 export type { ImagePreviewProps, ImagePreviewHandle } from './components/media/ImagePreview';
+
+export { Gallery } from './components/media/Gallery';
+export type { GalleryItem, GalleryLabels, GalleryHandle, GalleryProps } from './components/media/Gallery';

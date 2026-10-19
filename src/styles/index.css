@@ -12,6 +12,7 @@
 @import './workspace.css';
 @import './sidebar.css';
 @import './images.css';
+@import './gallery.css';
 @import './icons.css';
 @source '../components';
 

@@ -23,7 +23,7 @@ Reference: [Caho1/open-claude-ui](https://github.com/Caho1/open-claude-ui), part
 | 2 | Switch, Checkbox, DiscreteSlider, SegmentedControl; demo imports; independent consumer | Implemented; verification recorded below |
 | 3 | Typography, reading, code/table, feedback, accordion, tooltips and notices | Implemented; verification recorded below |
 | 4 | Composer, attachments, contenteditable mentions, menus, search and palette | Implemented; verification recorded below |
-| 5 | Workspace resize, sidebar modes/reorder, images/gallery, drop/task progress | Workspace, sidebar and image preview implemented; gallery/drop/tasks pending |
+| 5 | Workspace resize, sidebar modes/reorder, images/gallery, drop/task progress | Workspace, sidebar, image preview and gallery implemented; drop/tasks pending |
 | 6 | Complete chapter navigation, remaining assets, guides, build/deployment migration and legacy removal | Pending |
 
 ## Decisions established by the first batch
@@ -104,6 +104,13 @@ Manual UI verification uses the actual Vite demo. Automated geometry checks and 
 - Added an independent source-only consumer and browser suite for dismissal paths, transition keyframes, letterbox geometry, keyboard focus, rapid open/close, simultaneous previews, focus in another modal, deferred callbacks after unmount and unsupported-API fallback. Demo checks cover English/Chinese, light/dark, 1280/390/320px and fine/coarse pointers. Updated component guide, index and migration introductions.
 - Production preview confirmed the Chinese image layout, native opening, Escape focus return and keyboard reopening. Final `npm run build`, `npm run test:react` (all eight suites) and `git diff --check` passed.
 
+## Gallery batch
+
+- Added typed `Gallery`, `GalleryItem`/labels and an imperative open/close handle. React owns stable-ID slides, selected/zoomed ARIA, caption and controls; the isolated native controller owns wheel/pointer geometry and dialog/crossfade lifetimes. The bilingual `#gallery` chapter imports the same public component and local artwork.
+- Preserved 75vw slides with 32px gaps, 300ms paging/opacity, 180ms crossfade, 4px drag threshold, pointer-centered click zoom, retained ideal pan through expanding bounds, line/page zoom conversion and viewport-sized page panning. Inactive/removed instances release capture, cancel timers and invalidate deferred transitions. Resource updates preserve selected IDs when possible; label changes retain zoom. A keyboard action clears a completed drag's click guard immediately so it cannot swallow paging while the timer is still pending.
+- Added a source-only consumer/browser suite for real native transitions, focal math, bounds, mismatched pointers, keyboard zoom while dragging, measurement guards, neighbors, close buffer, keyboard/RTL focus, item changes, two simultaneous galleries, rapid reversal, empty state, teardown and API fallback. Extended existing deterministic zoom tests to run the migrated math too.
+- Production preview confirmed Chinese caption/count, keyboard zoom, native pointer pan, reset on paging and Escape focus return. Final `npm run build`, `npm run test:react` (all nine suites), `npm run test:unit` (53 tests) and `git diff --check` passed.
+
 ## Next batch
 
-Finish stage 5 with gallery/drop/task chapters, then replace the legacy build and retire the original showcase.
+Finish stage 5 with drop/task chapters, then replace the legacy build and retire the original showcase.

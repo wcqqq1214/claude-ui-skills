@@ -13,7 +13,7 @@ Choose the user-facing scenario, then read its linked implementation. Controls, 
 | A single thumbnail opening into a preview | [Image preview](components/images.md) | [React](../demo/index.html#images) |
 | Short hints, adjustable filename truncation, ghost hover and standalone copy confirmation | [Tooltips, ghost hover and copy feedback](components/micro.md) | [07](../showcase/index.html#micro) |
 | Adjustable reading width and wrapping, inline icon baseline and theme-weight comparisons, synchronized proportional/tabular digits, long identifiers, inline/fenced code, copy confirmation and wide tables | [Reading, code and tables](components/reading.md) | [08](../showcase/index.html#reading) |
-| Several images with zoom and bounded pan | [Gallery](components/gallery.md) | [09](../showcase/index.html#gallery) |
+| Several images with zoom and bounded pan | [Gallery](components/gallery.md) | [React](../demo/index.html#gallery) |
 | Separate menu selection, in-chapter search highlighting and artifact thumbnail/action-menu transitions | [Menus, search and palette](components/menus.md) | [10](../showcase/index.html#menus) |
 | Top-level mode buttons with focus-only arrows, and pinned-list reordering | [Sidebar modes and pinned order](components/modes.md) | [11](../showcase/index.html#modes) |
 | Status-card selection, a local drop target and a progress list | [Cards, drop feedback and progress](components/tasks.md) | [12](../showcase/index.html#tasks) |

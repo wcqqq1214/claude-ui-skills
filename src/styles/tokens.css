@@ -11,6 +11,7 @@
   --cui-surface: #fff;
   --cui-surface-low: #fcfcfb;
   --cui-image-ring: rgb(11 11 11 / 20%);
+  --cui-gallery-shadow: rgb(11 11 11 / 8%);
   --cui-text: #0b0b0b;
   --cui-secondary: #52514e;
   --cui-muted: #898781;
@@ -44,6 +45,7 @@
   --cui-surface: #1a1a19;
   --cui-surface-low: #151515;
   --cui-image-ring: rgb(255 255 255 / 20%);
+  --cui-gallery-shadow: #0000003d;
   --cui-text: #f0efec;
   --cui-secondary: #c3c2b7;
   --cui-muted: #898781;

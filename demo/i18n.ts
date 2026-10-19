@@ -1,5 +1,6 @@
 export type Locale = 'en' | 'zh-Hans';
 const english = {
+  gallery: 'Gallery & zoom', galleryDescription: 'Browse images, zoom into detail and pan within the frame.',
   images: 'Image preview', imagesDescription: 'Connect thumbnail and full image.',
   modes: 'Sidebar modes', modesDescription: 'Move between modes and keep pinned conversations in order.',
   workspace: 'File panel', workspaceDescription: 'Resize the list, switch views and restore your working space.',
@@ -27,6 +28,7 @@ const english = {
 };
 export type Copy = typeof english;
 const chinese: Copy = {
+  gallery: '图库与缩放', galleryDescription: '浏览图片、放大细节，在画面内平移。',
   images: '图片预览', imagesDescription: '连接缩略图与大图。',
   modes: '侧栏模式', modesDescription: '切换工作模式，整理置顶会话的顺序。',
   workspace: '文件面板', workspaceDescription: '调整列表宽度，切换视图，保留工作位置。',
