@@ -1,5 +1,6 @@
 export type Locale = 'en' | 'zh-Hans';
 const english = {
+  menus: 'Menus & search', menusDescription: 'Preview choices, locate settings and reveal artifact actions.',
   composer: 'Input & attachments', composerDescription: 'Draft text, reference artwork and keep attachments within reach.',
   micro: 'Hints & feedback', microDescription: 'Small explanations and confirmations, close to the action.',
   recovery: 'Notifications', recoveryDescription: 'Messages stay ordered as new work arrives.',
@@ -23,6 +24,7 @@ const english = {
 };
 export type Copy = typeof english;
 const chinese: Copy = {
+  menus: '菜单与搜索', menusDescription: '预览选项、定位设置，展开作品操作。',
   composer: '输入与附件', composerDescription: '撰写内容、引用作品，让附件随手可用。',
   micro: '提示与反馈', microDescription: '在操作附近给出简短说明与确认。',
   recovery: '通知', recoveryDescription: '随着新消息到来，保持清晰的层次与顺序。',

@@ -22,7 +22,7 @@ Reference: [Caho1/open-claude-ui](https://github.com/Caho1/open-claude-ui), part
 | 1 | React/TS/Vite/Tailwind, scoped tokens, optional Sans assets, theme/language shell | Implemented |
 | 2 | Switch, Checkbox, DiscreteSlider, SegmentedControl; demo imports; independent consumer | Implemented; verification recorded below |
 | 3 | Typography, reading, code/table, feedback, accordion, tooltips and notices | Implemented; verification recorded below |
-| 4 | Composer, attachments, contenteditable mentions, menus, search and palette | Composer, attachments and mentions implemented; menus/search/palette pending |
+| 4 | Composer, attachments, contenteditable mentions, menus, search and palette | Implemented; verification recorded below |
 | 5 | Workspace resize, sidebar modes/reorder, images/gallery, drop/task progress | Pending |
 | 6 | Complete chapter navigation, remaining assets, guides, build/deployment migration and legacy removal | Pending |
 
@@ -83,6 +83,13 @@ Manual UI verification uses the actual Vite demo. Automated geometry checks and 
 - Added an independent two-composer fixture. Browser tests cover clamped candidate keyboard selection, Enter/Tab insertion, atomic Backspace/undo, context delete/restore, IME, plain-text paste, serialization, hidden draft preservation, mounting, attachment keyboard/modifier/repeat handling, focus and independent instances. Native View Transition instrumentation confirms the authored exit keyframes; fallback and deferred callbacks after unmount are exercised separately.
 - Final `npm run build`, `npm run test:react` (all five suites) and `git diff --check` passed. Composer checks include English/Chinese at 1280/390/320px in light/dark and mouse/touch contexts. Production preview confirmed Chinese candidate placement, insertion and continued editing.
 
+## Menus, search and palette batch
+
+- Added `SubmenuSelect`, `GroupedSearch`, `ArtifactActionsCard` and `useSearchHighlight`, with public typed exports and an English/Chinese `#menus` chapter. Components are independent of demo IDs, globals and resets. Host state owns selection, search destinations and action effects.
+- Preserved focus preview versus committed selection, nested Escape/ArrowLeft, disabled-option skipping, whitespace-only flat search results, destination focus and settled scrolling. The measured palette retains 200ms opening and 120ms return from the current animated position; pending focus is cancelled on close, pagehide and unmount. Decorative selection checks are hidden from accessible names.
+- Added a source-only consumer and browser suite for independent instances, controlled props, scoped themes, native keyboard behavior, search cancellation and repeated selection, ready/failed artwork and interrupted return. The original deterministic search tests now also execute the migrated TypeScript controller, including minimum settling, continuous movement cap, user input and disconnection cleanup.
+- Production preview confirmed Chinese focus preview/commit, trigger focus return, the artwork action card and search heading focus. Final `npm run build`, `npm run test:react` (all six suites), `npm run test:unit` (47 tests) and `git diff --check` passed.
+
 ## Next batch
 
-Finish stage 4 with menus, search and palette. Then migrate workspace/sidebar/image/gallery/drop/task chapters before replacing the legacy build and retiring the original showcase.
+Stage 4 is implemented. Migrate workspace/sidebar/image/gallery/drop/task chapters before replacing the legacy build and retiring the original showcase.

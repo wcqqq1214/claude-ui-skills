@@ -46,3 +46,11 @@ export { AttachmentList } from './components/composer/AttachmentList';
 export type { Attachment, AttachmentListProps } from './components/composer/AttachmentList';
 export { ComposerSurface, ComposerPicker, ComposerToolbar } from './components/composer/ComposerToolbar';
 export type { ComposerToolbarProps } from './components/composer/ComposerToolbar';
+
+export { SubmenuSelect } from './components/menus/SubmenuSelect';
+export type { SubmenuSelectProps, SubmenuOption } from './components/menus/SubmenuSelect';
+export { GroupedSearch } from './components/menus/GroupedSearch';
+export type { GroupedSearchProps, SearchItem } from './components/menus/GroupedSearch';
+export { ArtifactActionsCard } from './components/menus/ArtifactActionsCard';
+export type { ArtifactActionsCardProps, ArtifactAction } from './components/menus/ArtifactActionsCard';
+export { useSearchHighlight } from './hooks/useSearchHighlight';

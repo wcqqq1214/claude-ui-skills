@@ -1,6 +1,6 @@
 # Component guides
 
-Choose the user-facing scenario, then read its linked implementation. Controls, segmented selection, typography, reading/code/tables, activity feedback, disclosure, tooltips, notifications and the composer now have React TSX implementations and [integration instructions](../demo/README.md); other chapters still link the original HTML, JS and CSS. The [visual foundations](visual.md) cover shared theme, font, icon and surface roles.
+Choose the user-facing scenario, then read its linked implementation. Controls, segmented selection, typography, reading/code/tables, activity feedback, disclosure, tooltips, notifications, the composer, menus, search and artifact action cards now have React TSX implementations and [integration instructions](../demo/README.md); other chapters still link the original HTML, JS and CSS. The [visual foundations](visual.md) cover shared theme, font, icon and surface roles.
 
 | Scenario | Guide | Demo |
 | --- | --- | --- |

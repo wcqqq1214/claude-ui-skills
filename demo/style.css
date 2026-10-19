@@ -18,3 +18,12 @@
 
 .demo-baseline-guide { display: inline-block; position: relative; vertical-align: baseline; width: 0; height: 0; }
 .demo-baseline-guide::after { content: ''; position: absolute; inset: 0 auto auto 0; width: 7.5em; border-top: 1px dashed var(--cui-line); pointer-events: none; }
+
+.demo-menus-container { container-type: inline-size; }
+.demo-menus-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); grid-template-areas: 'selection artifact' 'search artifact'; grid-template-rows: auto 1fr; gap: 20px; align-items: start; }
+.demo-menus-selection { grid-area: selection; }
+.demo-menus-artifact { grid-area: artifact; }
+.demo-menus-search { grid-area: search; }
+.demo-menus-search-layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 16px; }
+@container (max-width: 800px) { .demo-menus-grid { grid-template-columns: minmax(0, 1fr); grid-template-areas: 'selection' 'artifact' 'search'; grid-template-rows: auto; gap: 16px; } }
+@container (max-width: 540px) { .demo-menus-search-layout { grid-template-columns: minmax(0, 1fr); } }

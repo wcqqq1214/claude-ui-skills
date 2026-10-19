@@ -1,6 +1,6 @@
 # React demo
 
-The migration demo imports the public TSX components from `src/index.ts`. It currently covers controls, segmented selection, typography, reading/code/tables, activity feedback, skeletons, disclosure, tooltips, copy feedback, notifications and the composer. The original `showcase/` remains the reference for the remaining chapters; the full migration is tracked in [the migration plan](../docs/react-migration.md).
+The migration demo imports the public TSX components from `src/index.ts`. It currently covers controls, segmented selection, typography, reading/code/tables, activity feedback, skeletons, disclosure, tooltips, copy feedback, notifications, the composer, menus, search and artifact action cards. The original `showcase/` remains the reference for the remaining chapters; the full migration is tracked in [the migration plan](../docs/react-migration.md).
 
 ## Run
 
@@ -151,3 +151,27 @@ AttachmentList is controlled: provide unique IDs and a synchronous React state u
 ComposerToolbar implements the original empty-project variant. projectLabel/modelLabel/modelAriaLabel and optional callbacks/description/trailing content customize it. It folds by measured space, keeps the same trigger node and unfolds with 2px spare width. ComposerPicker is also exported with native button props/ref and the measured press layer.
 
 [Independent consumer](../tests/fixtures/react-composer/main.tsx) and [browser suite](../tests/react-composer.browser.cjs) verify native undo and IME, safe paste, focus, hidden draft preservation, multiple instances, exact folding boundaries, real attachment transitions, fallback/unmount handling, and bilingual mouse/touch layouts.
+
+## Menus, search and artifact actions
+
+Open `/demo/?lang=en#menus` or `/demo/?lang=zh-Hans#menus`.
+
+```tsx
+import { SubmenuSelect } from './src';
+
+export function EffortChoice() {
+  return <SubmenuSelect label="Model settings" submenuLabel="Thinking effort"
+    options={[{ value: 'low', label: 'Low' }, { value: 'high', label: 'High' }]}
+    defaultValue="high" onValueChange={value => console.log(value)}
+    renderPreview={(preview, selected) => <span>Preview: {preview} · Selected: {selected}</span>} />;
+}
+```
+
+- `SubmenuSelect` accepts stable value/label/disabled options, value/defaultValue/onValueChange, optional onPreviewChange/renderPreview, active and className. Arrows preview enabled options; Enter/Space/click commits. Escape/Left closes one level and restores its owner. The component preserves its small in-flow menu layout; it does not portal or implement collision placement.
+- `GroupedSearch` accepts label, placeholder, emptyMessage, locale and items `{ id, label, group? }`, plus query/defaultQuery/onQueryChange and onSelect. Filtering trims the query and uses locale-aware lowercase comparison; only an exactly empty query shows headings. Keep each group's items adjacent. Selection requests an empty query before calling onSelect. Optional autoFocus uses preventScroll and suppresses the initial focus-visible ring where supported.
+- `useSearchHighlight(active)` returns highlight(row, title) and cancel(). Give the destination title `tabIndex={-1}`. A new selection cancels the old highlight, focuses the heading and centers its scroll containers; it waits at least 250ms and three stable frames, with a 1500ms cap, before the 1.95s underline/wash. User input suppresses additional centering. Inactivity, pagehide and unmount cancel pending work. The host owns destination lookup and chapter activation.
+- `ArtifactActionsCard` takes title, subtitle, image, actionsLabel and actions `{ id, label, onSelect, disabled? }`, plus active/className. The image is decorative; title provides the artifact's text. The host provides real action effects. Alt/Option+Enter toggles, arrows/Home/End move focus, and digits 1–9 address the first nine actions. Closing cancels deferred focus and returns from the current card rectangle only when thumbnail artwork is ready. The card stays within its local theme/container, capped at 280px.
+
+Set active=false when hiding menu/action chapters; it closes overlays and cancels pending highlights without moving focus. The host should hide or make inactive content inert. All text is passed through props. The demo's Open/Copy link messages are local simulations.
+
+[Independent consumer](../tests/fixtures/react-menus/main.tsx) · [browser suite](../tests/react-menus.browser.cjs) · [deterministic settling checks](../tests/search-highlight.test.cjs).
