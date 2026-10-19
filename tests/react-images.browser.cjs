@@ -1,6 +1,7 @@
 const { setTheme, setLanguage, chooseChapter } = require('./demo-helpers.cjs');
 const assert = require('node:assert/strict');
 const { resolve } = require('node:path');
+const { readFileSync } = require('node:fs');
 const { chromium } = require(process.env.PLAYWRIGHT_MODULE || 'playwright-core');
 (async () => {
   const { createServer } = await import('vite');
@@ -103,6 +104,110 @@ const { chromium } = require(process.env.PLAYWRIGHT_MODULE || 'playwright-core')
     // No View Transition API: same dismissal and focus behavior.
     await page.evaluate(() => { document.startViewTransition = undefined; }); await open(); await close();
     assert.deepEqual(errors, []);
+    // A separate uncached preview must load before the shared-element snapshot.
+    // Hold a real image response so the assertion is independent of machine speed.
+    const loading = await browser.newPage({ viewport: { width: 1280, height: 800 } });
+    loading.on('pageerror', error => errors.push(error.message));
+    const resourceBody = readFileSync(resolve(__dirname, '../src/assets/artwork/landscape.svg'));
+    const resources = [];
+    const heldResource = async (path, body = resourceBody) => {
+      let release, requested, delivered;
+      const response = new Promise(resolve => { release = resolve; }), request = new Promise(resolve => { requested = resolve; }), complete = new Promise(resolve => { delivered = resolve; });
+      const resource = { release, request, complete }; resources.push(resource);
+      await loading.route(url => url.pathname === path, async route => {
+        requested(); await response;
+        try { await route.fulfill({ contentType: 'image/svg+xml', body }); } catch { /* A cancelled/changed image may have abandoned this request. */ }
+        finally { delivered(); }
+      });
+      return resource;
+    };
+    const loadingHost = name => loading.getByRole('button', { name, exact: true, includeHidden: true }).evaluate(element => element.click());
+    const loadingDialog = loading.getByRole('dialog', { name: 'First preview', exact: true });
+    const loadingSettle = () => loading.waitForFunction(() => !document.querySelector('style[data-cui-image-transition]'));
+    const loadFixture = async (preview, next, decode = false) => {
+      const query = new URLSearchParams({ preview }); if (next) query.set('next-preview', next); if (decode) query.set('hold-decode', 'true');
+      await loading.goto(`${base}/tests/fixtures/react-images/?${query}`);
+      await loading.getByRole('button', { name: 'Use preview', exact: true }).click();
+      await loading.waitForFunction(() => { const image = document.querySelector('.cui-image-origin img'); return image.complete && image.naturalWidth > 0; });
+    };
+    await loading.addInitScript(() => {
+      window.previewSnapshots = [];
+      const start = document.startViewTransition.bind(document);
+      document.startViewTransition = callback => {
+        const transition = start(callback);
+        transition.ready.then(() => {
+          const image = document.querySelector('.cui-image-preview-surface img');
+          if (image.closest('dialog').open) window.previewSnapshots.push({ width: image.getBoundingClientRect().width, height: image.getBoundingClientRect().height, complete: image.complete });
+        }).catch(() => {});
+        return transition;
+      };
+      if (new URLSearchParams(location.search).has('hold-decode')) {
+        const decode = HTMLImageElement.prototype.decode;
+        HTMLImageElement.prototype.decode = function() {
+          if (!this.src.includes('/__image-preview/')) return decode.call(this);
+          return new Promise((resolve, reject) => { window.finishPreviewDecode = () => decode.call(this).then(resolve, reject); });
+        };
+      }
+    });
+    try {
+      const slow = await heldResource('/__image-preview/slow.svg');
+      await loadFixture('/__image-preview/slow.svg'); await slow.request;
+      await loading.getByRole('button', { name: 'Enlarge first', exact: true }).click();
+      await loading.waitForTimeout(100);
+      assert.equal(await loading.locator('dialog[open], style[data-cui-image-transition]').count(), 0, 'pending resources must not start a zero-size transition');
+      await loading.getByRole('button', { name: 'Theme', exact: true }).click();
+      slow.release();
+      await loadingDialog.waitFor({ state: 'visible' }); await loadingSettle();
+      assert.deepEqual(await loading.evaluate(() => window.previewSnapshots), [{ width: 640, height: 416, complete: true }]);
+      assert.equal(await loading.locator('[data-changes]').textContent(), '[true]');
+      await loading.keyboard.press('Escape'); await loadingDialog.waitFor({ state: 'hidden' }); await loadingSettle();
+      assert.equal(await loading.locator('[data-changes]').textContent(), '[true,false]');
+
+      for (const cancel of ['Close first', 'Active', 'Mount', 'pagehide']) {
+        const path = `/__image-preview/cancel-${cancel.replaceAll(' ', '-')}.svg`, pending = await heldResource(path);
+        await loadFixture(path); await pending.request; await loadingHost('Open first');
+        if (cancel === 'pagehide') await loading.evaluate(() => window.dispatchEvent(new Event('pagehide'))); else await loadingHost(cancel);
+        pending.release(); await pending.complete; await loading.waitForTimeout(60);
+        assert.equal(await loading.locator('dialog[open], style[data-cui-image-transition], [style*="view-transition-name"]').count(), 0, `${cancel} must cancel a pending load`);
+        assert.equal(await loading.locator('[data-changes]').textContent(), '[]', 'a cancelled wait never announced an opened modal');
+      }
+
+      // Replacing a pending URL invalidates its late load and uses the newest ratio.
+      const old = await heldResource('/__image-preview/old.svg'), next = await heldResource('/__image-preview/new.svg', '<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="500"><rect width="1000" height="500" fill="teal"/></svg>');
+      await loadFixture('/__image-preview/old.svg', '/__image-preview/new.svg'); await old.request; await loadingHost('Open first'); await loadingHost('Replace preview'); await next.request;
+      old.release(); await old.complete; await loading.waitForTimeout(60); assert.equal(await loading.locator('dialog[open], style[data-cui-image-transition]').count(), 0);
+      next.release(); await loadingDialog.waitFor({ state: 'visible' }); await loadingSettle();
+      assert.deepEqual(await loading.evaluate(() => window.previewSnapshots), [{ width: 640, height: 320, complete: true }]);
+      assert.equal(await loading.locator('[data-changes]').textContent(), '[true]');
+
+      // An already-open preview can switch to cached and slow resources. Its
+      // queued native close event must not cancel the replacement opening.
+      const replacement = '/src/assets/artwork/landscape-dusk.svg';
+      await loadFixture('/src/assets/artwork/landscape.svg', replacement);
+      await loading.evaluate(async src => { const image = new Image(); image.src = src; await image.decode(); }, replacement);
+      await loadingHost('Open first'); await loadingDialog.waitFor({ state: 'visible' }); await loadingSettle(); await loadingHost('Replace preview');
+      await loadingDialog.waitFor({ state: 'visible' }); await loadingSettle(); await loading.waitForTimeout(60);
+      assert.equal(await loadingDialog.isVisible(), true); assert.equal(await loadingDialog.locator('img').getAttribute('src'), replacement);
+      assert.equal(await loading.locator('[data-changes]').textContent(), '[true,false,true]');
+      const openSlow = await heldResource('/__image-preview/open-replacement.svg');
+      await loadFixture('/src/assets/artwork/landscape.svg', '/__image-preview/open-replacement.svg'); await loadingHost('Open first'); await loadingDialog.waitFor({ state: 'visible' }); await loadingSettle();
+      await loadingHost('Replace preview'); await openSlow.request; assert.equal(await loadingDialog.isVisible(), false); assert.equal(await loading.locator('[data-changes]').textContent(), '[true,false]');
+      openSlow.release(); await loadingDialog.waitFor({ state: 'visible' }); await loadingSettle(); assert.equal(await loading.locator('[data-changes]').textContent(), '[true,false,true]');
+
+      // Decode may lag the network. Cancelling it must not later reopen.
+      const decoded = await heldResource('/__image-preview/decode.svg'); await loadFixture('/__image-preview/decode.svg', undefined, true); await decoded.request; await loadingHost('Open first'); decoded.release();
+      await loading.waitForFunction(() => typeof window.finishPreviewDecode === 'function');
+      assert.equal(await loading.locator('dialog[open], style[data-cui-image-transition]').count(), 0);
+      await loadingHost('Close first'); await loading.evaluate(() => window.finishPreviewDecode()); await loading.waitForTimeout(60);
+      assert.equal(await loading.locator('dialog[open], style[data-cui-image-transition]').count(), 0); assert.equal(await loading.locator('[data-changes]').textContent(), '[]');
+
+      const broken = await heldResource('/__image-preview/broken.svg', 'not an image');
+      await loadFixture('/__image-preview/broken.svg'); await broken.request; await loadingHost('Open first'); broken.release(); await broken.complete;
+      await loading.waitForFunction(() => document.querySelector('.cui-image-preview-surface img').complete); await loading.waitForTimeout(60);
+      assert.equal(await loading.locator('dialog[open], style[data-cui-image-transition]').count(), 0); assert.equal(await loading.locator('[data-changes]').textContent(), '[]');
+      await loading.getByRole('button', { name: 'Replace preview', exact: true }).click(); await loading.getByRole('button', { name: 'Enlarge first', exact: true }).click();
+      await loadingDialog.waitFor({ state: 'visible' }); await loadingSettle();
+    } finally { resources.forEach(resource => resource.release()); await loading.close(); }
     for (const touch of [false, true]) {
       const context = await browser.newContext({ hasTouch: touch }); const demo = await context.newPage(); demo.on('pageerror', error => errors.push(error.message));
       for (const width of [1280, 390, 320]) for (const theme of ['light', 'dark']) for (const locale of ['en', 'zh-Hans']) {

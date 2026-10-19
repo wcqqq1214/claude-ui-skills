@@ -57,13 +57,14 @@ export function PinnedList({ items, onOrderChange, label, actionsLabel, menuLabe
   function measureTitles() {
     list.current?.querySelectorAll<HTMLElement>('.cui-pinned-title').forEach(title => { if (title.clientWidth) title.toggleAttribute('data-overflow', title.firstElementChild!.scrollWidth > title.clientWidth); });
   }
+  function syncPortalStyle() {
+    if (!menuKey.current || !stage.current) return;
+    const theme = stage.current.closest('[data-cui-theme]')?.getAttribute('data-cui-theme') ?? 'light', style = getComputedStyle(stage.current), direction = style.direction === 'rtl' ? 'rtl' : 'ltr', font = style.fontFamily;
+    setPortalStyle(previous => previous.theme === theme && previous.direction === direction && previous.font === font ? previous : { theme, direction, font });
+  }
   useLayoutEffect(() => {
     latest.current = { items, onOrderChange }; menuKey.current = menuId;
-    measureTitles(); positionMenu();
-    if (menuId && stage.current) {
-      const theme = stage.current.closest('[data-cui-theme]')?.getAttribute('data-cui-theme') ?? 'light', style = getComputedStyle(stage.current), direction = style.direction === 'rtl' ? 'rtl' : 'ltr', font = style.fontFamily;
-      setPortalStyle(previous => previous.theme === theme && previous.direction === direction && previous.font === font ? previous : { theme, direction, font });
-    }
+    measureTitles(); positionMenu(); syncPortalStyle();
     if (pendingFocus.current) { main(pendingFocus.current)?.focus({ preventScroll: true }); pendingFocus.current = null; }
   });
   useLayoutEffect(() => {
@@ -76,7 +77,13 @@ export function PinnedList({ items, onOrderChange, label, actionsLabel, menuLabe
     if (!menuId || !menu.current) return;
     menu.current.querySelector('.cui-pinned-menu-scroll')!.scrollTop = 0; positionMenu();
     (keyboardMenu.current ? menu.current.querySelector<HTMLButtonElement>('button') : menu.current)?.focus({ preventScroll: true });
-    const observer = new ResizeObserver(positionMenu); observer.observe(menu.current); return () => observer.disconnect();
+    const observer = new ResizeObserver(positionMenu); observer.observe(menu.current);
+    // Theme providers may update DOM attributes without rerendering consumers
+    // (including the demo's system-theme listener). Watch only this scope's
+    // ancestors while open, never the portal that this synchronization writes.
+    const inherited = new MutationObserver(() => { syncPortalStyle(); positionMenu(); });
+    for (let ancestor: Element | null = stage.current; ancestor; ancestor = ancestor.parentElement) inherited.observe(ancestor, { attributes: true, attributeFilter: ['data-cui-theme', 'dir', 'class', 'style'] });
+    return () => { observer.disconnect(); inherited.disconnect(); };
   }, [menuId]);
   useLayoutEffect(() => { const observer = new ResizeObserver(measureTitles); observer.observe(stage.current!); return () => observer.disconnect(); }, []);
   useEffect(() => {

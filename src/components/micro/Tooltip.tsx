@@ -22,6 +22,7 @@ export function Tooltip<T extends HTMLElement = HTMLButtonElement>({ content, ch
   const engagement = useRef({ pointer: false, focus: false, dismissed: false });
   const [open, setOpen] = useState(false), [position, setPosition] = useState<CSSProperties>({ left: 0 });
   const overflowCallback = useRef(onOverflowChange);
+  const lastOverflow = useRef<boolean | undefined>(undefined);
   useLayoutEffect(() => { overflowCallback.current = onOverflowChange; });
   function truncated() {
     const element = target.current;
@@ -45,7 +46,13 @@ export function Tooltip<T extends HTMLElement = HTMLButtonElement>({ content, ch
     const element = target.current;
     if (!element) return;
     let disposed = false;
-    const measure = () => { hide(); overflowCallback.current?.(truncated()); };
+    const measure = () => {
+      hide();
+      const next = truncated();
+      // Notify the result, not each observer pass or new JSX content identity.
+      // Store it before calling the host, which may synchronously rerender us.
+      if (next !== lastOverflow.current) { lastOverflow.current = next; overflowCallback.current?.(next); }
+    };
     const observer = new ResizeObserver(measure); observer.observe(element);
     const mutations = new MutationObserver(measure); mutations.observe(element, { childList: true, subtree: true, characterData: true });
     measure();

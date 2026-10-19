@@ -9,6 +9,21 @@ const { chromium } = require(process.env.PLAYWRIGHT_MODULE || 'playwright-core')
   let browser;
   try {
     browser = await chromium.launch({ executablePath: process.env.CHROME_BIN, headless: true });
+    const systemPage = await browser.newPage({ viewport: { width: 1280, height: 1000 }, colorScheme: 'light' });
+    await systemPage.goto(`${base}/demo/?lang=en#modes`);
+    assert.equal(await systemPage.locator('.demo-topbar button[data-preference]').getAttribute('data-preference'), 'system');
+    await systemPage.locator('.cui-pinned-main').first().focus(); await systemPage.keyboard.press('ArrowRight'); await systemPage.keyboard.press('Enter');
+    const systemMenu = systemPage.getByRole('menu', { name: 'Move conversation', exact: true }); await systemMenu.waitFor();
+    await systemPage.emulateMedia({ colorScheme: 'dark' });
+    await systemPage.waitForFunction(() => document.documentElement.dataset.cuiTheme === 'dark');
+    await systemPage.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
+    assert.equal(await systemMenu.evaluate(element => getComputedStyle(element).backgroundColor), 'rgb(32, 32, 31)', 'an open pinned menu follows a system theme change without a React parent render');
+    await systemPage.emulateMedia({ colorScheme: 'light' });
+    await systemPage.waitForFunction(() => document.documentElement.dataset.cuiTheme === 'light');
+    await systemPage.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
+    assert.equal(await systemMenu.evaluate(element => getComputedStyle(element).backgroundColor), 'rgb(255, 255, 255)');
+    assert.equal(await systemMenu.evaluate(element => element.contains(document.activeElement)), true, 'system theme updates retain menu focus');
+    await systemPage.close();
     const page = await browser.newPage({ viewport: { width: 1400, height: 1400 } }); const errors = [];
     page.on('pageerror', error => errors.push(error.message));
     await page.goto(`${base}/tests/fixtures/react-workspace/`);
@@ -115,6 +130,13 @@ const { chromium } = require(process.env.PLAYWRIGHT_MODULE || 'playwright-core')
     await page.getByRole('button', { name: 'Theme', exact: true }).click();
     await list.locator('[data-pin="notes"] .cui-pinned-main').focus(); await page.keyboard.press('ArrowRight'); await page.keyboard.press('Enter');
     assert.equal(await menu.getByRole('menuitem').count(), 1); assert.equal(await menu.evaluate(element => getComputedStyle(element).backgroundColor), 'rgb(32, 32, 31)', 'portal retains scoped dark theme');
+    await pins.evaluate(element => element.setAttribute('data-cui-theme', 'light')); await frames();
+    assert.equal(await menu.evaluate(element => getComputedStyle(element).backgroundColor), 'rgb(255, 255, 255)', 'a newly scoped theme updates an already open portal');
+    await pins.evaluate(element => element.setAttribute('data-cui-theme', 'dark')); await frames();
+    assert.equal(await menu.evaluate(element => getComputedStyle(element).backgroundColor), 'rgb(32, 32, 31)');
+    await pins.evaluate(element => element.removeAttribute('data-cui-theme')); await frames();
+    assert.equal(await menu.evaluate(element => getComputedStyle(element).backgroundColor), 'rgb(32, 32, 31)', 'removing a theme scope restores the nearest ancestor theme');
+    assert.equal(await menu.evaluate(element => element.contains(document.activeElement)), true, 'scoped theme updates retain menu focus');
     await page.getByRole('button', { name: 'Outside', exact: true }).focus(); assert.equal(await menu.count(), 0);
     await list.locator('[data-pin="notes"] .cui-pinned-main').focus(); await page.keyboard.press('ArrowRight'); await page.keyboard.press('Enter'); await page.keyboard.press('Tab');
     assert.equal(await menu.count(), 0); assert.equal(await list.evaluate(element => !element.contains(document.activeElement)), true, 'Tab leaves the roving list after menu dismissal');

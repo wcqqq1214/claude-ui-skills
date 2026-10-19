@@ -21,9 +21,14 @@ export function useClipboard() {
         const selection = window.getSelection();
         const ranges = selection ? Array.from({ length: selection.rangeCount }, (_, index) => selection.getRangeAt(index).cloneRange()) : [];
         const textarea = document.createElement('textarea');
-        textarea.value = text; textarea.style.cssText = 'position:fixed;left:-9999px;top:0';
-        document.body.append(textarea);
-        try { textarea.select(); if (!document.execCommand('copy')) throw new Error('Clipboard unavailable'); }
+        textarea.value = text; textarea.readOnly = true; textarea.tabIndex = -1; textarea.style.cssText = 'position:fixed;left:-9999px;top:0';
+        // Nodes outside the active native modal are inert, so selecting a
+        // body-level input can leave execCommand copying the previous range.
+        (previous?.closest('dialog:modal') ?? document.body).append(textarea);
+        try {
+          textarea.focus({ preventScroll: true }); textarea.select();
+          if (document.activeElement !== textarea || textarea.selectionStart !== 0 || textarea.selectionEnd !== textarea.value.length || !document.execCommand('copy')) throw new Error('Clipboard unavailable');
+        }
         finally {
           textarea.remove();
           if (previous instanceof HTMLElement && previous.isConnected) previous.focus({ preventScroll: true });

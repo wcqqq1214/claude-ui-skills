@@ -4,6 +4,18 @@ import { CopyButton, GhostButton, NotificationStack, Tooltip } from '../../../sr
 import type { NotificationStackHandle } from '../../../src';
 import '../../../src/styles/index.css';
 
+function ReactiveTooltip() {
+  const [result, setResult] = useState({ truncated: false, changes: 0 });
+  const [wide, setWide] = useState(false), [long, setLong] = useState(true), [revision, setRevision] = useState(0);
+  return <section aria-label="Reactive tooltip">
+    <button onClick={() => setWide(!wide)}>Resize JSX trigger</button><button onClick={() => setLong(!long)}>Change JSX label</button><button onClick={() => setRevision(value => value + 1)}>Refresh JSX content</button>
+    <output data-overflow-result="">{String(result.truncated)}</output><output data-overflow-changes="">{result.changes}</output>
+    <Tooltip content={<span>JSX explanation {revision}</span>} overflowOnly style={{ width: wide ? 400 : 80, maxWidth: '100%' }} onOverflowChange={truncated => setResult(current => ({ truncated, changes: current.changes + 1 }))}>
+      {binding => <button {...binding} aria-label="Reactive target" style={{ width: '100%', overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis', padding: 0, border: 0 }}>{long ? 'A long label that needs an overflow hint' : 'Short'}</button>}
+    </Tooltip>
+  </section>;
+}
+
 function Consumer() {
   const stack = useRef<NotificationStackHandle>(null), single = useRef<NotificationStackHandle>(null), trigger = useRef<HTMLButtonElement>(null);
   const [mounted, setMounted] = useState(true), [width, setWidth] = useState(80), [truncated, setTruncated] = useState(false), [theme, setTheme] = useState('light'), [copyResults, setCopyResults] = useState(0);
@@ -15,6 +27,7 @@ function Consumer() {
     <button onClick={() => setWidth(width === 80 ? 400 : 80)}>Width</button><button onClick={() => setLong(!long)}>Long message</button><output id="truncation">{String(truncated)}</output><output id="copyResults">{copyResults}</output>
     {mounted ? <>
       <div style={{ paddingTop: 60 }}>
+        <ReactiveTooltip />
         <Tooltip content="A useful explanation" active={active}>{props => <button {...props}>Hint</button>}</Tooltip>
         <Tooltip content="A long label that may need a hint" overflowOnly active={active} onOverflowChange={setTruncated} style={{ width, maxWidth: '100%' }}>{props => <button {...props} style={{ width: '100%', overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis', padding: 0, border: 0 }}>A long label that may need a hint</button>}</Tooltip>
         <GhostButton aria-label="Ghost" />

@@ -11,6 +11,46 @@ const { chromium } = require(process.env.PLAYWRIGHT_MODULE || 'playwright-core')
   let browser;
   try {
     browser = await chromium.launch({ executablePath: process.env.CHROME_BIN, headless: true });
+    // Use the native clipboard in a separate context: mocked execCommand success
+    // would miss the browser silently retaining old text outside a modal.
+    const nativeContext = await browser.newContext({ permissions: ['clipboard-read', 'clipboard-write'] });
+    const nativePage = await nativeContext.newPage();
+    await nativePage.goto(`${base}/tests/fixtures/react-reading/`);
+    await nativePage.getByRole('button', { name: 'Open copy modal', exact: true }).click();
+    await nativePage.evaluate(async () => {
+      window.nativeClipboard = navigator.clipboard;
+      await window.nativeClipboard.writeText('before modal copy');
+      Object.defineProperty(navigator, 'clipboard', { configurable: true, value: undefined });
+      const range = document.createRange(); range.selectNodeContents(document.querySelector('[data-modal-selection]'));
+      getSelection().removeAllRanges(); getSelection().addRange(range);
+    });
+    const modal = nativePage.getByRole('dialog', { name: 'Copy modal', exact: true });
+    const modalCopy = modal.getByRole('button', { name: 'Copy modal source', exact: true });
+    await modalCopy.focus(); await modalCopy.press('Enter');
+    assert.equal(await nativePage.evaluate(() => window.nativeClipboard.readText()), '  modal\n\tcode\n', 'fallback copies the exact source within the active native modal');
+    assert.equal(await modal.getByRole('status').textContent(), 'Modal copied');
+    assert.equal(await modalCopy.evaluate(element => element === document.activeElement), true, 'modal fallback restores button focus');
+    assert.equal(await nativePage.evaluate(() => getSelection().toString()), 'Read these words.', 'modal fallback restores the previous document selection');
+    assert.equal(await nativePage.locator('textarea').count(), 0, 'temporary fallback input is removed');
+    await nativePage.evaluate(async () => {
+      await window.nativeClipboard.writeText('keep clipboard when selection fails');
+      window.nativeTextareaSelect = HTMLTextAreaElement.prototype.select;
+      HTMLTextAreaElement.prototype.select = function () {};
+    });
+    await modalCopy.press('Enter');
+    assert.equal(await modal.getByRole('status').textContent(), 'Modal failed', 'unavailable input selection cannot report copy success');
+    assert.equal(await nativePage.evaluate(() => window.nativeClipboard.readText()), 'keep clipboard when selection fails');
+    assert.equal(await modalCopy.evaluate(element => element === document.activeElement), true, 'failed fallback still restores focus');
+    assert.equal(await nativePage.evaluate(() => getSelection().toString()), 'Read these words.');
+    assert.equal(await nativePage.locator('textarea').count(), 0, 'failed fallback also removes its temporary input');
+    await nativePage.evaluate(() => { HTMLTextAreaElement.prototype.select = window.nativeTextareaSelect; });
+    await modal.getByRole('button', { name: 'Close copy modal', exact: true }).click();
+    const nativeCopy = nativePage.getByRole('button', { name: 'Copy source', exact: true });
+    await nativeCopy.focus(); await nativeCopy.press('Enter');
+    assert.equal(await nativePage.evaluate(() => window.nativeClipboard.readText()), '  first\n\tsecond\n', 'native fallback still copies outside a modal');
+    assert.equal(await nativePage.getByRole('status').textContent(), 'Copied');
+    assert.equal(await nativeCopy.evaluate(element => element === document.activeElement), true);
+    await nativeContext.close();
     const page = await browser.newPage({ viewport: { width: 1280, height: 1000 } });
     const errors = [];
     page.on('pageerror', error => errors.push(error.message));

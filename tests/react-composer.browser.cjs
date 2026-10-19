@@ -29,6 +29,56 @@ const { chromium } = require(process.env.PLAYWRIGHT_MODULE || 'playwright-core')
     const editor = first.getByRole('textbox'), popup = first.getByRole('listbox', { name: 'References' });
     const draft = async () => JSON.parse(await first.locator('[data-draft]').textContent());
     assert.equal(await first.locator('[data-changes]').textContent(), '0', 'StrictMode initialization emits no draft edits');
+    async function expectDraft(text, message) {
+      assert.equal((await draft()).text, text, `${message}: editing callback`);
+      await first.getByRole('button', { name: 'Read draft', exact: true }).click();
+      assert.equal((await draft()).text, text, `${message}: getDraft`);
+    }
+    for (const keys of [['Enter', 'Enter'], ['Shift+Enter', 'Shift+Enter'], ['Enter', 'Shift+Enter'], ['Shift+Enter', 'Enter'], ['Enter', 'Shift+Enter', 'Enter']]) {
+      for (const [start, end] of [['First', 'Third'], ['', 'Third'], ['First', ''], ['', '']]) {
+        await first.getByRole('button', { name: 'Clear draft', exact: true }).click();
+        await editor.fill(start); await editor.press('End');
+        for (const key of keys) await editor.press(key);
+        if (end) await editor.pressSequentially(end);
+        await expectDraft(`${start}${'\n'.repeat(keys.length)}${end}`, `${keys.join('/')} preserves middle, leading, trailing and empty paragraphs`);
+      }
+    }
+    await first.getByRole('button', { name: 'Clear draft', exact: true }).click();
+    await editor.fill('First'); await editor.press('End'); await editor.press('Shift+Enter');
+    await expectDraft('First\n', 'soft break omits only the native caret placeholder');
+    await editor.focus(); await editor.press('Backspace');
+    await expectDraft('First', 'backspace removes the soft break');
+    await editor.focus(); await editor.press('ControlOrMeta+z');
+    await expectDraft('First\n', 'undo restores the soft break');
+    await editor.focus(); await editor.press('ControlOrMeta+Shift+z');
+    await expectDraft('First', 'redo removes the soft break again');
+    await first.getByRole('button', { name: 'Clear draft', exact: true }).click();
+    await editor.fill('First'); await editor.press('End'); await editor.press('Enter'); await editor.press('Enter'); await editor.pressSequentially('Third');
+    await editor.evaluate(element => { const range = document.createRange(); range.setStart(element.firstChild, 2); range.setEnd(element.lastChild.firstChild, 2); getSelection().removeAllRanges(); getSelection().addRange(range); });
+    await editor.press('Shift+Enter');
+    await expectDraft('Fi\nird', 'soft break replaces a real selection spanning an empty paragraph');
+    await editor.focus(); await editor.press('ControlOrMeta+z');
+    await expectDraft('First\n\nThird', 'undo restores the selected paragraphs without DOM rewriting');
+    await first.getByRole('button', { name: 'Use trailing newline default', exact: true }).click();
+    await first.getByRole('button', { name: 'Read draft', exact: true }).click();
+    assert.equal((await draft()).text, 'First\n', 'defaultText trailing newlines are authored content');
+    await editor.evaluate(element => { element.focus(); const range = document.createRange(); range.setStart(element.firstChild, 5); range.collapse(true); getSelection().removeAllRanges(); getSelection().addRange(range); });
+    await editor.press('Shift+Enter');
+    await expectDraft('First\n\n', 'soft break before an authored trailing newline retains both');
+    await editor.focus(); await editor.press('ControlOrMeta+z');
+    await expectDraft('First\n', 'undo retains the original trailing newline');
+    await editor.focus(); await editor.press('ControlOrMeta+Shift+z');
+    await expectDraft('First\n\n', 'redo retains both trailing newlines');
+    await first.getByRole('button', { name: 'Clear draft', exact: true }).click();
+    await editor.focus();
+    await editor.evaluate(element => { const data = new DataTransfer(); data.setData('text/plain', '\nFirst\n\n'); element.dispatchEvent(new ClipboardEvent('paste', { bubbles: true, cancelable: true, clipboardData: data })); });
+    await expectDraft('\nFirst\n\n', 'plain-text paste retains leading and trailing blank lines');
+    await editor.evaluate(element => { element.focus(); const range = document.createRange(); range.selectNodeContents(element); range.collapse(false); getSelection().removeAllRanges(); getSelection().addRange(range); });
+    await editor.press('ArrowLeft'); await editor.press('Shift+Enter');
+    await expectDraft('\nFirst\n\n\n', 'soft break next to pasted trailing newlines retains authored content');
+    await editor.focus(); await editor.press('ControlOrMeta+z');
+    await expectDraft('\nFirst\n\n', 'undo restores the pasted trailing newlines');
+    await first.getByRole('button', { name: 'Clear draft', exact: true }).click();
     await editor.fill('@'); await popup.waitFor();
     assert.equal(await popup.getByRole('option').count(), 2);
     const firstId = await editor.getAttribute('aria-activedescendant');
@@ -45,6 +95,13 @@ const { chromium } = require(process.env.PLAYWRIGHT_MODULE || 'playwright-core')
     await editor.press('ControlOrMeta+z'); assert.equal(await atoms.count(), 1, 'browser undo restores reference');
     await first.getByRole('button', { name: 'Clear draft', exact: true }).click(); await editor.fill('@land'); await popup.waitFor(); await editor.press('Tab');
     assert.equal(await atoms.count(), 1); assert.equal(await editor.evaluate(element => element === document.activeElement), true);
+    await editor.press('Enter'); await editor.press('Enter');
+    await expectDraft('Landscape illustration \n\n', 'mention titles keep their separating space and empty paragraphs');
+    assert.deepEqual((await draft()).mentions, [{ id: 'landscape', title: 'Landscape illustration' }]);
+    await editor.focus(); await editor.press('ControlOrMeta+z');
+    await expectDraft('Landscape illustration ', 'native undo restores the mention before the grouped paragraph edit');
+    await editor.focus(); await editor.press('ControlOrMeta+Shift+z');
+    await expectDraft('Landscape illustration \n\n', 'native redo restores the empty paragraph');
     const atomTitle = await atoms.first().getAttribute('title');
     await atoms.first().click(); assert.notEqual(await atoms.first().getAttribute('data-selected'), null);
     await atoms.first().click({ button: 'right' });

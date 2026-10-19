@@ -20,4 +20,6 @@ The original tests loaded page-global scripts or queried the retired showcase DO
 
 React suites also exercise independently imported components without the demo stylesheet or globals, lifecycle cleanup and multiple instances. The production suite serves `dist/` with a plain HTTP file server, tests root/repository-subpath entries and both HTML entry points, traverses all 14 chapters, verifies image spring CSS and local asset delivery, and checks saved preferences, denied storage and history. It also verifies the restored language menu and narrow chapter picker, focus return, and the controls geometry measured from the original demo through computer use.
 
+Review regressions cover JSX tooltip content with parent state callbacks, exact draft blank lines from native editing, real clipboard fallback inside a modal dialog, live system/scoped theme changes in the pinned-menu portal, and uncached preview images with cancellation before loading completes.
+
 These checks prove local component behavior, not complete pixel/frame parity with Claude. Original-app observation limits remain in [coverage](../docs/coverage.md).

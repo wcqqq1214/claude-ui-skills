@@ -37,6 +37,7 @@ export function ImagePreview({ src, alt, previewSrc = src, previewAlt = alt, ope
     return () => { next.dispose(); controller.current = null; };
   }, [name]);
   useLayoutEffect(() => { if (!active) controller.current?.reset(); }, [active]);
+  useLayoutEffect(() => { controller.current?.refresh(); }, [src, previewSrc]);
   useLayoutEffect(() => {
     const button = trigger.current!;
     const measure = () => {

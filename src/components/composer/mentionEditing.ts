@@ -17,6 +17,8 @@ export function createMentionEditing(editor: HTMLDivElement, template: HTMLEleme
   let contextNode: HTMLElement | null = null, contextSelection: Range | null = null;
   let popup: MentionPopup = null, popupSignature = '', currentQuery = '', lastDraft = '';
   const disposers: (() => void)[] = [];
+  const lineBreakTails = new WeakSet<Node>();
+  let lineBreakLength: number | null = null;
   function listen(target: EventTarget, event: string, handler: EventListener, capture = false) {
     target.addEventListener(event, handler, capture); disposers.push(() => target.removeEventListener(event, handler, capture));
   }
@@ -61,23 +63,29 @@ export function createMentionEditing(editor: HTMLDivElement, template: HTMLEleme
     editor.focus({ preventScroll: true });
     const selection = getSelection(); selection?.removeAllRanges(); selection?.addRange(range);
   }
-  function readText(node: Node): string {
-    if (node.nodeType === Node.TEXT_NODE) return node.textContent ?? '';
-    if (!(node instanceof HTMLElement)) return '';
-    if (node.hasAttribute('data-cui-mention')) return node.title;
-    if (node.tagName === 'BR') return '\n';
-    if (node.childNodes.length === 1 && node.firstChild instanceof HTMLBRElement) return '';
-    let text = '';
+  function readText(node: Node, tail: Node | null, omitLineBox = true): string {
+    if (node.nodeType === Node.TEXT_NODE) {
+      const text = node.textContent ?? '';
+      return omitLineBox && node === tail && lineBreakTails.has(node) && text.endsWith('\n') ? text.slice(0, -1) : text;
+    }
+    if (node instanceof HTMLElement) {
+      if (node.hasAttribute('data-cui-mention')) return node.title;
+      if (node.tagName === 'BR') return node === node.parentNode?.lastChild ? '' : '\n';
+      if (node.childNodes.length === 1 && node.firstChild instanceof HTMLBRElement) return '';
+    } else if (node.nodeType !== Node.DOCUMENT_FRAGMENT_NODE) return '';
+    let text = '', previousBlock = false;
     for (const child of node.childNodes) {
       const block = child instanceof HTMLElement && ['DIV', 'P'].includes(child.tagName);
-      if (block && text && !text.endsWith('\n')) text += '\n';
-      text += readText(child);
-      if (block && child.nextSibling && !text.endsWith('\n')) text += '\n';
+      if (child.previousSibling && (previousBlock || block && !text.endsWith('\n'))) text += '\n';
+      text += readText(child, tail, omitLineBox);
+      previousBlock = block;
     }
     return text;
   }
-  function getDraft(): ComposerDraft {
-    return { text: readText(editor), mentions: [...editor.querySelectorAll<HTMLElement>('[data-cui-mention]')].map(node => ({ id: node.dataset.cuiMention!, title: node.title })) };
+  function getDraft(omitLineBox = true): ComposerDraft {
+    let tail = editor.lastChild;
+    while (tail?.lastChild) tail = tail.lastChild;
+    return { text: readText(editor, tail, omitLineBox), mentions: [...editor.querySelectorAll<HTMLElement>('[data-cui-mention]')].map(node => ({ id: node.dataset.cuiMention!, title: node.title })) };
   }
   function publish() {
     const draft = getDraft(), signature = JSON.stringify(draft);
@@ -134,7 +142,31 @@ export function createMentionEditing(editor: HTMLDivElement, template: HTMLEleme
     const range = document.createRange(); range.selectNode(contextNode);
     closeMenu(); selectRange(range); document.execCommand('delete'); update(); publish();
   }
-  listen(editor, 'input', () => { update(); publish(); });
+  listen(editor, 'beforeinput', raw => {
+    lineBreakLength = null;
+    if ((raw as InputEvent).inputType !== 'insertLineBreak') return;
+    const range = selectionRange();
+    if (!range) return;
+    const prefix = (container: Node, offset: number) => {
+      const before = document.createRange(); before.selectNodeContents(editor); before.setEnd(container, offset);
+      return readText(before.cloneContents(), null, false).length;
+    };
+    const selected = prefix(range.endContainer, range.endOffset) - prefix(range.startContainer, range.startOffset);
+    lineBreakLength = getDraft().text.length - selected + 1;
+  });
+  listen(editor, 'input', raw => {
+    const range = selectionRange();
+    if ((raw as InputEvent).inputType === 'insertLineBreak' && range?.collapsed && range.startContainer.nodeType === Node.TEXT_NODE) {
+      const node = range.startContainer;
+      // Chromium may append a newline after the caret to create a line box.
+      // Compare with the semantic edit first: an existing authored trailing
+      // newline can occupy that position without being an added placeholder.
+      if (lineBreakLength !== null && getDraft(false).text.length > lineBreakLength && node.textContent?.endsWith('\n') && range.startOffset === node.textContent.length - 1) lineBreakTails.add(node);
+      else lineBreakTails.delete(node);
+    }
+    lineBreakLength = null;
+    update(); publish();
+  });
   listen(editor, 'compositionstart', () => { composing = true; close(); });
   listen(editor, 'compositionend', () => { composing = false; update(); publish(); });
   listen(editor, 'keydown', raw => {

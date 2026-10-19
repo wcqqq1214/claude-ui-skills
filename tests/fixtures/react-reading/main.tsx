@@ -1,10 +1,11 @@
-import { StrictMode, useState } from 'react';
+import { StrictMode, useRef, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import { CodeBlock, ExpandableTable, GraphemeReveal, Prose, ScrollFollower } from '../../../src';
 import '../../../src/styles/index.css';
 
 function Consumer() {
   const [mounted, setMounted] = useState(true), [count, setCount] = useState(10), [theme, setTheme] = useState('light');
+  const copyDialog = useRef<HTMLDialogElement>(null);
   return <main data-cui-theme={theme} style={{ width: 320, maxWidth: '100%', background: 'var(--cui-surface)', color: 'var(--cui-text)' }}>
     <button onClick={() => setMounted(!mounted)}>Mount</button><button onClick={() => setCount(value => value + 1)}>Append</button><button onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}>Theme</button>
     {mounted ? <>
@@ -15,6 +16,12 @@ function Consumer() {
       <ScrollFollower label="Live content" returnLabel="Return" height={160} busy>
         {Array.from({ length: count }, (_, index) => <p key={index} style={{ margin: '16px 0', minHeight: 60 }}>Paragraph {index + 1}</p>)}
       </ScrollFollower>
+      <button onClick={() => copyDialog.current?.showModal()}>Open copy modal</button>
+      <dialog ref={copyDialog} aria-label="Copy modal">
+        <p data-modal-selection>Read these words.</p>
+        <CodeBlock aria-label="Modal source" code={'  modal\n\tcode\n'} copyLabel="Copy modal source" copiedLabel="Modal copied" copyFailedLabel="Modal failed" />
+        <button onClick={() => copyDialog.current?.close()}>Close copy modal</button>
+      </dialog>
     </> : null}
   </main>;
 }

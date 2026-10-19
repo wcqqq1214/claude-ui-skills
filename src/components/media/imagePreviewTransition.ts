@@ -38,6 +38,33 @@ function sourceDecoration(image: HTMLImageElement, visible: boolean) {
   return { radius: sourceRadius, inset: [percent(inset.top, rect.height), percent(inset.right, rect.width), percent(inset.bottom, rect.height), percent(inset.left, rect.width)].join(' ') };
 }
 
+/** Finish network/decode work before starting a View Transition, which freezes painting. */
+function waitForPreview(image: HTMLImageElement, signal: AbortSignal): Promise<boolean> {
+  return new Promise(resolve => {
+    let settled = false, decoding = false;
+    const finish = (ready: boolean) => {
+      if (settled) return;
+      settled = true;
+      image.removeEventListener('load', loaded); image.removeEventListener('error', failed); signal.removeEventListener('abort', cancelled);
+      resolve(ready);
+    };
+    const valid = () => image.complete && image.naturalWidth > 0 && image.naturalHeight > 0;
+    const loaded = () => {
+      if (decoding || settled) return;
+      if (!valid()) { finish(false); return; }
+      decoding = true;
+      // Some usable image formats/platforms reject decode(); known intrinsic
+      // dimensions still provide valid geometry for the browser's snapshot.
+      if (typeof image.decode !== 'function') { finish(true); return; }
+      void image.decode().then(() => finish(valid()), () => finish(valid()));
+    };
+    const failed = () => finish(false), cancelled = () => finish(false);
+    image.addEventListener('load', loaded); image.addEventListener('error', failed); signal.addEventListener('abort', cancelled, { once: true });
+    if (signal.aborted) cancelled();
+    else if (image.complete) loaded();
+  });
+}
+
 interface PreviewElements {
   origin: HTMLImageElement;
   target: HTMLDivElement;
@@ -46,7 +73,8 @@ interface PreviewElements {
   onChange(open: boolean): void;
 }
 export function createImagePreview({ origin, target, dialog, name, onChange }: PreviewElements) {
-  let opened = false, disposed = false, revision = 0, transition: ViewTransition | null = null;
+  let opened = false, reported = false, disposed = false, revision = 0, transition: ViewTransition | null = null;
+  let loading: AbortController | null = null, ownCloseEvents = 0;
   let sheet: HTMLStyleElement | null = null, returnFocus: Element | null = null;
   const originalVisibility = origin.style.visibility;
   // Restore only the names this controller temporarily replaces.
@@ -62,6 +90,8 @@ export function createImagePreview({ origin, target, dialog, name, onChange }: P
     transition?.skipTransition(); transition = null;
     clearNames(); sheet?.remove(); sheet = null;
   }
+  function cancelLoading() { loading?.abort(); loading = null; }
+  function report(open: boolean) { if (reported !== open) { reported = open; onChange(open); } }
   function render(open: boolean, restoreFocus = true) {
     if (open) {
       if (!dialog.open) dialog.showModal();
@@ -69,7 +99,9 @@ export function createImagePreview({ origin, target, dialog, name, onChange }: P
       const focused = document.activeElement;
       const outside = focused instanceof HTMLElement && focused !== document.body && !dialog.contains(focused);
       origin.style.visibility = originalVisibility;
-      dialog.close();
+      // Native close events are queued. A later cached-resource reopening must
+      // not mistake this event for an external close of the new request.
+      if (dialog.open) { ownCloseEvents++; dialog.close(); }
       if (restoreFocus) {
         const destination = outside ? focused : returnFocus;
         if (destination instanceof HTMLElement && destination.isConnected) destination.focus({ preventScroll: true });
@@ -77,13 +109,8 @@ export function createImagePreview({ origin, target, dialog, name, onChange }: P
       returnFocus = null;
     }
   }
-  function setOpen(open: boolean) {
-    if (disposed || opened === open) return;
-    if (open && !dialog.open) returnFocus = document.activeElement;
-    opened = open;
-    const current = ++revision;
-    clearTransition();
-    onChange(open);
+  function move(open: boolean, current: number) {
+    report(open);
     if (disposed || current !== revision) return;
     if (typeof document.startViewTransition !== 'function' || (!open && !dialog.open)) { render(open); return; }
     const rect = origin.getBoundingClientRect();
@@ -127,17 +154,49 @@ export function createImagePreview({ origin, target, dialog, name, onChange }: P
       update(); clearNames(); ownSheet.remove(); sheet = null;
     }
   }
+  function prepare(current: number) {
+    const image = target.querySelector('img')!;
+    // Keep the already-loaded path synchronous, including rapid open/close.
+    if (image.complete && image.naturalWidth > 0 && image.naturalHeight > 0) { move(true, current); return; }
+    const request = new AbortController(); loading = request;
+    void waitForPreview(image, request.signal).then(ready => {
+      if (loading === request) loading = null;
+      if (disposed || current !== revision || !opened) return;
+      if (ready) move(true, current);
+      else { opened = false; returnFocus = null; }
+    });
+  }
+  function setOpen(open: boolean) {
+    if (disposed || opened === open) return;
+    if (open && !dialog.open) returnFocus = document.activeElement;
+    opened = open;
+    const current = ++revision;
+    cancelLoading(); clearTransition();
+    if (open) prepare(current); else move(false, current);
+  }
+  function refresh() {
+    if (disposed || !opened) return;
+    const focus = returnFocus, current = ++revision;
+    cancelLoading(); clearTransition();
+    // A URL change can invalidate an already visible image too. Hide the old
+    // modal before waiting, and keep the user's original opening intent/focus.
+    render(false, false); returnFocus = focus; report(false);
+    if (!disposed && current === revision && opened) prepare(current);
+  }
   function reset(notify = true) {
-    ++revision; clearTransition();
-    const wasOpen = opened; opened = false;
+    ++revision; cancelLoading(); clearTransition();
+    const wasReported = reported; opened = reported = false;
     render(false, false);
-    if (notify && wasOpen) onChange(false);
+    if (notify && wasReported) onChange(false);
   }
   const pagehide = () => reset();
-  const closed = () => { if (!dialog.open && opened) setOpen(false); };
+  const closed = () => {
+    if (ownCloseEvents) { ownCloseEvents--; return; }
+    if (!dialog.open && reported) setOpen(false);
+  };
   window.addEventListener('pagehide', pagehide); dialog.addEventListener('close', closed);
   return {
-    setOpen, reset,
+    setOpen, reset, refresh,
     dispose() {
       disposed = true; reset(false);
       window.removeEventListener('pagehide', pagehide); dialog.removeEventListener('close', closed);
