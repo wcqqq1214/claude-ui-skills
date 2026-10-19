@@ -1,6 +1,6 @@
 const assert = require('node:assert/strict');
 const { readFileSync, readdirSync, existsSync, statSync } = require('node:fs');
-const { resolve, dirname, relative, extname } = require('node:path');
+const { resolve, dirname, relative, extname, posix, win32 } = require('node:path');
 const { test } = require('node:test');
 
 const root = resolve(__dirname, '..');
@@ -25,7 +25,8 @@ function chapters() {
   return [...list.matchAll(/'([^']+)'/g)].map(match => match[1]);
 }
 function anchors(file) {
-  const source = prose(read(file));
+  const normalized = file.replaceAll('\\', '/');
+  const source = prose(read(normalized));
   const ids = new Set([...source.matchAll(/\b(?:id|name)=["']([^"']+)["']/g)].map(match => match[1]));
   const duplicates = new Map();
   for (const match of source.matchAll(/^#{1,6}\s+(.+?)\s*#*\s*$/gm)) {
@@ -34,7 +35,7 @@ function anchors(file) {
     duplicates.set(slug, count + 1); ids.add(count ? `${slug}-${count}` : slug);
   }
   // These fragments are React routes, not static HTML element IDs.
-  if (file === 'demo/index.html' || file === 'index.html') chapters().forEach(id => ids.add(id));
+  if (normalized === 'demo/index.html' || normalized === 'index.html') chapters().forEach(id => ids.add(id));
   return ids;
 }
 
@@ -50,6 +51,15 @@ test('skill, guides and README links resolve to local files and valid anchors', 
       assert.ok(anchors(relative(root, destination)).has(decodeURIComponent(fragment)), `${file}: missing anchor ${target}`);
     }
   }
+});
+
+test('chapter and Markdown anchors accept both POSIX and Windows relative paths', () => {
+  const demoFiles = [posix.relative('/repo', '/repo/demo/index.html'), win32.relative('C:\\repo', 'C:\\repo\\demo\\index.html')];
+  for (const file of demoFiles) {
+    const ids = anchors(file);
+    for (const route of chapters()) assert.ok(ids.has(route), `${file}: missing chapter ${route}`);
+  }
+  assert.ok(anchors(win32.relative('C:\\repo', 'C:\\repo\\demo\\README.md')).has('run'), 'Windows Markdown links retain heading anchors');
 });
 
 test('every demo chapter has one linked guide and a reusable TSX implementation', () => {

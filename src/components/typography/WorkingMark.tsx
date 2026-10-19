@@ -3,19 +3,23 @@ import type { ComponentPropsWithoutRef, ReactNode } from 'react';
 import { useVisible } from '../../hooks/useVisible';
 import { classes } from '../../lib/classes';
 
-const sheet = new URL('../../assets/status/default-loop.webp', import.meta.url).href;
-
 /** The authored default loop only. Activity entry/exit sheets belong to StatusMark. */
 export function WorkingMark({ active = true, fallback = null, className, ...props }: Omit<ComponentPropsWithoutRef<'span'>, 'children'> & { active?: boolean; fallback?: ReactNode }) {
   const root = useRef<HTMLSpanElement>(null), image = useRef<HTMLImageElement>(null);
   const animation = useRef<Animation | null>(null);
   const [ready, setReady] = useState(false), [failed, setFailed] = useState(false);
+  const [sheet, setSheet] = useState<string>();
   const visible = useVisible(root, active);
   useEffect(() => {
+    // Keep SSR and the first client render identical; the server module URL is a file URL.
+    setSheet(new URL('../../assets/status/default-loop.webp', import.meta.url).href);
+  }, []);
+  useEffect(() => {
+    if (!sheet) return;
     let disposed = false;
     image.current?.decode().then(() => { if (!disposed) setReady(true); }, () => { if (!disposed) setFailed(true); });
     return () => { disposed = true; };
-  }, []);
+  }, [sheet]);
   useEffect(() => {
     if (!ready || !image.current) return;
     const playback = image.current.animate(Array.from({ length: 40 }, (_, frame) => ({ transform: `translateY(-${frame * 20}px)` })), {
