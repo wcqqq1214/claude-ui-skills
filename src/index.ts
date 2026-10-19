@@ -68,3 +68,10 @@ export type { ImagePreviewProps, ImagePreviewHandle } from './components/media/I
 
 export { Gallery } from './components/media/Gallery';
 export type { GalleryItem, GalleryLabels, GalleryHandle, GalleryProps } from './components/media/Gallery';
+
+export { ProgressList } from './components/tasks/ProgressList';
+export type { ProgressItem, ProgressLabels, ProgressState, ProgressListProps } from './components/tasks/ProgressList';
+export { TaskCards } from './components/tasks/TaskCards';
+export type { TaskCardItem, TaskCardsProps } from './components/tasks/TaskCards';
+export { DropTarget } from './components/tasks/DropTarget';
+export type { DropFeedbackState, DropTargetProps } from './components/tasks/DropTarget';

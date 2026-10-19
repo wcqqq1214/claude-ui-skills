@@ -1,6 +1,6 @@
 # React demo
 
-The migration demo imports the public TSX components from `src/index.ts`. It currently covers controls, segmented selection, typography, reading/code/tables, activity feedback, skeletons, disclosure, tooltips, copy feedback, notifications, the composer, menus, search, artifact action cards, file panels, sidebar modes/pinned lists, image previews and galleries. The original `showcase/` remains the reference for the remaining chapters; the full migration is tracked in [the migration plan](../docs/react-migration.md).
+The migration demo imports the public TSX components from `src/index.ts`. It currently covers controls, segmented selection, typography, reading/code/tables, activity feedback, skeletons, disclosure, tooltips, copy feedback, notifications, the composer, menus, search, artifact action cards, file panels, sidebar modes/pinned lists, image previews, galleries, task cards, drop feedback and progress lists. All chapters are migrated; the original `showcase/` remains a temporary reference until the final build switch; the full migration is tracked in [the migration plan](../docs/react-migration.md).
 
 ## Run
 

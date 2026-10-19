@@ -23,7 +23,7 @@ Reference: [Caho1/open-claude-ui](https://github.com/Caho1/open-claude-ui), part
 | 2 | Switch, Checkbox, DiscreteSlider, SegmentedControl; demo imports; independent consumer | Implemented; verification recorded below |
 | 3 | Typography, reading, code/table, feedback, accordion, tooltips and notices | Implemented; verification recorded below |
 | 4 | Composer, attachments, contenteditable mentions, menus, search and palette | Implemented; verification recorded below |
-| 5 | Workspace resize, sidebar modes/reorder, images/gallery, drop/task progress | Workspace, sidebar, image preview and gallery implemented; drop/tasks pending |
+| 5 | Workspace resize, sidebar modes/reorder, images/gallery, drop/task progress | Implemented; verification recorded below |
 | 6 | Complete chapter navigation, remaining assets, guides, build/deployment migration and legacy removal | Pending |
 
 ## Decisions established by the first batch
@@ -111,6 +111,13 @@ Manual UI verification uses the actual Vite demo. Automated geometry checks and 
 - Added a source-only consumer/browser suite for real native transitions, focal math, bounds, mismatched pointers, keyboard zoom while dragging, measurement guards, neighbors, close buffer, keyboard/RTL focus, item changes, two simultaneous galleries, rapid reversal, empty state, teardown and API fallback. Extended existing deterministic zoom tests to run the migrated math too.
 - Production preview confirmed Chinese caption/count, keyboard zoom, native pointer pan, reset on paging and Escape focus return. Final `npm run build`, `npm run test:react` (all nine suites), `npm run test:unit` (53 tests) and `git diff --check` passed.
 
+## Tasks, progress and drop batch
+
+- Added typed `ProgressList`, `TaskCards` and `DropTarget`, with a bilingual `#tasks` chapter importing the public entry. Progress updates/count/replay timers and local drag payloads belong to the demo. Consumers supply labels and state, without demo IDs, globals or resets.
+- Preserved completed-step folding beyond the two most recent, inert collapsed content, 220ms text/rail entry, 180ms current-node entry, globally phased 3s clay pulse, state announcements and preserved expansion. The progress-specific text mask checks layout eligibility once per activation, falls back for clamped/unsupported layouts, and replaces translated masks while preserving running start time or paused current time. Unchanged rows keep their animation state.
+- Added controlled/uncontrolled task selection and focus-only RTL-aware arrow navigation. Drop feedback retains the three overlay layers and 150ms entry/200ms exit; re-entry samples the current visual position before cancelling exit, and teardown invalidates callbacks. The local demo has keyboard and drag/drop equivalents and rejects unrelated drags.
+- Added an independent consumer/browser suite covering geometry, progression, animation phases/fallbacks, controlled props, independent instances, drop interruption/teardown, replay cancellation and responsive localized demos. Production preview confirmed expanded earlier steps, selected-card details and keyboard drop feedback. The built-in browser's native drag gesture did not change the page; actual HTML drag/drop was verified separately by the Chrome browser suite. Final `npm run build`, `npm run test:react` (all ten suites) and `git diff --check` passed.
+
 ## Next batch
 
-Finish stage 5 with drop/task chapters, then replace the legacy build and retire the original showcase.
+All component chapters are migrated. Final integration covers guides/assets, the static build/deployment path, legacy showcase retirement and standalone demo verification.

@@ -5,7 +5,7 @@ description: Build or refine Claude-inspired UI, frontend interactions, and moti
 
 # Claude UI Skills
 
-Adapt Claude Desktop–style UI, typography and motion into an existing frontend. The bundled demos are the implementation reference. Controls, segmented selection, typography, reading/code/tables, activity feedback, disclosure, tooltips, notifications, the composer, menus, search, artifact action cards, file panels, sidebar modes/pinned lists, image previews and galleries now have typed React components in `src/` and a React demo in `demo/`; their guides link the TSX source and styles. Other scenarios still use the original HTML, JS and CSS showcase. See [React migration](docs/react-migration.md).
+Adapt Claude Desktop–style UI, typography and motion into an existing frontend. The bundled demos are the implementation reference. Controls, segmented selection, typography, reading/code/tables, activity feedback, disclosure, tooltips, notifications, the composer, menus, search, artifact action cards, file panels, sidebar modes/pinned lists, image previews, galleries, task cards, drop feedback and progress lists now have typed React components in `src/` and a React demo in `demo/`; their guides link the TSX source and styles. All scenarios now have React implementations; the original showcase remains a temporary migration reference. See [React migration](docs/react-migration.md).
 
 ## Workflow
 

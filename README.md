@@ -14,7 +14,7 @@
 
 ## React migration
 
-A React + TSX + Tailwind implementation is in progress. The new demo directly imports reusable controls, segmented selection, typography, scroll following, code copy, expandable tables, activity feedback, skeletons, disclosure, tooltips, notifications, the composer, menus, search, artifact action cards, file panels, sidebar modes/pinned lists, image previews and galleries. [Run and import](demo/README.md) · [Migration stages](docs/react-migration.md). The original showcase remains available for the other chapters.
+A React + TSX + Tailwind implementation is in progress. The new demo directly imports reusable controls, segmented selection, typography, scroll following, code copy, expandable tables, activity feedback, skeletons, disclosure, tooltips, notifications, the composer, menus, search, artifact action cards, file panels, sidebar modes/pinned lists, image previews, galleries, task cards, drop feedback and progress lists. [Run and import](demo/README.md) · [Migration stages](docs/react-migration.md). All chapters now use React; the original showcase remains a temporary reference until the final build switch.
 
 ## Install
 

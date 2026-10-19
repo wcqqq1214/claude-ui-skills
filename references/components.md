@@ -16,7 +16,7 @@ Choose the user-facing scenario, then read its linked implementation. Controls, 
 | Several images with zoom and bounded pan | [Gallery](components/gallery.md) | [React](../demo/index.html#gallery) |
 | Separate menu selection, in-chapter search highlighting and artifact thumbnail/action-menu transitions | [Menus, search and palette](components/menus.md) | [10](../showcase/index.html#menus) |
 | Top-level mode buttons with focus-only arrows, and pinned-list reordering | [Sidebar modes and pinned order](components/modes.md) | [11](../showcase/index.html#modes) |
-| Status-card selection, a local drop target and a progress list | [Cards, drop feedback and progress](components/tasks.md) | [12](../showcase/index.html#tasks) |
+| Status-card selection, a local drop target and a progress list | [Cards, drop feedback and progress](components/tasks.md) | [React](../demo/index.html#tasks) |
 | A notification queue with stacking and deduplication | [Notification stacks](components/recovery.md) | [13](../showcase/index.html#recovery) |
 
 ## Shared runtime

@@ -1,5 +1,6 @@
 export type Locale = 'en' | 'zh-Hans';
 const english = {
+  tasks: 'Cards & drop targets', tasksDescription: 'Follow progress, inspect task states and try a local drop.',
   gallery: 'Gallery & zoom', galleryDescription: 'Browse images, zoom into detail and pan within the frame.',
   images: 'Image preview', imagesDescription: 'Connect thumbnail and full image.',
   modes: 'Sidebar modes', modesDescription: 'Move between modes and keep pinned conversations in order.',
@@ -28,6 +29,7 @@ const english = {
 };
 export type Copy = typeof english;
 const chinese: Copy = {
+  tasks: '卡片与拖放目标', tasksDescription: '跟随进度、查看任务状态，试试本地拖放。',
   gallery: '图库与缩放', galleryDescription: '浏览图片、放大细节，在画面内平移。',
   images: '图片预览', imagesDescription: '连接缩略图与大图。',
   modes: '侧栏模式', modesDescription: '切换工作模式，整理置顶会话的顺序。',
