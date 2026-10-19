@@ -2,7 +2,13 @@
 
 Use for: a small fixed set of mutually exclusive views or options, such as preview/code, display modes or short filters. Arrows select immediately, unlike [sidebar modes](modes.md), where arrows only move focus.
 
-## Code
+## React implementation
+
+[SegmentedControl.tsx](../../src/components/segmented/SegmentedControl.tsx) · [demo chapter](../../demo/chapters/SegmentedChapter.tsx) · [setup and API](../../demo/README.md).
+
+The TSX implementation keeps measured natural widths, pixel snapping, interruption from visible geometry and immediate-selection radio semantics. Use stable option IDs with `value/onValueChange` or `defaultValue`. Observers and animation handles are cleaned up on unmount; instances are independent. Label/size changes remeasure. Disabled options are skipped by keyboard navigation. Initialization does not call `onValueChange`. The original 1150px page-specific padding override stays in the legacy demo; component sizes are controlled by `size` and host styles.
+
+## Original implementation reference
 
 [segmented.js](../../showcase/components/segmented.js) · [segmented.css](../../showcase/components/segmented.css) · consumers: [file panel](../../showcase/index.html#workspace), [reading views](../../showcase/index.html#reading), status selector in [waiting](feedback.md)
 

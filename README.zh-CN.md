@@ -12,6 +12,10 @@
   <img src="docs/assets/demo-preview.jpg" width="960" alt="Claude UI 演示">
 </p>
 
+## React 迁移
+
+React + TSX + Tailwind 实现已开始迁移，首批包含开关、复选框、分级滑块和分段控件，新 demo 直接导入这些组件。[运行与导入](demo/README.md) · [迁移进度](docs/react-migration.md)。其余章节暂时保留原版 showcase。
+
 ## 安装
 
 将完整仓库克隆到尚不存在的 Codex Skill 目录，指南直接引用其中的 HTML、JS 和 CSS：

@@ -1,0 +1,66 @@
+/* Native input pseudo-elements and measured clipping layers stay in CSS. */
+.cui-check-box svg {
+  clip-path: inset(0 100% 0 0);
+  transition: clip-path calc(120ms * var(--cui-motion-scale, 1)) var(--cui-ease-out);
+}
+input:checked + .cui-check-box svg {
+  clip-path: inset(0);
+  transition-duration: calc(200ms * var(--cui-motion-scale, 1));
+}
+.cui-range { --cui-range-inset: 12px; }
+.cui-range-fill-clip {
+  position: absolute;
+  inset: 0 0 0 calc(-1 * var(--cui-range-inset) - 100%);
+  overflow: hidden;
+  transform: translateX(calc(min(var(--cui-pos) * ((100% - var(--cui-range-inset)) / 2), 4 * var(--cui-pos) * ((100% - var(--cui-range-inset)) / 2) - var(--cui-range-inset)) - ((100% - var(--cui-range-inset)) / 2)));
+}
+.cui-range-fill {
+  position: absolute;
+  inset-block: 0;
+  right: calc(-1 * var(--cui-range-inset));
+  width: 100cqw;
+  background: var(--cui-range-fill);
+  transform: translateX(calc((100% - 2 * var(--cui-range-inset)) - min(var(--cui-pos) * (100% - 2 * var(--cui-range-inset)), 4 * var(--cui-pos) * (100% - 2 * var(--cui-range-inset)) - var(--cui-range-inset))));
+}
+.cui-range-position {
+  position: absolute;
+  inset-block: 0;
+  right: 100%;
+  width: 100%;
+  transform: translateX(calc(var(--cui-pos) * 100%));
+}
+.cui-range-fill-clip, .cui-range-fill, .cui-range-position {
+  transition: transform var(--cui-control-120) var(--cui-ease-out);
+}
+.cui-range-thumb {
+  position: absolute;
+  top: 2px;
+  left: 100%;
+  width: 24px;
+  height: 28px;
+  transform: translateX(-50%);
+  border-radius: 8px;
+  background: var(--cui-control-handle);
+  box-shadow: 0 0 0 1px var(--cui-control-handle-ring), 0 0 12px var(--cui-control-handle-depth);
+  transition: scale var(--cui-control-120) var(--cui-ease-overshoot);
+}
+.cui-range[data-dragging] .cui-range-thumb { scale: 1.12; }
+.cui-range-thumb::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  box-shadow: var(--cui-focus-shadow);
+  opacity: 0;
+}
+.cui-range:has(input:focus-visible) .cui-range-thumb::after { opacity: 1; }
+.cui-range input::-webkit-slider-runnable-track { height: 32px; background: transparent; }
+.cui-range input::-webkit-slider-thumb {
+  appearance: none;
+  width: 24px;
+  height: 28px;
+  margin-top: 2px;
+  border: 0;
+}
+.cui-range input::-moz-range-track { height: 32px; background: transparent; border: 0; }
+.cui-range input::-moz-range-thumb { width: 24px; height: 28px; border: 0; }

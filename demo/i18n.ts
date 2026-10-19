@@ -1,0 +1,37 @@
+export type Locale = 'en' | 'zh-Hans';
+const english = {
+  components: 'Components', controls: 'Controls', segmented: 'Segmented control',
+  introduction: 'Small details. Familiar interactions.',
+  controlDescription: 'Independent controls, each with its own motion and feedback.',
+  segmentDescription: 'A quiet indicator that follows the width of its content.',
+  switch: 'Switch', checkbox: 'Checkbox', slider: 'Discrete slider', effort: 'Effort',
+  switchDescription: 'The thumb travels with a small overshoot.',
+  checkboxDescription: 'The check reveals gradually and retracts faster.',
+  sliderDescription: 'The fill follows the thumb, which grows while pressed.',
+  slow: 'Slow motion', standard: 'Standard', compact: 'Compact',
+  preview: 'Preview', code: 'Code', details: 'Details & notes',
+  selection: 'Selected view', segmentLabel: 'View format', compactLabel: 'Compact view format',
+  segmentHint: 'Use the arrow keys, Home and End. Try switching quickly in both directions.',
+  standardHint: '32px track · measured widths · 200ms', compactHint: '24px track · 13px labels · independent state',
+  light: 'Light', dark: 'Dark', system: 'System', theme: 'Theme', language: 'Language',
+  source: 'React components', footer: 'Claude-inspired UI · An unofficial project',
+};
+export type Copy = typeof english;
+const chinese: Copy = {
+  components: '组件', controls: '基础控件', segmented: '分段控件',
+  introduction: '熟悉的交互，藏在细节里。',
+  controlDescription: '独立控件，各自拥有清晰的动效与反馈。',
+  segmentDescription: '指示器随内容宽度移动，安静地标记当前选项。',
+  switch: '开关', checkbox: '复选框', slider: '分级滑块', effort: '力度',
+  switchDescription: '滑块轻轻越过目标，再回到原位。',
+  checkboxDescription: '勾选逐渐显现，取消时更快收回。',
+  sliderDescription: '填充跟随滑块，按下时滑块轻微放大。',
+  slow: '慢速播放', standard: '标准尺寸', compact: '紧凑尺寸',
+  preview: '预览', code: '代码', details: '详情与备注',
+  selection: '当前视图', segmentLabel: '视图格式', compactLabel: '紧凑视图格式',
+  segmentHint: '支持方向键、Home 和 End。试试连续快速切换。',
+  standardHint: '32px 轨道 · 实测宽度 · 200ms', compactHint: '24px 轨道 · 13px 文字 · 独立状态',
+  light: '浅色', dark: '深色', system: '跟随系统', theme: '主题', language: '语言',
+  source: 'React 组件', footer: 'Claude 风格 UI · 非官方项目',
+};
+export const messages: Record<Locale, Copy> = { en: english, 'zh-Hans': chinese };

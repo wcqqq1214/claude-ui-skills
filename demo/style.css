@@ -1,0 +1,15 @@
+@import '../src/styles/index.css';
+@import '../src/styles/fonts.css';
+@source './';
+
+/* Page defaults belong to the demo, not the component stylesheet. */
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--cui-bg); color: var(--cui-text); font-family: var(--cui-font-sans); font-size: 14px; font-weight: var(--cui-regular); line-height: 1.6; }
+button, input, select { font: inherit; }
+button { color: inherit; }
+h1, h2, h3, p { margin: 0; }
+a { color: inherit; text-decoration: none; }
+button, a, select { -webkit-tap-highlight-color: transparent; }
+button:focus-visible, a:focus-visible, select:focus-visible { outline: 2px solid var(--cui-accent); outline-offset: 4px; }
+html { font-synthesis: none; -webkit-font-smoothing: antialiased; }
+[hidden] { display: none !important; }

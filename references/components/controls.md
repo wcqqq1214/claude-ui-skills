@@ -2,7 +2,13 @@
 
 Use for: a binary setting (switch), an independent choice (checkbox) or a small ordered scale (discrete slider). Each control has its own feedback; they do not share one animation.
 
-## Code
+## React implementation
+
+[Switch.tsx](../../src/components/controls/Switch.tsx) · [Checkbox.tsx](../../src/components/controls/Checkbox.tsx) · [DiscreteSlider.tsx](../../src/components/controls/DiscreteSlider.tsx) · [demo chapter](../../demo/chapters/ControlsChapter.tsx).
+
+Import from `src/index.ts` and load the component stylesheet; see [setup and API boundaries](../../demo/README.md). Demo-only sample options and slow playback live in the chapter. Native range keyboard semantics and the three-layer fill are retained. The component stylesheet uses `--cui-*` namespaced versions of the original tokens; `--cui-motion-scale` replaces the demo speed variable. `onValueChange` returns the stable string option ID, while the native range value remains a numeric index.
+
+## Original implementation reference
 
 [HTML](../../showcase/index.html#controls) · [controls.js](../../showcase/components/controls.js) · [controls.css](../../showcase/components/controls.css)
 

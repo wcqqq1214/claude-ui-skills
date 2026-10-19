@@ -5,13 +5,13 @@ description: Build or refine Claude-inspired UI, frontend interactions, and moti
 
 # Claude UI Skills
 
-Adapt Claude Desktop–style UI, typography and motion into an existing frontend. The bundled demo is the implementation reference: every scenario guide links its running HTML, JS and CSS.
+Adapt Claude Desktop–style UI, typography and motion into an existing frontend. The bundled demos are the implementation reference. Controls and segmented selection now have typed React components in `src/` and a React demo in `demo/`; their guides link the TSX source and styles. Other scenarios still use the original HTML, JS and CSS showcase. See [React migration](docs/react-migration.md).
 
 ## Workflow
 
 1. **Choose.** Find the scenario in the [component index](references/components.md) and read only that guide plus the files it links. Resolve paths from this skill's directory, not the target app's.
 2. **Ground the style.** Apply the quick reference and motion vocabulary below. Open [visual foundations](references/visual.md) when the change touches color, type, icons, radius, elevation or separators.
-3. **Adapt.** Keep the target stack and its component ownership. Port the relationships between geometry, timing, selection, focus and visibility; leave sample text, page layout and demo controls behind. Map the surface and `--ease-*` tokens onto the target theme rather than copying the showcase shell. The demo code is page-lifetime: in a framework, the component owns its listeners, observers, timers and animations and cleans them up.
+3. **Adapt.** Keep the target stack and its component ownership. For migrated React scenarios, prefer importing or copying the linked TSX component and its documented styles; [integration instructions](demo/README.md) describe the Tailwind setup. Port the relationships between geometry, timing, selection, focus and visibility; leave sample text, page layout and demo controls behind. Map the surface and `--ease-*` tokens onto the target theme rather than copying the showcase shell. The original showcase code is page-lifetime; migrated TSX components already own cleanup. When porting the original examples: in a framework, the component owns its listeners, observers, timers and animations and cleans them up.
 4. **Verify.** Done when the changed interaction's trigger, state change, exit and focus return work in light and dark, in English and Chinese, and in a narrow container, and any numeric threshold has been tested at its controlling boundary. When shared icon styles change, check icons in controls, inline text and overlays for alignment, clipping, row height and hit area. Run the target project's checks and use a browser when one is available.
 5. **Report** the demo files and functions used, the local adaptations, the checks run and the checks left undone (visual, physical gestures). Present the result as an adaptation of the demo, without claiming pixel, runtime or performance parity with Claude.
 

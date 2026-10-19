@@ -12,6 +12,10 @@
   <img src="docs/assets/demo-preview.jpg" width="960" alt="Claude UI demo">
 </p>
 
+## React migration
+
+A React + TSX + Tailwind implementation is in progress. The first batch provides Switch, Checkbox, DiscreteSlider and SegmentedControl, imported directly by the new demo. [Run and import](demo/README.md) · [Migration stages](docs/react-migration.md). The original showcase remains available for the other chapters.
+
 ## Install
 
 Clone the complete repository into an unused Codex skill directory. The guides reference its bundled HTML, JS and CSS:

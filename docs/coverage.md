@@ -4,6 +4,10 @@ Claude UI Skills is an unofficial reference for Claude Desktop-style interfaces.
 
 This page describes the visible examples in the [showcase](../showcase/index.html), their interactions and their limits. The [component guides](../references/components.md) provide further details. Coverage is limited to the examples and observations documented here.
 
+## React migration status
+
+The first React demo batch includes a switch, checkbox, stepped slider and segmented selection. [Migration stages](react-migration.md) track the remaining examples. The coverage below describes the original showcase; the two demos may differ during the transition.
+
 ## Using the examples
 
 Open the demo to explore its sample layouts, text, icons, controls and animations. Each example uses local sample content and demonstrates a limited set of interactions. Recorded checks apply to the documented examples and sessions; they do not establish identical appearance or behavior across applications, devices or versions.

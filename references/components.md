@@ -1,6 +1,6 @@
 # Component guides
 
-Choose the user-facing scenario, then read that chapter's linked HTML, JS and CSS. The [visual foundations](visual.md) cover shared theme, font, icon and surface roles.
+Choose the user-facing scenario, then read its linked implementation. Controls and segmented selection now have React TSX implementations and [integration instructions](../demo/README.md); other chapters still link the original HTML, JS and CSS. The [visual foundations](visual.md) cover shared theme, font, icon and surface roles.
 
 | Scenario | Guide | Demo |
 | --- | --- | --- |
