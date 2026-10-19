@@ -1,5 +1,6 @@
 export type Locale = 'en' | 'zh-Hans';
 const english = {
+  images: 'Image preview', imagesDescription: 'Connect thumbnail and full image.',
   modes: 'Sidebar modes', modesDescription: 'Move between modes and keep pinned conversations in order.',
   workspace: 'File panel', workspaceDescription: 'Resize the list, switch views and restore your working space.',
   menus: 'Menus & search', menusDescription: 'Preview choices, locate settings and reveal artifact actions.',
@@ -26,6 +27,7 @@ const english = {
 };
 export type Copy = typeof english;
 const chinese: Copy = {
+  images: '图片预览', imagesDescription: '连接缩略图与大图。',
   modes: '侧栏模式', modesDescription: '切换工作模式，整理置顶会话的顺序。',
   workspace: '文件面板', workspaceDescription: '调整列表宽度，切换视图，保留工作位置。',
   menus: '菜单与搜索', menusDescription: '预览选项、定位设置，展开作品操作。',

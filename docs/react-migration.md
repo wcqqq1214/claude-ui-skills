@@ -23,7 +23,7 @@ Reference: [Caho1/open-claude-ui](https://github.com/Caho1/open-claude-ui), part
 | 2 | Switch, Checkbox, DiscreteSlider, SegmentedControl; demo imports; independent consumer | Implemented; verification recorded below |
 | 3 | Typography, reading, code/table, feedback, accordion, tooltips and notices | Implemented; verification recorded below |
 | 4 | Composer, attachments, contenteditable mentions, menus, search and palette | Implemented; verification recorded below |
-| 5 | Workspace resize, sidebar modes/reorder, images/gallery, drop/task progress | Workspace and sidebar implemented; images/gallery/drop/tasks pending |
+| 5 | Workspace resize, sidebar modes/reorder, images/gallery, drop/task progress | Workspace, sidebar and image preview implemented; gallery/drop/tasks pending |
 | 6 | Complete chapter navigation, remaining assets, guides, build/deployment migration and legacy removal | Pending |
 
 ## Decisions established by the first batch
@@ -97,6 +97,13 @@ Manual UI verification uses the actual Vite demo. Automated geometry checks and 
 - Added a source-only consumer/browser suite covering measured resize boundaries, expansion and F6, mode selection/folding/RTL, pulse/forced colors, drag preview/release/cancellation, lost-button delay, menu moves/focus, portal theme and English/Chinese light/dark layouts at 1280/390/320px. Fixed the demo's navigation numbering for chapters 10 and above and split the original HTML translation into JSX text messages.
 - Production preview confirmed Chinese file/view preservation through expand/restore, menu-based reorder with focus return, and native pointer reorder. Final `npm run build`, `npm run test:react` (all seven suites), `npm run test:unit` (47 tests) and `git diff --check` passed.
 
+## Image preview batch
+
+- Added `ImagePreview` with typed labels, separate thumbnail/preview URLs, optional thumbnail sizing and an imperative open/close handle. The demo imports it for bilingual `#images`. React owns both image trees and accessibility; the native controller owns modal focus and measured shared-element transitions.
+- Preserved 350ms opening/250ms closing, measured thumbnail press scale, 9px-to-6px corner and shadow changes, contain/scale-down letterbox cropping, invisible-source fade and fine/coarse close controls. Each instance owns a unique transition name and temporary stylesheet, without global html classes or suppression of host transition names. Inactivity, pagehide and unmount invalidate callbacks and remove temporary state.
+- Added an independent source-only consumer and browser suite for dismissal paths, transition keyframes, letterbox geometry, keyboard focus, rapid open/close, simultaneous previews, focus in another modal, deferred callbacks after unmount and unsupported-API fallback. Demo checks cover English/Chinese, light/dark, 1280/390/320px and fine/coarse pointers. Updated component guide, index and migration introductions.
+- Production preview confirmed the Chinese image layout, native opening, Escape focus return and keyboard reopening. Final `npm run build`, `npm run test:react` (all eight suites) and `git diff --check` passed.
+
 ## Next batch
 
-Finish stage 5 with images/gallery/drop/task chapters, then replace the legacy build and retire the original showcase.
+Finish stage 5 with gallery/drop/task chapters, then replace the legacy build and retire the original showcase.

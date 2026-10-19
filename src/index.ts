@@ -62,3 +62,6 @@ export { SidebarModes } from './components/sidebar/SidebarModes';
 export type { SidebarModesProps, SidebarMode } from './components/sidebar/SidebarModes';
 export { PinnedList } from './components/sidebar/PinnedList';
 export type { PinnedListProps, PinnedItem } from './components/sidebar/PinnedList';
+
+export { ImagePreview } from './components/media/ImagePreview';
+export type { ImagePreviewProps, ImagePreviewHandle } from './components/media/ImagePreview';

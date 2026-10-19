@@ -10,7 +10,7 @@ Choose the user-facing scenario, then read its linked implementation. Controls, 
 | Composer surface, hover/focus transitions, `@` Artifact references, a folding project row and mock attachment add/remove/reflow motion | [Input and attachments](components/composer.md) | [03](../showcase/index.html#composer) |
 | Waiting, delayed placeholders and optional detail | [Waiting and accordion](components/feedback.md) | [04](../showcase/index.html#feedback) |
 | Files, view formats and a resizable preview | [File panel](components/workspace.md) | [05](../showcase/index.html#workspace) |
-| A single thumbnail opening into a preview | [Image preview](components/images.md) | [06](../showcase/index.html#images) |
+| A single thumbnail opening into a preview | [Image preview](components/images.md) | [React](../demo/index.html#images) |
 | Short hints, adjustable filename truncation, ghost hover and standalone copy confirmation | [Tooltips, ghost hover and copy feedback](components/micro.md) | [07](../showcase/index.html#micro) |
 | Adjustable reading width and wrapping, inline icon baseline and theme-weight comparisons, synchronized proportional/tabular digits, long identifiers, inline/fenced code, copy confirmation and wide tables | [Reading, code and tables](components/reading.md) | [08](../showcase/index.html#reading) |
 | Several images with zoom and bounded pan | [Gallery](components/gallery.md) | [09](../showcase/index.html#gallery) |
