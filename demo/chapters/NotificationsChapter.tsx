@@ -1,4 +1,4 @@
-import { useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import { NotificationStack } from '../../src';
 import type { NotificationInput, NotificationStackHandle } from '../../src';
 import type { Locale } from '../i18n';
@@ -9,6 +9,7 @@ import '../styles/feedback-parity.css';
 export function NotificationsChapter({ locale, active }: { locale: Locale; active: boolean }) {
   const t = (text: string) => translate(locale, text);
   const stack = useRef<NotificationStackHandle>(null), detail = useRef<NotificationStackHandle>(null), trigger = useRef<HTMLButtonElement>(null);
+  useEffect(() => { if (!active) detail.current?.clear(); }, [active]);
   function action(): NotificationInput {
     return { message: <NoticeCopy source="Design notes are ready" />, action: { label: <NoticeCopy source="View" />, onClick: () => detail.current?.notify({ message: <NoticeCopy source="Local notes: reading rhythm, spatial continuity and state feedback." /> }) } };
   }

@@ -1,4 +1,4 @@
-import { createContext, useContext, useId, useRef, useState } from 'react';
+import { createContext, useContext, useEffect, useId, useRef, useState } from 'react';
 import { CopyButton, GhostButton, Icon, NotificationStack, Tooltip } from '../../src';
 import type { NotificationStackHandle } from '../../src';
 import type { Locale } from '../i18n';
@@ -13,6 +13,7 @@ export function MicroChapter({ locale, active }: { locale: Locale; active: boole
   const t = (text: string) => translate(locale, text);
   const [width, setWidth] = useState(160), [truncated, setTruncated] = useState(false);
   const notice = useRef<NotificationStackHandle>(null), trigger = useRef<HTMLButtonElement>(null), ghostHint = useId(), widthId = useId();
+  useEffect(() => { if (!active) notice.current?.clear(); }, [active]);
   return <NoticeLocale value={locale}><article className="demo-card demo-micro-card">
     <div className="demo-micro-stage">
       <div className="grid grid-cols-[48px_minmax(0,1fr)] items-center gap-3">

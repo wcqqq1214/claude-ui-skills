@@ -19,7 +19,7 @@ export function MenusChapter({ locale, active }: { locale: Locale; active: boole
   return <div className="demo-menus-container"><div className="demo-menus-grid">
     <article className={`${article} demo-menus-selection`}>
       <h2 className="px-5 pt-5 text-sm leading-[1.6] font-(--cui-medium)">{t('Menu selection')}</h2>
-      <div className="demo-menus-stage"><SubmenuSelect active={active} label={t('Model settings')} submenuLabel={t('Thinking effort')} options={efforts} value={effort} onValueChange={setEffort} renderPreview={(preview, selected) => translate(locale, 'Focus preview: {0}', preview ?? selected ?? '')} />
+      <div className="demo-menus-stage"><SubmenuSelect active={active} label={t('Model settings')} submenuLabel={t('Thinking effort')} options={efforts} value={effort} onValueChange={setEffort} renderPreview={(preview, selected) => translate(locale, 'Focus preview: {0} · Selected: {1}', preview ?? selected ?? '', selected ?? '')} />
         <p className="demo-menus-description">{translate(locale, 'Selected: {0}', effort)}</p>
       </div><footer className={footer}>{t('Arrows preview · Enter selects · Esc returns')}</footer>
     </article>

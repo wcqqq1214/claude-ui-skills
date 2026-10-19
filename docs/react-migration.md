@@ -149,3 +149,16 @@ All six delivery stages are complete. Source consumption requires React and Tail
 ## Visual parity follow-up
 
 The initial completion established the React delivery and interactions, but did not establish visual parity of the demo shell. The subsequent [computer-use comparison](react-visual-parity.md) restores the original framing and fixes measured component differences. It includes all 13 original chapters in both themes, narrow layouts, English code/table content and overlay states. The additional standalone segmented-control chapter remains chapter 14.
+
+## Skill and behavior consistency follow-up
+
+The follow-up compares the migration with the same local `dev` baseline, including trigger/state/exit/focus behavior and the Skill's complete local reference chain.
+
+- All 24 Markdown documents and 218 local links/anchors resolve. The component index covers every one of the 14 demo routes exactly once. [Persistent checks](../tests/migration-links.test.cjs) also verify linked TSX callers, local asset/CSS dependencies and the absence of retired runtime dependencies.
+- The source entry now typechecks without `vite/client` or ambient image declarations, with strict library checking. Sprite assets use static ESM URLs. [The regression](../tests/source-imports.test.cjs) first reproduced 14 missing-WebP-type errors; a separate temporary consumer also built and ran the copied source, fonts, Tailwind styles and all 14 sprite assets.
+- Restored transient single-notice dismissal on chapter exit while retaining the persistent notification stack, preserved the skeleton's original 500ms deadline when Finish is pressed, cancelled the old scroll working-mark animation on Replay, and restored both preview/committed values in submenu feedback.
+- Corrected the composer height documentation to the actual default/demo cap, `min(40svh, 384px)`; 130px belongs to the independent test fixture.
+
+Final verification: `npm test` passed all 14 unit/integration checks, strict typecheck, production build and all 11 browser files. The tracked-file link audit and `git diff --check` also passed.
+
+These checks establish the documented local-demo behavior and source integration contract. They do not extend the original-app, physical-gesture or reduced-motion coverage boundaries.

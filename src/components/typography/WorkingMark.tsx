@@ -1,8 +1,9 @@
 import { useEffect, useRef, useState } from 'react';
 import type { ComponentPropsWithoutRef, ReactNode } from 'react';
-import sheet from '../../assets/status/default-loop.webp';
 import { useVisible } from '../../hooks/useVisible';
 import { classes } from '../../lib/classes';
+
+const sheet = new URL('../../assets/status/default-loop.webp', import.meta.url).href;
 
 /** The authored default loop only. Activity entry/exit sheets belong to StatusMark. */
 export function WorkingMark({ active = true, fallback = null, className, ...props }: Omit<ComponentPropsWithoutRef<'span'>, 'children'> & { active?: boolean; fallback?: ReactNode }) {

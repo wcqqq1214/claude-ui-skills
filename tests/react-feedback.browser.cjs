@@ -125,6 +125,70 @@ const { chromium } = require(process.env.PLAYWRIGHT_MODULE || 'playwright-core')
     await page.getByRole('button', { name: 'Theme', exact: true }).click();
     assert.equal(await page.locator('[data-cui-skeleton-line]').first().evaluate(element => getComputedStyle(element).backgroundColor), 'rgba(255, 255, 255, 0.075)');
 
+    // Hold only the demo's skeleton timer; sprite playback and other timers stay native.
+    const deadlines = await browser.newPage({ viewport: { width: 1280, height: 1000 } });
+    deadlines.on('pageerror', error => errors.push(error.message));
+    await deadlines.addInitScript(() => {
+      const schedule = window.setTimeout.bind(window), cancel = window.clearTimeout.bind(window);
+      let serial = 0;
+      window.feedbackTimers = [];
+      window.setTimeout = (callback, delay, ...args) => {
+        if (delay !== 500 || !new Error().stack.includes('/demo/chapters/FeedbackChapter.tsx')) return schedule(callback, delay, ...args);
+        const timer = { id: --serial, cancelled: false, fired: false,
+          fire() { if (!this.cancelled && !this.fired) { this.fired = true; callback(...args); } } };
+        window.feedbackTimers.push(timer); return timer.id;
+      };
+      window.clearTimeout = id => {
+        const timer = window.feedbackTimers.find(timer => timer.id === id);
+        if (timer) timer.cancelled = true; else cancel(id);
+      };
+    });
+    const pendingDeadline = async () => {
+      await deadlines.waitForFunction(() => window.feedbackTimers.some(timer => !timer.cancelled && !timer.fired));
+      return deadlines.evaluate(() => window.feedbackTimers.find(timer => !timer.cancelled && !timer.fired).id);
+    };
+    const wasCancelled = id => deadlines.evaluate(id => window.feedbackTimers.find(timer => timer.id === id).cancelled, id);
+    const finishPlayback = () => deadlines.waitForFunction(() => {
+      const mark = document.querySelector('.demo-waiting-card .cui-status-mark');
+      for (const animation of mark.firstElementChild.getAnimations()) animation.finish();
+      return mark.dataset.phase === 'done';
+    });
+    await deadlines.goto(`${base}/demo/?lang=en#feedback`);
+    const firstDeadline = await pendingDeadline();
+    await chooseChapter(deadlines, 'controls');
+    assert.equal(await wasCancelled(firstDeadline), true, 'hidden chapters cancel the pending skeleton');
+    await chooseChapter(deadlines, 'feedback');
+    const beforeOffscreen = await pendingDeadline();
+    await deadlines.locator('.demo-waiting-card').evaluate(element => { element.style.transform = 'translateY(200vh)'; });
+    await deadlines.waitForFunction(id => window.feedbackTimers.find(timer => timer.id === id).cancelled, beforeOffscreen);
+    await deadlines.locator('.demo-waiting-card').evaluate(element => { element.style.transform = ''; });
+    const beforeHidden = await pendingDeadline();
+    await deadlines.evaluate(() => { Object.defineProperty(document, 'hidden', { configurable: true, value: true }); document.dispatchEvent(new Event('visibilitychange')); });
+    await deadlines.waitForFunction(id => window.feedbackTimers.find(timer => timer.id === id).cancelled, beforeHidden);
+    await deadlines.evaluate(() => { Object.defineProperty(document, 'hidden', { configurable: true, value: false }); document.dispatchEvent(new Event('visibilitychange')); });
+    const originalDeadline = await pendingDeadline();
+    await deadlines.waitForFunction(() => document.querySelector('.demo-waiting-card .cui-status-mark > span').getAnimations().length > 0);
+    await deadlines.locator('.demo-waiting-card .cui-status-mark > span').evaluate(element => element.getAnimations().forEach(animation => animation.pause()));
+    await deadlines.getByRole('button', { name: 'Finish', exact: true }).click();
+    assert.equal(await pendingDeadline(), originalDeadline, 'Finish preserves the original 500ms deadline');
+    assert.equal(await wasCancelled(originalDeadline), false);
+    await deadlines.evaluate(id => window.feedbackTimers.find(timer => timer.id === id).fire(), originalDeadline);
+    await deadlines.getByLabel('Loading content', { exact: true }).waitFor();
+    await finishPlayback();
+    await deadlines.getByRole('button', { name: 'Replay', exact: true }).waitFor();
+    assert.equal(await deadlines.getByLabel('Loading content', { exact: true }).count(), 0, 'completion removes loading content');
+    await deadlines.getByRole('button', { name: 'Replay', exact: true }).click();
+    const replayDeadline = await pendingDeadline();
+    assert.notEqual(replayDeadline, originalDeadline, 'Replay starts a fresh skeleton deadline');
+    await deadlines.waitForFunction(() => document.querySelector('.demo-waiting-card .cui-status-mark > span').getAnimations().length > 0);
+    await deadlines.locator('.demo-waiting-card .cui-status-mark > span').evaluate(element => element.getAnimations().forEach(animation => animation.pause()));
+    await deadlines.getByRole('button', { name: 'Finish', exact: true }).click(); await finishPlayback();
+    await deadlines.getByRole('button', { name: 'Replay', exact: true }).waitFor();
+    assert.equal(await wasCancelled(replayDeadline), true, 'completion cancels a still-pending skeleton');
+    await deadlines.evaluate(id => window.feedbackTimers.find(timer => timer.id === id).fire(), replayDeadline);
+    assert.equal(await deadlines.getByLabel('Loading content', { exact: true }).count(), 0, 'a cancelled deadline cannot insert loading content');
+    await deadlines.close();
+
     for (const width of [1280, 390, 320]) for (const theme of ['light', 'dark']) {
       await page.setViewportSize({ width, height: 1000 });
       await page.goto(`${base}/demo/?lang=en#feedback`);

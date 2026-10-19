@@ -22,7 +22,7 @@ Follow the [source integration guide](../../demo/README.md). The editor, attachm
 | --- | --- |
 | Box | 12px radius; ring outer in light, inset in dark |
 | Focus shadow | Alpha 3.5% → 7.5%, 200ms `--cui-ease-standard` |
-| Editor height | Follows `scrollHeight`; demo cap 130px |
+| Editor height | Follows `scrollHeight`; default/demo cap `min(40svh, 384px)`; test fixture cap 130px |
 | Mention popup | Opens above the caret, flips below when short of room; 16px viewport padding; max height 384px |
 | Project row | Three modes: words + caret → words → icon (16px; 20px on coarse pointers) |
 | Row text | 12px; 10px when the row is ≤ 400px wide. Coarse pointers: 13px, and 11px when narrow |

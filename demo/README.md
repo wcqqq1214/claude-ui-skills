@@ -24,7 +24,7 @@ The production build includes local JS, CSS and the optional bundled Sans/Serif/
 
 ## Import the source
 
-For an existing React + TypeScript project, copy `src/` to a component folder, retaining its internal structure. Install React/React DOM and configure Tailwind CSS 4 in the host build (this demo uses `@tailwindcss/vite`). Import the stylesheet once. Paths below assume a consuming file at this repository's root:
+For an existing React + TypeScript project, copy `src/` to a component folder, retaining its internal structure. Install React/React DOM and configure Tailwind CSS 4 in the host build (this demo uses `@tailwindcss/vite`). The host bundler must support CSS imports, relative CSS assets and static `new URL(path, import.meta.url)` assets. Sprite URLs use this standard ESM form and do not require `vite/client` type declarations. Import the stylesheet once. Paths below assume a consuming file at this repository's root:
 
 ```tsx
 import { useState } from 'react';
@@ -150,7 +150,7 @@ export function DraftExample() {
 
 The browser owns the editable DOM and undo stack. MentionEditor is intentionally uncontrolled: defaultText initializes it, resetKey explicitly resets it, and the ref exposes focus/clear/getDraft. Draft text excludes decorative icon glyphs; ordered mention metadata carries stable IDs and insertion-time titles. This is an editing callback, not a rich-document persistence format. The host owns submission and any draft storage. Enter inserts a newline unless a candidate is active; IME composition, native atomic deletion, undo and plain-text paste remain in the editing island. Localizing labels closes overlays while preserving draft nodes.
 
-The editor defaults to maxHeight `min(40svh, 384px)`; the demo chooses 130px. Width/visibility changes remeasure it. active=false closes overlays but does not make text read-only; hide/inert the host when appropriate. Candidate/context-menu positions remain in the component's theme subtree; avoid transformed ancestors that establish a containing block for fixed positioning.
+The editor and demo use maxHeight `min(40svh, 384px)` by default; the independent test fixture overrides it to 130px. Width/visibility changes remeasure it. active=false closes overlays but does not make text read-only; hide/inert the host when appropriate. Candidate/context-menu positions remain in the component's theme subtree; avoid transformed ancestors that establish a containing block for fixed positioning.
 
 AttachmentList is controlled: provide unique IDs and a synchronous React state update in onRemove. Its View Transition transaction flushes that update, animates surviving tiles and removes the target once even when interrupted. onEmptyFocus handles the last removal. Native Delete/Backspace/Enter, IME/modifier/repeat guards and touch-visible remove controls are included. File input, upload and sending remain host responsibilities.
 

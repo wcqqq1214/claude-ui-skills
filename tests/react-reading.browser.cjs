@@ -108,6 +108,20 @@ const { chromium } = require(process.env.PLAYWRIGHT_MODULE || 'playwright-core')
     await page.getByRole('button', { name: 'Append', exact: true }).click();
     await page.waitForTimeout(80);
     assert.ok(await gap() <= 2, 'following resumes');
+    await scroll.press('Home');
+    await page.waitForFunction(() => document.querySelector('[aria-label="Return"] img')?.getAnimations().some(animation => animation.playState === 'running'));
+    await page.getByRole('button', { name: 'Return', exact: true }).locator('img').evaluate(element => {
+      window.beforeReplayMark = element.getAnimations().find(animation => animation.playState === 'running');
+      window.beforeReplayMark.currentTime = 500;
+    });
+    // Invoke the host reset without scrolling the example out of view. The
+    // original replay cancels its mark, rather than resuming the old phase.
+    await page.getByRole('button', { name: 'Replay following', exact: true }).evaluate(element => element.click());
+    await page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
+    assert.deepEqual(await page.evaluate(() => ({ state: window.beforeReplayMark.playState, time: window.beforeReplayMark.currentTime })), { state: 'idle', time: null }, 'resetKey cancels the old native animation');
+    await scroll.press('Home');
+    await page.waitForFunction(() => document.querySelector('[aria-label="Return"] img')?.getAnimations().some(animation => animation.playState === 'running'));
+    assert.equal(await page.getByRole('button', { name: 'Return', exact: true }).locator('img').evaluate(element => element.getAnimations().some(animation => animation.playState === 'running' && animation !== window.beforeReplayMark)), true, 'the next visible busy mark uses a fresh animation lifecycle');
     await copy.focus(); await copy.press('Enter');
     await page.getByRole('button', { name: 'Mount', exact: true }).click();
     await page.evaluate(() => window.clipboardRequests[4].resolve());

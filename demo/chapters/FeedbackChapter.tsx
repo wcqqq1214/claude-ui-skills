@@ -24,11 +24,12 @@ export function FeedbackChapter({ locale, active }: { locale: Locale; active: bo
   const [replay, setReplay] = useState(0), [skeleton, setSkeleton] = useState(false);
   const card = useRef<HTMLElement>(null), visible = useVisible(card, active);
   const status = activities.find(item => item.value === entered)!;
+  const done = phase === 'done';
   useEffect(() => {
-    if (!visible || phase === 'done' || skeleton) return;
+    if (!visible || done || skeleton) return;
     const timer = setTimeout(() => setSkeleton(true), 500);
     return () => clearTimeout(timer);
-  }, [visible, phase, replay, skeleton]);
+  }, [visible, done, replay, skeleton]);
   function restart(next = activity) {
     setActivity(next); setEntered(next); setPhase('working'); setSkeleton(false); setReplay(value => value + 1);
   }

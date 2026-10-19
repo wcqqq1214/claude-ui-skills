@@ -96,7 +96,13 @@ const { chromium } = require(process.env.PLAYWRIGHT_MODULE || 'playwright-core')
       await setTheme(page, theme); await page.evaluate(() => document.fonts.ready);
       const section = page.locator('main section:not([hidden])'); const labels = locale === 'en' ? ['Model settings', 'Thinking effort', 'Artifact actions'] : ['模型设置', '思考深度', '作品操作菜单'];
       await section.getByRole('button', { name: labels[0], exact: false }).click(); await section.getByRole('menuitem').press('ArrowRight');
-      assert.equal(await section.getByRole('menuitemradio').count(), 4); await page.keyboard.press('Escape'); await page.keyboard.press('Escape');
+      assert.equal(await section.getByRole('menuitemradio').count(), 4);
+      await page.keyboard.press('ArrowUp');
+      assert.equal(await focused(section.getByRole('menuitemradio', { name: 'Medium', exact: true })), true);
+      const preview = locale === 'en' ? 'Focus preview: Medium · Selected: High' : '聚焦预览：Medium · 已选：High';
+      assert.equal(await section.getByText(preview, { exact: true }).count(), 1, 'preview includes both focused and committed values');
+      assert.equal(await section.getByRole('menuitemradio', { name: 'High', exact: true }).getAttribute('aria-checked'), 'true');
+      await page.keyboard.press('Escape'); await page.keyboard.press('Escape');
       await section.getByRole('button', { name: labels[2], exact: true }).click(); await frames();
       assert.equal(await section.getByRole('menu').count(), 1);
       const overflow = await page.evaluate(() => ({

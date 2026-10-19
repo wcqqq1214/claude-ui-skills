@@ -78,7 +78,7 @@ export function ScrollFollower({ label, returnLabel, busy = false, active = true
       }}
       className={classes('cui-return-button group absolute bottom-5 left-1/2 inline-flex size-9 -translate-x-1/2 cursor-pointer items-center justify-center rounded-full border-[.5px] border-solid border-cui-line bg-[color-mix(in_srgb,var(--cui-surface)_80%,transparent)] p-0 text-cui-text backdrop-blur-[8px] transition-opacity duration-200 ease-[ease] hover:bg-cui-surface focus-visible:outline-2 focus-visible:outline-cui-accent', showReturn ? 'pointer-events-auto opacity-100' : 'pointer-events-none opacity-0')}>
       <span className={classes('absolute inset-0 m-auto size-5 transition-opacity duration-200 ease-[ease-out]', busy ? 'opacity-0 group-hover:opacity-100 group-focus-visible:opacity-100' : 'opacity-100')}><Icon name="ArrowDown" size={20} /></span>
-      {busy ? <WorkingMark active={active && showReturn} fallback={<Icon name="ArrowDown" size={20} />} className="absolute inset-0 m-auto transition-opacity duration-200 ease-[ease-out] group-hover:opacity-0 group-focus-visible:opacity-0" /> : null}
+      {busy ? <WorkingMark key={resetKey} active={active && showReturn} fallback={<Icon name="ArrowDown" size={20} />} className="absolute inset-0 m-auto transition-opacity duration-200 ease-[ease-out] group-hover:opacity-0 group-focus-visible:opacity-0" /> : null}
     </button>
   </div>;
 }

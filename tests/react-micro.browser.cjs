@@ -135,6 +135,24 @@ const { chromium } = require(process.env.PLAYWRIGHT_MODULE || 'playwright-core')
     await page.getByRole('button', { name: 'Theme', exact: true }).click();
     assert.equal(await single.locator('[data-cui-notice]').evaluate(element => getComputedStyle(element).backgroundColor), 'rgb(32, 32, 31)');
 
+    // Chapter changes close the shared single notice, while the recovery stack persists.
+    await page.goto(`${base}/demo/?lang=en#micro`);
+    await page.getByRole('button', { name: 'Show notice', exact: true }).click();
+    await page.getByText('This notice closes after 6 seconds.', { exact: true }).waitFor();
+    await chooseChapter(page, 'controls'); await chooseChapter(page, 'micro');
+    const liveSingleNotices = () => page.locator('main section:not([hidden]) .demo-toast-region [data-cui-notice]:not([inert])');
+    const retainedSingle = { micro: await liveSingleNotices().count() };
+    await chooseChapter(page, 'recovery');
+    await page.getByRole('button', { name: 'Notice with action', exact: true }).click();
+    const recovery = page.getByRole('region', { name: 'Notification stack', exact: true });
+    await recovery.getByRole('button', { name: 'View', exact: true }).click();
+    await page.getByText('Local notes: reading rhythm, spatial continuity and state feedback.', { exact: true }).waitFor();
+    assert.equal(await recovery.locator('[data-cui-notice]:not([data-ending])').count(), 1);
+    await chooseChapter(page, 'controls'); await chooseChapter(page, 'recovery');
+    retainedSingle.recovery = await liveSingleNotices().count();
+    assert.equal(await recovery.locator('[data-cui-notice]:not([data-ending])').count(), 1, 'persistent notices survive chapter changes');
+    assert.deepEqual(retainedSingle, { micro: 0, recovery: 0 }, 'single notices stay dismissed after returning to either chapter');
+
     for (const width of [1280, 390, 320]) for (const theme of ['light', 'dark']) {
       await page.setViewportSize({ width, height: 1000 });
       await page.goto(`${base}/demo/?lang=en#micro`);
