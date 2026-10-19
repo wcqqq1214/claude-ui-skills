@@ -1,6 +1,6 @@
 # React demo
 
-The migration demo imports the public TSX components from `src/index.ts`. It currently covers controls, segmented selection, typography and reading/code/tables. The original `showcase/` remains the reference for the remaining chapters; the full migration is tracked in [the migration plan](../docs/react-migration.md).
+The migration demo imports the public TSX components from `src/index.ts`. It currently covers controls, segmented selection, typography, reading/code/tables, activity feedback, skeletons and disclosure. The original `showcase/` remains the reference for the remaining chapters; the full migration is tracked in [the migration plan](../docs/react-migration.md).
 
 ## Run
 
@@ -20,7 +20,7 @@ npm run test:react  # independent consumer and demo browser checks
 npm test           # original unit and browser checks plus React browser checks
 ```
 
-The production build includes local JS, CSS and the optional bundled Sans/Serif/Mono fonts, the icon font and the working-mark sheet. It does not use runtime CDNs. The existing Pages workflow deploys the original showcase when explicitly enabled.
+The production build includes local JS, CSS and the optional bundled Sans/Serif/Mono fonts, the icon font and the default and activity sprite sheets. It does not use runtime CDNs. The existing Pages workflow deploys the original showcase when explicitly enabled.
 
 ## Import the source
 
@@ -50,7 +50,7 @@ export function Example() {
 }
 ```
 
-`src/styles/index.css` explicitly scans the adjacent component directory; it imports Tailwind theme/utilities without Preflight. A host already using Tailwind can instead import `tokens.css`, `motion.css`, `reading.css` and `icons.css`, copy the `@theme inline` mappings, and add `@source` for the copied component directory. Keep utility class names literal. The library does not set body styles or load text fonts automatically; `fonts.css` is an optional separate import, or set `--cui-font-sans`, `--cui-font-serif` and `--cui-font-mono` to host fonts. `icons.css` includes its local glyph font; keep that asset when using `Icon`.
+`src/styles/index.css` explicitly scans the adjacent component directory; it imports Tailwind theme/utilities without Preflight. A host already using Tailwind can instead import `tokens.css`, `motion.css`, `reading.css`, `feedback.css` and `icons.css`, copy the `@theme inline` mappings, and add `@source` for the copied component directory. Keep utility class names literal. The library does not set body styles or load text fonts automatically; `fonts.css` is an optional separate import, or set `--cui-font-sans`, `--cui-font-serif` and `--cui-font-mono` to host fonts. `icons.css` includes its local glyph font; keep that asset when using `Icon`.
 
 This is source consumption, not a published npm package or a precompiled CSS distribution. [The independent consumer](../tests/fixtures/react-consumer/main.tsx) uses only the source entry and component stylesheet, with no demo assets or scripts.
 
@@ -63,7 +63,7 @@ This is source consumption, not a published npm package or a precompiled CSS dis
 
 - `GraphemeReveal`: text, locale, animate and replayKey; grapheme segmentation keeps combined emoji/accents intact and the accessible text is announced once. `FadeIn` animates content on mount. Neither schedules sample text.
 - `UserMessage` and `Prose`: children plus normal container props; Prose also takes a CSS `measure` (default 36em).
-- `WorkingMark`: default 40-frame loop, active and an optional fallback; visibility/page changes pause playback and unmount cancels it. This is not the four-activity entry/exit state machine (still pending).
+- `WorkingMark`: default 40-frame loop, active and an optional fallback; visibility/page changes pause playback and unmount cancels it. Use `StatusMark` for the four-activity entry/exit state machine.
 - `ScrollFollower`: children, label, returnLabel, active, busy, height, followContent and resetKey. Set followContent false for an initial static introduction; change resetKey to return to the top and restore following. The host appends content. Upward input pauses following; scrolling back to the bottom or pressing Return restores it.
 - `CodeBlock`: exact code string, optional language and translated copyLabel/copiedLabel/copyFailedLabel. Clipboard failure is announced; stale writes and timers cannot cross lifetimes.
 - `ExpandableTable`: columns/rows with stable keys, translated label/expandLabel/closeLabel, optional minWidth and active. Native dialog semantics retain focus return and scoped theme inheritance. Set active false when a chapter hides it. Cells should be presentational content; expansion renders a second table, not a synchronized editor.
@@ -71,3 +71,14 @@ This is source consumption, not a published npm package or a precompiled CSS dis
 - `useClipboard` and `useVisible` are available for reusable consumers; sample playback timing stays under `demo/hooks/`.
 
 All migrated components preserve the existing demo's motion timings. Controls inherit optional `--cui-motion-scale` for demonstration; production use defaults to 1. Reduced-motion variants remain a later, explicit enhancement, matching the original coverage boundary.
+
+## Waiting and disclosure
+
+Open `/demo/?lang=en#feedback` or `/demo/?lang=zh-Hans#feedback`.
+
+- `StatusMark`: `activity`, `running` (default true), `active`, `replayKey`, `onActivityEnter` and `onComplete`. Set running false to finish the current stage then play its exit. Change replayKey to restart from grow, including after completion. Keep the old text until onActivityEnter reports the new artwork. A new selection during exit cancels pending completion. Hidden/offscreen playback pauses; unmount cancels it. Missing artwork retains the current mark or a static dot.
+- `ShimmerText`: string children, shimmering and active. The visual clone is hidden from assistive technology, and copy changes do not restart the sweep.
+- `SkeletonGroup` / `SkeletonLine`: one shared sweep clipped to measured child rows; active controls playback in addition to viewport visibility. Use a plain group container and untransformed row descendants. The host decides when the skeleton appears.
+- `Accordion`: title, children, open/defaultOpen/onOpenChange, disabled, triggerClassName and ordinary wrapper props. Its panel retains content state while closed, is inert, and returns focus to the trigger when necessary. Do not put interactive elements inside title.
+
+[Independent feedback consumer](../tests/fixtures/react-feedback/main.tsx) and [tests](../tests/react-feedback.browser.cjs) cover authored seams, cancellation, pause/resume, failure, remount, shared clip geometry and disclosure focus.

@@ -21,7 +21,7 @@ Reference: [Caho1/open-claude-ui](https://github.com/Caho1/open-claude-ui), part
 | --- | --- | --- |
 | 1 | React/TS/Vite/Tailwind, scoped tokens, optional Sans assets, theme/language shell | Implemented |
 | 2 | Switch, Checkbox, DiscreteSlider, SegmentedControl; demo imports; independent consumer | Implemented; verification recorded below |
-| 3 | Typography, reading, code/table, feedback, accordion, tooltips and notices | Typography + reading/code/table implemented; activity feedback, accordion, tooltips and notices pending |
+| 3 | Typography, reading, code/table, feedback, accordion, tooltips and notices | Typography, reading/code/table, activity feedback, skeletons and accordion implemented; tooltips and notices pending |
 | 4 | Composer, attachments, contenteditable mentions, menus, search and palette | Pending |
 | 5 | Workspace resize, sidebar modes/reorder, images/gallery, drop/task progress | Pending |
 | 6 | Complete chapter navigation, remaining assets, guides, build/deployment migration and legacy removal | Pending |
@@ -61,6 +61,13 @@ Manual UI verification uses the actual Vite demo. Automated geometry checks and 
 - Added a second source-only consumer and `react-reading.browser.cjs`. It checks emoji/combining graphemes, exact clipboard text, copy races/reset/failure/unmount, table expansion and focus return, scoped theme inheritance, scroll pause/resume and non-stealing append behavior, hidden counter/stream lifecycle, icon baseline, and English/Chinese light/dark layouts at 1280/390/320px.
 - The new reading suite passed after correcting the test's native Home-scroll settling and hidden-element lookup. The first React suite passed against the expanded demo. Final `npm run build` and `npm run test:react` passed (both React browser suites). Production preview confirmed Chinese code/table layout and native dialog expansion.
 
+## Activity feedback and disclosure batch
+
+- Added `StatusMark` with all four activity sprite sets and the original grow/entry/loop/exit sequencing. Selection follows decoded artwork, handoff requires a seam strictly more than 50ms ahead, and completion waits for the current stage and exit. Pausing removes wall-clock timers and resumes from the animation clock; unmount and StrictMode probe cleanup suppress stale callbacks.
+- Added `ShimmerText`, measured `SkeletonGroup`/`SkeletonLine`, and controlled/uncontrolled `Accordion`. React owns labels and accessibility; the isolated controller owns only the decorative sprite. The demo owns the 500ms loading delay and loaded content.
+- Added `#feedback` in English/Chinese, and a source-only feedback fixture. Tests preserve original handoff cases with a deterministic clock, then exercise real WAAPI playback, focus retention, mounted disclosure state, scoped dark theme, clip resize and 1280/390/320px layouts.
+- Final `npm run build` and all three suites in `npm run test:react` passed, including the StrictMode completion guard and decode failure. Production preview confirmed activity changes, completion and the expanded Chinese timeline.
+
 ## Next batch
 
-Finish stage 3 with activity feedback, accordion, tooltips/copy notices and notification stacks. Preserve the existing sprite entry/loop/exit state machine and local focus semantics. Composer work then needs an explicit contenteditable/selection ownership boundary before its DOM mutations are migrated.
+Finish stage 3 with tooltips/copy notices and notification stacks. Preserve overflow-only tooltip measurement, dismiss/reopen races, deduplication, timer ownership and focus order. Composer work then needs an explicit contenteditable/selection ownership boundary before its DOM mutations are migrated.

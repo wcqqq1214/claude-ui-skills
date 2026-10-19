@@ -6,7 +6,7 @@ This page describes the visible examples in the [showcase](../showcase/index.htm
 
 ## React migration status
 
-The React demo currently includes controls, segmented selection, typography, scroll following, code copy and expandable tables. [Migration stages](react-migration.md) track the remaining examples. The coverage below describes the original showcase; the two demos may differ during the transition.
+The React demo currently includes controls, segmented selection, typography, scroll following, code copy, expandable tables, activity feedback, skeletons and disclosure. [Migration stages](react-migration.md) track the remaining examples. The coverage below describes the original showcase; the two demos may differ during the transition.
 
 ## Using the examples
 

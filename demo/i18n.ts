@@ -1,5 +1,6 @@
 export type Locale = 'en' | 'zh-Hans';
 const english = {
+  feedback: 'Waiting & disclosure', feedbackDescription: 'Activity transitions, shared loading sweeps and expandable details.',
   type: 'Typography', reading: 'Reading & tables', typeDescription: 'Text, motion and a predictable reading position.', readingDescription: 'Typography, code and tables that make room for content.',
   components: 'Components', controls: 'Controls', segmented: 'Segmented control',
   introduction: 'Small details. Familiar interactions.',
@@ -19,6 +20,7 @@ const english = {
 };
 export type Copy = typeof english;
 const chinese: Copy = {
+  feedback: '等待与展开', feedbackDescription: '活动状态切换、加载扫光与可展开的细节。',
   type: '排版', reading: '阅读与表格', typeDescription: '文字、动效与稳定的阅读位置。', readingDescription: '为内容留出空间的排版、代码与表格。',
   components: '组件', controls: '基础控件', segmented: '分段控件',
   introduction: '熟悉的交互，藏在细节里。',

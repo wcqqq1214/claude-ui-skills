@@ -1,6 +1,7 @@
 import type { Locale } from './i18n';
 // Original demo copy, rendered through React instead of DOM mutation.
 const chinese: Record<string, string> = {
+  "Waiting": "等待", "Disclosure": "展开详情",
   "Close table": "关闭表格",
   "Scroll up to pause · Return to continue": "向上滚动暂停跟随 · 返回底部继续",
   "Return to bottom": "返回底部",

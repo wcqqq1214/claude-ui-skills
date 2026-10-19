@@ -1,0 +1,94 @@
+.cui-status-mark[data-phase='dot']::before {
+  content: ''; position: absolute; inset: 0; margin: auto;
+  width: 7px; height: 7px; border-radius: 50%; background: currentColor;
+}
+.cui-status-mark:is([data-phase='dot'], [data-phase='done']) > span { visibility: hidden; }
+:root, [data-cui-theme='light'] {
+  --cui-shimmer-base: #52514e;
+  --cui-skeleton-base: rgb(11 11 11 / 5%);
+  --cui-skeleton-sheen: rgb(11 11 11 / 5%);
+}
+[data-cui-theme='dark'] {
+  --cui-shimmer-base: #898781;
+  --cui-skeleton-base: rgb(255 255 255 / 7.5%);
+  --cui-skeleton-sheen: rgb(255 255 255 / 7.5%);
+}
+.cui-shimmer {
+  --shimmer-base: var(--cui-shimmer-base);
+  --shimmer-peak: color-mix(in srgb, var(--shimmer-base) 30%, white);
+  display: block;
+  position: relative;
+  min-width: 0;
+}
+
+.cui-shimmer[data-shimmering='true'] {
+  background-image: linear-gradient(120deg, var(--shimmer-base) 37.5%, var(--shimmer-peak) 50%, var(--shimmer-base) 62.5%);
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-repeat: no-repeat;
+  background-size: 400% 100%;
+  background-position: 83.333% 0;
+  animation: cui-shimmer-shine 3s linear infinite;
+}
+.cui-shimmer-clone { display: none; }
+@keyframes cui-shimmer-shine {
+  0%, 15% {
+    background-position: 83.333% 0;
+    animation-timing-function: cubic-bezier(.714,.121,.211,.888);
+  }
+  85%, 100% { background-position: 16.667% 0; }
+}
+@keyframes cui-shimmer-band {
+  0%, 15% {
+    translate: -62.5%;
+    animation-timing-function: cubic-bezier(.714,.121,.211,.888);
+  }
+  85%, 100% { translate: -12.5%; }
+}
+/* This example is a block flex item without line clamping. */
+@supports ((-webkit-mask-clip: text) and (-webkit-app-region: drag)) {
+  .cui-shimmer[data-shimmering='true'] {
+    background: none;
+    -webkit-text-fill-color: var(--shimmer-base);
+    animation: none;
+  }
+  .cui-shimmer[data-shimmering='true'] .cui-shimmer-clone {
+    display: block;
+    position: absolute;
+    inset: 0;
+    box-sizing: border-box;
+    padding: inherit;
+    white-space: inherit;
+    text-overflow: inherit;
+    pointer-events: none;
+    user-select: none;
+    -webkit-text-fill-color: transparent;
+    -webkit-mask-image: linear-gradient(#000 0 0);
+    -webkit-mask-clip: text;
+    overflow: clip;
+  }
+  .cui-shimmer-clone::after {
+    content: '';
+    position: absolute;
+    inset: 0 -300% 0 0;
+    background-image: linear-gradient(120deg, transparent 37.5%, var(--shimmer-peak) 50%, transparent 62.5%);
+    translate: -62.5%;
+    animation: cui-shimmer-band 3s linear infinite;
+  }
+}
+
+.cui-shimmer[data-active='false'], .cui-shimmer[data-active='false'] .cui-shimmer-clone::after { animation-play-state: paused; }
+.cui-skeleton { animation: cui-skeleton-enter 150ms ease-out both; }
+.cui-skeleton-band {
+  background: linear-gradient(105deg, transparent 35%, var(--cui-skeleton-sheen), transparent 65%);
+  transform: translateX(-100%);
+  animation: cui-skeleton-wave 2s linear 150ms infinite backwards;
+}
+.cui-skeleton[data-active='false'] .cui-skeleton-band { animation-play-state: paused; }
+@keyframes cui-skeleton-enter { from { opacity: 0; } to { opacity: 1; } }
+@keyframes cui-skeleton-wave { from { transform: translateX(-100%); } to { transform: translateX(100%); } }
+.cui-accordion {
+  display: grid; grid-template-rows: 0fr; opacity: 0;
+  transition: grid-template-rows 200ms var(--cui-ease-out), opacity 200ms var(--cui-ease-out);
+}
+.cui-accordion-open { grid-template-rows: 1fr; opacity: 1; }
