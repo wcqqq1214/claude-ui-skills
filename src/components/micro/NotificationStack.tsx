@@ -147,7 +147,7 @@ function NotificationCard({ item, layer, zIndex, height, dismissLabel, active, o
     className="cui-notice" style={{ '--cui-toast-index': layer, zIndex } as CSSProperties}>
     <div className="cui-notice-content" style={{ height: layer > 0 && !item.exiting && height ? height : undefined }}>
       <span aria-hidden="true" className="size-5 shrink-0 text-cui-secondary"><Icon name="Info" size={20} /></span>
-      <div className="min-w-0 flex-1 text-pretty wrap-break-word"><p className="m-0 text-[inherit] leading-[inherit] font-medium">{children}</p>
+      <div className="min-w-0 flex-1 text-pretty wrap-break-word"><div className="m-0 text-[inherit] leading-[inherit] font-medium">{children}</div>
         {item.action ? <div className="mt-2"><button type="button" onClick={() => { item.action!.onClick(); onDismiss(item.id); }} className="cursor-pointer whitespace-nowrap rounded border-0 bg-transparent px-1.5 py-px font-[inherit] text-[11px] text-[var(--cui-clay)] focus-visible:outline-2 focus-visible:outline-cui-accent">{item.action.label}</button></div> : null}
       </div>
       <button type="button" aria-label={dismissLabel} onClick={() => onDismiss(item.id)} className="cui-notice-dismiss box-border -mt-0.5 -mr-1 -mb-1 inline-flex size-6 shrink-0 cursor-pointer items-center justify-center rounded-md border-0 bg-transparent p-1 text-inherit focus-visible:outline-2 focus-visible:outline-cui-accent"><Icon name="X" size={16} /></button>

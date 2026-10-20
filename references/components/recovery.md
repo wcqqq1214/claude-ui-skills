@@ -16,6 +16,7 @@ Use for: notifications that stay manageable as messages arrive and leave. Presen
 - `active=false` makes the stack inert and disables live announcements/focus restoration. Deadlines continue to run while hidden. Unmount clears its timers and ignores pending exits.
 - Activity reconnection completes an already dismissed entry without leaving invisible cards or empty space. The attached handle is callable from a callback ref or a host layout effect; saved handles reject calls while disconnected or after a true unmount.
 - The host owns placement and business effects. Pass presentational message content; use action for interactive controls. For dynamic localization, render messages with renderMessage or context-aware React nodes so existing notices update too.
+- Messages and `renderMessage` results may contain block presentation nodes, including paragraphs or metadata containers. Their flow container preserves valid server HTML and hydrates the existing DOM without replacement.
 
 ## Parameters
 

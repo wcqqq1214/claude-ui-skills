@@ -11,7 +11,7 @@ Import from `src/index.ts` with the shared stylesheet; see [integration](../../d
 - `SubmenuSelect`: controlled/uncontrolled selection; focus preview callback/render content; disabled options; nested keyboard dismissal.
 - `GroupedSearch`: typed item IDs/labels/groups, controlled/uncontrolled query and a selection callback. The host chooses the destination.
 - `useSearchHighlight`: focuses the supplied heading, then delegates to [searchHighlight.ts](../../src/components/menus/searchHighlight.ts) for scroll settling and the destination animations; cancels on replacement, inactivity, pagehide and unmount.
-- `ArtifactActionsCard`: thumbnail, translated action list and deferred focus. Host callbacks implement actions. No navigation or clipboard effect is implied.
+- `ArtifactActionsCard`: thumbnail, translated action list and deferred focus. `subtitle` accepts presentational React nodes, including blocks; both thumbnail and opened-card containers preserve valid HTML for SSR hydration. Host callbacks implement actions. No navigation or clipboard effect is implied.
 
 ## Parameters
 

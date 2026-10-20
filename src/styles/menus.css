@@ -38,8 +38,8 @@
 }
 .cui-palette-thumb { margin-left: auto; }
 .cui-palette-thumb img, .cui-palette-card img { display: block; width: 100%; height: auto; aspect-ratio: 16 / 10; object-fit: cover; border-radius: 4px; }
-.cui-palette-thumb p, .cui-palette-header p { color: var(--cui-secondary); font-size: 11px; line-height: 1.6; margin: 4px 0 0; }
-.cui-palette-thumb p { padding: 0 4px; }
+.cui-palette-subtitle { color: var(--cui-secondary); font-size: 11px; line-height: 1.6; margin: 4px 0 0; }
+.cui-palette-thumb > .cui-palette-subtitle { padding: 0 4px; }
 .cui-palette-thumb[data-open] { position: absolute; top: 0; right: 0; visibility: hidden; }
 .cui-palette-card { transform-origin: top left; }
 .cui-palette-inner { border-top: 1px solid var(--cui-line); }

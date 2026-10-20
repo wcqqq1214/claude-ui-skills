@@ -10,6 +10,39 @@ const { chromium } = require(process.env.PLAYWRIGHT_MODULE || 'playwright-core')
   try {
     browser = await chromium.launch({ executablePath: process.env.CHROME_BIN, headless: true });
     for (const transitions of ['native', 'unavailable', 'throws']) {
+      for (const action of ['inactive', 'empty', 'unmount', 'remove', 'close', 'reopen', 'replace', 'remove-after-close', 'close-after-close', 'nested-cancel-after-close']) {
+        const afterClose = action.endsWith('-after-close');
+        const reentry = await browser.newPage({ viewport: { width: 1280, height: 800 } }), reentryErrors = [];
+        reentry.on('pageerror', error => reentryErrors.push(error.message));
+        reentry.on('console', message => { if (message.type() === 'error') reentryErrors.push(message.text()); });
+        await reentry.addInitScript(mode => {
+          if (mode === 'unavailable') document.startViewTransition = undefined;
+          if (mode === 'throws') document.startViewTransition = () => { throw new Error('View Transition unavailable'); };
+        }, transitions);
+        await reentry.goto(`${base}/tests/fixtures/react-gallery/?reentry=${action}`);
+        if (afterClose) {
+          await reentry.getByRole('button', { name: 'Open current', exact: true }).click();
+          await reentry.waitForFunction(() => !document.querySelector('style[data-cui-gallery-transition]'));
+        }
+        await reentry.getByRole('button', { name: afterClose ? 'Close and select' : 'Open selected', exact: true, includeHidden: true }).evaluate(element => element.click());
+        await reentry.waitForFunction(() => !document.querySelector('style[data-cui-gallery-transition]'));
+        const expectedOpen = action === 'reopen' || action === 'replace';
+        assert.equal(await reentry.locator('dialog[open]').count(), Number(expectedOpen), `selection callback ${action} owns the final open state (${transitions})`);
+        assert.equal(await reentry.locator('[aria-expanded="true"]').count(), Number(expectedOpen));
+        assert.deepEqual(JSON.parse(await reentry.locator('[data-selection-changes]').textContent()), expectedOpen ? [true] : afterClose ? [true, false] : [], 'cancelled opening does not announce a stale open');
+        assert.deepEqual(JSON.parse(await reentry.locator('[data-selection-values]').textContent()), action === 'reopen' || action === 'nested-cancel-after-close' ? ['dusk', 'sand'] : ['dusk']);
+        if (afterClose) assert.equal(await reentry.getByRole('button', { name: 'Open image 1', exact: true }).evaluate(element => element === document.activeElement), true, 'cancelling another opening preserves the earlier close and its focus destination');
+        if (expectedOpen) {
+          const reopened = reentry.getByRole('dialog', { name: 'Selection gallery' });
+          assert.equal(await reopened.locator('.cui-gallery-filename').textContent(), action === 'reopen' ? 'landscape-sand.svg' : 'replacement.svg');
+          await reentry.keyboard.press('Escape');
+          await reopened.waitFor({ state: 'hidden' });
+          await reentry.waitForFunction(() => !document.querySelector('style[data-cui-gallery-transition]'));
+          assert.deepEqual(JSON.parse(await reentry.locator('[data-selection-changes]').textContent()), [true, false]);
+          assert.equal(await reentry.locator('[aria-expanded="true"]').count(), 0);
+        }
+        assert.deepEqual(reentryErrors, []); await reentry.close();
+      }
       const activity = await browser.newPage({ viewport: { width: 1280, height: 800 } }), activityErrors = [];
       activity.on('pageerror', error => activityErrors.push(error.message));
       activity.on('console', message => { if (message.type() === 'error') activityErrors.push(message.text()); });

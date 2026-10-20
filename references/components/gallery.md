@@ -10,6 +10,8 @@ Import `Gallery` from `src/index.ts` and the shared [style entry](../../src/styl
 
 React renders the thumbnails, slides, caption, count and ARIA state. The isolated controller owns modal focus, the 180ms native crossfade, wheel input and captured-pointer geometry. The pure TypeScript module implements scale, focal-point retention and bounds. Label updates preserve zoom; resource changes reset geometry while keeping the selected ID if it still exists. Removing the selected item chooses the first remaining one; emptying items closes the dialog. No demo IDs, translated globals or page-wide reset is required.
 
+Selection callbacks may synchronously update the host. If `onValueChange` sets `active={false}`, disconnects the gallery through Activity or unmounting, empties its items, or cancels an opening, that old request cannot subsequently show a modal. A newer opening requested from the callback takes precedence.
+
 ## Parameters
 
 | Part | Value |

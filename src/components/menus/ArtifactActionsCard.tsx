@@ -79,7 +79,7 @@ export function ArtifactActionsCard({ title, subtitle, image, actionsLabel, acti
     </div>
     <div className="relative mt-3">
       <div ref={thumb} aria-hidden="true" data-open={open || undefined} data-returning={returning || undefined} className="cui-palette-thumb" onAnimationEnd={event => { if (event.target === event.currentTarget && event.animationName === 'cui-palette-thumb-return') clearReturn(); }}>
-        <img ref={picture} src={image} alt="" width={280} height={175} /><p>{subtitle}</p>
+        <img ref={picture} src={image} alt="" width={280} height={175} /><div className="cui-palette-subtitle">{subtitle}</div>
       </div>
       {open ? <div ref={card} id={id} role="menu" aria-label={actionsLabel} data-opening={opening || undefined} className="cui-palette-card" onKeyDown={event => {
         if (event.key === 'Enter' && event.repeat) { event.preventDefault(); return; }
@@ -93,7 +93,7 @@ export function ArtifactActionsCard({ title, subtitle, image, actionsLabel, acti
         }
       }}>
         <img src={image} alt="" width={280} height={175} />
-        <div className="cui-palette-header px-1.5 py-2"><b>{title}</b><p>{subtitle}</p></div>
+        <div className="cui-palette-header px-1.5 py-2"><b>{title}</b><div className="cui-palette-subtitle">{subtitle}</div></div>
         <div className="cui-palette-actions" onAnimationEnd={event => { if (event.target === event.currentTarget) setOpening(false); }}><div className="cui-palette-inner">
           {actions.map((action, index) => <button key={action.id} type="button" role="menuitem" tabIndex={-1} disabled={action.disabled} aria-keyshortcuts={index < 9 ? String(index + 1) : undefined} onClick={() => activate(action)}><span>{action.label}</span>{index < 9 ? <kbd aria-hidden="true">{index + 1}</kbd> : null}</button>)}
         </div></div>

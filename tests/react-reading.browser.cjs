@@ -11,6 +11,90 @@ const { chromium } = require(process.env.PLAYWRIGHT_MODULE || 'playwright-core')
   let browser;
   try {
     browser = await chromium.launch({ executablePath: process.env.CHROME_BIN, headless: true });
+    // In a short window the Replay button is fully visible while its stream
+    // is below the 25% automatic-playback threshold. Exercise actual geometry
+    // and pointer clicks; a mocked IntersectionObserver misses this regression.
+    const replayPage = await browser.newPage({ viewport: { width: 390, height: 220 } }), replayErrors = [];
+    replayPage.on('pageerror', error => replayErrors.push(error.message));
+    await replayPage.clock.install();
+    await replayPage.goto(`${base}/demo/?lang=en#type`);
+    await replayPage.evaluate(() => document.fonts.ready);
+    await replayPage.clock.pauseAt(new Date(Date.now() + 1000));
+    const advance = async ms => { await replayPage.clock.runFor(ms); await new Promise(resolve => setTimeout(resolve, 50)); };
+    const shortStream = replayPage.getByRole('region', { name: 'Streaming text example', exact: true });
+    const shortReplay = replayPage.getByRole('button', { name: 'Replay scroll following', exact: true });
+    const shortParagraphs = shortStream.locator('.font-cui-serif > div > p');
+    const shortState = async () => ({ count: await shortParagraphs.count(), top: await shortStream.evaluate(element => element.scrollTop) });
+    const exposeReplay = async () => {
+      await shortReplay.evaluate(button => scrollTo(0, scrollY + button.getBoundingClientRect().top - 130));
+      await advance(100);
+      const geometry = await replayPage.evaluate(() => {
+        const button = document.querySelector('[aria-label="Replay scroll following"]').getBoundingClientRect();
+        const stream = document.querySelector('[aria-label="Streaming text example"]').getBoundingClientRect();
+        return { buttonTop: button.top, buttonBottom: button.bottom, ratio: Math.max(0, Math.min(innerHeight, stream.bottom) - Math.max(0, stream.top)) / stream.height, height: innerHeight };
+      });
+      assert.ok(geometry.buttonTop >= 0 && geometry.buttonBottom <= geometry.height && geometry.ratio > 0 && geometry.ratio < .25, JSON.stringify(geometry));
+    };
+    await shortStream.scrollIntoViewIfNeeded(); await advance(100); await advance(2100);
+    assert.equal(await shortParagraphs.count(), 3);
+    await shortStream.evaluate(element => { element.scrollTop = 40; element.dispatchEvent(new Event('scroll')); });
+    await exposeReplay();
+    assert.ok((await shortState()).top > 0, 'the existing stream has a paused reading position');
+    await shortReplay.click(); await advance(1);
+    assert.deepEqual(await shortState(), { count: 0, top: 0 }, 'offscreen Replay immediately clears the old paragraphs and reading position');
+    await advance(350);
+    assert.deepEqual(await shortState(), { count: 0, top: 0 }, 'the intro stays at the top before the first authored arrival');
+    await advance(100);
+    assert.equal(await shortParagraphs.count(), 1, 'explicit Replay delivers its first paragraph without reaching the automatic threshold');
+    await shortStream.scrollIntoViewIfNeeded(); await advance(100);
+    assert.deepEqual(await shortState(), { count: 0, top: 0 }, 'entering the 25% threshold starts a fresh automatic replay, matching the original demo');
+    await advance(1850);
+    assert.equal(await shortParagraphs.count(), 3);
+    await shortStream.evaluate(element => { element.scrollTop = 40; element.dispatchEvent(new Event('scroll')); });
+    const pausedReplayTop = (await shortState()).top;
+    await advance(2100);
+    assert.equal(await shortParagraphs.count(), 4);
+    assert.equal((await shortState()).top, pausedReplayTop, 'later arrivals do not steal a paused reading position');
+    await exposeReplay();
+    const stoppedAtExit = await shortState();
+    await advance(10000);
+    assert.deepEqual(await shortState(), stoppedAtExit, 'leaving the threshold cancels automatic arrivals');
+    await shortReplay.click(); await advance(100);
+    await replayPage.evaluate(() => { location.hash = 'controls'; }); await advance(100);
+    await advance(10000);
+    assert.equal(await shortParagraphs.count(), 0, 'chapter deactivation cancels an offscreen-started replay');
+    await replayPage.evaluate(() => { location.hash = 'type'; }); await advance(100);
+    await exposeReplay(); await shortReplay.click(); await advance(100);
+    await replayPage.evaluate(() => {
+      Object.defineProperty(document, 'hidden', { configurable: true, value: true });
+      document.dispatchEvent(new Event('visibilitychange'));
+    });
+    await advance(2500);
+    assert.equal(await shortParagraphs.count(), 0, 'document hiding cancels Replay even when it was already below the threshold');
+    await replayPage.evaluate(() => { delete document.hidden; document.dispatchEvent(new Event('visibilitychange')); });
+    await advance(2500);
+    assert.equal(await shortParagraphs.count(), 0, 'showing the document does not restart an offscreen cancelled replay');
+    await shortReplay.click(); await advance(100);
+    await replayPage.evaluate(() => window.dispatchEvent(new Event('pagehide')));
+    await advance(2500);
+    assert.equal(await shortParagraphs.count(), 0, 'pagehide cancels an offscreen-started replay');
+    await replayPage.evaluate(() => window.dispatchEvent(new Event('pageshow')));
+    await shortReplay.click(); await advance(450);
+    assert.equal(await shortParagraphs.count(), 1, 'a fresh explicit replay works after pageshow');
+    // Body fade uses the same host hook and retains its original 320/155ms rhythm.
+    await replayPage.setViewportSize({ width: 1280, height: 1000 });
+    await replayPage.goto(`${base}/demo/?lang=en#type`); await advance(100);
+    const bodyReplay = replayPage.getByRole('button', { name: 'Replay body fade', exact: true });
+    const bodyChunks = replayPage.locator('.demo-type-body > [aria-hidden="true"] > .cui-word-fade');
+    await bodyReplay.click(); await advance(1);
+    assert.equal(await bodyChunks.count(), 0);
+    await advance(300); assert.equal(await bodyChunks.count(), 0);
+    await advance(30); assert.equal(await bodyChunks.count(), 1);
+    await advance(155); assert.equal(await bodyChunks.count(), 2);
+    assert.deepEqual(replayErrors, []);
+    await replayPage.close();
+    console.log('Reading Replay: short-window explicit/automatic entry, intro reset, paused scroll, threshold/document/chapter/page exit cancellation and shared Body timing passed.');
+    if (process.env.READING_REPLAY_ONLY) return;
     for (const syncActive of [false, true]) {
       const activityPage = await browser.newPage({ viewport: { width: 1280, height: 1000 } }), activityErrors = [];
       activityPage.on('pageerror', error => activityErrors.push(error.message));

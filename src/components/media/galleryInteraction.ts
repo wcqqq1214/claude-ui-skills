@@ -17,6 +17,7 @@ interface Drag { id: number; image: HTMLImageElement; x: number; y: number; tx: 
 export function createGalleryInteraction(elements: GalleryElements) {
   const { dialog, rail, viewport, header, close, previous, next, bottom, slides, triggers } = elements;
   let id = elements.initialId, opened = false, nativeOpened = false, closing = false, disposed = false, revision = 0;
+  let opening: number | null = null, openingSequence = 0;
   let zoom: GalleryZoomState | null = null, drag: Drag | null = null, painted: HTMLImageElement | null = null;
   let suppressClick = false, suppressTimer: ReturnType<typeof setTimeout> | undefined;
   let transition: ViewTransition | null = null, sheet: HTMLStyleElement | null = null, origin: HTMLElement | null = null;
@@ -64,11 +65,18 @@ export function createGalleryInteraction(elements: GalleryElements) {
   }
   function select(at: number, focus = true, notify = true, sync = true) {
     const items = elements.items(), item = items[Math.max(0, Math.min(items.length - 1, at))];
-    if (!item || (dialog.open && item.id === id)) return;
+    if (!item || disposed) return false;
+    if (dialog.open && item.id === id) return true;
+    const current = revision;
+    const valid = () => !disposed && revision === current && id === item.id && elements.items().some(value => value.id === item.id);
     clearDrag(); setZoom(null, sync);
+    if (disposed || revision !== current) return false;
     const changed = id !== item.id; id = item.id; emit(sync);
+    if (!valid()) return false;
     if (notify && changed) elements.selection(item.id);
+    if (!valid()) return false;
     if (focus && !document.activeElement?.closest('button, a')) currentSlide()?.focus({ preventScroll: true });
+    return true;
   }
   function clearTransition() { transition?.skipTransition(); transition = null; sheet?.remove(); sheet = null; }
   function setOpen(value: boolean) {
@@ -111,12 +119,23 @@ export function createGalleryInteraction(elements: GalleryElements) {
   }
   function open(value?: string, trigger?: HTMLElement) {
     if (disposed || opened || !elements.items().length) return;
+    const current = revision, request = ++openingSequence, previousOrigin = origin;
+    opening = request;
     const at = elements.items().findIndex(item => item.id === (value ?? id));
     origin = trigger ?? triggers.get(value ?? id ?? '') ?? (document.activeElement instanceof HTMLElement ? document.activeElement : null);
-    select(Math.max(0, at), false); setOpen(true);
+    try {
+      // Selection notifies the host before opening. Its synchronous update may
+      // cancel this request, dispose the controller, or open another item.
+      if (select(Math.max(0, at), false) && !disposed && revision === current && opening === request) setOpen(true);
+    } finally {
+      if (opening === request) opening = null;
+      // A cancelled opening must leave an earlier close transition and its
+      // focus destination intact until that transition completes.
+      if (revision === current) origin = previousOrigin;
+    }
   }
   function reset(sync = false, notify = true) {
-    ++revision; clearTransition(); clearDrag();
+    ++revision; opening = null; clearTransition(); clearDrag();
     const wasOpen = opened; opened = false; nativeOpened = false; closing = false; origin = null;
     zoom = null; paint(null); dialog.close(); rail.style.removeProperty('transition'); emit(sync);
     if (wasOpen && notify) elements.opened(false);
@@ -202,7 +221,7 @@ export function createGalleryInteraction(elements: GalleryElements) {
   dialog.addEventListener('wheel', onWheel, { passive: false });
   window.addEventListener('pagehide', pagehide); window.addEventListener('resize', resize); window.addEventListener('blur', blur);
   return {
-    open, close: () => setOpen(false), reset,
+    open, close: () => { opening = null; setOpen(false); }, reset,
     reconcile() {
       clearDrag(); setZoom(null, false);
       if (!elements.items().length) { id = null; reset(); }

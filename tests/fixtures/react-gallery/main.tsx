@@ -48,4 +48,35 @@ function ActivityConsumer() {
     <Activity mode={mode}><ActivityGallery gallery={gallery} autoReopen={autoReopen} onOpenChange={value => setChanges(previous => [...previous, value])} onValueChange={id => setSelections(previous => [...previous, id])} /></Activity>
   </main>;
 }
-createRoot(document.getElementById('root')!).render(<StrictMode>{new URLSearchParams(location.search).has('activity') ? <ActivityConsumer /> : <Consumer />}</StrictMode>);
+function SelectionConsumer() {
+  const gallery = useRef<GalleryHandle>(null), handled = useRef(false);
+  const action = new URLSearchParams(location.search).get('reentry');
+  const [active, setActive] = useState(true), [mounted, setMounted] = useState(true), [items, setItems] = useState(original);
+  const [changes, setChanges] = useState<boolean[]>([]), [selections, setSelections] = useState<string[]>([]);
+  function select(id: string) {
+    setSelections(previous => [...previous, id]);
+    if (action === 'nested-cancel-after-close') {
+      if (id === 'dusk') gallery.current?.open('sand');
+      else gallery.current?.close();
+      return;
+    }
+    if (handled.current) return;
+    handled.current = true;
+    if (action === 'inactive') flushSync(() => setActive(false));
+    if (action === 'empty') flushSync(() => setItems([]));
+    if (action === 'unmount') flushSync(() => setMounted(false));
+    if (action === 'remove' || action === 'remove-after-close') flushSync(() => setItems(values => values.filter(item => item.id !== id)));
+    if (action === 'replace') flushSync(() => setItems(values => values.map(item => item.id === id ? { ...item, src: sand, filename: 'replacement.svg' } : item)));
+    if (action === 'close' || action === 'reopen' || action === 'close-after-close') gallery.current?.close();
+    if (action === 'reopen') gallery.current?.open('sand');
+  }
+  return <main data-cui-theme="light" data-selection-active={active}>
+    <button onClick={() => gallery.current?.open('dusk')}>Open selected</button>
+    <button onClick={() => gallery.current?.open()}>Open current</button>
+    <button onClick={() => { gallery.current?.close(); gallery.current?.open('dusk'); }}>Close and select</button>
+    <output data-selection-changes>{JSON.stringify(changes)}</output><output data-selection-values>{JSON.stringify(selections)}</output>
+    {mounted && <section aria-label="Selection"><Gallery ref={gallery} active={active} items={items} labels={{ ...labels, dialog: 'Selection gallery' }} onValueChange={select} onOpenChange={value => setChanges(previous => [...previous, value])} /></section>}
+  </main>;
+}
+const parameters = new URLSearchParams(location.search);
+createRoot(document.getElementById('root')!).render(<StrictMode>{parameters.has('activity') ? <ActivityConsumer /> : parameters.has('reentry') ? <SelectionConsumer /> : <Consumer />}</StrictMode>);
