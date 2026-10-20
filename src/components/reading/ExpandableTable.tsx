@@ -38,6 +38,9 @@ export function ExpandableTable({ columns, rows, label, heading = label, dialogT
     nativeOpened.current = true;
     if (!element.open) element.showModal();
     return () => {
+      // A native close can precede cleanup while its event is still queued.
+      // Preserve that dismissal rather than restoring an obsolete open intent.
+      if (nativeOpened.current && !element.open) setOpen(false);
       // Activity retains the user's open intent while disconnecting effects.
       // Release the top layer now; its queued close belongs to this setup.
       nativeOpened.current = false;

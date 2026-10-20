@@ -50,6 +50,33 @@ const { chromium } = require(process.env.PLAYWRIGHT_MODULE || 'playwright-core')
         await retainedDialog.evaluate(element => element.close());
         await activityPage.waitForFunction(() => !document.querySelector('[data-activity-host] dialog .cui-table'));
         assert.equal(await expandActivity.evaluate(element => element === document.activeElement), true, 'external close still clears expanded content and restores trigger focus');
+        for (const showImmediately of [false, true]) {
+          await expandActivity.click();
+          const closes = await retainedDialog.evaluate(element => Number(element.dataset.closes));
+          const closedBeforeHiding = await activityPage.evaluate(showImmediately => {
+            const element = document.querySelector('[data-activity-host] dialog'), outside = document.querySelector('[data-outside]');
+            // Native close dispatch is queued: the external close and Activity
+            // cleanup must happen in this same task, before that event arrives.
+            element.close();
+            document.querySelector('[data-hide]').click();
+            outside.focus();
+            const state = { modal: element.open || element.matches(':modal'), outsideFocused: document.activeElement === outside };
+            if (showImmediately) document.querySelector('[data-show]').click();
+            return state;
+          }, showImmediately);
+          assert.equal(closedBeforeHiding.modal, false);
+          assert.equal(closedBeforeHiding.outsideFocused, true);
+          await activityPage.waitForFunction(closes => Number(document.querySelector('[data-activity-host] dialog').dataset.closes) > closes, closes);
+          if (!showImmediately) {
+            assert.equal(await retainedDialog.evaluate(element => element.isConnected && !element.open), true, 'the external close is delivered while Activity retains the hidden dialog');
+            await activityPage.locator('[data-show]').evaluate(element => element.click());
+          }
+          await activityPage.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
+          assert.equal(await retainedDialog.evaluate(element => element === document.querySelector('[data-activity-host] dialog') && element.isConnected), true);
+          assert.equal(await activityDialog.evaluate(element => element.open || element.matches(':modal')), false, `an external close before hiding clears open intent (${showImmediately ? 'immediate' : 'after close dispatch'} show)`);
+          assert.equal(await activityDialog.locator('.cui-table').count(), 0, 'a genuinely dismissed table does not keep expanded content');
+          assert.equal(await activityPage.locator('[data-outside]').evaluate(element => element === document.activeElement), true, 'the dismissed table cannot reclaim focus on show or old close delivery');
+        }
         await expandActivity.click();
         await activityPage.locator('[data-active]').evaluate(element => element.click());
         await activityPage.waitForFunction(() => !document.querySelector('[data-activity-host] dialog').open && !document.querySelector('[data-activity-host] dialog .cui-table'));
