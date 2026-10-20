@@ -1,4 +1,5 @@
-import { Activity, StrictMode, useEffect, useRef, useState } from 'react';
+import { Activity, StrictMode, useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
+import type { RefObject } from 'react';
 import { createRoot } from 'react-dom/client';
 import { flushSync } from 'react-dom';
 import { CodeBlock, CopyButton, GhostButton, NotificationStack, Tooltip } from '../../../src';
@@ -77,5 +78,35 @@ function CopyActivityConsumer() {
     </section></Activity> : null}
   </main>;
 }
+type NoticeDelivery = 'exit' | 'ref' | 'layout';
+const activityNotices = [{ message: 'Persistent Activity notice', duration: null }];
+function NoticeActivityContent({ delivery, notices, attach }: { delivery: NoticeDelivery; notices: RefObject<NotificationStackHandle | null>; attach: (handle: NotificationStackHandle | null) => void }) {
+  useLayoutEffect(() => {
+    if (delivery === 'layout') notices.current?.notify({ key: 'connection', message: 'Layout connection', duration: null });
+  }, [delivery, notices]);
+  return <section data-notice-activity style={{ paddingTop: 80 }}>
+    <NotificationStack ref={attach} label="Activity notices" dismissLabel="Dismiss Activity notice" defaultNotices={delivery === 'exit' ? activityNotices : undefined} empty={<p>Activity notices empty</p>} />
+  </section>;
+}
+function NoticeActivityConsumer({ delivery }: { delivery: NoticeDelivery }) {
+  const [mode, setMode] = useState<'hidden' | 'visible'>('visible'), [mounted, setMounted] = useState(true);
+  const notices = useRef<NotificationStackHandle>(null), saved = useRef<NotificationStackHandle>(null);
+  const attach = useCallback((handle: NotificationStackHandle | null) => {
+    notices.current = handle;
+    if (!handle) return;
+    saved.current = handle;
+    if (delivery === 'ref') handle.notify({ key: 'connection', message: 'Ref connection', duration: null });
+  }, [delivery]);
+  return <main data-cui-theme="light">
+    <button onClick={() => flushSync(() => setMode('hidden'))}>Hide notice Activity</button>
+    <button onClick={() => flushSync(() => setMode('visible'))}>Show notice Activity</button>
+    <button onClick={() => { flushSync(() => notices.current?.clear()); flushSync(() => setMode('hidden')); }}>Dismiss and hide notice Activity</button>
+    <button onClick={() => setMounted(value => !value)}>Mount notice Activity</button>
+    <button onClick={() => saved.current?.notify({ message: 'Stale unmounted notice', duration: null })}>Notify saved notice handle</button>
+    <button onClick={() => notices.current?.notify({ key: 'timer', message: 'Timed Activity notice', duration: 1200 })}>Add timed Activity notice</button>
+    {mounted ? <Activity mode={mode}><NoticeActivityContent delivery={delivery} notices={notices} attach={attach} /></Activity> : null}
+  </main>;
+}
 const deadlineMode = new URLSearchParams(location.search).get('deadline');
-createRoot(document.getElementById('root')!).render(<StrictMode>{new URLSearchParams(location.search).has('copy-activity') ? <CopyActivityConsumer /> : deadlineMode ? <DeadlineConsumer mode={deadlineMode === 'single' ? 'single' : 'stack'} /> : <Consumer />}</StrictMode>);
+const noticeDelivery = new URLSearchParams(location.search).get('notice-activity');
+createRoot(document.getElementById('root')!).render(<StrictMode>{noticeDelivery ? <NoticeActivityConsumer delivery={noticeDelivery === 'ref' ? 'ref' : noticeDelivery === 'layout' ? 'layout' : 'exit'} /> : new URLSearchParams(location.search).has('copy-activity') ? <CopyActivityConsumer /> : deadlineMode ? <DeadlineConsumer mode={deadlineMode === 'single' ? 'single' : 'stack'} /> : <Consumer />}</StrictMode>);

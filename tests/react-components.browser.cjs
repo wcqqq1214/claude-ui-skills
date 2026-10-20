@@ -99,6 +99,40 @@ const { chromium } = require(process.env.PLAYWRIGHT_MODULE || 'playwright-core')
     assert.equal(await selected(controlled), 'd');
     assert.equal(await selected(independent), 'a');
 
+    // Activity keeps this exact input, but disconnects its effects and React
+    // handlers. A real release while hidden must not leave an owned pointer.
+    await page.goto(`${base}/tests/fixtures/react-consumer/?activity`);
+    const activitySlider = page.locator('input[aria-label="Activity slider"]');
+    const sliderHost = name => page.getByRole('button', { name, exact: true }).evaluate(element => element.click());
+    await activitySlider.waitFor();
+    await activitySlider.evaluate(element => { window.retainedSlider = element; });
+    for (let attempt = 0; attempt < 2; attempt++) {
+      const box = await activitySlider.boundingBox();
+      await page.mouse.move(box.x + box.width * .65, box.y + box.height / 2);
+      await page.mouse.down();
+      assert.equal(await activitySlider.locator('..').getAttribute('data-dragging'), 'true', 'a new gesture owns its pointer after reconnection');
+      const value = await activitySlider.inputValue(), calls = await page.locator('[data-slider-changes]').textContent();
+      await sliderHost('Hide slider');
+      await page.mouse.up();
+      // Keep focus untouched on the first pass: moving it would independently
+      // clear dragging via onBlur and conceal a missed hidden pointer release.
+      if (attempt === 1) await page.getByRole('button', { name: 'Show slider', exact: true }).focus();
+      await sliderHost('Show slider');
+      await page.waitForFunction(() => !document.querySelector('input[aria-label="Activity slider"]').parentElement.hasAttribute('data-dragging'));
+      assert.equal(await activitySlider.evaluate(element => element === window.retainedSlider), true, 'Activity retains the native input');
+      assert.equal(await activitySlider.inputValue(), value, 'disconnect only clears the gesture, not the selected value');
+      assert.equal(await page.locator('[data-slider-changes]').textContent(), calls, 'reconnection emits no synthetic value change');
+      if (attempt === 1) assert.equal(await page.getByRole('button', { name: 'Show slider', exact: true }).evaluate(element => element === document.activeElement), true, 'reconnection does not steal focus');
+    }
+    await activitySlider.press('Home');
+    assert.equal(await activitySlider.inputValue(), '0', 'keyboard selection still works after reconnect');
+    const activityBounds = await activitySlider.boundingBox();
+    await page.mouse.move(activityBounds.x + 50, activityBounds.y + activityBounds.height / 2);
+    await page.mouse.down();
+    await sliderHost('Unmount slider');
+    await page.mouse.up();
+    assert.equal(await activitySlider.count(), 0, 'true unmount cancels the gesture');
+
     for (const width of [1280, 390, 320]) for (const theme of ['light', 'dark']) {
       await page.setViewportSize({ width, height: 900 });
       await page.goto(`${base}/demo/?lang=en#controls`);

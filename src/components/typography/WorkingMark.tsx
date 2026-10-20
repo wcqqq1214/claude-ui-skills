@@ -30,6 +30,7 @@ export function WorkingMark({ active = true, fallback = null, className, ...prop
   }, [ready]);
   useEffect(() => { if (visible) animation.current?.play(); else animation.current?.pause(); }, [ready, visible]);
   return <span {...props} ref={root} aria-hidden="true" className={classes('inline-block size-5 shrink-0 overflow-clip', className)}>
-    {failed ? fallback : <img ref={image} src={sheet} alt="" width="20" height="800" className="block h-[800px] max-h-none w-5 max-w-none" />}
+    {!ready ? fallback : null}
+    {failed ? null : <img ref={image} src={sheet} alt="" width="20" height="800" style={{ display: ready ? 'block' : 'none' }} className="block h-[800px] max-h-none w-5 max-w-none" />}
   </span>;
 }

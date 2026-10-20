@@ -14,6 +14,7 @@ Use for: notifications that stay manageable as messages arrive and leave. Presen
 - `mode="single"` replaces and refreshes the existing entry, including while exiting. Its obsolete exit completion is cancelled. Stack mode keeps exiting entries separate when the same key arrives again.
 - `defaultNotices` initializes a stack once. `dismissLabel` is required; `label`, `empty`, wrapper class/style and fallbackFocus are optional. Use one stable component instance per local stack.
 - `active=false` makes the stack inert and disables live announcements/focus restoration. Deadlines continue to run while hidden. Unmount clears its timers and ignores pending exits.
+- Activity reconnection completes an already dismissed entry without leaving invisible cards or empty space. The attached handle is callable from a callback ref or a host layout effect; saved handles reject calls while disconnected or after a true unmount.
 - The host owns placement and business effects. Pass presentational message content; use action for interactive controls. For dynamic localization, render messages with renderMessage or context-aware React nodes so existing notices update too.
 
 ## Parameters

@@ -1,7 +1,7 @@
 import { Activity, StrictMode, useState } from 'react';
 import { flushSync } from 'react-dom';
 import { createRoot } from 'react-dom/client';
-import { Accordion, ShimmerText, SkeletonGroup, SkeletonLine, StatusMark } from '../../../src';
+import { Accordion, ScrollFollower, ShimmerText, SkeletonGroup, SkeletonLine, StatusMark, WorkingMark } from '../../../src';
 import type { Activity as StatusActivity } from '../../../src';
 import '../../../src/styles/index.css';
 
@@ -42,4 +42,40 @@ function ActivityConsumer() {
       onActivityEnter={() => setEntered(value => value + 1)} onComplete={() => setCompleted(value => value + 1)} /></Activity> : null}
   </main>;
 }
-createRoot(document.getElementById('root')!).render(<StrictMode>{new URLSearchParams(location.search).has('activity') ? <ActivityConsumer /> : <Consumer />}</StrictMode>);
+function DynamicRows() {
+  const [rows, setRows] = useState([{ id: 0, width: 80, left: 0 }]), [expanded, setExpanded] = useState(false);
+  return <>
+    <button onClick={() => setRows(value => [...value, { id: (value.at(-1)?.id ?? -1) + 1, width: 110, left: 0 }])}>Add row</button>
+    <button onClick={() => setRows(value => value.slice(0, -1))}>Remove row</button>
+    <button onClick={() => setRows(value => value.map((row, index) => index === value.length - 1 ? { ...row, id: row.id + 100 } : row))}>Replace row</button>
+    <button onClick={() => setRows(value => value.map((row, index) => index === value.length - 1 ? { ...row, left: 17 } : row))}>Move row</button>
+    <button onClick={() => setRows(value => value.map((row, index) => index === value.length - 1 ? { ...row, width: row.width + 30 } : row))}>Resize row</button>
+    <button onClick={() => setExpanded(value => !value)}>Reflow text</button>
+    <div style={{ width: 130 }}>{expanded ? 'A longer loading description moves the rows without resizing their group.' : 'Rows'}</div>
+    <div style={{ position: 'relative' }}>{rows.map((row, index) => <SkeletonLine key={row.id} data-dynamic-row={row.id} style={{ position: 'absolute', top: index * 24, left: row.left, width: row.width }} />)}</div>
+  </>;
+}
+function DynamicSkeletonConsumer() {
+  const [mode, setMode] = useState<'visible' | 'hidden'>('visible'), [mounted, setMounted] = useState(true);
+  return <main>
+    <button onClick={() => flushSync(() => setMode('hidden'))}>Hide skeleton</button>
+    <button onClick={() => flushSync(() => setMode('visible'))}>Show skeleton</button>
+    <button onClick={() => { flushSync(() => setMode('hidden')); flushSync(() => setMode('visible')); }}>Reconnect skeleton</button>
+    <button onClick={() => setMounted(value => !value)}>Mount skeleton</button>
+    {mounted ? <Activity mode={mode}><SkeletonGroup data-dynamic-skeleton style={{ width: 300, height: 180 }}><DynamicRows /></SkeletonGroup></Activity> : null}
+  </main>;
+}
+function WorkingConsumer() {
+  const [mode, setMode] = useState<'visible' | 'hidden'>('visible'), [mounted, setMounted] = useState(true);
+  return <main>
+    <button onClick={() => flushSync(() => setMode('hidden'))}>Hide working</button>
+    <button onClick={() => flushSync(() => setMode('visible'))}>Show working</button>
+    <button onClick={() => setMounted(value => !value)}>Mount working</button>
+    {mounted ? <Activity mode={mode}>
+      <WorkingMark data-working-mark fallback={<span data-working-fallback>↓</span>} />
+      <ScrollFollower label="Working content" returnLabel="Return to latest" busy height={200}><div style={{ height: 700 }}>Content to follow</div></ScrollFollower>
+    </Activity> : null}
+  </main>;
+}
+const query = new URLSearchParams(location.search);
+createRoot(document.getElementById('root')!).render(<StrictMode>{query.has('activity') ? <ActivityConsumer /> : query.has('dynamic') ? <DynamicSkeletonConsumer /> : query.has('working') ? <WorkingConsumer /> : <Consumer />}</StrictMode>);

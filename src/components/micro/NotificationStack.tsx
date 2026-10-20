@@ -52,7 +52,9 @@ export function NotificationStack({ ref, dismissLabel, label, mode = 'stack', de
     commit(snapshot.current.map(item => item.id === id ? { ...item, exiting: true } : item));
   }, [commit]);
   const remove = useCallback((id: string) => {
-    if (alive.current) commit(snapshot.current.filter(item => item.id !== id || !item.exiting));
+    // The card owns cancellation of its exit completion. Its reconnecting
+    // layout effect can finish before this parent's effects reconnect.
+    commit(snapshot.current.filter(item => item.id !== id || !item.exiting));
   }, [commit]);
   const notify = useCallback((input: NotificationInput) => {
     const current = snapshot.current;
@@ -64,8 +66,11 @@ export function NotificationStack({ ref, dismissLabel, label, mode = 'stack', de
     else commit([item, ...current.filter(value => value.id !== item.id)]);
     return item.id;
   }, [commit, mode, prefix]);
+  // A callback ref or a host layout effect may notify as soon as the handle is
+  // attached, including an Activity reconnection. Invalidate old handles during
+  // layout cleanup so a real unmount still rejects later imperative calls.
+  useLayoutEffect(() => { alive.current = true; return () => { alive.current = false; }; }, []);
   useImperativeHandle(ref, () => ({ notify, dismiss, clear: () => { for (const item of snapshot.current) dismiss(item.id); } }), [notify, dismiss]);
-  useEffect(() => { alive.current = true; return () => { alive.current = false; }; }, []);
   useEffect(() => {
     const timers = items.filter(item => !item.exiting && item.expires !== null).map(item => setTimeout(() => {
       // A host can refresh this ID before passive cleanup cancels the old

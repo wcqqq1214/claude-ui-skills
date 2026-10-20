@@ -6,7 +6,7 @@ Use for: one of five standalone effects: grapheme reveal, body fade, a user mess
 
 [Text primitives](../../src/components/typography/Text.tsx) · [WorkingMark](../../src/components/typography/WorkingMark.tsx) · [ScrollFollower](../../src/components/typography/ScrollFollower.tsx) · [demo chapter](../../demo/chapters/TypographyChapter.tsx).
 
-Import through `src/index.ts` and the component stylesheet. The demo owns sample text, arrival timers, replay and viewport activation. `ScrollFollower` accepts host children and a reset key; it owns pinning, resize/end-marker observations and focus return. `WorkingMark` owns only the default sheet loop and pauses offscreen. Source CSS uses namespaced `--cui-*` tokens. See [integration and API boundaries](../../demo/README.md).
+Import through `src/index.ts` and the component stylesheet. The demo owns sample text, arrival timers, replay and viewport activation. `ScrollFollower` accepts host children and a reset key; it owns pinning, resize/end-marker observations and focus return. `WorkingMark` owns only the default sheet loop and pauses offscreen. Its fallback remains visible while the sheet loads/decodes and on failure, so a busy return button keeps its arrow until the animation is ready. Source CSS uses namespaced `--cui-*` tokens. See [integration and API boundaries](../../demo/README.md).
 
 ## Parameters
 

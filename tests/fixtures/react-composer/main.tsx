@@ -52,4 +52,26 @@ function ActivityConsumer() {
     </Activity> : null}
   </main>;
 }
-createRoot(document.getElementById('root')!).render(<StrictMode>{new URLSearchParams(location.search).has('activity') ? <ActivityConsumer /> : <Consumer />}</StrictMode>);
+function AttachmentActivityConsumer() {
+  const host = useRef<HTMLDivElement>(null);
+  const [visible, setVisible] = useState(true), [mounted, setMounted] = useState(true), [items, setItems] = useState(samples.slice(0, 2));
+  const [removed, setRemoved] = useState<string[]>([]), [emptyFocus, setEmptyFocus] = useState(0);
+  function removeFirst() {
+    const button = host.current?.querySelector<HTMLButtonElement>('[data-cui-attachment] button');
+    button?.focus(); button?.click(); button?.click();
+  }
+  return <main>
+    <button onClick={() => { removeFirst(); flushSync(() => setVisible(false)); }}>Remove then hide attachments</button>
+    <button onClick={() => { removeFirst(); flushSync(() => setMounted(false)); }}>Remove then unmount attachments</button>
+    <button onClick={() => flushSync(() => setVisible(true))}>Show attachments</button>
+    <button onClick={() => { flushSync(() => setVisible(false)); flushSync(() => setVisible(true)); }}>Reconnect attachments</button>
+    <input aria-label="Outside attachments" />
+    <output data-attachment-removed="">{JSON.stringify(removed)}</output><output data-empty-focus="">{emptyFocus}</output>
+    <div ref={host}>{mounted ? <Activity mode={visible ? 'visible' : 'hidden'}>
+      <AttachmentList label="Activity attachments" items={items} removeLabel={item => `Remove ${item.name}`}
+        onRemove={id => { setRemoved(current => [...current, id]); setItems(current => current.filter(item => item.id !== id)); }} onEmptyFocus={() => setEmptyFocus(value => value + 1)} />
+    </Activity> : null}</div>
+  </main>;
+}
+const query = new URLSearchParams(location.search);
+createRoot(document.getElementById('root')!).render(<StrictMode>{query.has('attachment-activity') ? <AttachmentActivityConsumer /> : query.has('activity') ? <ActivityConsumer /> : <Consumer />}</StrictMode>);

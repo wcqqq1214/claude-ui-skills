@@ -16,13 +16,14 @@ export type AttachmentListProps = {
 
 export function AttachmentList({ items, label, removeLabel, onRemove, onEmptyFocus, className }: AttachmentListProps) {
   const instance = useId().replace(/[^a-zA-Z0-9_-]/g, ''), root = useRef<HTMLDivElement>(null);
-  const latest = useRef({ onRemove, onEmptyFocus }), pending = useRef(new Set<string>()), transition = useRef<ViewTransition | null>(null), releaseKey = useRef<(() => void) | null>(null), alive = useRef(true), applying = useRef(false);
+  const latest = useRef({ onRemove, onEmptyFocus }), pending = useRef(new Set<string>()), transition = useRef<ViewTransition | null>(null), releaseKey = useRef<(() => void) | null>(null), applying = useRef(false);
   useLayoutEffect(() => { latest.current = { onRemove, onEmptyFocus }; });
   useEffect(() => {
-    alive.current = true;
     const leave = () => { transition.current?.skipTransition(); releaseKey.current?.(); };
     window.addEventListener('pagehide', leave);
-    return () => { alive.current = false; leave(); pending.current.clear(); window.removeEventListener('pagehide', leave); };
+    // Activity disconnects effects but keeps accepted removals and their DOM.
+    // skipTransition cancels the snapshots, not the native update callback.
+    return () => { leave(); window.removeEventListener('pagehide', leave); };
   }, []);
   function guardHeldKey(key: string) {
     releaseKey.current?.();
@@ -40,14 +41,17 @@ export function AttachmentList({ items, label, removeLabel, onRemove, onEmptyFoc
     pending.current.add(item.id); if (key) guardHeldKey(key);
     let updated = false;
     const update = () => {
-      if (updated || !alive.current) return;
+      if (updated) return;
       updated = true;
-      const ownsFocus = tile.contains(document.activeElement), index = tiles.indexOf(tile);
+      // A detached tile belongs to an actual unmount or a host item replacement;
+      // a retained, hidden tile must still complete its accepted removal once.
+      if (!tile.isConnected) { pending.current.delete(item.id); return; }
+      const ownsFocus = tile.contains(document.activeElement) && tile.getClientRects().length > 0, index = tiles.indexOf(tile);
       const next = [...tiles.slice(index + 1), ...tiles.slice(0, index).reverse()].find(candidate => !pending.current.has(candidate.dataset.cuiAttachment!));
       applying.current = true;
       try { flushSync(() => latest.current.onRemove(item.id)); }
       finally { applying.current = false; pending.current.delete(item.id); }
-      if (ownsFocus) {
+      if (ownsFocus && root.current?.isConnected) {
         const control = next?.isConnected ? next.querySelector('button') : root.current?.querySelector('button');
         if (control) control.focus({ preventScroll: true }); else latest.current.onEmptyFocus?.();
       }

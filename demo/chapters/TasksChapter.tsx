@@ -26,16 +26,23 @@ export function TasksChapter({ locale, active }: { locale: Locale; active: boole
   const stop = () => { timers.current.forEach(clearTimeout); timers.current = []; };
   const finishDrop = () => { dragging.current = false; setDrop('idle'); };
   useEffect(() => { if (!visible) stop(); }, [visible]);
-  useEffect(() => { if (!active) finishDrop(); }, [active]);
+  useEffect(() => { if (!active) { stop(); finishDrop(); } }, [active]);
   useEffect(() => () => stop(), []);
-  useEffect(() => { const leave = () => { stop(); finishDrop(); }; window.addEventListener('pagehide', leave); return () => window.removeEventListener('pagehide', leave); }, []);
+  useEffect(() => {
+    const leave = () => { stop(); finishDrop(); };
+    const visibility = () => { if (document.hidden) stop(); };
+    window.addEventListener('pagehide', leave); document.addEventListener('visibilitychange', visibility);
+    return () => { window.removeEventListener('pagehide', leave); document.removeEventListener('visibilitychange', visibility); };
+  }, []);
   const add = () => { if (!active) return; setAdded(true); finishDrop(); };
   return <div className="demo-tasks-grid grid min-w-0 gap-[18px]">
     <article className="demo-card demo-progress-card" aria-label={t('Progress')}>
       <div className="flex flex-wrap items-center gap-3"><h3 className="m-0 text-sm font-(--cui-medium)">{t('Progress')}</h3><span className="text-xs text-cui-muted" data-progress-count>{t('{0} of {1}', states.filter(state => state === 'completed').length, states.length)}</span>
         <button type="button" className="demo-button small subtle ml-auto" onClick={() => {
           stop(); setStates(['pending', 'pending', 'pending']); setReplay(value => value + 1);
-          if (visible) timers.current = frames.map((frame, index) => setTimeout(() => setStates(frame), 1800 + index * 1600));
+          // An explicit replay starts even when only its button is onscreen.
+          // Later visibility/chapter changes still cancel the sample timeline.
+          timers.current = frames.map((frame, index) => setTimeout(() => setStates(frame), 1800 + index * 1600));
         }}>{t('Replay')}</button></div>
       <p className="demo-task-description">{t('Replay to watch the steps unfold. Expand earlier steps to read them again.')}</p>
       <div ref={progress}><ProgressList key={replay} active={active} items={states.map((state, index) => ({ id: String(index), state, label: t(samples[index][0]), activeLabel: t(samples[index][1]) }))} labels={{ list: t('Progress'), earlier: count => t(count === 1 ? '{0} earlier step' : '{0} earlier steps', count), hideEarlier: t('Hide earlier steps'), state: { completed: t('Done'), in_progress: t('In progress'), pending: t('Not started') } }} /></div>

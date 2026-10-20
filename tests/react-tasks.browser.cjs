@@ -90,6 +90,52 @@ const { chromium } = require(process.env.PLAYWRIGHT_MODULE || 'playwright-core')
     const payload = await demo.evaluateHandle(() => { const data = new DataTransfer(); data.setData('text/plain', 'external'); return data; });
     await demo.locator('.cui-drop-target').dispatchEvent('drop', { dataTransfer: payload }); assert.equal((await demo.locator('.cui-drop-target').textContent()).includes('已放入'), false); await payload.dispose();
     await demo.close();
+    // The replay button fits in a short window while its list is offscreen.
+    // Explicit Replay still starts; later visibility must not strand it pending.
+    const shortDemo = await browser.newPage({ viewport: { width: 390, height: 220 } });
+    shortDemo.on('pageerror', error => errors.push(error.message));
+    await shortDemo.clock.install();
+    await shortDemo.goto(`${base}/demo/?lang=en#tasks`);
+    await shortDemo.clock.pauseAt(new Date(Date.now() + 1000));
+    const shortReplay = shortDemo.getByRole('button', { name: 'Replay', exact: true }), shortList = shortDemo.locator('.cui-progress-list');
+    await shortDemo.clock.runFor(100);
+    const geometry = await shortDemo.evaluate(() => {
+      const button = [...document.querySelectorAll('button')].find(element => element.textContent === 'Replay').getBoundingClientRect();
+      return { buttonTop: button.top, buttonBottom: button.bottom, listTop: document.querySelector('.cui-progress-list').getBoundingClientRect().top, height: innerHeight };
+    });
+    assert.ok(geometry.buttonTop >= 0 && geometry.buttonBottom <= geometry.height && geometry.listTop > geometry.height, JSON.stringify(geometry));
+    const shortStatus = () => shortList.locator('.cui-progress-row').evaluateAll(rows => rows.map(row => row.dataset.state));
+    await shortReplay.click();
+    await shortDemo.clock.runFor(1850);
+    assert.deepEqual(await shortStatus(), ['in_progress', 'pending', 'pending'], 'offscreen Replay starts its first frame');
+    await shortList.scrollIntoViewIfNeeded();
+    await shortDemo.clock.runFor(1650);
+    assert.deepEqual(await shortStatus(), ['completed', 'in_progress', 'pending'], 'scrolling into view continues the same replay');
+    // Starting offscreen must still be cancelled when leaving the chapter,
+    // even though useVisible was already false before the navigation.
+    await shortDemo.evaluate(() => scrollTo(0, 0));
+    await shortDemo.clock.runFor(100);
+    await shortReplay.click();
+    await shortDemo.clock.runFor(100);
+    await shortDemo.evaluate(() => { location.hash = 'controls'; });
+    await shortDemo.clock.runFor(100);
+    const beforeShortExit = await shortStatus();
+    await shortDemo.clock.runFor(15000);
+    assert.deepEqual(await shortStatus(), beforeShortExit, 'chapter exit cancels an offscreen-started replay');
+    await shortDemo.evaluate(() => { location.hash = 'tasks'; });
+    await shortDemo.clock.runFor(100);
+    await shortReplay.click();
+    await shortDemo.clock.runFor(100);
+    await shortDemo.evaluate(() => {
+      Object.defineProperty(document, 'hidden', { configurable: true, value: true });
+      document.dispatchEvent(new Event('visibilitychange'));
+    });
+    await shortDemo.clock.runFor(2000);
+    assert.deepEqual(await shortStatus(), ['pending', 'pending', 'pending'], 'document hiding cancels replay even when the list was already offscreen');
+    await shortDemo.evaluate(() => { delete document.hidden; document.dispatchEvent(new Event('visibilitychange')); });
+    await shortDemo.clock.runFor(2000);
+    assert.deepEqual(await shortStatus(), ['pending', 'pending', 'pending'], 'showing the document does not restart a cancelled replay');
+    await shortDemo.close();
     for (const width of [1280, 390, 320]) for (const theme of ['light', 'dark']) for (const locale of ['en', 'zh-Hans']) {
       await page.setViewportSize({ width, height: 1000 }); await page.goto(`${base}/demo/?lang=${locale}#tasks`);
       await setTheme(page, theme);

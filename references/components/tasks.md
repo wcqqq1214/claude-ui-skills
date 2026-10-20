@@ -33,6 +33,7 @@ Import the three components from `src/index.ts` and the shared [style entry](../
 - Progress rows are reconciled in place: an unchanged row keeps its entrance and shimmer state.
 - The fold toggle sets `aria-expanded`; folded rows are inert.
 - Each row announces its state (done, in progress, not started) to assistive technology.
+- An explicit demo Replay starts its sample timeline even when only the button is in view. Leaving the chapter, hiding the document or subsequently moving the list out of view cancels pending sample changes.
 
 ## Check
 

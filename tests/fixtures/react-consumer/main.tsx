@@ -1,4 +1,5 @@
-import { StrictMode, useState } from 'react';
+import { Activity, StrictMode, useState } from 'react';
+import { flushSync } from 'react-dom';
 import { createRoot } from 'react-dom/client';
 import { Checkbox, DiscreteSlider, SegmentedControl, Switch } from '../../../src';
 import '../../../src/styles/index.css';
@@ -35,4 +36,16 @@ function Consumer() {
     </div> : null}
   </main>;
 }
-createRoot(document.getElementById('root')!).render(<StrictMode><Consumer /></StrictMode>);
+function ActivitySliderConsumer() {
+  const [visible, setVisible] = useState(true), [mounted, setMounted] = useState(true), [changes, setChanges] = useState(0);
+  return <main style={{ padding: 20 }}>
+    <button onClick={() => flushSync(() => setVisible(false))}>Hide slider</button>
+    <button onClick={() => flushSync(() => setVisible(true))}>Show slider</button>
+    <button onClick={() => flushSync(() => setMounted(false))}>Unmount slider</button>
+    <output data-slider-changes>{changes}</output>
+    {mounted ? <Activity mode={visible ? 'visible' : 'hidden'}>
+      <div style={{ width: 300, marginTop: 20 }}><DiscreteSlider aria-label="Activity slider" options={initialOptions} defaultValue="b" onValueChange={() => setChanges(value => value + 1)} /></div>
+    </Activity> : null}
+  </main>;
+}
+createRoot(document.getElementById('root')!).render(<StrictMode>{new URLSearchParams(location.search).has('activity') ? <ActivitySliderConsumer /> : <Consumer />}</StrictMode>);

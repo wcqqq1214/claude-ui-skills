@@ -72,6 +72,70 @@ const { chromium } = require(process.env.PLAYWRIGHT_MODULE || 'playwright-core')
       await activity.close();
     }
     if (process.argv.includes('--copy-activity-only')) { assert.deepEqual(errors, []); console.log('React copy Activity: retained DOM, remaining/expired/replaced deadlines, pending write cancellation, pagehide and unmount passed'); return; }
+    for (const delivery of ['exit', 'ref', 'layout']) {
+      const activity = await browser.newPage();
+      activity.on('pageerror', error => errors.push(error.message));
+      await activity.goto(`${base}/tests/fixtures/react-micro/?notice-activity=${delivery}`);
+      const host = activity.locator('[data-notice-activity]'), original = await host.elementHandle();
+      const stack = host.getByRole('region', { name: 'Activity notices', exact: true });
+      const cards = stack.locator('[data-cui-notice]');
+      const hide = () => activity.getByRole('button', { name: 'Hide notice Activity', exact: true }).evaluate(element => element.click());
+      const show = () => activity.getByRole('button', { name: 'Show notice Activity', exact: true }).evaluate(element => element.click());
+      if (delivery === 'exit') {
+        await cards.getByText('Persistent Activity notice', { exact: true }).waitFor();
+        await activity.waitForTimeout(250);
+        await cards.getByRole('button', { name: 'Dismiss Activity notice', exact: true }).focus();
+        await activity.getByRole('button', { name: 'Dismiss and hide notice Activity', exact: true }).evaluate(element => element.click());
+        await activity.waitForTimeout(300);
+        const trigger = activity.getByRole('button', { name: 'Show notice Activity', exact: true });
+        await trigger.focus(); await show();
+        await activity.getByText('Activity notices empty', { exact: true }).waitFor();
+        assert.equal(await cards.count(), 0, 'an exit completed while hidden is removed after the child layout effect reconnects');
+        assert.equal(await stack.evaluate(element => element.style.height), '', 'the last exiting card leaves no reserved stack height');
+        assert.equal(await trigger.evaluate(element => element === document.activeElement), true, 'reconnection does not steal focus that moved to the host');
+      } else {
+        const message = delivery === 'ref' ? 'Ref connection' : 'Layout connection';
+        const count = async () => Number(((await cards.textContent()) || '').match(/×(\d+)/)?.[1] || 1);
+        await cards.filter({ hasText: message }).waitFor();
+        const initial = await count(), id = await cards.getAttribute('data-cui-notice');
+        for (let reconnect = 0; reconnect < 2; reconnect++) {
+          const before = await count();
+          await hide();
+          await activity.getByRole('button', { name: 'Notify saved notice handle', exact: true }).evaluate(element => element.click());
+          await show();
+          await activity.waitForFunction(before => {
+            const text = document.querySelector('[data-notice-activity] [data-cui-notice]')?.textContent || '';
+            return Number(text.match(/×(\d+)/)?.[1] || 1) > before;
+          }, before);
+          assert.equal(await cards.getAttribute('data-cui-notice'), id, `${delivery} reconnect updates the retained notification`);
+          assert.equal(await cards.count(), 1, 'a saved handle cannot enqueue a notification while its effects are disconnected');
+        }
+        assert.ok(await count() > initial, `${delivery} notifications are accepted during reconnection before passive effects`);
+      }
+      assert.equal(await host.evaluate((element, original) => element === original, original), true, 'notice Activity retains the original DOM');
+      await activity.getByRole('button', { name: 'Mount notice Activity', exact: true }).click();
+      await activity.getByRole('button', { name: 'Notify saved notice handle', exact: true }).click();
+      await activity.getByRole('button', { name: 'Mount notice Activity', exact: true }).click();
+      await host.waitFor();
+      assert.equal(await host.getByText('Stale unmounted notice', { exact: true }).count(), 0, 'a real unmount invalidates its previous imperative handle');
+      await activity.close();
+    }
+    const expiry = await browser.newPage();
+    expiry.on('pageerror', error => errors.push(error.message));
+    await expiry.clock.install(); await expiry.clock.pauseAt(new Date(Date.now() + 1000));
+    await expiry.goto(`${base}/tests/fixtures/react-micro/?notice-activity=exit`);
+    const expiryClick = async name => { await expiry.getByRole('button', { name, exact: true }).evaluate(element => element.click()); await expiry.clock.runFor(1); };
+    const timed = expiry.locator('[data-notice-activity] [data-cui-notice]').filter({ hasText: 'Timed Activity notice' });
+    await expiryClick('Add timed Activity notice'); await expiry.clock.runFor(100);
+    await expiryClick('Hide notice Activity'); await expiry.clock.runFor(400); await expiryClick('Show notice Activity');
+    assert.equal(await timed.getAttribute('data-ending'), null, 'a notification retains its remaining deadline across short hiding');
+    await expiry.clock.runFor(750);
+    assert.ok(!await timed.count() || await timed.getAttribute('data-ending') === 'true', 'Activity reconnection does not restart the expiry duration');
+    await expiryClick('Add timed Activity notice'); await expiryClick('Hide notice Activity');
+    await expiry.clock.runFor(1400); await expiryClick('Show notice Activity');
+    assert.equal(await timed.evaluateAll(elements => elements.filter(element => !element.hasAttribute('data-ending')).length), 0, 'a deadline passed while hidden exits on reconnection');
+    await expiry.close();
+    if (process.argv.includes('--notice-activity-only')) { assert.deepEqual(errors, []); console.log('React notification Activity: retained DOM, exit completion, ref/layout delivery, expiry deadlines, focus and true unmount passed'); return; }
     for (const mode of ['single', 'stack']) for (const duration of [null, 120_000]) {
       const deadline = await browser.newPage();
       deadline.on('pageerror', error => errors.push(error.message));

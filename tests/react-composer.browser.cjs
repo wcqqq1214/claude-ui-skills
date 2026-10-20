@@ -82,6 +82,40 @@ const { chromium } = require(process.env.PLAYWRIGHT_MODULE || 'playwright-core')
         return transition;
       };
     });
+    // Keep the browser's real asynchronous snapshot/update delivery: Activity hides
+    // the same nodes before the native callback, and skips only its visual transition.
+    await page.goto(`${base}/tests/fixtures/react-composer/?attachment-activity`);
+    const attachmentGroup = page.getByRole('group', { name: 'Activity attachments', exact: true });
+    const attachmentNode = await attachmentGroup.elementHandle(), remainingTile = await attachmentGroup.locator('[data-cui-attachment="b"]').elementHandle();
+    assert.equal(await page.evaluate(() => typeof document.startViewTransition === 'function' && CSS.supports('selector(:active-view-transition-type(cui-attachments))')), true, 'native retained-DOM regression requires attachment View Transitions');
+    await page.getByRole('button', { name: 'Remove then hide attachments', exact: true }).click();
+    assert.equal(await attachmentNode.evaluate(element => element.isConnected), true, 'hiding keeps the original attachment group connected');
+    await page.waitForFunction(() => window.attachmentTransitions.length === 1 && window.attachmentTransitions[0].applied === 1);
+    assert.equal(await page.locator('[data-attachment-removed]').textContent(), '["a"]', 'the native update publishes exactly one accepted removal while Activity is hidden');
+    const outsideAttachments = page.getByRole('textbox', { name: 'Outside attachments', exact: true });
+    await outsideAttachments.focus();
+    await page.getByRole('button', { name: 'Show attachments', exact: true }).evaluate(element => element.click());
+    assert.equal(await attachmentGroup.evaluate((element, original) => element === original, attachmentNode), true, 'reconnection reuses the original attachment list');
+    assert.equal(await attachmentGroup.locator('[data-cui-attachment]').count(), 1, 'the removal accepted before hiding survives the native hidden update');
+    assert.equal(await attachmentGroup.locator('[data-cui-attachment="b"]').evaluate((element, original) => element === original, remainingTile), true, 'the surviving tile also retains its DOM');
+    assert.equal(await outsideAttachments.evaluate(element => element === document.activeElement), true, 'a hidden removal and later reconnect do not steal outside focus');
+    await page.getByRole('button', { name: 'Reconnect attachments', exact: true }).evaluate(element => element.click());
+    assert.equal(await page.locator('[data-attachment-removed]').textContent(), '["a"]', 'duplicate clicks and effect reconnection cannot publish the removal twice');
+    assert.equal(await page.locator('[data-empty-focus]').textContent(), '0');
+
+    await page.goto(`${base}/tests/fixtures/react-composer/?attachment-activity`);
+    await page.getByRole('button', { name: 'Remove then unmount attachments', exact: true }).click();
+    await page.waitForFunction(() => window.attachmentTransitions.length === 1 && window.attachmentTransitions[0].applied === 1);
+    assert.equal(await page.locator('[data-attachment-removed]').textContent(), '[]', 'a true unmount invalidates even a real native snapshot callback');
+    assert.equal(await page.locator('[data-cui-attachment]').count(), 0);
+    for (const mode of ['unavailable', 'throws']) {
+      await page.goto(`${base}/tests/fixtures/react-composer/?attachment-activity`);
+      await page.evaluate(mode => { document.startViewTransition = mode === 'unavailable' ? undefined : () => { throw new Error('No snapshot available'); }; }, mode);
+      await page.getByRole('button', { name: 'Remove then hide attachments', exact: true }).click();
+      await page.getByRole('button', { name: 'Show attachments', exact: true }).click();
+      assert.equal(await attachmentGroup.locator('[data-cui-attachment]').count(), 1, `${mode} transition preserves synchronous removal across hiding`);
+      assert.equal(await page.locator('[data-attachment-removed]').textContent(), '["a"]');
+    }
     await page.goto(`${base}/tests/fixtures/react-composer/`); await page.evaluate(() => document.fonts.ready);
     const first = page.getByRole('region', { name: 'First composer', exact: true }), second = page.getByRole('region', { name: 'Second composer', exact: true });
     const editor = first.getByRole('textbox'), popup = first.getByRole('listbox', { name: 'References' });

@@ -111,6 +111,118 @@ const { chromium } = require(process.env.PLAYWRIGHT_MODULE || 'playwright-core')
     const errors = [];
     page.on('pageerror', error => errors.push(error.message));
     page.on('console', message => { if (message.type() === 'error') errors.push(message.text()); });
+    await page.goto(`${base}/tests/fixtures/react-feedback/?dynamic`);
+    const dynamic = page.locator('[data-dynamic-skeleton]');
+    const dynamicMask = dynamic.locator(':scope > div').first();
+    const expectDynamicMask = async count => {
+      await page.waitForFunction(count => {
+        const group = document.querySelector('[data-dynamic-skeleton]'), mask = group.firstElementChild;
+        const rows = [...group.querySelectorAll('[data-dynamic-row]')];
+        if (rows.length !== count) return false;
+        const box = group.getBoundingClientRect(), expected = document.createElement('div');
+        expected.style.clipPath = rows.length ? `path("${rows.map(row => {
+          const rect = row.getBoundingClientRect();
+          return `M${rect.left - box.left},${rect.top - box.top}h${rect.width}v${rect.height}h${-rect.width}Z`;
+        }).join(' ')}")` : '';
+        return mask.style.clipPath === expected.style.clipPath && mask.style.visibility === (count ? 'visible' : 'hidden');
+      }, count);
+    };
+    await expectDynamicMask(1);
+    const retainedSkeleton = await dynamic.elementHandle();
+    await page.getByRole('button', { name: 'Add row', exact: true }).click();
+    await expectDynamicMask(2);
+    assert.equal(await dynamic.evaluate(element => element.offsetHeight), 180, 'nested state adds rows without resizing the group or rerendering its parent');
+    const oldRow = await dynamic.locator('[data-dynamic-row]').last().elementHandle();
+    await page.getByRole('button', { name: 'Replace row', exact: true }).click();
+    assert.equal(await oldRow.evaluate(element => element.isConnected), false, 'a row can be replaced without changing the group geometry');
+    await page.getByRole('button', { name: 'Resize row', exact: true }).click(); await expectDynamicMask(2);
+    await page.getByRole('button', { name: 'Move row', exact: true }).click(); await expectDynamicMask(2);
+    await page.getByRole('button', { name: 'Reflow text', exact: true }).click(); await expectDynamicMask(2);
+    await page.getByRole('button', { name: 'Hide skeleton', exact: true }).click();
+    await dynamic.locator('[data-dynamic-row]').last().evaluate(element => { element.style.width = '173px'; });
+    await page.getByRole('button', { name: 'Show skeleton', exact: true }).click(); await expectDynamicMask(2);
+    await page.getByRole('button', { name: 'Reconnect skeleton', exact: true }).click(); await expectDynamicMask(2);
+    assert.equal(await retainedSkeleton.evaluate(element => element === document.querySelector('[data-dynamic-skeleton]')), true, 'Activity reconnect retains the group DOM and remeasures current descendants');
+    await page.getByRole('button', { name: 'Remove row', exact: true }).click(); await expectDynamicMask(1);
+    await page.getByRole('button', { name: 'Remove row', exact: true }).click(); await expectDynamicMask(0);
+    await page.getByRole('button', { name: 'Add row', exact: true }).click(); await expectDynamicMask(1);
+    const disconnectedMask = await dynamicMask.evaluate(element => element.style.clipPath);
+    await page.getByRole('button', { name: 'Mount skeleton', exact: true }).click();
+    await retainedSkeleton.evaluate(element => { const row = document.createElement('div'); row.dataset.cuiSkeletonLine = ''; element.append(row); });
+    await page.waitForTimeout(50);
+    assert.equal(await retainedSkeleton.evaluate(element => element.firstElementChild.style.clipPath), disconnectedMask, 'unmount disconnects mutation and resize observers');
+    await oldRow.dispose(); await retainedSkeleton.dispose();
+
+    const working = await browser.newPage({ viewport: { width: 800, height: 600 } });
+    working.on('pageerror', error => errors.push(error.message));
+    let releaseArtwork;
+    const artwork = new Promise(resolve => { releaseArtwork = resolve; });
+    await working.route('**/default-loop.webp', async route => { await artwork; await route.continue(); });
+    try {
+      await working.goto(`${base}/tests/fixtures/react-feedback/?working`, { waitUntil: 'domcontentloaded' });
+      const direct = working.locator('[data-working-mark]'), fallback = working.locator('[data-working-fallback]');
+      await fallback.waitFor();
+      await working.waitForFunction(() => document.querySelector('[data-working-mark] img')?.getAttribute('src')?.includes('default-loop.webp'));
+      assert.equal(await direct.locator('img').evaluate(image => image.naturalWidth), 0, 'the actual artwork request remains pending');
+      assert.equal(await direct.locator('img').isVisible(), false, 'undecoded artwork cannot obscure its pending fallback');
+      const follower = working.getByRole('region', { name: 'Working content', exact: true });
+      await follower.evaluate(element => { element.scrollTop = 0; element.dispatchEvent(new Event('scroll')); });
+      const returnButton = working.getByRole('button', { name: 'Return to latest', exact: true });
+      await returnButton.waitFor();
+      await working.waitForFunction(() => {
+        const button = document.querySelector('.cui-return-button');
+        return button.getAttribute('aria-hidden') === 'false' && Number(getComputedStyle(button).opacity) > .99;
+      });
+      const returnMark = returnButton.locator(':scope > span').last();
+      assert.equal(await returnMark.evaluate(element => getComputedStyle(element).opacity), '1', 'the pending fallback layer is opaque');
+      assert.equal(await returnMark.locator('[data-glyph="ArrowDown"]').isVisible(), true, 'a visible busy return button retains its arrow until artwork is ready');
+      const retainedImage = await direct.locator('img').elementHandle();
+      await working.getByRole('button', { name: 'Hide working', exact: true }).click();
+      await working.getByRole('button', { name: 'Show working', exact: true }).click();
+      await fallback.waitFor();
+      assert.equal(await retainedImage.evaluate(image => image === document.querySelector('[data-working-mark] img')), true, 'pending decode survives an Activity reconnect on the retained image');
+      releaseArtwork();
+      await working.waitForFunction(() => [...document.querySelectorAll('main img')].every(image => image.getAnimations().length === 1));
+      assert.equal(await fallback.count(), 0);
+      assert.equal(await returnMark.locator('[data-glyph="ArrowDown"]').count(), 0, 'decoded artwork replaces the return arrow fallback');
+      assert.equal(await direct.locator('img').isVisible(), true);
+      assert.ok(await retainedImage.evaluate(image => image.naturalWidth > 0));
+      const beforeHide = await direct.locator('img').evaluateHandle(image => image.getAnimations()[0]);
+      await working.getByRole('button', { name: 'Hide working', exact: true }).click();
+      assert.equal(await beforeHide.evaluate(animation => animation.playState), 'idle');
+      await working.getByRole('button', { name: 'Show working', exact: true }).click();
+      await working.waitForFunction(() => document.querySelector('[data-working-mark] img').getAnimations()[0]?.playState === 'running');
+      assert.equal(await fallback.count(), 0, 'ready artwork does not flash its fallback on reconnect');
+      const beforeUnmount = await direct.locator('img').evaluateHandle(image => image.getAnimations()[0]);
+      await working.getByRole('button', { name: 'Mount working', exact: true }).click();
+      assert.equal(await beforeUnmount.evaluate(animation => animation.playState), 'idle', 'unmount still cancels decoded playback');
+      await retainedImage.dispose(); await beforeHide.dispose(); await beforeUnmount.dispose();
+    } finally { releaseArtwork(); await working.close(); }
+    const pendingUnmount = await browser.newPage();
+    pendingUnmount.on('pageerror', error => errors.push(error.message));
+    let releaseUnmountedArtwork;
+    const unmountedArtwork = new Promise(resolve => { releaseUnmountedArtwork = resolve; });
+    await pendingUnmount.route('**/default-loop.webp', async route => { await unmountedArtwork; await route.continue(); });
+    try {
+      await pendingUnmount.goto(`${base}/tests/fixtures/react-feedback/?working`, { waitUntil: 'domcontentloaded' });
+      await pendingUnmount.waitForFunction(() => document.querySelector('[data-working-mark] img')?.getAttribute('src')?.includes('default-loop.webp'));
+      const detached = await pendingUnmount.locator('[data-working-mark] img').elementHandle();
+      await pendingUnmount.getByRole('button', { name: 'Mount working', exact: true }).click();
+      releaseUnmountedArtwork();
+      assert.equal(await detached.evaluate(async image => { await image.decode().catch(() => {}); return image.isConnected || image.getAnimations().length > 0; }), false, 'decode completion after unmount cannot attach or animate stale artwork');
+      await pendingUnmount.getByRole('button', { name: 'Mount working', exact: true }).click();
+      await pendingUnmount.waitForFunction(() => document.querySelector('[data-working-mark] img')?.getAnimations().length === 1);
+      assert.equal(await pendingUnmount.locator('[data-working-fallback]').count(), 0, 'a new mount can decode after an interrupted pending request');
+      await detached.dispose();
+    } finally { releaseUnmountedArtwork(); await pendingUnmount.close(); }
+    const failedWorking = await browser.newPage();
+    failedWorking.on('pageerror', error => errors.push(error.message));
+    await failedWorking.route('**/default-loop.webp', route => route.abort());
+    await failedWorking.goto(`${base}/tests/fixtures/react-feedback/?working`);
+    await failedWorking.waitForFunction(() => document.querySelector('[data-working-mark]') && !document.querySelector('[data-working-mark] img'));
+    assert.equal(await failedWorking.locator('[data-working-fallback]').isVisible(), true, 'decode failure retains the same fallback');
+    await failedWorking.close();
+
     await page.goto(`${base}/tests/fixtures/react-feedback/?activity`);
     const status = page.locator('.cui-status-mark');
     const statusPhase = value => page.waitForFunction(value => document.querySelector('.cui-status-mark').dataset.phase === value, value);
@@ -272,6 +384,6 @@ const { chromium } = require(process.env.PLAYWRIGHT_MODULE || 'playwright-core')
     await page.waitForTimeout(150);
     assert.equal(await mark.evaluate(element => element.firstElementChild.getAnimations()[0].currentTime), hiddenTime, 'hidden chapter pauses authored motion');
     assert.deepEqual(errors, []);
-    console.log('React feedback: authored seams, retained-DOM Activity phase/frame/completion, hidden Replay, latest handoff, completion/replay, pause, StrictMode, source-only geometry, disclosure focus and responsive bilingual demo passed');
+    console.log('React feedback: dynamic nested skeleton geometry/observers, pending/failed WorkingMark and return-arrow fallback, retained-DOM reconnect, authored seams, phase/frame/completion, hidden Replay, latest handoff, completion/replay, pause, StrictMode, disclosure focus and responsive bilingual demo passed');
   } finally { await browser?.close(); await server.close(); }
 })().catch(error => { console.error(error); process.exitCode = 1; });

@@ -27,9 +27,20 @@ const { chromium } = require(process.env.PLAYWRIGHT_MODULE || 'playwright-core')
     const errors = [];
     page.on('pageerror', error => errors.push(error.message));
     page.on('console', message => { if (message.type() === 'error') errors.push(message.text()); });
-    const response = await page.goto(url), html = await response.text();
-    await page.locator('[data-hydrated="true"]').waitFor();
-    await page.waitForFunction(() => document.querySelector('[data-failed]') || document.querySelector('[data-working] img')?.getAnimations().length);
+    let releaseArtwork;
+    const artwork = new Promise(resolve => { releaseArtwork = resolve; });
+    await page.route('**/default-loop.webp', async route => { await artwork; await route.continue(); });
+    const response = await page.goto(url, { waitUntil: 'domcontentloaded' }), html = await response.text();
+    try {
+      await page.locator('[data-hydrated="true"]').waitFor();
+      await page.waitForFunction(() => document.querySelector('[data-working] img')?.getAttribute('src')?.includes('default-loop.webp'));
+      assert.equal(html.includes('data-failed'), true, 'server markup includes the same loading fallback as the first client render');
+      assert.equal(await page.locator('[data-failed]').isVisible(), true, 'hydration preserves the fallback while artwork is pending');
+      assert.equal(await page.locator('[data-working] img').isVisible(), false);
+      assert.equal(await page.locator('[data-working] img').evaluate(image => image.naturalWidth), 0);
+      assert.deepEqual(errors, [], 'loading fallback hydrates without warnings');
+    } finally { releaseArtwork(); }
+    await page.waitForFunction(() => document.querySelector('[data-working] img')?.getAnimations().length === 1);
     assert.equal(await page.locator('[data-failed]').count(), 0, 'server-rendered WorkingMark hydrates and decodes its browser resource');
     assert.equal(html.includes('file://'), false, 'server HTML never exposes a filesystem image URL');
     assert.deepEqual(errors, [], 'server and first client markup match without hydration errors');
@@ -64,6 +75,7 @@ const { chromium } = require(process.env.PLAYWRIGHT_MODULE || 'playwright-core')
     await failed.route('**/default-loop.webp', route => route.abort());
     await failed.goto(url);
     await failed.locator('[data-failed]').waitFor();
+    await failed.waitForFunction(() => document.querySelector('[data-working]') && !document.querySelector('[data-working] img'));
     assert.equal(await failed.locator('[data-working] img').count(), 0, 'decode failure retains the fallback contract');
     assert.deepEqual(failures, []);
     console.log('React SSR: real renderToString/hydration, browser asset decode, StrictMode playback, pause, Replay, unmount and fallback passed');

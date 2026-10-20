@@ -23,7 +23,9 @@ export function DiscreteSlider({ options, value, defaultValue, onValueChange, on
   useEffect(() => {
     const stop = () => { activePointer.current = null; setDragging(false); };
     window.addEventListener('blur', stop);
-    return () => window.removeEventListener('blur', stop);
+    // Activity can hide the retained input before its release is delivered.
+    // Disconnecting ends that gesture without resetting the selected value.
+    return () => { window.removeEventListener('blur', stop); stop(); };
   }, []);
 
   function stop() { activePointer.current = null; setDragging(false); }

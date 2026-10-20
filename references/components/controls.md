@@ -24,7 +24,7 @@ Import from `src/index.ts` and load the component stylesheet; see [setup and API
 
 - Control durations in `src/styles/motion.css` are multiplied by `--cui-motion-scale`. The demo sets this for slow playback; normal consumption defaults to scale 1.
 - Port the slider's three clipping layers together rather than reducing them to a percentage-width fill.
-- Pointer release, pointer cancel and blur all clear drag feedback.
+- Pointer release, pointer cancel and blur all clear drag feedback. Activity disconnection also cancels the current gesture, so releasing while hidden cannot leave a pressed thumb or stale pointer when the same input reconnects; the selected value is retained.
 - The hidden native range owns keyboard input and exposes the same state as the visual layers.
 - Keep focus layers, theme-dependent handle shadows and the selected/unselected colors distinct.
 
