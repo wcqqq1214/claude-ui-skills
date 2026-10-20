@@ -36,7 +36,7 @@ React renders the thumbnails, slides, caption, count and ARIA state. The isolate
 
 The [independent consumer suite](../../tests/react-gallery.browser.cjs) checks focal zoom, ideal pan, wheel units, pointer ownership, 3/4px drag boundaries, animation/zero-size measurement guards, neighbor reset/selection, close-button buffer, keyboard paging/focus, RTL, host item updates, multiple galleries, transition interruption and cleanup/fallback. Demo checks cover English/Chinese light/dark layouts at 1280/390/320px. [Deterministic geometry tests](../../tests/gallery-zoom.test.cjs) exercise the migrated TypeScript geometry.
 
-React Activity checks retain the dialog DOM while effects disconnect and reconnect. When the host calls `open()` again on reconnection, old native close events do not cancel that opening; cleanup remains silent and subsequent external native closes still report dismissal.
+React Activity checks retain the dialog DOM while effects disconnect and reconnect. When the host calls `open()` again on reconnection, it retains the current selected ID and old native close events do not cancel that opening; cleanup remains silent and subsequent external native closes still report dismissal.
 
 After a pointer drag, the next keyboard action clears the post-drag click guard even if its zero-delay timer has not run yet. Pointer clicks remain suppressed until that timer; the guard cannot swallow a later keyboard paging action. Pagehide, inactivity and unmount invalidate delayed transition callbacks, release capture and remove temporary transition styles.
 

@@ -11,6 +11,95 @@ const { chromium } = require(process.env.PLAYWRIGHT_MODULE || 'playwright-core')
   let browser;
   try {
     browser = await chromium.launch({ executablePath: process.env.CHROME_BIN, headless: true });
+    for (const syncActive of [false, true]) {
+      const activityPage = await browser.newPage({ viewport: { width: 1280, height: 1000 } }), activityErrors = [];
+      activityPage.on('pageerror', error => activityErrors.push(error.message));
+      await activityPage.goto(`${base}/tests/fixtures/react-reading/?activity${syncActive ? '&sync-active' : ''}`);
+      if (process.env.READING_ACTIVITY_ONLY !== 'scroll') {
+        const activityDialog = activityPage.locator('[data-activity-host] dialog'), expandActivity = activityPage.getByRole('button', { name: 'Expand Activity table', exact: true });
+        const retainedDialog = await activityDialog.elementHandle();
+        await retainedDialog.evaluate(element => { element.dataset.closes = '0'; element.addEventListener('close', () => { element.dataset.closes = String(Number(element.dataset.closes) + 1); }); });
+        await expandActivity.click();
+        assert.equal(await activityDialog.evaluate(element => element.open && element.matches(':modal')), true);
+        const hidden = await activityPage.evaluate(() => {
+          document.querySelector('[data-hide]').click();
+          const element = document.querySelector('[data-activity-host] dialog'), outside = document.querySelector('[data-outside]');
+          outside.focus();
+          const state = { modal: element.open || element.matches(':modal'), outsideFocused: document.activeElement === outside };
+          // Open the other modal in the same task, before the old close dispatch.
+          [...document.querySelectorAll('button')].find(button => button.textContent === 'Expand other table').click();
+          return state;
+        });
+        assert.equal(hidden.modal, false, 'Activity cleanup releases the native modal even when active changes during hiding');
+        assert.equal(hidden.outsideFocused, true, 'a retained hidden dialog cannot leave the rest of the page inert');
+        await activityPage.waitForFunction(() => Number(document.querySelector('[data-activity-host] dialog').dataset.closes) === 1);
+        const otherDialog = activityPage.getByRole('dialog', { name: 'Other table', exact: true });
+        assert.equal(await otherDialog.evaluate(element => element.open && element.contains(document.activeElement)), true, 'cleanup close events do not steal another modal\'s focus');
+        await otherDialog.getByRole('button', { name: 'Close other table', exact: true }).click();
+        await activityPage.locator('[data-show]').evaluate(element => element.click());
+        await activityPage.waitForFunction(() => document.querySelector('[data-activity-host] dialog').open);
+        assert.equal(await retainedDialog.evaluate(element => element === document.querySelector('[data-activity-host] dialog') && element.isConnected), true);
+        assert.equal(await activityDialog.getByRole('cell', { name: '100ms', exact: true }).count(), 1, 'a close delivered while effects are detached cannot erase the retained open intent');
+        for (let repeat = 0; repeat < 2; repeat++) {
+          const closes = await retainedDialog.evaluate(element => Number(element.dataset.closes));
+          await activityPage.locator('[data-reconnect]').evaluate(element => element.click());
+          await activityPage.waitForFunction(closes => Number(document.querySelector('[data-activity-host] dialog').dataset.closes) > closes, closes);
+          assert.equal(await retainedDialog.evaluate(element => element.open && element.matches(':modal') && element.contains(document.activeElement)), true, 'an old queued close cannot clear the newly shown dialog or move its focus');
+          assert.equal(await activityDialog.getByRole('cell', { name: '100ms', exact: true }).count(), 1);
+        }
+        await retainedDialog.evaluate(element => element.close());
+        await activityPage.waitForFunction(() => !document.querySelector('[data-activity-host] dialog .cui-table'));
+        assert.equal(await expandActivity.evaluate(element => element === document.activeElement), true, 'external close still clears expanded content and restores trigger focus');
+        await expandActivity.click();
+        await activityPage.locator('[data-active]').evaluate(element => element.click());
+        await activityPage.waitForFunction(() => !document.querySelector('[data-activity-host] dialog').open && !document.querySelector('[data-activity-host] dialog .cui-table'));
+        await activityPage.locator('[data-active]').evaluate(element => element.click());
+        assert.equal(await activityDialog.evaluate(element => element.open), false, 'a committed active=false clears open intent');
+        await expandActivity.click(); await activityPage.keyboard.press('Escape');
+        await activityPage.waitForFunction(() => !document.querySelector('[data-activity-host] dialog .cui-table'));
+        assert.equal(await expandActivity.evaluate(element => element === document.activeElement), true, 'Escape keeps the ordinary focus-return path');
+      }
+      const activityScroll = activityPage.getByRole('region', { name: 'Activity scroll', exact: true }), retainedScroll = await activityScroll.elementHandle();
+      const bottom = () => activityScroll.evaluate(element => element.scrollHeight - element.clientHeight - element.scrollTop);
+      await activityPage.waitForFunction(() => { const element = document.querySelector('[aria-label="Activity scroll"]'); return element.scrollHeight - element.clientHeight - element.scrollTop <= 2; });
+      await activityScroll.evaluate(element => { element.scrollTop = 150; element.dispatchEvent(new Event('scroll')); });
+      const paused = await activityScroll.evaluate(element => element.scrollTop);
+      await activityPage.locator('[data-reconnect]').evaluate(element => element.click());
+      await activityPage.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
+      assert.equal(await retainedScroll.evaluate(element => element === document.querySelector('[aria-label="Activity scroll"]') && element.isConnected), true);
+      assert.equal(await activityScroll.evaluate(element => element.scrollTop), paused, 'Activity reconnection preserves a paused reading position when resetKey is unchanged');
+      await activityPage.locator('[data-append]').evaluate(element => element.click());
+      await activityPage.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
+      assert.equal(await activityScroll.evaluate(element => element.scrollTop), paused, 'the paused follow mode also survives reconnection');
+      await activityPage.getByRole('button', { name: 'Return Activity', exact: true }).click();
+      await activityPage.locator('[data-reconnect]').evaluate(element => element.click());
+      await activityPage.locator('[data-append]').evaluate(element => element.click());
+      await activityPage.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
+      assert.ok(await bottom() <= 2, 'a following reader keeps following after reconnection');
+      await activityScroll.evaluate(element => { element.scrollTop = 150; element.dispatchEvent(new Event('scroll')); });
+      await activityPage.locator('[data-reset]').evaluate(element => element.click());
+      await activityPage.waitForFunction(() => { const element = document.querySelector('[aria-label="Activity scroll"]'); return element.scrollHeight - element.clientHeight - element.scrollTop <= 2; });
+      await activityScroll.evaluate(element => { element.scrollTop = 150; element.dispatchEvent(new Event('scroll')); });
+      await activityPage.locator('[data-hide]').evaluate(element => element.click());
+      await activityPage.locator('[data-reset]').evaluate(element => element.click());
+      await activityPage.locator('[data-append]').evaluate(element => element.click());
+      await activityPage.locator('[data-show]').evaluate(element => element.click());
+      await activityPage.waitForFunction(() => { const element = document.querySelector('[aria-label="Activity scroll"]'); return element.scrollHeight - element.clientHeight - element.scrollTop <= 2; });
+      assert.ok(await bottom() <= 2, 'a resetKey change while hidden is applied on reconnection');
+      await activityPage.locator('[data-follow]').evaluate(element => element.click());
+      await activityScroll.evaluate(element => { element.scrollTop = 150; element.dispatchEvent(new Event('scroll')); });
+      await activityPage.locator('[data-reset]').evaluate(element => element.click());
+      assert.equal(await activityScroll.evaluate(element => element.scrollTop), 0, 'an explicit reset still returns to the top when content following is disabled');
+      await activityScroll.evaluate(element => { element.scrollTop = 150; element.dispatchEvent(new Event('scroll')); });
+      await activityPage.locator('[data-hide]').evaluate(element => element.click());
+      await activityPage.locator('[data-reset]').evaluate(element => element.click());
+      await activityPage.locator('[data-show]').evaluate(element => element.click());
+      assert.equal(await activityScroll.evaluate(element => element.scrollTop), 0, 'a hidden reset also resets static content on reconnect');
+      assert.deepEqual(activityErrors, []);
+      await activityPage.close();
+    }
+    console.log('Reading Activity: retained dialogs release/reconnect safely and scroll position/follow mode survive unchanged resetKey.');
+    if (process.env.READING_ACTIVITY_ONLY) return;
     // Use the native clipboard in a separate context: mocked execCommand success
     // would miss the browser silently retaining old text outside a modal.
     const nativeContext = await browser.newContext({ permissions: ['clipboard-read', 'clipboard-write'] });

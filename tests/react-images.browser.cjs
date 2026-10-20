@@ -10,6 +10,89 @@ const { chromium } = require(process.env.PLAYWRIGHT_MODULE || 'playwright-core')
   let browser;
   try {
     browser = await chromium.launch({ executablePath: process.env.CHROME_BIN, headless: true });
+    for (const transitions of ['native', 'unavailable', 'throws']) {
+      const consumer = await browser.newPage({ viewport: { width: 1280, height: 800 } }), consumerErrors = [];
+      consumer.on('pageerror', error => consumerErrors.push(error.message));
+      consumer.on('console', message => { if (message.type() === 'error') consumerErrors.push(message.text()); });
+      await consumer.addInitScript(mode => {
+        if (mode === 'unavailable') document.startViewTransition = undefined;
+        if (mode === 'throws') document.startViewTransition = () => { throw new Error('View Transition unavailable'); };
+      }, transitions);
+      const host = name => consumer.getByRole('button', { name, exact: true, includeHidden: true }).evaluate(element => element.click());
+      const settle = () => consumer.waitForFunction(() => !document.querySelector('style[data-cui-image-transition]'));
+      // showModal synchronously focuses its close action. A host can hide the
+      // view during that real focus event, before the transition update returns.
+      await consumer.goto(`${base}/tests/fixtures/react-images/?focus`);
+      await consumer.waitForFunction(() => [...document.images].every(image => image.complete && image.naturalWidth > 0));
+      assert.equal(await consumer.locator('[data-focus-changes]').textContent(), '[]');
+      await consumer.getByRole('button', { name: 'Open focus preview', exact: true }).click();
+      await consumer.waitForFunction(() => document.querySelector('[data-focus-changes]').textContent === '[true,false]');
+      await settle();
+      assert.equal(await consumer.locator('dialog').evaluate(element => element.open), false);
+      assert.equal(await consumer.locator('.cui-image-origin img').evaluate(element => element.style.visibility), '', `synchronous focus cancellation restores the thumbnail (${transitions})`);
+      assert.equal(await consumer.locator('[style*="view-transition-name"]').count(), 0, 'a cancelled update cannot recreate a transition name');
+      await consumer.getByRole('button', { name: 'Reactivate', exact: true }).click();
+      await consumer.getByRole('button', { name: 'Enlarge focus preview', exact: true }).click();
+      const focusDialog = consumer.getByRole('dialog', { name: 'Focus preview' });
+      await focusDialog.waitFor({ state: 'visible' }); await settle();
+      await focusDialog.evaluate(element => element.close());
+      await consumer.waitForFunction(() => document.querySelector('[data-focus-changes]').textContent === '[true,false,true,false]');
+      await settle();
+      assert.equal(await consumer.locator('.cui-image-origin img').evaluate(element => element.style.visibility), '');
+      assert.equal(await consumer.locator('[style*="view-transition-name"]').count(), 0);
+
+      // Refresh also closes a native dialog synchronously. Its automatic focus
+      // return may start a newer request before the old refresh resumes.
+      await consumer.goto(`${base}/tests/fixtures/react-images/?refresh-focus`);
+      await consumer.waitForFunction(() => [...document.images].every(image => image.complete && image.naturalWidth > 0));
+      const refreshOpener = consumer.getByRole('button', { name: 'Open refresh preview', exact: true });
+      const refreshDialog = consumer.getByRole('dialog', { name: 'Refresh preview' });
+      await refreshOpener.click(); await refreshDialog.waitFor({ state: 'visible' }); await settle();
+      await host('Replace refresh thumbnail'); await refreshDialog.waitFor({ state: 'visible' }); await settle();
+      assert.equal(await consumer.getByRole('button', { name: 'Enlarge refresh preview', includeHidden: true }).getAttribute('aria-expanded'), 'true', `an obsolete refresh cannot reset the newer opening (${transitions})`);
+      assert.equal(await consumer.locator('[data-refresh-changes]').textContent(), '[true,false,true]', 'synchronous focus reopening has no stale dismissal');
+      await refreshDialog.evaluate(element => element.close());
+      await consumer.waitForFunction(() => document.querySelector('[data-refresh-changes]').textContent === '[true,false,true,false]');
+      await settle();
+      assert.equal(await refreshOpener.evaluate(element => element === document.activeElement), true, 'refresh reentry retains the newer opening\'s focus return');
+      assert.equal(await consumer.locator('.cui-image-origin img').evaluate(element => element.style.visibility), '');
+      assert.equal(await consumer.locator('[style*="view-transition-name"]').count(), 0);
+
+      await consumer.goto(`${base}/tests/fixtures/react-images/?activity`);
+      await consumer.waitForFunction(() => [...document.images].every(image => image.complete && image.naturalWidth > 0));
+      assert.equal(await consumer.locator('[data-activity-changes]').textContent(), '[]', 'Activity mount does not report opening');
+      const modal = consumer.getByRole('dialog', { name: 'Activity preview' });
+      const changes = async () => JSON.parse(await consumer.locator('[data-activity-changes]').textContent());
+      await consumer.getByRole('button', { name: 'Open Activity', exact: true }).click();
+      await modal.waitFor({ state: 'visible' }); await settle();
+      assert.deepEqual(await changes(), [true]);
+      const retained = await modal.elementHandle();
+      await modal.evaluate(element => { element.dataset.closes = '0'; element.addEventListener('close', () => { element.dataset.closes = String(Number(element.dataset.closes) + 1); }); });
+      for (let repeat = 0; repeat < 2; repeat++) {
+        const before = (await changes()).length, closes = await retained.evaluate(element => Number(element.dataset.closes));
+        await host('Reconnect Activity');
+        await consumer.waitForFunction(closes => Number(document.querySelector('[data-activity-host] dialog').dataset.closes) > closes, closes);
+        await settle();
+        assert.equal(await retained.evaluate(element => element === document.querySelector('[data-activity-host] dialog') && element.isConnected), true, 'Activity retains the same connected dialog DOM');
+        assert.equal(await modal.isVisible(), true, `old native close cannot cancel an ImagePreview reconnect (${transitions})`);
+        assert.deepEqual((await changes()).slice(before), [true], 'effect cleanup stays silent and reopening emits no stale false');
+      }
+      await modal.evaluate(element => element.close());
+      await consumer.waitForFunction(() => document.querySelector('[data-activity-host] button[aria-haspopup="dialog"]').getAttribute('aria-expanded') === 'false');
+      assert.equal((await changes()).at(-1), false, 'external close dismisses the reconnected preview');
+      await host('Open Activity'); await modal.waitFor({ state: 'visible' }); await settle();
+      const beforeHidden = (await changes()).length, closes = await retained.evaluate(element => Number(element.dataset.closes));
+      await host('Hide Activity');
+      await consumer.waitForFunction(closes => Number(document.querySelector('[data-activity-host] dialog').dataset.closes) > closes, closes);
+      assert.equal(await retained.evaluate(element => element.isConnected), true);
+      await host('Show Activity'); await modal.waitFor({ state: 'visible' }); await settle();
+      assert.equal(await retained.evaluate(element => element === document.querySelector('[data-activity-host] dialog')), true);
+      assert.deepEqual((await changes()).slice(beforeHidden), [true], 'delivering old close while hidden cannot swallow a later opening');
+      await modal.evaluate(element => element.close());
+      await consumer.waitForFunction(() => document.querySelector('[data-activity-host] button[aria-haspopup="dialog"]').getAttribute('aria-expanded') === 'false');
+      assert.deepEqual((await changes()).slice(beforeHidden), [true, false], 'external close remains observable after hidden-time delivery');
+      assert.deepEqual(consumerErrors, []); await consumer.close();
+    }
     const page = await browser.newPage({ viewport: { width: 1280, height: 900 } }); const errors = [];
     page.on('pageerror', error => errors.push(error.message));
     page.on('console', message => { if (message.type() === 'error') errors.push(message.text()); });

@@ -9,6 +9,7 @@ Use for: notifications that stay manageable as messages arrive and leave. Presen
 `NotificationStack` owns its items, deadlines, animation exit cleanup and focus order. A ref exposes `notify({ message, key?, action?, duration? })`, `dismiss(id)` and `clear()`. `notify` returns the instance-local ID. Messages/action labels are React nodes; an action supplies an onClick callback. No global provider is needed.
 
 - Ordinary notices default to 6000ms. Action notices default to persistence; duration overrides either behavior, and null always persists. Each item keeps an absolute deadline, so unrelated additions never extend it.
+- Replacing a single notice or refreshing a matching key invalidates its previous deadline, even if that timer's callback is already queued. The replacement's duration, including null, takes effect immediately.
 - A key deduplicates non-exiting entries and increments the count. The default display appends `(×count)`; `renderMessage(message, count)` supports translated or custom text. Repetitions after the second suppress repeated live announcements.
 - `mode="single"` replaces and refreshes the existing entry, including while exiting. Its obsolete exit completion is cancelled. Stack mode keeps exiting entries separate when the same key arrives again.
 - `defaultNotices` initializes a stack once. `dismissLabel` is required; `label`, `empty`, wrapper class/style and fallbackFocus are optional. Use one stable component instance per local stack.

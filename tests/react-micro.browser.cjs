@@ -15,6 +15,56 @@ const { chromium } = require(process.env.PLAYWRIGHT_MODULE || 'playwright-core')
     const errors = [];
     page.on('pageerror', error => errors.push(error.message));
     page.on('console', message => { if (message.type() === 'error') errors.push(message.text()); });
+    for (const mode of ['single', 'stack']) for (const duration of [null, 120_000]) {
+      const deadline = await browser.newPage();
+      deadline.on('pageerror', error => errors.push(error.message));
+      await deadline.addInitScript(() => {
+        // Control the timer boundary, without inspecting component closures.
+        // The old task is delivered after the host refresh, before passive
+        // cleanup gets a chance to cancel its registered timer.
+        const schedule = window.setTimeout.bind(window), cancel = window.clearTimeout.bind(window), now = Date.now.bind(Date);
+        let offset = 0;
+        const records = [];
+        Date.now = () => now() + offset;
+        window.noticeDeadlines = { records, advance: value => { offset += value; } };
+        window.setTimeout = (callback, delay, ...args) => {
+          const id = schedule(callback, delay, ...args);
+          if (typeof callback === 'function' && delay >= 59_000 && delay <= 120_000) records.push({ id, cancelled: false, run: () => { cancel(id); callback(...args); } });
+          return id;
+        };
+        window.clearTimeout = id => { const record = records.find(record => record.id === id); if (record) record.cancelled = true; cancel(id); };
+      });
+      await deadline.goto(`${base}/tests/fixtures/react-micro/?deadline=${mode}`);
+      await deadline.getByRole('button', { name: 'Seed deadline notice', exact: true }).click();
+      await deadline.waitForFunction(() => window.noticeDeadlines.records.length === 1);
+      const notice = deadline.getByRole('region', { name: 'Deadline notices', exact: true }).locator('[data-cui-notice]');
+      const id = await notice.getAttribute('data-cui-notice');
+      const cancelledBeforeDelivery = await deadline.evaluate(duration => {
+        const probe = window.noticeDeadlines, previous = probe.records[0];
+        probe.advance(60_000);
+        window.dispatchEvent(new CustomEvent('refresh-deadline-notice', { detail: duration }));
+        const cancelled = previous.cancelled;
+        previous.run();
+        return cancelled;
+      }, duration);
+      assert.equal(cancelledBeforeDelivery, false, 'the old deadline runs in the valid window before React effect cleanup');
+      // Native host events batch their React update. Observe its committed
+      // message before checking the resulting identity and expiry state.
+      await notice.getByText('Refreshed notice', { exact: false }).waitFor();
+      assert.equal(await notice.getAttribute('data-cui-notice'), id, `${mode} refresh reuses its existing notice`);
+      assert.equal(await notice.getAttribute('data-ending'), null, `${mode} old deadline cannot cancel ${duration === null ? 'a persistent' : 'an extended'} replacement`);
+      assert.ok((await notice.textContent()).includes('Refreshed notice'));
+      if (mode === 'stack') assert.ok((await notice.textContent()).includes('×2'), 'same-key refresh still increments its count');
+      if (duration !== null) await deadline.waitForFunction(() => window.noticeDeadlines.records.length === 2);
+      await deadline.waitForTimeout(250);
+      assert.equal(await notice.count(), 1, 'the refreshed notice survives the old exit interval');
+      assert.equal(await notice.getAttribute('aria-hidden'), 'false');
+      if (duration !== null) {
+        await deadline.evaluate(() => { window.noticeDeadlines.advance(120_000); window.noticeDeadlines.records[1].run(); });
+        await notice.waitFor({ state: 'detached' });
+      }
+      await deadline.close();
+    }
     await page.addInitScript(() => {
       window.copyRequests = [];
       Object.defineProperty(navigator, 'clipboard', { configurable: true, value: { writeText: text => new Promise((resolve, reject) => window.copyRequests.push({ text, resolve, reject })) } });

@@ -24,6 +24,8 @@ import './src/styles/index.css';
 
 React owns the trigger, native dialog and translated content. The isolated controller measures the visible source, coordinates native View Transitions and restores focus. Each instance has its own transition name and temporary stylesheet; it does not set global html classes or suppress the host's named elements. Unsupported View Transitions fall back to the same native dialog behavior. Unmount, inactivity and pagehide cancel pending updates and remove temporary styles.
 
+With Activity retaining the dialog DOM, cleanup closes silently and the host can call `open()` after effects reconnect. An old queued close cannot cancel that new opening; subsequent external native closing still updates the component. If opening focus synchronously cancels the request, the obsolete transition callback leaves the thumbnail visible and clears its temporary names.
+
 An uncached preview loads and decodes before opening, so its transition has intrinsic image dimensions. The page remains interactive while waiting. `close()`, inactivity, pagehide and unmount cancel that opening request; `onOpenChange` reports actual display changes. A failed resource leaves the thumbnail available, and a URL change invalidates the old resource before preparing the replacement.
 
 ## Parameters

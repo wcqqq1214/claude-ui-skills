@@ -16,11 +16,12 @@ export function createMentionEditing(editor: HTMLDivElement, template: HTMLEleme
   let queryRange: Range | null = null, composing = false, dismissed: string | null = null, active = true;
   let contextNode: HTMLElement | null = null, contextSelection: Range | null = null;
   let popup: MentionPopup = null, popupSignature = '', currentQuery = '', lastDraft = '';
-  const disposers: (() => void)[] = [];
+  const connectors: (() => void)[] = [], disposers: (() => void)[] = [];
   const lineBreakTails = new WeakSet<Node>();
   let lineBreakLength: number | null = null;
   function listen(target: EventTarget, event: string, handler: EventListener, capture = false) {
-    target.addEventListener(event, handler, capture); disposers.push(() => target.removeEventListener(event, handler, capture));
+    connectors.push(() => target.addEventListener(event, handler, capture));
+    disposers.push(() => target.removeEventListener(event, handler, capture));
   }
   function selectionRange() {
     const selection = getSelection();
@@ -210,13 +211,17 @@ export function createMentionEditing(editor: HTMLDivElement, template: HTMLEleme
   });
   listen(window, 'resize', positionPopup); listen(window, 'scroll', positionPopup, true);
   if (window.visualViewport) listen(window.visualViewport, 'resize', positionPopup);
-  const observer = new ResizeObserver(positionPopup); observer.observe(editor);
+  const observer = new ResizeObserver(positionPopup);
   return {
     update, getDraft, choose, positionPopup, removeMention, closeMenu,
     highlight(index: number) { if (popup) show({ ...popup, index }); },
     setActive(value: boolean) { active = value; if (!value) { close(); closeMenu(); } },
     refresh() { close(); closeMenu(); },
     reset(text: string, notify = false) { close(); closeMenu(); editor.textContent = text; lastDraft = ''; update(); if (notify) publish(); else lastDraft = JSON.stringify(getDraft()); },
-    dispose() { observer.disconnect(); disposers.forEach(dispose => dispose()); },
+    connect() { connectors.forEach(connect => connect()); observer.observe(editor); },
+    disconnect() {
+      observer.disconnect(); disposers.forEach(dispose => dispose());
+      composing = false; lineBreakLength = null; close(); closeMenu();
+    },
   };
 }

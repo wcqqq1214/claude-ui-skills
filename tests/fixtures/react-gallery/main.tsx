@@ -23,7 +23,7 @@ function Consumer() {
     </> : null}
   </main>;
 }
-function ActivityGallery({ onOpenChange }: { onOpenChange: (open: boolean) => void }) {
+function ActivityGallery({ onOpenChange, onValueChange }: { onOpenChange: (open: boolean) => void; onValueChange: (id: string) => void }) {
   const gallery = useRef<GalleryHandle>(null);
   useLayoutEffect(() => {
     let current = true;
@@ -33,17 +33,18 @@ function ActivityGallery({ onOpenChange }: { onOpenChange: (open: boolean) => vo
   }, []);
   return <section data-activity-host style={{ maxWidth: 600, margin: '20px auto' }}>
     <button onClick={() => gallery.current?.open()}>Open Activity</button>
-    <Gallery ref={gallery} items={original} labels={{ ...labels, dialog: 'Activity gallery' }} onOpenChange={onOpenChange} />
+    <Gallery ref={gallery} items={original} labels={{ ...labels, dialog: 'Activity gallery' }} onOpenChange={onOpenChange} onValueChange={onValueChange} />
   </section>;
 }
 function ActivityConsumer() {
-  const [mode, setMode] = useState<'hidden' | 'visible'>('visible'), [changes, setChanges] = useState<boolean[]>([]);
+  const [mode, setMode] = useState<'hidden' | 'visible'>('visible'), [changes, setChanges] = useState<boolean[]>([]), [selections, setSelections] = useState<string[]>([]);
   return <main data-cui-theme="light">
     <button onClick={() => { flushSync(() => setMode('hidden')); flushSync(() => setMode('visible')); }}>Reconnect Activity</button>
     <button onClick={() => flushSync(() => setMode('hidden'))}>Hide Activity</button>
     <button onClick={() => flushSync(() => setMode('visible'))}>Show Activity</button>
     <output data-activity-changes>{JSON.stringify(changes)}</output>
-    <Activity mode={mode}><ActivityGallery onOpenChange={value => setChanges(previous => [...previous, value])} /></Activity>
+    <output data-activity-selections>{JSON.stringify(selections)}</output>
+    <Activity mode={mode}><ActivityGallery onOpenChange={value => setChanges(previous => [...previous, value])} onValueChange={id => setSelections(previous => [...previous, id])} /></Activity>
   </main>;
 }
 createRoot(document.getElementById('root')!).render(<StrictMode>{new URLSearchParams(location.search).has('activity') ? <ActivityConsumer /> : <Consumer />}</StrictMode>);

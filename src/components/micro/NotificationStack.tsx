@@ -67,7 +67,11 @@ export function NotificationStack({ ref, dismissLabel, label, mode = 'stack', de
   useImperativeHandle(ref, () => ({ notify, dismiss, clear: () => { for (const item of snapshot.current) dismiss(item.id); } }), [notify, dismiss]);
   useEffect(() => { alive.current = true; return () => { alive.current = false; }; }, []);
   useEffect(() => {
-    const timers = items.filter(item => !item.exiting && item.expires !== null).map(item => setTimeout(() => dismiss(item.id), Math.max(0, item.expires! - Date.now())));
+    const timers = items.filter(item => !item.exiting && item.expires !== null).map(item => setTimeout(() => {
+      // A host can refresh this ID before passive cleanup cancels the old
+      // timer. Only the notice that registered this deadline may expire.
+      if (snapshot.current.includes(item)) dismiss(item.id);
+    }, Math.max(0, item.expires! - Date.now())));
     return () => timers.forEach(clearTimeout);
   }, [items, dismiss]);
   const front = items.find(item => !item.exiting);

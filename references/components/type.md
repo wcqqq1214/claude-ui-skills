@@ -24,6 +24,7 @@ Import through `src/index.ts` and the component stylesheet. The demo owns sample
 ## Rules
 
 - Upward input releases following. Keep both resize observations so language and width changes remeasure.
+- Activity effect reconnection preserves the paused reading position or current following mode. Only a changed resetKey requests a reset; changes made while hidden apply on reconnection.
 - Returning jumps straight to the bottom, restores following and moves focus from the disappearing button to the scroll region.
 - Replay cancels earlier timers and resets following.
 - One-shot effects replay when their card enters view, each with its own replay button; body timers clear when the card leaves. Loading pauses offscreen and in hidden documents.

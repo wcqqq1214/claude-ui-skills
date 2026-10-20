@@ -1,4 +1,4 @@
-import { StrictMode, useRef, useState } from 'react';
+import { StrictMode, useEffect, useRef, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import { CopyButton, GhostButton, NotificationStack, Tooltip } from '../../../src';
 import type { NotificationStackHandle } from '../../../src';
@@ -49,4 +49,19 @@ function Consumer() {
     </> : null}
   </main>;
 }
-createRoot(document.getElementById('root')!).render(<StrictMode><Consumer /></StrictMode>);
+function DeadlineConsumer({ mode }: { mode: 'single' | 'stack' }) {
+  const notices = useRef<NotificationStackHandle>(null);
+  useEffect(() => {
+    // A native event represents an asynchronous host result. Its imperative
+    // notification update can precede React's next render/effect cleanup.
+    const refresh = (event: Event) => notices.current?.notify({ key: 'repeat', message: 'Refreshed notice', duration: (event as CustomEvent<number | null>).detail });
+    window.addEventListener('refresh-deadline-notice', refresh);
+    return () => window.removeEventListener('refresh-deadline-notice', refresh);
+  }, []);
+  return <main>
+    <button onClick={() => notices.current?.notify({ key: 'repeat', message: 'Original notice', duration: 60_000 })}>Seed deadline notice</button>
+    <NotificationStack ref={notices} mode={mode} label="Deadline notices" dismissLabel="Dismiss deadline notice" />
+  </main>;
+}
+const deadlineMode = new URLSearchParams(location.search).get('deadline');
+createRoot(document.getElementById('root')!).render(<StrictMode>{deadlineMode ? <DeadlineConsumer mode={deadlineMode === 'single' ? 'single' : 'stack'} /> : <Consumer />}</StrictMode>);

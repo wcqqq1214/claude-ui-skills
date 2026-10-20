@@ -24,6 +24,9 @@ const { chromium } = require(process.env.PLAYWRIGHT_MODULE || 'playwright-core')
       const changes = async () => JSON.parse(await activity.locator('[data-activity-changes]').textContent());
       await modal.waitFor({ state: 'visible' }); await activitySettle();
       assert.deepEqual(await changes(), [true], 'StrictMode opens once after its effect probe');
+      await modal.getByRole('button', { name: 'Next', exact: true }).click();
+      assert.equal(await modal.locator('.cui-gallery-filename').textContent(), 'landscape-dusk.svg');
+      assert.equal(await activity.locator('[data-activity-selections]').textContent(), '["dusk"]');
       const retained = await modal.elementHandle();
       await modal.evaluate(element => { element.dataset.closes = '0'; element.addEventListener('close', () => { element.dataset.closes = String(Number(element.dataset.closes) + 1); }); });
       for (let repeat = 0; repeat < 2; repeat++) {
@@ -34,9 +37,12 @@ const { chromium } = require(process.env.PLAYWRIGHT_MODULE || 'playwright-core')
         assert.equal(await retained.evaluate(element => element === document.querySelector('[data-activity-host] dialog') && element.isConnected), true, 'Activity reconnect retains the same dialog DOM');
         assert.equal(await modal.isVisible(), true, `old close events cannot cancel the reconnected opening (${transitions})`);
         assert.deepEqual((await changes()).slice(before), [true], 'effect cleanup stays silent and reopening emits no stale false');
+        assert.equal(await modal.locator('.cui-gallery-filename').textContent(), 'landscape-dusk.svg', 'Activity reopening retains the selected ID instead of the initial ID');
+        assert.equal(await modal.locator('[data-cui-gallery-slide="dusk"]').getAttribute('aria-hidden'), 'false');
+        assert.equal(await activity.locator('[data-activity-selections]').textContent(), '["dusk"]', 'reconnection does not invent another selection change');
       }
       await modal.evaluate(element => element.close());
-      await activity.waitForFunction(() => document.querySelector('[data-activity-host] button[aria-haspopup="dialog"]').getAttribute('aria-expanded') === 'false');
+      await activity.waitForFunction(() => !document.querySelector('[data-activity-host] button[aria-haspopup="dialog"][aria-expanded="true"]'));
       assert.equal((await changes()).at(-1), false, 'external native close still updates the reconnected controller');
       await activityHost('Open Activity'); await modal.waitFor({ state: 'visible' }); await activitySettle();
       const beforeHidden = (await changes()).length, closes = await retained.evaluate(element => Number(element.dataset.closes));
@@ -46,8 +52,9 @@ const { chromium } = require(process.env.PLAYWRIGHT_MODULE || 'playwright-core')
       await activityHost('Show Activity'); await modal.waitFor({ state: 'visible' }); await activitySettle();
       assert.equal(await retained.evaluate(element => element === document.querySelector('[data-activity-host] dialog')), true);
       assert.deepEqual((await changes()).slice(beforeHidden), [true], 'showing after queued close delivery reopens without a stale notification');
+      assert.equal(await modal.locator('.cui-gallery-filename').textContent(), 'landscape-dusk.svg', 'selection also survives an interval with detached effects');
       await modal.evaluate(element => element.close());
-      await activity.waitForFunction(() => document.querySelector('[data-activity-host] button[aria-haspopup="dialog"]').getAttribute('aria-expanded') === 'false');
+      await activity.waitForFunction(() => !document.querySelector('[data-activity-host] button[aria-haspopup="dialog"][aria-expanded="true"]'));
       assert.deepEqual((await changes()).slice(beforeHidden), [true, false], 'hidden-time delivery leaves no stale ownership to swallow external close');
       assert.deepEqual(activityErrors, []); await activity.close();
     }

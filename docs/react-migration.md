@@ -162,3 +162,15 @@ The follow-up compares the migration with the same local `dev` baseline, includi
 Final verification: `npm test` passed all 14 unit/integration checks, strict typecheck, production build and all 11 browser files. The tracked-file link audit and `git diff --check` also passed.
 
 These checks establish the documented local-demo behavior and source integration contract. They do not extend the original-app, physical-gesture or reduced-motion coverage boundaries.
+
+## Activity and stale callback follow-up
+
+The retained-DOM review found seven lifecycle gaps beyond the ordinary hidden-chapter paths. The fixes preserve the editing DOM, native undo and semantic blank lines, the current gallery item, and the reader's paused position or following mode across Activity effect reconnection. Explicit reset keys still apply when changed while hidden. Interrupted composition and detached imperative handles keep their existing cleanup boundaries.
+
+Expanded tables release the native modal during Activity cleanup and restore the retained open intent on reconnection. Old close events cannot erase the restored table or move focus into a hidden view. Image previews distinguish a pending opening from a presented native dialog, and recheck request ownership after synchronous focus changes during both opening and resource refresh. Obsolete updates cannot hide the thumbnail, recreate transition names or overwrite a newer request.
+
+Notification deadlines belong to the exact notice that registered them. A queued timer from a single-notice replacement or a same-key refresh cannot dismiss the new persistent or extended entry. Deterministic timer-boundary tests also verify that the new entry's own deadline still works.
+
+Permanent browser regressions first reproduced the reported failures, then passed after the fixes. They use real React Activity under StrictMode, retain the same DOM nodes, check exact state/callback results and exercise native, unavailable and throwing View Transition APIs. The corresponding component guides and integration boundaries describe these reconnection semantics.
+
+Final verification passed 15 unit/integration checks, strict type checking, a fresh production build and all 12 browser suites, including SSR hydration and static delivery. A separate consumer copied only `src/` and six source-only fixtures into a temporary project, typechecked without Vite ambient declarations, built with Tailwind and ran under a production subpath. Its Activity, focus, external-close and asset checks passed in all three transition modes, including all 14 sprite resources and no page/network errors. The 24-document audit found no broken or untracked targets among 218 local links; POSIX/Windows anchor checks and `git diff --check` also passed.

@@ -33,11 +33,10 @@ export function Gallery({ items, labels, defaultValue, onValueChange, onOpenChan
   const close = useRef<HTMLButtonElement>(null), previous = useRef<HTMLButtonElement>(null), next = useRef<HTMLButtonElement>(null);
   const slides = useRef(new Map<string, HTMLDivElement>()), triggers = useRef(new Map<string, HTMLButtonElement>());
   const controller = useRef<ReturnType<typeof createGalleryInteraction> | null>(null);
-  const latest = useRef({ items, active, onValueChange, onOpenChange });
-  const initial = useRef(state.id);
-  useLayoutEffect(() => { latest.current = { items, active, onValueChange, onOpenChange }; }, [items, active, onValueChange, onOpenChange]);
+  const latest = useRef({ items, active, selectedId: state.id, onValueChange, onOpenChange });
+  useLayoutEffect(() => { latest.current = { items, active, selectedId: state.id, onValueChange, onOpenChange }; }, [items, active, state.id, onValueChange, onOpenChange]);
   useLayoutEffect(() => {
-    const interaction = createGalleryInteraction({ dialog: dialog.current!, rail: rail.current!, viewport: viewport.current!, header: header.current!, bottom: bottom.current!, close: close.current!, previous: previous.current!, next: next.current!, slides: slides.current, triggers: triggers.current, initialId: initial.current,
+    const interaction = createGalleryInteraction({ dialog: dialog.current!, rail: rail.current!, viewport: viewport.current!, header: header.current!, bottom: bottom.current!, close: close.current!, previous: previous.current!, next: next.current!, slides: slides.current, triggers: triggers.current, initialId: latest.current.selectedId,
       items: () => latest.current.items,
       change(value, synchronous) { if (synchronous) flushSync(() => setState(value)); else setState(value); },
       selection: value => latest.current.onValueChange?.(value), opened: value => latest.current.onOpenChange?.(value),

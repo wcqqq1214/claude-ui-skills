@@ -19,6 +19,7 @@ export function ScrollFollower({ label, returnLabel, busy = false, active = true
   const viewport = useRef<HTMLDivElement>(null), content = useRef<HTMLDivElement>(null), end = useRef<HTMLSpanElement>(null);
   const pinned = useRef(true), lastTop = useRef(0), touchY = useRef<number | null>(null);
   const nearEnd = useRef(true), fadeNearEnd = useRef(true);
+  const previousReset = useRef<{ key: typeof resetKey } | null>(null);
   const followAllowed = useRef(followContent);
   const [showReturn, setShowReturn] = useState(false), [showFade, setShowFade] = useState(false);
   function update() { setShowReturn(!pinned.current && !nearEnd.current); setShowFade(!pinned.current && !fadeNearEnd.current); }
@@ -32,6 +33,10 @@ export function ScrollFollower({ label, returnLabel, busy = false, active = true
     update();
   }
   useLayoutEffect(() => {
+    // Reconnecting Activity effects is not a new reading session. A key changed
+    // while hidden is still applied when this effect reconnects.
+    if (previousReset.current && Object.is(previousReset.current.key, resetKey)) return;
+    previousReset.current = { key: resetKey };
     pinned.current = true; lastTop.current = 0; touchY.current = null;
     viewport.current!.scrollTop = 0; update();
   }, [resetKey]);

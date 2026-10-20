@@ -1,5 +1,6 @@
-import { StrictMode, useRef, useState } from 'react';
+import { Activity, StrictMode, useRef, useState } from 'react';
 import { createRoot } from 'react-dom/client';
+import { flushSync } from 'react-dom';
 import { CodeBlock, ExpandableTable, GraphemeReveal, Prose, ScrollFollower } from '../../../src';
 import '../../../src/styles/index.css';
 
@@ -25,4 +26,28 @@ function Consumer() {
     </> : null}
   </main>;
 }
-createRoot(document.getElementById('root')!).render(<StrictMode><Consumer /></StrictMode>);
+function ActivityConsumer() {
+  const [mode, setMode] = useState<'hidden' | 'visible'>('visible'), [active, setActive] = useState(true), [count, setCount] = useState(20), [reset, setReset] = useState(0), [followContent, setFollowContent] = useState(true);
+  const syncActive = new URLSearchParams(location.search).has('sync-active');
+  const columns = [{ key: 'name', header: 'Name', rowHeader: true }, { key: 'duration', header: 'Duration' }], rows = [{ key: 'a', cells: { name: 'Fade', duration: '100ms' } }];
+  return <main data-cui-theme="light" style={{ width: 320, maxWidth: '100%' }}>
+    <button data-hide onClick={() => flushSync(() => setMode('hidden'))}>Hide Activity</button>
+    <button data-show onClick={() => flushSync(() => setMode('visible'))}>Show Activity</button>
+    <button data-reconnect onClick={() => { flushSync(() => setMode('hidden')); flushSync(() => setMode('visible')); }}>Reconnect Activity</button>
+    <button data-active onClick={() => setActive(value => !value)}>Toggle active</button>
+    <button data-append onClick={() => setCount(value => value + 1)}>Append Activity</button>
+    <button data-reset onClick={() => setReset(value => value + 1)}>Reset Activity</button>
+    <button data-follow onClick={() => setFollowContent(value => !value)}>Toggle following content</button>
+    <input data-outside aria-label="Outside Activity" />
+    <Activity mode={mode}>
+      <section data-activity-host>
+        <ExpandableTable active={active && (!syncActive || mode === 'visible')} label="Activity table" expandLabel="Expand Activity table" closeLabel="Close Activity table" columns={columns} rows={rows} />
+        <ScrollFollower label="Activity scroll" returnLabel="Return Activity" height={160} active={active && (!syncActive || mode === 'visible')} followContent={followContent} resetKey={reset}>
+          {Array.from({ length: count }, (_, index) => <p key={index} style={{ margin: '16px 0', minHeight: 60 }}>Activity paragraph {index + 1}</p>)}
+        </ScrollFollower>
+      </section>
+    </Activity>
+    <ExpandableTable label="Other table" expandLabel="Expand other table" closeLabel="Close other table" columns={columns} rows={rows} />
+  </main>;
+}
+createRoot(document.getElementById('root')!).render(<StrictMode>{new URLSearchParams(location.search).has('activity') ? <ActivityConsumer /> : <Consumer />}</StrictMode>);

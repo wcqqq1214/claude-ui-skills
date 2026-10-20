@@ -73,8 +73,8 @@ interface PreviewElements {
   onChange(open: boolean): void;
 }
 export function createImagePreview({ origin, target, dialog, name, onChange }: PreviewElements) {
-  let opened = false, reported = false, disposed = false, revision = 0, transition: ViewTransition | null = null;
-  let loading: AbortController | null = null, ownCloseEvents = 0;
+  let opened = false, reported = false, nativeOpened = false, disposed = false, revision = 0, transition: ViewTransition | null = null;
+  let loading: AbortController | null = null;
   let sheet: HTMLStyleElement | null = null, returnFocus: Element | null = null;
   const originalVisibility = origin.style.visibility;
   // Restore only the names this controller temporarily replaces.
@@ -93,20 +93,23 @@ export function createImagePreview({ origin, target, dialog, name, onChange }: P
   function cancelLoading() { loading?.abort(); loading = null; }
   function report(open: boolean) { if (reported !== open) { reported = open; onChange(open); } }
   function render(open: boolean, restoreFocus = true) {
+    const current = revision;
     if (open) {
       if (!dialog.open) dialog.showModal();
+      if (disposed || current !== revision) return;
+      nativeOpened = true;
     } else {
+      nativeOpened = false;
       const focused = document.activeElement;
       const outside = focused instanceof HTMLElement && focused !== document.body && !dialog.contains(focused);
       origin.style.visibility = originalVisibility;
-      // Native close events are queued. A later cached-resource reopening must
-      // not mistake this event for an external close of the new request.
-      if (dialog.open) { ownCloseEvents++; dialog.close(); }
+      if (dialog.open) dialog.close();
+      if (current !== revision) return;
       if (restoreFocus) {
         const destination = outside ? focused : returnFocus;
         if (destination instanceof HTMLElement && destination.isConnected) destination.focus({ preventScroll: true });
       }
-      returnFocus = null;
+      if (current === revision) returnFocus = null;
     }
   }
   function move(open: boolean, current: number) {
@@ -134,7 +137,11 @@ export function createImagePreview({ origin, target, dialog, name, onChange }: P
     (open ? origin : target).style.setProperty('view-transition-name', name, 'important');
     const update = () => {
       if (current !== revision || disposed) return;
-      render(open); clearNames();
+      render(open);
+      // showModal focuses synchronously. The host may close/hide/unmount in
+      // that focus event, invalidating this update while render is on-stack.
+      if (current !== revision || disposed) return;
+      clearNames();
       if (open) {
         target.style.setProperty('view-transition-name', name, 'important');
         // Target is now laid out, so inherited/overridden corner values are measurable.
@@ -143,15 +150,18 @@ export function createImagePreview({ origin, target, dialog, name, onChange }: P
       } else if (visible) origin.style.setProperty('view-transition-name', name, 'important');
     };
     try {
-      const next = document.startViewTransition(update); transition = next;
+      const next = document.startViewTransition(update);
+      if (disposed || current !== revision) next.skipTransition();
+      else transition = next;
       void next.ready.catch(() => {}); void next.updateCallbackDone.catch(() => {});
       void next.finished.catch(() => {}).finally(() => {
         ownSheet.remove();
-        if (current !== revision) return;
-        clearNames(); sheet = null; transition = null;
+        if (disposed || current !== revision) return;
+        clearNames(); if (sheet === ownSheet) sheet = null; if (transition === next) transition = null;
       });
     } catch {
-      update(); clearNames(); ownSheet.remove(); sheet = null;
+      update(); ownSheet.remove();
+      if (!disposed && current === revision) { clearNames(); if (sheet === ownSheet) sheet = null; }
     }
   }
   function prepare(current: number) {
@@ -169,7 +179,7 @@ export function createImagePreview({ origin, target, dialog, name, onChange }: P
   function setOpen(open: boolean) {
     if (disposed || opened === open) return;
     if (open && !dialog.open) returnFocus = document.activeElement;
-    opened = open;
+    opened = open; nativeOpened = open && dialog.open;
     const current = ++revision;
     cancelLoading(); clearTransition();
     if (open) prepare(current); else move(false, current);
@@ -180,19 +190,22 @@ export function createImagePreview({ origin, target, dialog, name, onChange }: P
     cancelLoading(); clearTransition();
     // A URL change can invalidate an already visible image too. Hide the old
     // modal before waiting, and keep the user's original opening intent/focus.
-    render(false, false); returnFocus = focus; report(false);
+    render(false, false);
+    if (disposed || current !== revision) return;
+    returnFocus = focus; report(false);
     if (!disposed && current === revision && opened) prepare(current);
   }
   function reset(notify = true) {
     ++revision; cancelLoading(); clearTransition();
-    const wasReported = reported; opened = reported = false;
+    const wasReported = reported; opened = reported = nativeOpened = false;
     render(false, false);
     if (notify && wasReported) onChange(false);
   }
   const pagehide = () => reset();
+  // Old native close events can reach a newly connected controller on the same
+  // Activity-retained dialog. Only a presented, now-closed request is external.
   const closed = () => {
-    if (ownCloseEvents) { ownCloseEvents--; return; }
-    if (!dialog.open && reported) setOpen(false);
+    if (!dialog.open && reported && nativeOpened) setOpen(false);
   };
   window.addEventListener('pagehide', pagehide); dialog.addEventListener('close', closed);
   return {

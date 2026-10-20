@@ -27,23 +27,34 @@ const noOptions: readonly MentionOption[] = [];
 export function MentionEditor({ ref, label, placeholder, mentionListLabel, mentionHeading, deleteLabel, options = noOptions, defaultText = '', resetKey, active = true, maxHeight = 'min(40svh, 384px)', onDraftChange, className }: MentionEditorProps) {
   const id = useId(), editor = useRef<HTMLDivElement>(null), template = useRef<HTMLSpanElement>(null), popup = useRef<HTMLDivElement>(null), menu = useRef<HTMLDivElement>(null);
   const editing = useRef<ReturnType<typeof createMentionEditing> | null>(null);
+  const appliedReset = useRef<{ key: typeof resetKey } | null>(null), connected = useRef(false);
   const latest = useRef({ options, onDraftChange });
   const [suggestions, setSuggestions] = useState<MentionPopup>(null), [context, setContext] = useState<MentionContext>(null), [empty, setEmpty] = useState(!defaultText);
   const resize = () => { const element = editor.current; if (element?.clientWidth) { element.style.height = 'auto'; element.style.height = `${element.scrollHeight}px`; } };
   useLayoutEffect(() => { latest.current = { options, onDraftChange }; });
   useLayoutEffect(() => {
-    const instance = createMentionEditing(editor.current!, template.current!, {
+    // Activity retains the editing DOM and browser undo history while effects
+    // disconnect. Reuse its semantic newline metadata and draft signature too.
+    const instance = editing.current ?? createMentionEditing(editor.current!, template.current!, {
       options: () => latest.current.options, popup: () => popup.current, menu: () => menu.current,
       setPopup: setSuggestions, setContext, setEmpty,
       onChange: value => { resize(); latest.current.onDraftChange?.(value); },
     });
     editing.current = instance;
+    instance.connect();
+    connected.current = true;
     let lastWidth = 0;
     const observer = new ResizeObserver(([entry]) => { if (entry.contentRect.width !== lastWidth) { lastWidth = entry.contentRect.width; resize(); } });
     observer.observe(editor.current!);
-    return () => { instance.dispose(); editing.current = null; observer.disconnect(); };
+    return () => { connected.current = false; instance.disconnect(); observer.disconnect(); };
   }, []);
-  useLayoutEffect(() => { editing.current?.reset(defaultText); resize(); }, [resetKey]);
+  useLayoutEffect(() => {
+    if (!appliedReset.current || !Object.is(appliedReset.current.key, resetKey)) {
+      editing.current?.reset(defaultText);
+      appliedReset.current = { key: resetKey };
+    }
+    resize();
+  }, [resetKey]);
   useLayoutEffect(() => { editing.current?.setActive(active); resize(); }, [active, maxHeight]);
   // Localizing the surrounding chrome never rewrites existing draft/atom text.
   useLayoutEffect(() => { editing.current?.update(); }, [options]);
@@ -56,7 +67,11 @@ export function MentionEditor({ ref, label, placeholder, mentionListLabel, menti
     element.style.top = Math.max(16, Math.min(context.y, innerHeight - element.offsetHeight - 16)) + 'px';
     element.focus({ preventScroll: true });
   }, [context]);
-  useImperativeHandle(ref, () => ({ focus: () => editor.current?.focus({ preventScroll: true }), clear: () => { editing.current?.reset('', true); resize(); }, getDraft: () => editing.current?.getDraft() ?? { text: '', mentions: [] } }), []);
+  useImperativeHandle(ref, () => ({
+    focus: () => editor.current?.focus({ preventScroll: true }),
+    clear: () => { if (connected.current) { editing.current?.reset('', true); resize(); } },
+    getDraft: () => connected.current ? editing.current!.getDraft() : { text: '', mentions: [] },
+  }), []);
   return <div className={classes('relative min-w-0 font-cui', className)}>
     {empty ? <span aria-hidden="true" className="cui-composer-placeholder pointer-events-none absolute inset-0 select-none text-cui-muted">{placeholder}</span> : null}
     <div ref={editor} className="cui-composer-editor" contentEditable suppressContentEditableWarning onInput={resize} role="textbox" aria-multiline="true" aria-label={label} aria-autocomplete="list" aria-controls={suggestions ? `${id}-list` : undefined} aria-expanded={!!suggestions} aria-activedescendant={suggestions ? `${id}-option-${suggestions.index}` : undefined} translate="no" style={{ maxHeight }} />

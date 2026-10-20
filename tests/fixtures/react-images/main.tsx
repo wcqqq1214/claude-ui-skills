@@ -1,8 +1,10 @@
-import { StrictMode, useRef, useState } from 'react';
+import { Activity, StrictMode, useLayoutEffect, useRef, useState } from 'react';
 import { createRoot } from 'react-dom/client';
+import { flushSync } from 'react-dom';
 import { ImagePreview } from '../../../src';
 import type { ImagePreviewHandle } from '../../../src';
 import landscape from '../../../src/assets/artwork/landscape.svg';
+import dusk from '../../../src/assets/artwork/landscape-dusk.svg';
 import '../../../src/styles/index.css';
 function Consumer() {
   const first = useRef<ImagePreviewHandle>(null), second = useRef<ImagePreviewHandle>(null);
@@ -21,4 +23,58 @@ function Consumer() {
     </> : null}
   </main>;
 }
-createRoot(document.getElementById('root')!).render(<StrictMode><Consumer /></StrictMode>);
+function ActivityPreview({ onOpenChange }: { onOpenChange: (open: boolean) => void }) {
+  const preview = useRef<ImagePreviewHandle>(null), reopen = useRef(false);
+  useLayoutEffect(() => {
+    let current = true;
+    queueMicrotask(() => { if (current && reopen.current) preview.current?.open(); });
+    return () => { current = false; };
+  }, []);
+  return <section data-activity-host>
+    <button onClick={() => { reopen.current = true; preview.current?.open(); }}>Open Activity</button>
+    <ImagePreview ref={preview} src={landscape} alt="Mountains" openLabel="Enlarge Activity" dialogLabel="Activity preview" actionsLabel="Activity actions" closeLabel="Dismiss Activity" onOpenChange={onOpenChange} />
+  </section>;
+}
+function ActivityConsumer() {
+  const [mode, setMode] = useState<'hidden' | 'visible'>('visible'), [changes, setChanges] = useState<boolean[]>([]);
+  return <main data-cui-theme="light">
+    <button onClick={() => { flushSync(() => setMode('hidden')); flushSync(() => setMode('visible')); }}>Reconnect Activity</button>
+    <button onClick={() => flushSync(() => setMode('hidden'))}>Hide Activity</button>
+    <button onClick={() => flushSync(() => setMode('visible'))}>Show Activity</button>
+    <output data-activity-changes>{JSON.stringify(changes)}</output>
+    <Activity mode={mode}><ActivityPreview onOpenChange={value => setChanges(previous => [...previous, value])} /></Activity>
+  </main>;
+}
+function FocusConsumer() {
+  const preview = useRef<ImagePreviewHandle>(null), cancelOnFocus = useRef(true);
+  const [active, setActive] = useState(true), [changes, setChanges] = useState<boolean[]>([]);
+  return <main data-cui-theme="light" onFocusCapture={event => {
+    if (cancelOnFocus.current && event.target.closest('dialog')) {
+      cancelOnFocus.current = false;
+      flushSync(() => setActive(false));
+    }
+  }}>
+    <button onClick={() => setActive(true)}>Reactivate</button>
+    <button onClick={() => preview.current?.open()}>Open focus preview</button>
+    <button onClick={() => preview.current?.close()}>Close focus preview</button>
+    <output data-focus-changes>{JSON.stringify(changes)}</output>
+    <ImagePreview ref={preview} active={active} src={landscape} alt="Mountains" openLabel="Enlarge focus preview" dialogLabel="Focus preview" actionsLabel="Focus actions" closeLabel="Dismiss focus preview" onOpenChange={value => setChanges(previous => [...previous, value])} />
+  </main>;
+}
+function RefreshFocusConsumer() {
+  const preview = useRef<ImagePreviewHandle>(null), opener = useRef<HTMLButtonElement>(null), reopenOnFocus = useRef(false);
+  const [src, setSrc] = useState(landscape), [changes, setChanges] = useState<boolean[]>([]);
+  return <main data-cui-theme="light" onFocusCapture={event => {
+    if (reopenOnFocus.current && event.target === opener.current) {
+      reopenOnFocus.current = false;
+      preview.current?.close(); preview.current?.open();
+    }
+  }}>
+    <button ref={opener} onClick={() => preview.current?.open()}>Open refresh preview</button>
+    <button onClick={() => { reopenOnFocus.current = true; setSrc(dusk); }}>Replace refresh thumbnail</button>
+    <output data-refresh-changes>{JSON.stringify(changes)}</output>
+    <ImagePreview ref={preview} src={src} previewSrc={landscape} alt="Mountains" openLabel="Enlarge refresh preview" dialogLabel="Refresh preview" actionsLabel="Refresh actions" closeLabel="Dismiss refresh preview" onOpenChange={value => setChanges(previous => [...previous, value])} />
+  </main>;
+}
+const query = new URLSearchParams(location.search);
+createRoot(document.getElementById('root')!).render(<StrictMode>{query.has('activity') ? <ActivityConsumer /> : query.has('focus') ? <FocusConsumer /> : query.has('refresh-focus') ? <RefreshFocusConsumer /> : <Consumer />}</StrictMode>);

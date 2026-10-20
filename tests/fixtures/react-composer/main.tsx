@@ -1,4 +1,5 @@
-import { StrictMode, useId, useRef, useState } from 'react';
+import { Activity, StrictMode, useId, useRef, useState } from 'react';
+import { flushSync } from 'react-dom';
 import { createRoot } from 'react-dom/client';
 import { AttachmentList, ComposerSurface, ComposerToolbar, MentionEditor } from '../../../src';
 import type { ComposerDraft, MentionEditorHandle } from '../../../src';
@@ -33,4 +34,22 @@ function Consumer() {
     <output id="removed">{removed}</output>{mounted ? <><Instance label="First composer" onRemoved={onRemoved} /><Instance label="Second composer" onRemoved={onRemoved} /></> : null}
   </main>;
 }
-createRoot(document.getElementById('root')!).render(<StrictMode><Consumer /></StrictMode>);
+function ActivityConsumer() {
+  const editor = useRef<MentionEditorHandle>(null), saved = useRef<MentionEditorHandle | null>(null);
+  const [visible, setVisible] = useState(true), [mounted, setMounted] = useState(true), [reset, setReset] = useState(0), [text, setText] = useState('Initial draft');
+  const [draft, setDraft] = useState<ComposerDraft>(), [changes, setChanges] = useState(0);
+  return <main>
+    <button onClick={() => setVisible(false)}>Hide activity</button><button onClick={() => setVisible(true)}>Show activity</button>
+    <button onClick={() => { flushSync(() => setVisible(false)); flushSync(() => setVisible(true)); }}>Reconnect activity</button>
+    <button onClick={() => setText('Replacement default')}>Change default</button><button onClick={() => setReset(value => value + 1)}>Reset activity draft</button>
+    <button onClick={() => editor.current?.clear()}>Clear activity draft</button><button onClick={() => setDraft(editor.current?.getDraft())}>Read activity draft</button>
+    <button onClick={() => { saved.current = editor.current; setMounted(false); }}>Unmount activity editor</button>
+    <button onClick={() => { saved.current?.clear(); setDraft(saved.current?.getDraft()); }}>Use saved activity handle</button>
+    <output data-activity-draft="">{JSON.stringify(draft)}</output><output data-activity-changes="">{changes}</output>
+    {mounted ? <Activity mode={visible ? 'visible' : 'hidden'}>
+      <MentionEditor ref={editor} active={visible} label="Activity draft" placeholder="Type here" mentionListLabel="Activity references" deleteLabel="Delete reference" defaultText={text} resetKey={reset}
+        options={[{ id: 'landscape', title: 'Landscape illustration' }]} onDraftChange={value => { setDraft(value); setChanges(count => count + 1); }} />
+    </Activity> : null}
+  </main>;
+}
+createRoot(document.getElementById('root')!).render(<StrictMode>{new URLSearchParams(location.search).has('activity') ? <ActivityConsumer /> : <Consumer />}</StrictMode>);
