@@ -1,5 +1,6 @@
-import { StrictMode, useRef, useState } from 'react';
+import { Activity, StrictMode, useLayoutEffect, useRef, useState } from 'react';
 import { createRoot } from 'react-dom/client';
+import { flushSync } from 'react-dom';
 import { Gallery } from '../../../src';
 import type { GalleryHandle, GalleryLabels } from '../../../src';
 import landscape from '../../../src/assets/artwork/landscape.svg';
@@ -22,4 +23,27 @@ function Consumer() {
     </> : null}
   </main>;
 }
-createRoot(document.getElementById('root')!).render(<StrictMode><Consumer /></StrictMode>);
+function ActivityGallery({ onOpenChange }: { onOpenChange: (open: boolean) => void }) {
+  const gallery = useRef<GalleryHandle>(null);
+  useLayoutEffect(() => {
+    let current = true;
+    // Reopen after effects reconnect, outside React's current commit.
+    queueMicrotask(() => { if (current) gallery.current?.open(); });
+    return () => { current = false; };
+  }, []);
+  return <section data-activity-host style={{ maxWidth: 600, margin: '20px auto' }}>
+    <button onClick={() => gallery.current?.open()}>Open Activity</button>
+    <Gallery ref={gallery} items={original} labels={{ ...labels, dialog: 'Activity gallery' }} onOpenChange={onOpenChange} />
+  </section>;
+}
+function ActivityConsumer() {
+  const [mode, setMode] = useState<'hidden' | 'visible'>('visible'), [changes, setChanges] = useState<boolean[]>([]);
+  return <main data-cui-theme="light">
+    <button onClick={() => { flushSync(() => setMode('hidden')); flushSync(() => setMode('visible')); }}>Reconnect Activity</button>
+    <button onClick={() => flushSync(() => setMode('hidden'))}>Hide Activity</button>
+    <button onClick={() => flushSync(() => setMode('visible'))}>Show Activity</button>
+    <output data-activity-changes>{JSON.stringify(changes)}</output>
+    <Activity mode={mode}><ActivityGallery onOpenChange={value => setChanges(previous => [...previous, value])} /></Activity>
+  </main>;
+}
+createRoot(document.getElementById('root')!).render(<StrictMode>{new URLSearchParams(location.search).has('activity') ? <ActivityConsumer /> : <Consumer />}</StrictMode>);

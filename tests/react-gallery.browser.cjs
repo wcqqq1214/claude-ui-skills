@@ -9,6 +9,48 @@ const { chromium } = require(process.env.PLAYWRIGHT_MODULE || 'playwright-core')
   let browser;
   try {
     browser = await chromium.launch({ executablePath: process.env.CHROME_BIN, headless: true });
+    for (const transitions of ['native', 'unavailable', 'throws']) {
+      const activity = await browser.newPage({ viewport: { width: 1280, height: 800 } }), activityErrors = [];
+      activity.on('pageerror', error => activityErrors.push(error.message));
+      activity.on('console', message => { if (message.type() === 'error') activityErrors.push(message.text()); });
+      await activity.addInitScript(mode => {
+        if (mode === 'unavailable') document.startViewTransition = undefined;
+        if (mode === 'throws') document.startViewTransition = () => { throw new Error('View Transition unavailable'); };
+      }, transitions);
+      await activity.goto(`${base}/tests/fixtures/react-gallery/?activity`);
+      const modal = activity.getByRole('dialog', { name: 'Activity gallery' });
+      const activityHost = name => activity.getByRole('button', { name, exact: true, includeHidden: true }).evaluate(element => element.click());
+      const activitySettle = () => activity.waitForFunction(() => !document.querySelector('style[data-cui-gallery-transition]'));
+      const changes = async () => JSON.parse(await activity.locator('[data-activity-changes]').textContent());
+      await modal.waitFor({ state: 'visible' }); await activitySettle();
+      assert.deepEqual(await changes(), [true], 'StrictMode opens once after its effect probe');
+      const retained = await modal.elementHandle();
+      await modal.evaluate(element => { element.dataset.closes = '0'; element.addEventListener('close', () => { element.dataset.closes = String(Number(element.dataset.closes) + 1); }); });
+      for (let repeat = 0; repeat < 2; repeat++) {
+        const before = (await changes()).length, closes = await retained.evaluate(element => Number(element.dataset.closes));
+        await activityHost('Reconnect Activity');
+        await activity.waitForFunction(closes => Number(document.querySelector('[data-activity-host] dialog').dataset.closes) > closes, closes);
+        await activitySettle();
+        assert.equal(await retained.evaluate(element => element === document.querySelector('[data-activity-host] dialog') && element.isConnected), true, 'Activity reconnect retains the same dialog DOM');
+        assert.equal(await modal.isVisible(), true, `old close events cannot cancel the reconnected opening (${transitions})`);
+        assert.deepEqual((await changes()).slice(before), [true], 'effect cleanup stays silent and reopening emits no stale false');
+      }
+      await modal.evaluate(element => element.close());
+      await activity.waitForFunction(() => document.querySelector('[data-activity-host] button[aria-haspopup="dialog"]').getAttribute('aria-expanded') === 'false');
+      assert.equal((await changes()).at(-1), false, 'external native close still updates the reconnected controller');
+      await activityHost('Open Activity'); await modal.waitFor({ state: 'visible' }); await activitySettle();
+      const beforeHidden = (await changes()).length, closes = await retained.evaluate(element => Number(element.dataset.closes));
+      await activityHost('Hide Activity');
+      await activity.waitForFunction(closes => Number(document.querySelector('[data-activity-host] dialog').dataset.closes) > closes, closes);
+      assert.equal(await retained.evaluate(element => element.isConnected), true, 'hidden Activity keeps its dialog attached while the old close event is delivered');
+      await activityHost('Show Activity'); await modal.waitFor({ state: 'visible' }); await activitySettle();
+      assert.equal(await retained.evaluate(element => element === document.querySelector('[data-activity-host] dialog')), true);
+      assert.deepEqual((await changes()).slice(beforeHidden), [true], 'showing after queued close delivery reopens without a stale notification');
+      await modal.evaluate(element => element.close());
+      await activity.waitForFunction(() => document.querySelector('[data-activity-host] button[aria-haspopup="dialog"]').getAttribute('aria-expanded') === 'false');
+      assert.deepEqual((await changes()).slice(beforeHidden), [true, false], 'hidden-time delivery leaves no stale ownership to swallow external close');
+      assert.deepEqual(activityErrors, []); await activity.close();
+    }
     const page = await browser.newPage({ viewport: { width: 1280, height: 800 } }); const errors = [];
     page.on('pageerror', error => errors.push(error.message)); page.on('console', message => { if (message.type() === 'error') errors.push(message.text()); });
     await page.addInitScript(() => {

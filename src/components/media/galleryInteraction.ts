@@ -16,7 +16,7 @@ interface Drag { id: number; image: HTMLImageElement; x: number; y: number; tx: 
 /** Owns native gestures and transient geometry; React owns slides and ARIA. */
 export function createGalleryInteraction(elements: GalleryElements) {
   const { dialog, rail, viewport, header, close, previous, next, bottom, slides, triggers } = elements;
-  let id = elements.initialId, opened = false, closing = false, disposed = false, revision = 0, ownCloseEvents = 0;
+  let id = elements.initialId, opened = false, nativeOpened = false, closing = false, disposed = false, revision = 0;
   let zoom: GalleryZoomState | null = null, drag: Drag | null = null, painted: HTMLImageElement | null = null;
   let suppressClick = false, suppressTimer: ReturnType<typeof setTimeout> | undefined;
   let transition: ViewTransition | null = null, sheet: HTMLStyleElement | null = null, origin: HTMLElement | null = null;
@@ -71,14 +71,9 @@ export function createGalleryInteraction(elements: GalleryElements) {
     if (focus && !document.activeElement?.closest('button, a')) currentSlide()?.focus({ preventScroll: true });
   }
   function clearTransition() { transition?.skipTransition(); transition = null; sheet?.remove(); sheet = null; }
-  function closeDialog() {
-    // Native close events are queued; an event from this request must not reset
-    // a later opening whose View Transition has not shown the dialog yet.
-    if (dialog.open) { ownCloseEvents++; dialog.close(); }
-  }
   function setOpen(value: boolean) {
     if (disposed || opened === value) return;
-    opened = value; closing = !value;
+    opened = value; nativeOpened = value && dialog.open; closing = !value;
     const current = ++revision; clearTransition(); emit(); elements.opened(value);
     if (disposed || revision !== current) return;
     const render = () => {
@@ -86,12 +81,14 @@ export function createGalleryInteraction(elements: GalleryElements) {
       if (value) {
         rail.style.transition = 'none';
         if (!dialog.open) dialog.showModal();
+        if (disposed || revision !== current) return;
+        nativeOpened = true;
         void rail.offsetWidth; rail.style.removeProperty('transition');
       } else {
         clearDrag(); setZoom(null);
         const focused = document.activeElement;
         const outside = focused instanceof HTMLElement && focused !== document.body && !dialog.contains(focused);
-        closeDialog();
+        dialog.close();
         const destination = outside ? focused : origin;
         if (destination?.isConnected) destination.focus({ preventScroll: true });
       }
@@ -120,15 +117,14 @@ export function createGalleryInteraction(elements: GalleryElements) {
   }
   function reset(sync = false, notify = true) {
     ++revision; clearTransition(); clearDrag();
-    const wasOpen = opened; opened = false; closing = false; origin = null;
-    zoom = null; paint(null); closeDialog(); rail.style.removeProperty('transition'); emit(sync);
+    const wasOpen = opened; opened = false; nativeOpened = false; closing = false; origin = null;
+    zoom = null; paint(null); dialog.close(); rail.style.removeProperty('transition'); emit(sync);
     if (wasOpen && notify) elements.opened(false);
   }
   const onCancel = (event: Event) => { event.preventDefault(); setOpen(false); };
-  const onClosed = () => {
-    if (ownCloseEvents) { ownCloseEvents--; return; }
-    if (!dialog.open && opened) reset(true);
-  };
+  // A queued close can outlive its controller when Activity reconnects effects.
+  // It cannot close a new request that has not presented its native dialog yet.
+  const onClosed = () => { if (!dialog.open && opened && nativeOpened) reset(true); };
   const onClose = (event: MouseEvent) => { event.stopPropagation(); setOpen(false); };
   const onPrevious = (event: MouseEvent) => { event.stopPropagation(); if (!closing && index() > 0) select(index() - 1); };
   const onNext = (event: MouseEvent) => { event.stopPropagation(); if (!closing && index() < elements.items().length - 1) select(index() + 1); };
