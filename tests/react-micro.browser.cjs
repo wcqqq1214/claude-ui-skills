@@ -15,6 +15,63 @@ const { chromium } = require(process.env.PLAYWRIGHT_MODULE || 'playwright-core')
     const errors = [];
     page.on('pageerror', error => errors.push(error.message));
     page.on('console', message => { if (message.type() === 'error') errors.push(message.text()); });
+    // Both public copy consumers share the same feedback deadline. Activity
+    // retains their DOM/state, but disconnects and reconnects their effects.
+    for (const kind of ['button', 'source']) {
+      const activity = await browser.newPage();
+      activity.on('pageerror', error => errors.push(error.message));
+      await activity.clock.install();
+      await activity.clock.pauseAt(new Date(Date.now() + 1000));
+      await activity.addInitScript(() => {
+        window.copyRequests = [];
+        Object.defineProperty(navigator, 'clipboard', { configurable: true, value: { writeText: text => new Promise((resolve, reject) => window.copyRequests.push({ text, resolve, reject })) } });
+      });
+      await activity.goto(`${base}/tests/fixtures/react-micro/?copy-activity`);
+      const host = activity.locator('[data-copy-activity]'), original = await host.elementHandle();
+      const control = kind === 'button' ? host.locator('button').first() : host.getByRole('group', { name: 'Activity source', exact: true }).getByRole('button');
+      const status = kind === 'button' ? host.getByRole('status').first() : host.getByRole('group', { name: 'Activity source', exact: true }).getByRole('status');
+      const click = async locator => { await locator.evaluate(element => element.click()); await activity.clock.runFor(1); };
+      const copy = async () => {
+        await click(control);
+        await activity.evaluate(() => window.copyRequests.at(-1).resolve());
+        await activity.clock.runFor(1);
+        assert.equal(await status.textContent(), `Activity ${kind} copied`);
+      };
+      const hide = () => click(activity.getByRole('button', { name: 'Hide copy Activity', exact: true }));
+      const show = () => click(activity.getByRole('button', { name: 'Show copy Activity', exact: true }));
+      await copy(); await activity.clock.runFor(500); await hide(); await activity.clock.runFor(500); await show();
+      assert.equal(await host.evaluate((element, original) => element === original, original), true, `${kind} Activity preserves its DOM`);
+      assert.equal(await status.textContent(), `Activity ${kind} copied`, 'short hiding preserves the remaining success feedback');
+      await activity.clock.runFor(900);
+      assert.equal(await status.textContent(), `Activity ${kind} copied`, 'feedback lasts until the original two-second deadline');
+      await activity.clock.runFor(150);
+      assert.equal(await status.textContent(), '', 'reconnection resumes the remaining deadline instead of cancelling or restarting it');
+      await copy(); await hide(); await activity.clock.runFor(2100); await show();
+      assert.equal(await status.textContent(), '', 'a deadline that passed while hidden is idle immediately after reconnection');
+      await copy(); await activity.clock.runFor(1500); await copy(); await activity.clock.runFor(600);
+      assert.equal(await status.textContent(), `Activity ${kind} copied`, 'a fresh successful copy replaces the old deadline');
+      await activity.clock.runFor(1450); assert.equal(await status.textContent(), '');
+      await click(control);
+      const beforeHiddenResult = await activity.locator('[data-copy-results]').textContent();
+      await hide();
+      await activity.evaluate(() => window.copyRequests.at(-1).resolve()); await show();
+      assert.equal(await status.textContent(), '', 'a pending write cannot publish success across Activity disconnection');
+      assert.equal(await activity.locator('[data-copy-results]').textContent(), beforeHiddenResult, 'a disconnected pending result cannot notify its host');
+      await copy(); await activity.evaluate(() => window.dispatchEvent(new Event('pagehide'))); await activity.clock.runFor(1);
+      assert.equal(await status.textContent(), '', 'page exit clears the feedback and its retained deadline');
+      await hide(); await show(); assert.equal(await status.textContent(), '', 'page-exit feedback cannot return on reconnection');
+      await click(control); await activity.evaluate(() => { window.dispatchEvent(new Event('pagehide')); window.copyRequests.at(-1).resolve(); });
+      await activity.clock.runFor(1); assert.equal(await status.textContent(), '', 'page exit also invalidates a pending write');
+      await click(control);
+      const results = await activity.locator('[data-copy-results]').textContent();
+      await click(activity.getByRole('button', { name: 'Mount copy Activity', exact: true }));
+      await activity.evaluate(() => window.copyRequests.at(-1).resolve()); await activity.clock.runFor(1);
+      assert.equal(await activity.locator('[data-copy-results]').textContent(), results, 'real unmount invalidates a pending result');
+      await click(activity.getByRole('button', { name: 'Mount copy Activity', exact: true }));
+      assert.equal(await status.textContent(), '', 'a new mount starts with idle feedback');
+      await activity.close();
+    }
+    if (process.argv.includes('--copy-activity-only')) { assert.deepEqual(errors, []); console.log('React copy Activity: retained DOM, remaining/expired/replaced deadlines, pending write cancellation, pagehide and unmount passed'); return; }
     for (const mode of ['single', 'stack']) for (const duration of [null, 120_000]) {
       const deadline = await browser.newPage();
       deadline.on('pageerror', error => errors.push(error.message));

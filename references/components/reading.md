@@ -30,6 +30,7 @@ The library receives code, table data and translated labels through props. CodeB
 - Apply the inline-code rule (`.cui-prose code:not(pre code)`) only to inline code. Fenced code and components with their own colors keep their styles. Keep the fill translucent rather than baking in a surface color.
 - Fenced code keeps lines unwrapped inside their horizontal overflow container. The sticky copy action appears on hover, on focus within, and always on coarse or non-hover input.
 - Copy the displayed text without trimming. The button's label stays "Copy to clipboard"; a `role=status` region announces the result. Each newer success restarts the reset; stale results are ignored; leaving the page clears pending feedback.
+- Copy success retains its original two-second expiry through Activity hiding, including time spent hidden. Reconnection resumes the remaining feedback or clears an expired result.
 - Offset only the inline icon host, once; the glyph inside uses flex layout without a second shift.
 - Tabular figures need font support and do not stop width changes when the digit count changes; keep the format fixed.
 - The edge-shadow masks use the table's panel color in each theme; keep them matched when theming.

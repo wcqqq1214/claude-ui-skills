@@ -1,7 +1,7 @@
 import { TasksChapter } from './chapters/TasksChapter';
 import { GalleryChapter } from './chapters/GalleryChapter';
 import { ImagesChapter } from './chapters/ImagesChapter';
-import { useEffect, useLayoutEffect, useState } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { ControlsChapter } from './chapters/ControlsChapter';
 import { TypographyChapter } from './chapters/TypographyChapter';
 import { SidebarChapter } from './chapters/SidebarChapter';
@@ -38,15 +38,55 @@ function initialTheme(): Theme {
 
 export function App() {
   const [chapter, setChapter] = useState(currentChapter);
-  const [locale, setLocale] = useState(initialLocale);
+  // Each selection retains an identity when batched changes return to the same locale.
+  const [localeSelection, setLocaleSelection] = useState(() => ({ value: initialLocale() }));
+  const locale = localeSelection.value;
   const [theme, setTheme] = useState<Theme>(initialTheme);
+  const requestedLocale = useRef(locale);
+  const scrollRestore = useRef<{ positions: (readonly [Element, number, number])[]; anchor: string; frame: number } | null>(null);
+  const clearScrollRestore = useCallback(() => {
+    const pending = scrollRestore.current;
+    if (!pending) return;
+    cancelAnimationFrame(pending.frame);
+    document.documentElement.style.overflowAnchor = pending.anchor;
+    scrollRestore.current = null;
+  }, []);
+  const changeLocale = useCallback((next: Locale) => {
+    if (requestedLocale.current === next) return;
+    requestedLocale.current = next;
+    const root = document.documentElement, previous = scrollRestore.current;
+    if (previous) cancelAnimationFrame(previous.frame);
+    scrollRestore.current = {
+      positions: [...document.querySelectorAll('*')].filter(node => node.scrollTop || node.scrollLeft).map(node => [node, node.scrollLeft, node.scrollTop] as const),
+      anchor: previous?.anchor ?? root.style.overflowAnchor,
+      frame: 0,
+    };
+    root.style.overflowAnchor = 'none';
+    setLocaleSelection({ value: next });
+  }, []);
+  useLayoutEffect(() => {
+    const pending = scrollRestore.current;
+    if (!pending) return;
+    const restore = () => { for (const [node, left, top] of pending.positions) if (node.isConnected) node.scrollTo({ left, top, behavior: 'instant' }); };
+    // Match the original translation transaction through layout observers too.
+    restore();
+    pending.frame = requestAnimationFrame(() => {
+      if (scrollRestore.current !== pending) return;
+      restore();
+      pending.frame = requestAnimationFrame(() => { if (scrollRestore.current === pending) clearScrollRestore(); });
+    });
+  }, [localeSelection, clearScrollRestore]);
   const copy = messages[locale];
-  useLayoutEffect(() => { window.scrollTo({ top: 0, left: 0, behavior: 'instant' }); }, [chapter]);
+  useLayoutEffect(() => {
+    clearScrollRestore();
+    window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+    return clearScrollRestore;
+  }, [chapter, clearScrollRestore]);
   useEffect(() => {
     const onLocation = () => {
       setChapter(currentChapter());
       const language = new URLSearchParams(location.search).get('lang');
-      if (language === 'en' || language === 'zh-Hans') setLocale(language);
+      if (language === 'en' || language === 'zh-Hans') changeLocale(language);
     };
     // Replacing the query while choosing a language creates history traversals
     // that do not consistently emit hashchange. Read both from popstate too.
@@ -56,7 +96,7 @@ export function App() {
       window.removeEventListener('hashchange', onLocation);
       window.removeEventListener('popstate', onLocation);
     };
-  }, []);
+  }, [changeLocale]);
   useEffect(() => {
     document.documentElement.lang = locale;
     savePreference('locale', locale);
@@ -75,7 +115,7 @@ export function App() {
 
   return <DemoShell chapter={chapter} chapters={chapters} copy={copy} locale={locale} theme={theme}
     onLocale={next => {
-      setLocale(next);
+      changeLocale(next);
       const url = new URL(location.href); url.searchParams.set('lang', next); history.replaceState(null, '', url);
     }} onTheme={setTheme}>
           <section className="demo-specimen" hidden={chapter !== 'controls'} aria-label={copy.controls}><ControlsChapter copy={copy} locale={locale} /></section>

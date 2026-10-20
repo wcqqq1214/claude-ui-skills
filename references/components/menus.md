@@ -28,6 +28,7 @@ Import from `src/index.ts` with the shared stylesheet; see [integration](../../d
 ## Rules
 
 - Submenus keep focus preview apart from selection. Arrows move focus; Enter, Space or click commits.
+- Activating the submenu owner by click or ArrowRight always focuses the selected enabled option, or the first enabled option if none is selected, including when the submenu is already open.
 - Escape or ArrowLeft closes one submenu level and returns focus to its owner; the next Escape returns to the trigger.
 - Group headings appear only when the raw query is exactly empty; a whitespace-only query renders flat results. Empty results get a status message.
 - The search ring follows keyboard focus. Programmatic initial focus uses `focus({ preventScroll: true, focusVisible: false })`. Clicking the still-focused field stays neutral; clicking after blur, or Tab re-entry, shows the ring.

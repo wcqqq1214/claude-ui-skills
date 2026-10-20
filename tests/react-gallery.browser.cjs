@@ -18,7 +18,7 @@ const { chromium } = require(process.env.PLAYWRIGHT_MODULE || 'playwright-core')
         if (mode === 'throws') document.startViewTransition = () => { throw new Error('View Transition unavailable'); };
       }, transitions);
       await activity.goto(`${base}/tests/fixtures/react-gallery/?activity`);
-      const modal = activity.getByRole('dialog', { name: 'Activity gallery' });
+      const modal = activity.getByRole('dialog', { name: 'Activity gallery', includeHidden: true });
       const activityHost = name => activity.getByRole('button', { name, exact: true, includeHidden: true }).evaluate(element => element.click());
       const activitySettle = () => activity.waitForFunction(() => !document.querySelector('style[data-cui-gallery-transition]'));
       const changes = async () => JSON.parse(await activity.locator('[data-activity-changes]').textContent());
@@ -56,6 +56,46 @@ const { chromium } = require(process.env.PLAYWRIGHT_MODULE || 'playwright-core')
       await modal.evaluate(element => element.close());
       await activity.waitForFunction(() => !document.querySelector('[data-activity-host] button[aria-haspopup="dialog"][aria-expanded="true"]'));
       assert.deepEqual((await changes()).slice(beforeHidden), [true, false], 'hidden-time delivery leaves no stale ownership to swallow external close');
+
+      // Reconnecting effects does not itself request another modal. The DOM,
+      // selected item and host history survive; presentation and zoom do not.
+      await activity.goto(`${base}/tests/fixtures/react-gallery/?activity&no-reopen`);
+      await activityHost('Open Activity'); await modal.waitFor({ state: 'visible' }); await activitySettle();
+      await modal.getByRole('button', { name: 'Next', exact: true }).click();
+      await activity.waitForFunction(() => { const image = document.querySelector('[data-cui-gallery-slide="dusk"] img'); return image.complete && image.naturalWidth > 0 && !image.getAnimations().some(animation => animation.playState === 'running'); });
+      await modal.locator('[data-cui-gallery-slide="dusk"]').press('Enter');
+      assert.equal(await modal.locator('[data-cui-gallery-slide="dusk"]').getAttribute('aria-pressed'), 'true');
+      const idleRetained = await modal.elementHandle();
+      await modal.evaluate(element => { element.dataset.closes = '0'; element.addEventListener('close', () => { element.dataset.closes = String(Number(element.dataset.closes) + 1); }); });
+      await activityHost('Hide Activity');
+      await activity.waitForFunction(() => Number(document.querySelector('[data-activity-host] dialog').dataset.closes) > 0);
+      await activityHost('Show Activity');
+      assert.equal(await idleRetained.evaluate(element => element === document.querySelector('[data-activity-host] dialog') && element.isConnected && !element.open), true, 'a passive reconnect retains the closed native dialog');
+      assert.equal(await activity.locator('[data-activity-host] [aria-expanded="true"]').count(), 0, `a passive reconnect clears stale thumbnail expansion (${transitions})`);
+      assert.equal(await modal.locator('[data-cui-gallery-slide="dusk"]').getAttribute('aria-pressed'), 'false', 'a passive reconnect also clears the former zoom state');
+      assert.equal(await modal.locator('[data-cui-gallery-slide="dusk"]').getAttribute('aria-hidden'), 'false', 'a passive reconnect retains the selected item');
+      assert.deepEqual(await changes(), [true], 'passive cleanup and reconnect do not notify the host of a dismissal');
+      assert.equal(await activity.locator('[data-activity-selections]').textContent(), '["dusk"]');
+      await activityHost('Reconnect Activity');
+      assert.equal(await activity.locator('[data-activity-host] [aria-expanded="true"]').count(), 0, 'repeated passive reconnects remain closed');
+      await activityHost('Open Activity'); await modal.waitFor({ state: 'visible' }); await activitySettle();
+      const beforePassive = (await changes()).length, passiveCloses = await idleRetained.evaluate(element => Number(element.dataset.closes));
+      await activityHost('Reconnect Activity');
+      await activity.waitForFunction(closes => Number(document.querySelector('[data-activity-host] dialog').dataset.closes) > closes, passiveCloses);
+      assert.equal(await idleRetained.evaluate(element => element.open), false, 'same-task passive reconnect keeps the native dialog closed');
+      assert.equal(await activity.locator('[data-activity-host] [aria-expanded="true"]').count(), 0, 'same-task passive reconnect clears React expansion despite its queued close event');
+      assert.deepEqual((await changes()).slice(beforePassive), [], 'same-task passive reconnect stays silent');
+      await activityHost('Open Activity'); await modal.waitFor({ state: 'visible' }); await activitySettle();
+      const beforeSynchronous = (await changes()).length, synchronousCloses = await idleRetained.evaluate(element => Number(element.dataset.closes));
+      await activityHost('Reconnect and open Activity');
+      await activity.waitForFunction(closes => Number(document.querySelector('[data-activity-host] dialog').dataset.closes) > closes, synchronousCloses);
+      await modal.waitFor({ state: 'visible' }); await activitySettle();
+      assert.equal(await activity.locator('[data-activity-host] [aria-expanded="true"]').count(), 1, 'a synchronous host reopen wins over reconnect state reset');
+      assert.equal(await modal.locator('[data-cui-gallery-slide="dusk"]').getAttribute('aria-hidden'), 'false');
+      assert.deepEqual((await changes()).slice(beforeSynchronous), [true], 'an old close event cannot cancel the synchronous host reopen');
+      await modal.evaluate(element => element.close());
+      await activity.waitForFunction(() => !document.querySelector('[data-activity-host] [aria-expanded="true"]'));
+      assert.deepEqual((await changes()).slice(beforeSynchronous), [true, false], 'external dismissal remains observable after synchronous reopen');
       assert.deepEqual(activityErrors, []); await activity.close();
     }
     const page = await browser.newPage({ viewport: { width: 1280, height: 800 } }); const errors = [];

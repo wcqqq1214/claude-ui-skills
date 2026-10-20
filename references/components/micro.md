@@ -12,6 +12,7 @@ Follow the [source integration guide](../../demo/README.md). Components import n
 - `overflowOnly` measures both scroll width and text Range geometry. Resize, text mutations and font completion dismiss and remeasure. Escape dismisses until a new engagement; pointer and keyboard focus are tracked independently. Closing leaves the fading element mounted while removing its accessibility description. The React version also clamps to viewport edges and flips below when space above is insufficient; it is still inline and may be clipped by an overflow ancestor.
 - `GhostButton`: native button props/ref; supply an accessible label and an application action if needed. The demo is a motion preview.
 - `CopyButton`: exact text, copyLabel, copiedLabel, failedLabel, optional onCopyResult and native button props/ref. The callback runs only for the latest live request. Success resets after 2s; failure remains visible. The clipboard hook uses the original textarea fallback when the secure Clipboard API is unavailable, restores focus/selection, and removes its temporary node.
+- Copy feedback keeps its original two-second expiry through React Activity hiding. Reconnection restores only the remaining time, or clears an already expired success. Effect cleanup invalidates pending writes; page exit clears feedback and its expiry.
 - `NotificationStack` with `mode="single"` provides the replaceable one-at-a-time notice. The host owns fixed positioning and a fallback focus ref; see [notifications](recovery.md).
 
 ## Parameters

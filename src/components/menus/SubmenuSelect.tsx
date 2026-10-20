@@ -21,12 +21,14 @@ export function SubmenuSelect({ label, submenuLabel, options, value, defaultValu
   const root = useRef<HTMLDivElement>(null), trigger = useRef<HTMLButtonElement>(null), owner = useRef<HTMLButtonElement>(null), submenu = useRef<HTMLDivElement>(null);
   const enabled = options.filter(option => !option.disabled);
   function close(restore = false) { setLevel(0); if (restore) trigger.current?.focus({ preventScroll: true }); }
+  function focusSelection() {
+    const buttons = [...submenu.current!.querySelectorAll<HTMLButtonElement>('button:not(:disabled)')];
+    (buttons.find(button => button.dataset.value === selected) ?? buttons[0])?.focus({ preventScroll: true });
+  }
+  function openSubmenu() { if (level === 2) focusSelection(); else setLevel(2); }
   useLayoutEffect(() => {
     if (level === 1) owner.current?.focus({ preventScroll: true });
-    if (level === 2) {
-      const buttons = [...submenu.current!.querySelectorAll<HTMLButtonElement>('button:not(:disabled)')];
-      (buttons.find(button => button.dataset.value === selected) ?? buttons[0])?.focus({ preventScroll: true });
-    }
+    if (level === 2) focusSelection();
   }, [level]);
   useEffect(() => { if (!active) close(); }, [active]);
   useEffect(() => {
@@ -41,8 +43,8 @@ export function SubmenuSelect({ label, submenuLabel, options, value, defaultValu
       if (event.key === 'Escape' && level) { event.preventDefault(); close(true); }
     }} className="cui-submenu-trigger inline-block cursor-pointer rounded-[7px] border border-solid border-transparent bg-cui-surface px-[13px] py-2 text-xs leading-[1.6] font-(--cui-medium) whitespace-nowrap disabled:cursor-default disabled:opacity-50 focus-visible:outline-2 focus-visible:outline-cui-accent">{label} <span aria-hidden="true">⌄</span></button>
     {level > 0 ? <div id={`${id}-parent`} role="menu" aria-label={label} className="cui-local-menu">
-      <button ref={owner} type="button" role="menuitem" tabIndex={-1} aria-haspopup="menu" aria-expanded={level === 2} aria-controls={level === 2 ? `${id}-submenu` : undefined} onClick={() => setLevel(2)} onKeyDown={event => {
-        if (event.key === 'ArrowRight') { event.preventDefault(); setLevel(2); }
+      <button ref={owner} type="button" role="menuitem" tabIndex={-1} aria-haspopup="menu" aria-expanded={level === 2} aria-controls={level === 2 ? `${id}-submenu` : undefined} onClick={openSubmenu} onKeyDown={event => {
+        if (event.key === 'ArrowRight') { event.preventDefault(); openSubmenu(); }
         else if (event.key === 'Escape' || event.key === 'ArrowLeft') { event.preventDefault(); close(true); }
       }}>{submenuLabel}<span>{selectedOption?.label} <span aria-hidden="true">›</span></span></button>
     </div> : null}

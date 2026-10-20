@@ -23,12 +23,11 @@ function Consumer() {
     </> : null}
   </main>;
 }
-function ActivityGallery({ onOpenChange, onValueChange }: { onOpenChange: (open: boolean) => void; onValueChange: (id: string) => void }) {
-  const gallery = useRef<GalleryHandle>(null);
+function ActivityGallery({ gallery, autoReopen, onOpenChange, onValueChange }: { gallery: { current: GalleryHandle | null }; autoReopen: boolean; onOpenChange: (open: boolean) => void; onValueChange: (id: string) => void }) {
   useLayoutEffect(() => {
     let current = true;
     // Reopen after effects reconnect, outside React's current commit.
-    queueMicrotask(() => { if (current) gallery.current?.open(); });
+    queueMicrotask(() => { if (current && autoReopen) gallery.current?.open(); });
     return () => { current = false; };
   }, []);
   return <section data-activity-host style={{ maxWidth: 600, margin: '20px auto' }}>
@@ -37,14 +36,16 @@ function ActivityGallery({ onOpenChange, onValueChange }: { onOpenChange: (open:
   </section>;
 }
 function ActivityConsumer() {
+  const gallery = useRef<GalleryHandle>(null), autoReopen = !new URLSearchParams(location.search).has('no-reopen');
   const [mode, setMode] = useState<'hidden' | 'visible'>('visible'), [changes, setChanges] = useState<boolean[]>([]), [selections, setSelections] = useState<string[]>([]);
   return <main data-cui-theme="light">
     <button onClick={() => { flushSync(() => setMode('hidden')); flushSync(() => setMode('visible')); }}>Reconnect Activity</button>
+    <button onClick={() => { flushSync(() => setMode('hidden')); flushSync(() => setMode('visible')); gallery.current?.open(); }}>Reconnect and open Activity</button>
     <button onClick={() => flushSync(() => setMode('hidden'))}>Hide Activity</button>
     <button onClick={() => flushSync(() => setMode('visible'))}>Show Activity</button>
     <output data-activity-changes>{JSON.stringify(changes)}</output>
     <output data-activity-selections>{JSON.stringify(selections)}</output>
-    <Activity mode={mode}><ActivityGallery onOpenChange={value => setChanges(previous => [...previous, value])} onValueChange={id => setSelections(previous => [...previous, id])} /></Activity>
+    <Activity mode={mode}><ActivityGallery gallery={gallery} autoReopen={autoReopen} onOpenChange={value => setChanges(previous => [...previous, value])} onValueChange={id => setSelections(previous => [...previous, id])} /></Activity>
   </main>;
 }
 createRoot(document.getElementById('root')!).render(<StrictMode>{new URLSearchParams(location.search).has('activity') ? <ActivityConsumer /> : <Consumer />}</StrictMode>);

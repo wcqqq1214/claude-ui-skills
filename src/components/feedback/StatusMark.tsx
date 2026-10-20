@@ -18,16 +18,21 @@ export type StatusMarkProps = Omit<ComponentPropsWithoutRef<'span'>, 'children' 
 export function StatusMark({ activity, running = true, active = true, replayKey, onActivityEnter, onComplete, className, ...props }: StatusMarkProps) {
   const root = useRef<HTMLSpanElement>(null), strip = useRef<HTMLSpanElement>(null);
   const playback = useRef<ReturnType<typeof createStatusPlayback> | null>(null);
+  const appliedReplay = useRef<{ key: typeof replayKey } | null>(null);
   const callbacks = useRef({ onActivityEnter, onComplete });
   const visible = useVisible(root, active);
   useLayoutEffect(() => { callbacks.current = { onActivityEnter, onComplete }; });
   useEffect(() => {
-    const instance = createStatusPlayback(root.current!, strip.current!, value => callbacks.current.onActivityEnter?.(value), () => callbacks.current.onComplete?.());
-    playback.current = instance;
-    return () => { instance.dispose(); playback.current = null; };
+    const instance = playback.current ??= createStatusPlayback(root.current!, strip.current!, value => callbacks.current.onActivityEnter?.(value), () => callbacks.current.onComplete?.());
+    instance.connect();
+    return () => instance.disconnect();
   }, []);
   // A fresh run is explicit. Activity changes only select the next authored handoff.
-  useEffect(() => { playback.current?.start(activity); }, [replayKey]);
+  useEffect(() => {
+    if (appliedReplay.current && Object.is(appliedReplay.current.key, replayKey)) return;
+    appliedReplay.current = { key: replayKey };
+    playback.current?.start(activity);
+  }, [replayKey]);
   useEffect(() => {
     playback.current?.select(activity);
     if (!running) playback.current?.finish();

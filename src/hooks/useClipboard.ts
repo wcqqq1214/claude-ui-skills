@@ -5,9 +5,22 @@ export type CopyState = 'idle' | 'copied' | 'failed';
 export function useClipboard() {
   const [state, setState] = useState<CopyState>('idle');
   const request = useRef(0), timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  const expiresAt = useRef<number | undefined>(undefined);
+  function resumeFeedback() {
+    clearTimeout(timer.current);
+    const deadline = expiresAt.current;
+    if (deadline === undefined) return;
+    const reset = () => { if (expiresAt.current === deadline) { expiresAt.current = undefined; setState('idle'); } };
+    const remaining = deadline - Date.now();
+    if (remaining <= 0) reset();
+    else timer.current = setTimeout(reset, remaining);
+  }
   useEffect(() => {
     const invalidate = () => { ++request.current; clearTimeout(timer.current); };
-    const leave = () => { invalidate(); setState('idle'); };
+    const leave = () => { invalidate(); expiresAt.current = undefined; setState('idle'); };
+    // Activity disconnects effects while retaining state. Keep the original
+    // expiry so time spent hidden still counts toward the two-second feedback.
+    resumeFeedback();
     window.addEventListener('pagehide', leave);
     return () => { invalidate(); window.removeEventListener('pagehide', leave); };
   }, []);
@@ -40,7 +53,8 @@ export function useClipboard() {
     if (current !== request.current) return;
     clearTimeout(timer.current);
     setState(copied ? 'copied' : 'failed');
-    if (copied) timer.current = setTimeout(() => setState('idle'), 2000);
+    expiresAt.current = copied ? Date.now() + 2000 : undefined;
+    resumeFeedback();
     return copied;
   }
   return { state, copy };

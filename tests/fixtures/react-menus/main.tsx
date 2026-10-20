@@ -12,7 +12,7 @@ function Menus({ active }: { active: boolean }) {
   return <>
     <section aria-label="First menu" style={{ width: 340, maxWidth: '100%' }}>
       <SubmenuSelect active={active} label="Model settings" submenuLabel="Thinking effort" options={options} value={selected} onValueChange={value => { setSelected(value); setChanges(count => count + 1); }} renderPreview={(preview, committed) => <output>{preview ?? '-'} / {committed}</output>} />
-      <output data-changes>{changes}</output><button onClick={() => setSelected('low')}>External selection</button>
+      <output data-changes>{changes}</output><button onClick={() => setSelected('low')}>External selection</button><button onClick={() => setSelected('')}>Remove selection</button>
     </section>
     <section aria-label="Second menu" data-cui-theme="dark" style={{ width: 340, maxWidth: '100%', marginTop: 20 }}>
       <SubmenuSelect active={active} label="Other settings" submenuLabel="Other effort" options={options} defaultValue="max" />

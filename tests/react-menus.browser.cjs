@@ -22,6 +22,18 @@ const { chromium } = require(process.env.PLAYWRIGHT_MODULE || 'playwright-core')
     await first.getByRole('button', { name: 'Model settings' }).press('ArrowDown');
     const owner = first.getByRole('menuitem', { name: /Thinking effort/ }); assert.equal(await focused(owner), true);
     await owner.press('ArrowRight'); assert.equal(await focused(first.getByRole('menuitemradio', { name: 'High', exact: true })), true);
+    // Reopening an already expanded submenu must enter its committed item,
+    // including when the owner is focused before a second Right activation.
+    await page.keyboard.press('ArrowDown');
+    assert.equal(await focused(first.getByRole('menuitemradio', { name: 'Max', exact: true })), true);
+    await owner.click();
+    assert.equal(await focused(first.getByRole('menuitemradio', { name: 'High', exact: true })), true, 'repeated pointer expansion enters the selected option');
+    await page.keyboard.press('ArrowDown');
+    assert.equal(await focused(first.getByRole('menuitemradio', { name: 'Max', exact: true })), true, 'keyboard preview works after repeated pointer expansion');
+    await owner.focus(); await owner.press('ArrowRight');
+    assert.equal(await focused(first.getByRole('menuitemradio', { name: 'High', exact: true })), true, 'repeated Right expansion enters the selected option');
+    assert.equal(await first.locator('[data-changes]').textContent(), '0', 'repeated expansion and preview never commit a value');
+    assert.equal(await first.getByRole('menuitemradio', { name: 'High', exact: true }).getAttribute('aria-checked'), 'true');
     await page.keyboard.press('ArrowUp'); assert.equal(await focused(first.getByRole('menuitemradio', { name: 'Low', exact: true })), true, 'disabled Medium is skipped');
     assert.equal(await first.getByRole('menuitemradio', { name: 'High', exact: true }).getAttribute('aria-checked'), 'true');
     assert.equal(await first.locator('output').first().textContent(), 'low / high', 'focus previews without committing');
@@ -38,6 +50,15 @@ const { chromium } = require(process.env.PLAYWRIGHT_MODULE || 'playwright-core')
     await first.getByRole('button', { name: 'External selection' }).click(); await first.getByRole('button', { name: 'Model settings' }).click(); await owner.press('ArrowRight');
     assert.equal(await first.getByRole('menuitemradio', { name: 'Low', exact: true }).getAttribute('aria-checked'), 'true');
     await page.keyboard.press('ArrowLeft'); assert.equal(await focused(owner), true); await page.keyboard.press('Escape'); assert.equal(await first.getByRole('menu').count(), 0);
+    await first.getByRole('button', { name: 'Remove selection', exact: true }).click();
+    await first.getByRole('button', { name: 'Model settings' }).click(); await owner.click();
+    await page.keyboard.press('End'); await owner.click();
+    assert.equal(await focused(first.getByRole('menuitemradio', { name: 'Low', exact: true })), true, 'repeated expansion without a committed option enters the first enabled item');
+    await page.keyboard.press('ArrowDown');
+    assert.equal(await focused(first.getByRole('menuitemradio', { name: 'High', exact: true })), true, 'fallback entry retains disabled-item keyboard skipping');
+    assert.equal(await first.getByRole('menuitemradio', { checked: true }).count(), 0, 'fallback focus does not create a committed selection');
+    assert.equal(await first.locator('[data-changes]').textContent(), '2');
+    await page.keyboard.press('Escape'); await page.keyboard.press('Escape');
 
     assert.equal(await search.getByRole('heading', { level: 4 }).count(), 2);
     await input.fill(' '); assert.equal(await search.getByRole('heading', { level: 4 }).count(), 0); assert.equal(await search.getByRole('button').count(), 3, 'whitespace flattens groups without filtering');

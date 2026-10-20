@@ -23,11 +23,11 @@ function Consumer() {
     </> : null}
   </main>;
 }
-function ActivityPreview({ onOpenChange }: { onOpenChange: (open: boolean) => void }) {
-  const preview = useRef<ImagePreviewHandle>(null), reopen = useRef(false);
+function ActivityPreview({ preview, autoReopen, onOpenChange }: { preview: { current: ImagePreviewHandle | null }; autoReopen: boolean; onOpenChange: (open: boolean) => void }) {
+  const reopen = useRef(false);
   useLayoutEffect(() => {
     let current = true;
-    queueMicrotask(() => { if (current && reopen.current) preview.current?.open(); });
+    queueMicrotask(() => { if (current && autoReopen && reopen.current) preview.current?.open(); });
     return () => { current = false; };
   }, []);
   return <section data-activity-host>
@@ -36,13 +36,15 @@ function ActivityPreview({ onOpenChange }: { onOpenChange: (open: boolean) => vo
   </section>;
 }
 function ActivityConsumer() {
+  const preview = useRef<ImagePreviewHandle>(null), autoReopen = !new URLSearchParams(location.search).has('no-reopen');
   const [mode, setMode] = useState<'hidden' | 'visible'>('visible'), [changes, setChanges] = useState<boolean[]>([]);
   return <main data-cui-theme="light">
     <button onClick={() => { flushSync(() => setMode('hidden')); flushSync(() => setMode('visible')); }}>Reconnect Activity</button>
+    <button onClick={() => { flushSync(() => setMode('hidden')); flushSync(() => setMode('visible')); preview.current?.open(); }}>Reconnect and open Activity</button>
     <button onClick={() => flushSync(() => setMode('hidden'))}>Hide Activity</button>
     <button onClick={() => flushSync(() => setMode('visible'))}>Show Activity</button>
     <output data-activity-changes>{JSON.stringify(changes)}</output>
-    <Activity mode={mode}><ActivityPreview onOpenChange={value => setChanges(previous => [...previous, value])} /></Activity>
+    <Activity mode={mode}><ActivityPreview preview={preview} autoReopen={autoReopen} onOpenChange={value => setChanges(previous => [...previous, value])} /></Activity>
   </main>;
 }
 function FocusConsumer() {

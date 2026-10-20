@@ -1,6 +1,7 @@
-import { StrictMode, useEffect, useRef, useState } from 'react';
+import { Activity, StrictMode, useEffect, useRef, useState } from 'react';
 import { createRoot } from 'react-dom/client';
-import { CopyButton, GhostButton, NotificationStack, Tooltip } from '../../../src';
+import { flushSync } from 'react-dom';
+import { CodeBlock, CopyButton, GhostButton, NotificationStack, Tooltip } from '../../../src';
 import type { NotificationStackHandle } from '../../../src';
 import '../../../src/styles/index.css';
 
@@ -63,5 +64,18 @@ function DeadlineConsumer({ mode }: { mode: 'single' | 'stack' }) {
     <NotificationStack ref={notices} mode={mode} label="Deadline notices" dismissLabel="Dismiss deadline notice" />
   </main>;
 }
+function CopyActivityConsumer() {
+  const [mode, setMode] = useState<'hidden' | 'visible'>('visible'), [mounted, setMounted] = useState(true), [results, setResults] = useState(0);
+  return <main data-cui-theme="light">
+    <button onClick={() => flushSync(() => setMode('hidden'))}>Hide copy Activity</button>
+    <button onClick={() => flushSync(() => setMode('visible'))}>Show copy Activity</button>
+    <button onClick={() => setMounted(value => !value)}>Mount copy Activity</button>
+    <output data-copy-results>{results}</output>
+    {mounted ? <Activity mode={mode}><section data-copy-activity>
+      <CopyButton text="Activity button text" copyLabel="Copy Activity button" copiedLabel="Activity button copied" failedLabel="Activity button failed" onCopyResult={() => setResults(value => value + 1)} />
+      <CodeBlock aria-label="Activity source" code="Activity code text" copyLabel="Copy Activity source" copiedLabel="Activity source copied" copyFailedLabel="Activity source failed" />
+    </section></Activity> : null}
+  </main>;
+}
 const deadlineMode = new URLSearchParams(location.search).get('deadline');
-createRoot(document.getElementById('root')!).render(<StrictMode>{deadlineMode ? <DeadlineConsumer mode={deadlineMode === 'single' ? 'single' : 'stack'} /> : <Consumer />}</StrictMode>);
+createRoot(document.getElementById('root')!).render(<StrictMode>{new URLSearchParams(location.search).has('copy-activity') ? <CopyActivityConsumer /> : deadlineMode ? <DeadlineConsumer mode={deadlineMode === 'single' ? 'single' : 'stack'} /> : <Consumer />}</StrictMode>);

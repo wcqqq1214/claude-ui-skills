@@ -49,6 +49,32 @@ const { chromium } = require(process.env.PLAYWRIGHT_MODULE || 'playwright-core')
         failed.mark.finish(); await flush(); assert.equal(failed.completed(), 1, 'failed decoding cannot strand completion');
         failed.mark.dispose(); global.Image = ImageWithDecode;
       }
+      {
+        const h = harness(); h.mark.start('think'); await flush();
+        for (const [expected, time] of [['grow', 120], ['think-in', 200], ['think-loop', 800]]) {
+          assert.equal(h.host.dataset.phase, expected); h.current().currentTime = time;
+          h.mark.disconnect(); await flush();
+          assert.equal(timers.size, 0, 'disconnected playback releases every wall-clock timer');
+          h.mark.connect();
+          assert.equal(h.host.dataset.phase, expected, 'reconnection restores each authored stage');
+          assert.equal(h.current().currentTime, time, 'reconnection restores its exact animation time');
+          if (expected !== 'think-loop') await h.end();
+        }
+        assert.deepEqual(h.entries, ['think'], 'restoring entry does not notify entry twice');
+        await h.select('read'); assert.equal(timers.size, 1);
+        h.mark.disconnect(); assert.equal(timers.size, 0); h.mark.connect();
+        assert.equal(timers.size, 1, 'reconnection recomputes a pending seam from the retained loop time');
+        h.mark.finish(); await h.end(); assert.equal(h.host.dataset.phase, 'think-out');
+        h.current().currentTime = 100; h.mark.disconnect(); await flush(); h.mark.connect();
+        assert.equal(h.host.dataset.phase, 'think-out'); assert.equal(h.current().currentTime, 100);
+        await h.end(); assert.equal(h.completed(), 1);
+        h.mark.disconnect(); h.mark.connect(); await flush(); assert.equal(h.completed(), 1);
+        h.mark.dispose();
+        const pendingCompletion = harness(); pendingCompletion.mark.start('code'); pendingCompletion.mark.finish();
+        pendingCompletion.mark.disconnect(); await flush(); assert.equal(pendingCompletion.completed(), 0);
+        pendingCompletion.mark.connect(); await flush(); assert.equal(pendingCompletion.completed(), 1, 'a completion interrupted by effect cleanup is delivered once on reconnect');
+        pendingCompletion.mark.dispose();
+      }
       for (const [activity, time, expected] of [
         ['think', 1749, 54 * 33.3333 - 1749], ['think', 1750, null],
         ['code', 1000, 37 * 33.3333 - 1000], ['code', 1900, null], ['read', 1000, null], ['write', 1000, null],
@@ -85,6 +111,45 @@ const { chromium } = require(process.env.PLAYWRIGHT_MODULE || 'playwright-core')
     const errors = [];
     page.on('pageerror', error => errors.push(error.message));
     page.on('console', message => { if (message.type() === 'error') errors.push(message.text()); });
+    await page.goto(`${base}/tests/fixtures/react-feedback/?activity`);
+    const status = page.locator('.cui-status-mark');
+    const statusPhase = value => page.waitForFunction(value => document.querySelector('.cui-status-mark').dataset.phase === value, value);
+    const statusAction = name => page.getByRole('button', { name, exact: true }).click();
+    await statusPhase('think-loop');
+    const retainedStatus = await status.elementHandle();
+    await statusAction('Pause Status');
+    await page.waitForFunction(() => document.querySelector('.cui-status-mark > span').getAnimations()[0].playState === 'paused');
+    await status.evaluate(element => { element.firstElementChild.getAnimations()[0].currentTime = 800; });
+    await statusAction('Hide Status');
+    assert.equal(await retainedStatus.evaluate(element => element.isConnected), true, 'Activity retains the original status DOM');
+    await page.waitForTimeout(100); await statusAction('Show Status');
+    assert.equal(await status.getAttribute('data-phase'), 'think-loop', 'Activity reconnect retains the authored phase without replaying the growing dot');
+    assert.equal(await status.evaluate(element => element.firstElementChild.getAnimations()[0].currentTime), 800, 'Activity reconnect restores the paused frame');
+    assert.equal(await page.locator('[data-status-entered]').textContent(), '1', 'reconnecting an entered phase does not enter it twice');
+    await statusAction('Pause Status');
+    await page.waitForFunction(() => document.querySelector('.cui-status-mark > span').getAnimations()[0].currentTime > 800);
+    await statusAction('Finish Status');
+    await page.waitForFunction(() => {
+      const mark = document.querySelector('.cui-status-mark');
+      for (const animation of mark.firstElementChild.getAnimations()) animation.finish();
+      return mark.dataset.phase === 'done';
+    });
+    assert.equal(await page.locator('[data-status-completed]').textContent(), '1');
+    await statusAction('Hide Status'); await page.waitForTimeout(100); await statusAction('Show Status');
+    await statusAction('Reconnect Status'); await page.waitForTimeout(100);
+    assert.equal(await status.getAttribute('data-phase'), 'done', 'completed status remains completed after separate-task and same-task reconnects');
+    assert.equal(await page.locator('[data-status-completed]').textContent(), '1', 'reconnect never repeats onComplete');
+    await statusAction('Hide Status'); await statusAction('Replay Status'); await statusAction('Show Status');
+    await statusPhase('grow'); await statusPhase('think-loop');
+    assert.equal(await page.locator('[data-status-entered]').textContent(), '2', 'an explicit Replay while hidden still starts a fresh run');
+    assert.equal(await retainedStatus.evaluate(element => element === document.querySelector('.cui-status-mark')), true, 'Replay also retains the same DOM');
+    await statusAction('Finish Status'); await statusAction('Mount Status'); await page.waitForTimeout(150);
+    assert.equal(await page.locator('[data-status-completed]').textContent(), '1', 'unmount cancels pending playback without a later completion');
+    await retainedStatus.dispose();
+    await page.goto(`${base}/tests/fixtures/react-feedback/?activity&finished`);
+    await page.waitForFunction(() => document.querySelector('[data-status-completed]').textContent === '1');
+    await statusAction('Reconnect Status'); await page.waitForTimeout(100);
+    assert.equal(await page.locator('[data-status-completed]').textContent(), '1', 'StrictMode immediate completion notifies once across reconnect');
     await page.goto(`${base}/tests/fixtures/react-feedback/`);
     const mark = page.locator('.cui-status-mark');
     const phase = value => page.waitForFunction(value => document.querySelector('.cui-status-mark').dataset.phase === value, value);
@@ -207,6 +272,6 @@ const { chromium } = require(process.env.PLAYWRIGHT_MODULE || 'playwright-core')
     await page.waitForTimeout(150);
     assert.equal(await mark.evaluate(element => element.firstElementChild.getAnimations()[0].currentTime), hiddenTime, 'hidden chapter pauses authored motion');
     assert.deepEqual(errors, []);
-    console.log('React feedback: authored seams, latest handoff, completion/replay, pause, StrictMode, source-only geometry, disclosure focus and responsive bilingual demo passed');
+    console.log('React feedback: authored seams, retained-DOM Activity phase/frame/completion, hidden Replay, latest handoff, completion/replay, pause, StrictMode, source-only geometry, disclosure focus and responsive bilingual demo passed');
   } finally { await browser?.close(); await server.close(); }
 })().catch(error => { console.error(error); process.exitCode = 1; });

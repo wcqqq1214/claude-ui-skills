@@ -143,6 +143,46 @@ const { chromium } = require(process.env.PLAYWRIGHT_MODULE || 'playwright-core')
     await page.keyboard.press('Escape');
     assert.equal(await languageButton.evaluate(el => el === document.activeElement), true);
     assert.equal(await page.locator('html').getAttribute('lang'), 'zh-Hans', 'focus preview does not commit a language');
+    // Translation preserves the reading position through text reflow and the
+    // following ResizeObserver frame, including nested horizontal scrollers.
+    const localePage = await context.newPage(); observe(localePage);
+    await localePage.setViewportSize({ width: 390, height: 500 });
+    await localePage.goto(`${origin}/claude-ui-skills/?lang=en#reading`);
+    await localePage.evaluate(() => document.fonts.ready);
+    const settleLocale = () => localePage.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(() => requestAnimationFrame(resolve)))));
+    await settleLocale();
+    await localePage.evaluate(() => { document.documentElement.style.overflowAnchor = 'auto'; window.scrollTo(0, 300); });
+    const localeHistory = await localePage.evaluate(() => history.length);
+    for (const locale of ['zh-Hans', 'en', 'zh-Hans']) {
+      await setLanguage(localePage, locale);
+      await settleLocale();
+      assert.equal(await localePage.evaluate(() => scrollY), 300, `${locale}: translating the narrow reading page retains its vertical position`);
+      assert.equal(await localePage.evaluate(() => document.documentElement.style.overflowAnchor), 'auto', 'translation restores the host overflow-anchor setting');
+      assert.equal(await localePage.evaluate(() => history.length), localeHistory, 'choosing a language replaces the current history entry');
+    }
+    await localePage.evaluate(() => {
+      for (const locale of ['en', 'zh-Hans']) {
+        const url = new URL(location.href); url.searchParams.set('lang', locale);
+        history.replaceState(history.state, '', url); window.dispatchEvent(new PopStateEvent('popstate'));
+      }
+    });
+    await settleLocale();
+    assert.equal(await localePage.evaluate(() => scrollY), 300, 'batched language changes that return to the current locale preserve the position');
+    assert.equal(await localePage.evaluate(() => document.documentElement.style.overflowAnchor), 'auto', 'batched language changes still release scroll anchoring');
+    await setLanguage(localePage, 'en');
+    await localePage.getByRole('radio', { name: 'Code & tables', exact: true }).click();
+    const localeTable = localePage.locator('.demo-reading-code [role="region"]');
+    await localeTable.evaluate(element => { element.scrollLeft = 160; window.scrollTo(0, 150); });
+    assert.equal(await localeTable.evaluate(element => element.scrollLeft), 160, 'the narrow table can be scrolled horizontally');
+    const retainedTable = await localeTable.elementHandle();
+    for (const locale of ['zh-Hans', 'en']) {
+      await setLanguage(localePage, locale);
+      await settleLocale();
+      assert.equal(await localePage.evaluate(() => scrollY), 150, `${locale}: code view retains its vertical position`);
+      assert.equal(await localeTable.evaluate(element => element.scrollLeft), 160, `${locale}: table translation retains its horizontal position`);
+      assert.equal(await localeTable.evaluate((element, previous) => element === previous, retainedTable), true, 'translation retains the table viewport DOM');
+    }
+    await localePage.close();
     // These dimensions were measured through computer-use from dev 0a9c12c,
     // at the same 1280x720 viewport, rather than inferred from the React CSS.
     await page.setViewportSize({ width: 1280, height: 720 });

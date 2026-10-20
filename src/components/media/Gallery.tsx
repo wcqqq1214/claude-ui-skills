@@ -36,6 +36,9 @@ export function Gallery({ items, labels, defaultValue, onValueChange, onOpenChan
   const latest = useRef({ items, active, selectedId: state.id, onValueChange, onOpenChange });
   useLayoutEffect(() => { latest.current = { items, active, selectedId: state.id, onValueChange, onOpenChange }; }, [items, active, state.id, onValueChange, onOpenChange]);
   useLayoutEffect(() => {
+    // Disposal silently closes the native dialog. Activity retains React state,
+    // so reconnect its presentation to the new, closed controller as well.
+    setState(value => value.open || value.zoomed ? { ...value, open: false, zoomed: false } : value);
     const interaction = createGalleryInteraction({ dialog: dialog.current!, rail: rail.current!, viewport: viewport.current!, header: header.current!, bottom: bottom.current!, close: close.current!, previous: previous.current!, next: next.current!, slides: slides.current, triggers: triggers.current, initialId: latest.current.selectedId,
       items: () => latest.current.items,
       change(value, synchronous) { if (synchronous) flushSync(() => setState(value)); else setState(value); },

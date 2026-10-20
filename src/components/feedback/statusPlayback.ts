@@ -27,18 +27,25 @@ export function createStatusPlayback(host: HTMLElement, strip: HTMLElement, onEn
   const decoded = new Set<Activity>(), pending = new Map<Activity, Promise<boolean>>();
   let activity: Activity = 'think', wanted: Activity = 'think', stage: Stage = 'dot';
   let revision = 0, animation: Animation | null = null, seamTimer: ReturnType<typeof setTimeout> | undefined;
-  let finishing = false, paused = true, disposed = false;
+  let finishing = false, paused = true, disposed = false, connected = true, completionPending = false;
+  let resumeTime = 0;
   const target = () => decoded.has(wanted) ? wanted : activity;
   const clearSeam = () => { clearTimeout(seamTimer); seamTimer = undefined; };
+  function notifyCompletion() {
+    const run = revision;
+    // StrictMode and Activity disconnect effects before pending microtasks run.
+    // Keep an undelivered completion for reconnect, but never notify after unmount.
+    queueMicrotask(() => {
+      if (!disposed && connected && run === revision && stage === 'done' && completionPending) {
+        completionPending = false; onComplete();
+      }
+    });
+  }
   function settle() {
     clearSeam(); animation?.cancel(); animation = null;
     host.dataset.phase = stage = 'done';
     if (finishing) {
-      finishing = false;
-      const run = revision;
-      // A mount with running=false may settle before decoding. Let StrictMode
-      // dispose its probe instance before notifying the host.
-      queueMicrotask(() => { if (!disposed && run === revision && stage === 'done') onComplete(); });
+      finishing = false; completionPending = true; notifyCompletion();
     }
   }
   function scheduleSeam() {
@@ -52,8 +59,8 @@ export function createStatusPlayback(host: HTMLElement, strip: HTMLElement, onEn
       if (run === revision && animation === current && target() !== activity && !finishing && !paused) void play('out', run);
     }, seam - time);
   }
-  async function play(nextStage: 'grow' | 'in' | 'loop' | 'out', run: number) {
-    if (disposed || run !== revision) return;
+  async function play(nextStage: 'grow' | 'in' | 'loop' | 'out', run: number, restoredTime?: number) {
+    if (disposed || !connected || run !== revision) return;
     clearSeam(); animation?.cancel(); animation = null;
     stage = nextStage;
     const index = nextStage === 'in' ? 0 : nextStage === 'loop' ? 1 : 2;
@@ -61,12 +68,14 @@ export function createStatusPlayback(host: HTMLElement, strip: HTMLElement, onEn
     host.dataset.phase = nextStage === 'grow' ? 'grow' : `${activity}-${nextStage}`;
     strip.style.backgroundImage = `url("${nextStage === 'grow' ? grow : marks[activity].urls[index]}")`;
     strip.style.height = `${frames * 20}px`;
-    if (nextStage === 'in') onEnter(activity);
+    if (nextStage === 'in' && restoredTime === undefined) onEnter(activity);
+    if (disposed || !connected || run !== revision) return;
     let current: Animation | undefined;
     try {
       current = animation = strip.animate(Array.from({ length: frames }, (_, frame) => ({ transform: `translateY(-${frame * 20}px)` })), {
         duration: frames * frameMs, iterations: 1, easing: `steps(${frames}, jump-none)`, fill: 'forwards',
       });
+      if (restoredTime !== undefined) current.currentTime = restoredTime;
       if (paused) current.pause();
       scheduleSeam();
       await current.finished;
@@ -97,7 +106,7 @@ export function createStatusPlayback(host: HTMLElement, strip: HTMLElement, onEn
     }
     scheduleSeam();
     void pending.get(wanted)!.then(ready => {
-      if (!ready || disposed || run !== revision || wanted !== nextActivity || finishing || stage === 'done') return;
+      if (!ready || disposed || !connected || run !== revision || wanted !== nextActivity || finishing || stage === 'done') return;
       if (stage === 'dot') { activity = wanted; void play('grow', run); }
       else scheduleSeam();
     });
@@ -105,6 +114,7 @@ export function createStatusPlayback(host: HTMLElement, strip: HTMLElement, onEn
   return {
     start(nextActivity: Activity) {
       revision++; clearSeam(); animation?.cancel(); animation = null;
+      completionPending = false;
       host.dataset.phase = stage = 'dot'; strip.style.backgroundImage = '';
       activity = nextActivity; select(nextActivity);
     },
@@ -118,6 +128,19 @@ export function createStatusPlayback(host: HTMLElement, strip: HTMLElement, onEn
       paused = value;
       if (paused) { animation?.pause(); clearSeam(); }
       else { animation?.play(); scheduleSeam(); }
+    },
+    connect() {
+      if (disposed || connected) return;
+      connected = true;
+      if (stage === 'done') { if (completionPending) notifyCompletion(); }
+      else if (stage === 'dot') { if (finishing) settle(); else select(wanted); }
+      else void play(stage, revision, resumeTime);
+    },
+    disconnect() {
+      if (!connected) return;
+      connected = false; revision++; clearSeam();
+      resumeTime = Number(animation?.currentTime ?? 0);
+      animation?.cancel(); animation = null;
     },
     dispose() { disposed = true; revision++; clearSeam(); animation?.cancel(); animation = null; },
   };

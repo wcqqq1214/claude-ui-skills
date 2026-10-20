@@ -32,6 +32,9 @@ export function ImagePreview({ src, alt, previewSrc = src, previewAlt = alt, ope
   const [open, setOpen] = useState(false), [coarse, setCoarse] = useState(false);
   useLayoutEffect(() => { latest.current = { active, onOpenChange }; }, [active, onOpenChange]);
   useLayoutEffect(() => {
+    // The previous controller silently closes on Activity cleanup. Reconnect
+    // the retained thumbnail state without inventing a host dismissal callback.
+    setOpen(false);
     const next = createImagePreview({ origin: origin.current!, target: target.current!, dialog: dialog.current!, name, onChange(value) { setOpen(value); latest.current.onOpenChange?.(value); } });
     controller.current = next;
     return () => { next.dispose(); controller.current = null; };
