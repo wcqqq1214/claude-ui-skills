@@ -24,6 +24,34 @@ const { chromium } = require(process.env.PLAYWRIGHT_MODULE || 'playwright-core')
     assert.equal(await systemMenu.evaluate(element => getComputedStyle(element).backgroundColor), 'rgb(255, 255, 255)');
     assert.equal(await systemMenu.evaluate(element => element.contains(document.activeElement)), true, 'system theme updates retain menu focus');
     await systemPage.close();
+    const statusPage = await browser.newPage({ viewport: { width: 1280, height: 1000 } });
+    await statusPage.goto(`${base}/demo/?lang=en#modes`);
+    const restoredStatus = statusPage.locator('.cui-pinned-stage [role="status"]');
+    await statusPage.getByRole('button', { name: 'Restore order', exact: true }).click();
+    assert.equal(await restoredStatus.textContent(), 'Order restored');
+    await setLanguage(statusPage, 'zh-Hans');
+    assert.equal(await restoredStatus.textContent(), '已恢复原来的顺序', 'the restored-order announcement follows the current language');
+    await statusPage.locator('.cui-pinned-main').first().focus(); await statusPage.keyboard.press('ArrowRight'); await statusPage.keyboard.press('Enter');
+    await statusPage.getByRole('menuitem', { name: '下移', exact: true }).click();
+    assert.equal(await restoredStatus.textContent(), '设计笔记已移到第 2 位，共 4 项');
+    await setLanguage(statusPage, 'en');
+    assert.equal(await restoredStatus.textContent(), 'Design notes moved to position 2 of 4', 'a later move remains the current announcement when the initial message changes language');
+    const statusList = statusPage.locator('.cui-pinned-list'), movedOrder = ['reading', 'notes', 'weekend', 'ideas'];
+    assert.deepEqual(await statusList.locator(':scope > li').evaluateAll(rows => rows.map(row => row.dataset.pin)), movedOrder);
+    const statusRow = statusList.locator('[data-pin="notes"]'); await statusRow.scrollIntoViewIfNeeded();
+    const statusBox = await statusRow.boundingBox();
+    await statusPage.mouse.move(statusBox.x + 50, statusBox.y + 13); await statusPage.mouse.down();
+    await statusPage.mouse.move(statusBox.x + 54, statusBox.y + 13); await statusPage.mouse.move(statusBox.x + 50, statusBox.y + 80);
+    assert.equal(await statusPage.locator('.cui-pinned-ghost').count(), 1);
+    await statusPage.evaluate(() => { location.hash = '#workspace'; });
+    await statusPage.waitForFunction(() => document.querySelector('nav a[aria-current]')?.getAttribute('href') === '#workspace');
+    await statusPage.mouse.up(); await chooseChapter(statusPage, 'modes');
+    assert.equal(await restoredStatus.textContent(), 'Move cancelled', 'leaving a mounted chapter announces the interrupted drag');
+    assert.equal(await statusPage.locator('.cui-pinned-ghost').count(), 0);
+    assert.deepEqual(await statusList.locator(':scope > li').evaluateAll(rows => rows.map(row => row.dataset.pin)), movedOrder, 'chapter exit cancels without committing the preview order');
+    await setLanguage(statusPage, 'zh-Hans');
+    assert.equal(await restoredStatus.textContent(), '已取消移动', 'cancellation replaces the initial restored-order message and remains translatable');
+    await statusPage.close();
     const page = await browser.newPage({ viewport: { width: 1400, height: 1400 } }); const errors = [];
     page.on('pageerror', error => errors.push(error.message));
     await page.goto(`${base}/tests/fixtures/react-workspace/`);
@@ -110,7 +138,13 @@ const { chromium } = require(process.env.PLAYWRIGHT_MODULE || 'playwright-core')
       if (cancel === 'resize') await page.setViewportSize({ width: 1350, height: 1400 });
       if (cancel === 'inactive') await page.getByRole('button', { name: 'Active', exact: true }).evaluate(element => element.click());
       await page.mouse.up(); await clean(); assert.deepEqual(await order(), original, cancel);
-      if (cancel === 'inactive') await page.getByRole('button', { name: 'Active', exact: true }).click();
+      if (cancel === 'inactive') {
+        assert.equal(await pins.getByRole('status').textContent(), 'Move cancelled');
+        const inactive = await start(); await page.mouse.move(inactive.x + 10, inactive.y + 60); await page.mouse.up();
+        await clean(); assert.deepEqual(await order(), original, 'inactive lists cannot start a new drag');
+        await page.getByRole('button', { name: 'Active', exact: true }).click();
+        assert.equal(await pins.getByRole('status').textContent(), 'Move cancelled', 'reactivating retains the interrupted move announcement');
+      }
     }
     await reorder('notes', 3); const bounds = await list.boundingBox();
     await page.mouse.move(bounds.x + bounds.width + 10, bounds.y + 90); await page.mouse.up(); assert.deepEqual(await order(), original, 'horizontal exit restores the source slot');
@@ -142,7 +176,8 @@ const { chromium } = require(process.env.PLAYWRIGHT_MODULE || 'playwright-core')
     assert.equal(await menu.count(), 0); assert.equal(await list.evaluate(element => !element.contains(document.activeElement)), true, 'Tab leaves the roving list after menu dismissal');
     assert.deepEqual(await page.getByRole('region', { name: 'Other pins', exact: true }).locator('[data-pin]').evaluateAll(nodes => nodes.map(node => node.dataset.pin)), original);
     await page.getByRole('button', { name: 'Reset pins', exact: true }).click(); await reorder('notes', 3);
-    const before = await page.locator('[data-changes]').textContent(); await page.getByRole('button', { name: 'Mount', exact: true }).evaluate(element => element.click()); await page.mouse.up(); await frames(); assert.equal(await page.locator('.cui-pinned-ghost').count(), 0); assert.equal(await page.locator('[data-changes]').textContent(), before, 'unmount cannot commit a pending drag');
+    await list.locator('[data-pin="notes"]').dispatchEvent('pointermove', { pointerId: 1, buttons: 0 });
+    const before = await page.locator('[data-changes]').textContent(); await page.getByRole('button', { name: 'Mount', exact: true }).evaluate(element => element.click()); await page.mouse.up(); await page.waitForTimeout(250); assert.equal(await page.locator('.cui-pinned-ghost').count(), 0); assert.equal(await page.locator('[data-changes]').textContent(), before, 'unmount cancels delayed release without a late reorder callback');
 
     for (const w of [1280, 390, 320]) for (const theme of ['light', 'dark']) for (const locale of ['en', 'zh-Hans']) {
       await page.setViewportSize({ width: w, height: 1000 }); await page.goto(`${base}/demo/?lang=${locale}#workspace`); await page.reload(); await setTheme(page, theme); await page.evaluate(() => document.fonts.ready);

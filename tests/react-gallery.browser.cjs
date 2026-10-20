@@ -103,6 +103,53 @@ const { chromium } = require(process.env.PLAYWRIGHT_MODULE || 'playwright-core')
       await settle(); assert.equal(await dialog.isVisible(), sequence.length === 3);
       if (sequence.length === 3) { await host('Close first'); await settle(); }
     }
+    // A close event is queued after the native dialog has already closed. A host
+    // can reopen in that gap; the previous request must not cancel the new one.
+    await page.evaluate(() => { window.galleryTransitionAPI = document.startViewTransition; });
+    for (const transitions of ['native', 'unavailable', 'throws']) {
+      await page.evaluate(mode => {
+        document.startViewTransition = mode === 'native' ? window.galleryTransitionAPI : mode === 'unavailable' ? undefined : () => { throw new Error('View Transition unavailable'); };
+      }, transitions);
+      for (let repeat = 0; repeat < 2; repeat++) {
+        const before = JSON.parse(await page.locator('[data-changes]').textContent()).length;
+        await open();
+        await dialog.evaluate(element => {
+          window.galleryReopen = { requested: false, delivered: false };
+          const observer = new MutationObserver(() => {
+            if (element.open) return;
+            observer.disconnect(); window.galleryReopen.requested = true;
+            [...document.querySelectorAll('button')].find(button => button.textContent === 'Open first').click();
+          });
+          observer.observe(element, { attributes: true, attributeFilter: ['open'] });
+          element.addEventListener('close', () => { observer.disconnect(); window.galleryReopen.delivered = true; }, { once: true });
+        });
+        await host('Close first');
+        await page.waitForFunction(() => window.galleryReopen.delivered);
+        await settle();
+        assert.equal(await page.evaluate(() => window.galleryReopen.requested), true);
+        assert.equal(await dialog.isVisible(), true, `a queued internal close cannot cancel reopening (View Transition: ${transitions})`);
+        assert.deepEqual(JSON.parse(await page.locator('[data-changes]').textContent()).slice(before), [true, false, true]);
+        // Ignoring an internal event must not hide a later external native close,
+        // including after repeated close/reopen cycles.
+        await dialog.evaluate(element => element.close());
+        await page.waitForFunction(() => document.querySelector('section[aria-label="First"] button').getAttribute('aria-expanded') === 'false');
+        await settle();
+        assert.deepEqual(JSON.parse(await page.locator('[data-changes]').textContent()).slice(before), [true, false, true, false]);
+      }
+    }
+    // Dispose while an internally generated native close is still queued, then
+    // verify the next instance still observes an external close exactly once.
+    await page.evaluate(() => { document.startViewTransition = undefined; });
+    await open();
+    const beforeDispose = JSON.parse(await page.locator('[data-changes]').textContent()).length;
+    await page.evaluate(() => {
+      for (const name of ['Close first', 'Close first', 'Mount']) [...document.querySelectorAll('button')].find(button => button.textContent === name).click();
+    });
+    await first.waitFor({ state: 'detached' }); await host('Mount'); await open();
+    await dialog.evaluate(element => element.close());
+    await page.waitForFunction(() => document.querySelector('section[aria-label="First"] button').getAttribute('aria-expanded') === 'false');
+    assert.deepEqual(JSON.parse(await page.locator('[data-changes]').textContent()).slice(beforeDispose), [false, true, false]);
+    await page.evaluate(() => { document.startViewTransition = window.galleryTransitionAPI; });
     await open(); await host('Open second'); const other = page.getByRole('dialog', { name: 'Second gallery' }); await other.waitFor({ state: 'visible' }); await settle();
     assert.equal(await other.locator('.cui-gallery-filename').textContent(), 'landscape-dusk.svg'); await host('Close first'); await settle(); assert.equal(await focused(other.getByRole('button', { name: 'Close', exact: true })), true);
     await host('Close second'); await settle();

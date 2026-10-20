@@ -34,6 +34,27 @@ const { chromium } = require(process.env.PLAYWRIGHT_MODULE || 'playwright-core')
   };
   try {
     browser = await chromium.launch({ executablePath: process.env.CHROME_BIN, headless: true });
+    // Existing visitors retain their choices; unsupported values fall through
+    // to a valid saved choice or the browser language, as before the migration.
+    const preferenceCases = [
+      { name: 'legacy preferences', storage: { 'claude-ui-studies.language': 'zh-Hans', 'claude-ui-studies.theme': 'dark' }, language: 'zh-Hans', theme: 'dark' },
+      { name: 'current preferences take precedence', storage: { 'claude-ui-studies.language': 'zh-Hans', 'claude-ui-studies.theme': 'dark', 'cui-demo-locale': 'en', 'cui-demo-theme': 'system' }, language: 'en', theme: 'light' },
+      { name: 'invalid current values retain valid legacy preferences', storage: { 'claude-ui-studies.language': 'zh-Hans', 'claude-ui-studies.theme': 'dark', 'cui-demo-locale': 'invalid', 'cui-demo-theme': 'invalid' }, language: 'zh-Hans', theme: 'dark' },
+      { name: 'unsupported query retains saved language', storage: { 'cui-demo-locale': 'zh-Hans' }, query: '?lang=fr', language: 'zh-Hans', theme: 'light' },
+      { name: 'invalid saved language uses browser language', storage: { 'cui-demo-locale': 'invalid' }, browserLocale: 'zh-CN', language: 'zh-Hans', theme: 'light' },
+      { name: 'supported query overrides saved language', storage: { 'cui-demo-locale': 'zh-Hans', 'claude-ui-studies.language': 'zh-Hans' }, query: '?lang=en', language: 'en', theme: 'light' },
+    ];
+    for (const entry of preferenceCases) {
+      const preferences = await browser.newContext({ locale: entry.browserLocale ?? 'en-US', colorScheme: 'light' });
+      await preferences.addInitScript(storage => { for (const [key, value] of Object.entries(storage)) localStorage.setItem(key, value); }, entry.storage);
+      const savedPage = await preferences.newPage(); observe(savedPage);
+      await savedPage.goto(`${origin}/claude-ui-skills/${entry.query ?? ''}#controls`);
+      await savedPage.waitForFunction(() => document.documentElement.dataset.cuiTheme);
+      assert.equal(await savedPage.locator('html').getAttribute('lang'), entry.language, entry.name);
+      assert.equal(await savedPage.locator('html').getAttribute('data-cui-theme'), entry.theme, entry.name);
+      assert.equal(await savedPage.evaluate(() => localStorage.getItem('cui-demo-locale')), entry.language, `${entry.name}: persist the resolved choice`);
+      await preferences.close();
+    }
     const context = await browser.newContext({ viewport: { width: 1280, height: 900 }, colorScheme: 'dark' });
     const page = await context.newPage(); observe(page);
     const chapters = ['controls', 'segmented', 'type', 'reading', 'feedback', 'micro', 'recovery', 'composer', 'menus', 'workspace', 'modes', 'images', 'gallery', 'tasks'];
@@ -99,6 +120,10 @@ const { chromium } = require(process.env.PLAYWRIGHT_MODULE || 'playwright-core')
     assert.equal(await page.locator('main h1').evaluate(el => el === document.activeElement), true, 'closing the narrow picker restores focus before hiding the link');
     await page.evaluate(() => window.scrollTo(0, 1000));
     assert.ok(await page.evaluate(() => scrollY > 0), 'the long narrow chapter has scrolled');
+    const historyBeforeReselect = await page.evaluate(() => history.length);
+    await chooseChapter(page, 'reading');
+    assert.equal(await page.evaluate(() => scrollY), 0, 'reselecting the current chapter returns to the top');
+    assert.equal(await page.evaluate(() => history.length), historyBeforeReselect, 'reselection adds no history entry');
     await chooseChapter(page, 'type');
     await page.waitForFunction(() => scrollY === 0);
     const languageButton = page.locator('.demo-topbar button[aria-haspopup=menu]');
@@ -120,6 +145,13 @@ const { chromium } = require(process.env.PLAYWRIGHT_MODULE || 'playwright-core')
     assert.equal(await page.locator('html').getAttribute('lang'), 'zh-Hans', 'focus preview does not commit a language');
     // These dimensions were measured through computer-use from dev 0a9c12c,
     // at the same 1280x720 viewport, rather than inferred from the React CSS.
+    await page.setViewportSize({ width: 1280, height: 720 });
+    await chooseChapter(page, 'reading');
+    await page.setViewportSize({ width: 1280, height: 400 });
+    await page.evaluate(() => window.scrollTo(0, 300));
+    assert.ok(await page.evaluate(() => scrollY > 0));
+    await chooseChapter(page, 'reading');
+    assert.equal(await page.evaluate(() => scrollY), 0, 'desktop reselect also returns to the top');
     await page.setViewportSize({ width: 1280, height: 720 });
     await chooseChapter(page, 'controls');
     const geometry = await page.evaluate(() => {
@@ -160,7 +192,7 @@ const { chromium } = require(process.env.PLAYWRIGHT_MODULE || 'playwright-core')
       assert.equal((await response.arrayBuffer()).byteLength, (await stat(join(root, file))).size, file);
     }
     assert.deepEqual(errors, []);
-    console.log('Built root/subpath entries, 14 chapters, local assets, image spring, history, preferences and denied storage passed.');
+    console.log('Built root/subpath entries, 14 chapters, local assets, image spring, history/reselection, legacy/current preferences, language fallback and denied storage passed.');
   } finally {
     await browser?.close();
     await new Promise(done => server.close(done));

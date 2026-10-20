@@ -24,7 +24,6 @@ export type PinnedListProps = Omit<ComponentPropsWithoutRef<'div'>, 'children' |
   active?: boolean;
 };
 export function PinnedList({ items, onOrderChange, label, actionsLabel, menuLabel, moveUpLabel, moveDownLabel, movedLabel, cancelledLabel, initialStatus = '', describedBy, value, defaultValue, onValueChange, active = true, className, ...props }: PinnedListProps) {
-  const [initialMessage] = useState(initialStatus);
   const [local, setLocal] = useState(defaultValue), [tabId, setTabId] = useState(items[0]?.id), [menuId, setMenuId] = useState<string | null>(null), [highlighted, setHighlighted] = useState<number | null>(null);
   const [announcement, setAnnouncement] = useState<{ id: string; position: number } | 'cancelled' | null>(null), [portalStyle, setPortalStyle] = useState({ theme: 'light', direction: 'ltr' as 'ltr' | 'rtl', font: '' });
   const selected = value ?? local, menuIndex = items.findIndex(item => item.id === menuId), id = useId();
@@ -68,10 +67,10 @@ export function PinnedList({ items, onOrderChange, label, actionsLabel, menuLabe
     if (pendingFocus.current) { main(pendingFocus.current)?.focus({ preventScroll: true }); pendingFocus.current = null; }
   });
   useLayoutEffect(() => {
-    if (!active) { close(); return; }
     drag.current = createPinnedDrag(list.current!, stage.current!, { onMove: move, onCancel: () => setAnnouncement('cancelled'), onStart: () => close() });
     return () => { drag.current?.dispose(); drag.current = null; };
-  }, [active]);
+  }, []);
+  useLayoutEffect(() => { drag.current?.setActive(active); if (!active) close(); }, [active]);
   useLayoutEffect(() => { drag.current?.cancel(); if (menuKey.current && !items.some(item => item.id === menuKey.current)) close(); }, [items]);
   useLayoutEffect(() => {
     if (!menuId || !menu.current) return;
@@ -101,7 +100,7 @@ export function PinnedList({ items, onOrderChange, label, actionsLabel, menuLabe
     };
   }, []);
   const moved = announcement && announcement !== 'cancelled' ? items.find(item => item.id === announcement.id) : undefined;
-  const liveText = announcement === 'cancelled' ? cancelledLabel : announcement && moved ? movedLabel(moved, announcement.position, items.length) : announcement ? '' : initialMessage;
+  const liveText = announcement === 'cancelled' ? cancelledLabel : announcement && moved ? movedLabel(moved, announcement.position, items.length) : announcement ? '' : initialStatus;
   return <div {...props} ref={stage} className={classes('cui-pinned-stage relative w-[300px] max-w-full font-cui text-cui-text', className)}>
     <ol ref={list} aria-label={label} aria-describedby={describedBy} className="cui-pinned-list m-0 flex list-none flex-col gap-px p-0" onFocus={event => { const item = (event.target as HTMLElement).closest<HTMLElement>('[data-pin]'); if (item?.dataset.pin) setTabId(item.dataset.pin); }} onKeyDown={event => {
       if (event.metaKey || event.ctrlKey || event.altKey || event.nativeEvent.isComposing) return;

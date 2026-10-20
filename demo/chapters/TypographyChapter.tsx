@@ -14,7 +14,9 @@ export function TypographyChapter({ locale, active }: { locale: Locale; active: 
   const t = (text: string) => translate(locale, text);
   const headingRef = useRef<HTMLElement>(null), bodyRef = useRef<HTMLElement>(null), scrollRef = useRef<HTMLDivElement>(null);
   const headingVisible = useVisible(headingRef, active);
-  const [replay, setReplay] = useState(0), [playedLocale, setPlayedLocale] = useState(locale);
+  const [replay, setReplay] = useState(0), [playedLocale, setPlayedLocale] = useState<Locale | null>(null);
+  // Translated copy stays static until Replay or a fresh visibility entry.
+  useEffect(() => { setPlayedLocale(null); }, [locale]);
   useEffect(() => { if (headingVisible) { setReplay(value => value + 1); setPlayedLocale(locale); } }, [headingVisible]);
   const body = useSequence(bodyRef, bodyDelays, active);
   const stream = useSequence(scrollRef, paragraphDelays, active, .25);

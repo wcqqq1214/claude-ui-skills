@@ -154,7 +154,28 @@ const { chromium } = require(process.env.PLAYWRIGHT_MODULE || 'playwright-core')
       await chooseChapter(page, 'type');
       assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), `typography overflow ${width}/${theme}`);
     }
+    await page.setViewportSize({ width: 1280, height: 1000 });
     await page.goto(`${base}/demo/?lang=en#type`);
+    const heading = page.locator('.demo-type-heading');
+    await heading.scrollIntoViewIfNeeded();
+    const waitForHeadingPlayback = () => page.waitForFunction(() => document.querySelector('.demo-type-heading').getAnimations({ subtree: true }).some(animation => animation.playState === 'running'));
+    const finishHeadingPlayback = () => heading.evaluate(element => element.getAnimations({ subtree: true }).forEach(animation => animation.finish()));
+    await waitForHeadingPlayback(); await finishHeadingPlayback();
+    for (const locale of ['zh-Hans', 'en', 'zh-Hans', 'en']) {
+      await setLanguage(page, locale);
+      assert.equal(await heading.evaluate(element => element.getAnimations({ subtree: true }).length), 0, `${locale} language changes replace the title without replaying it`);
+    }
+    await page.getByRole('button', { name: 'Replay grapheme reveal', exact: true }).click();
+    await waitForHeadingPlayback(); await finishHeadingPlayback();
+    await setLanguage(page, 'zh-Hans');
+    await page.getByRole('button', { name: '重播逐字浮现', exact: true }).click();
+    await waitForHeadingPlayback(); await finishHeadingPlayback();
+    await setLanguage(page, 'en'); await setLanguage(page, 'zh-Hans');
+    assert.equal(await heading.evaluate(element => element.getAnimations({ subtree: true }).length), 0, 'returning to a manually replayed language also stays static');
+    await setLanguage(page, 'en');
+    await chooseChapter(page, 'controls'); await chooseChapter(page, 'type');
+    await heading.scrollIntoViewIfNeeded();
+    await waitForHeadingPlayback();
     const stream = page.locator('[role=region][aria-label="Streaming text example"]');
     await stream.scrollIntoViewIfNeeded();
     await page.getByRole('button', { name: 'Replay scroll following' }).click();

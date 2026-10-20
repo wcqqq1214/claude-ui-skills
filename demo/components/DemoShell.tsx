@@ -1,5 +1,5 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
-import type { ReactNode } from 'react';
+import type { MouseEvent, ReactNode } from 'react';
 import type { Copy, Locale } from '../i18n';
 import logo from '../../src/assets/artwork/claude-logo.svg';
 import { Icon } from '../../src';
@@ -45,17 +45,29 @@ export function DemoShell({ chapter, chapters, copy, locale, theme, onLocale, on
       media.removeEventListener('change', resize);
     };
   }, [language, picker]);
+  function navigate(event: MouseEvent<HTMLAnchorElement>, next: keyof Copy, focusTitle = false) {
+    if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+    if (picker) { setPicker(false); if (focusTitle) title.current?.focus({ preventScroll: true }); }
+    if (next !== chapter) return;
+    event.preventDefault();
+    const url = new URL(location.href); url.hash = next;
+    if (url.href !== location.href) {
+      try { history.replaceState(history.state, '', url); }
+      catch { location.hash = next; }
+    }
+    window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+  }
   const nextTheme: Theme = theme === 'system' ? 'light' : theme === 'light' ? 'dark' : 'system';
   return <div className="demo-shell">
     <aside ref={sidebar} className="demo-sidebar" data-picker-open={picker || undefined}>
-      <a className="demo-brand" href="#type"><img src={logo} width={36} height={36} alt="" /><span>Claude UI</span></a>
+      <a className="demo-brand" href="#type" onClick={event => navigate(event, 'type')}><img src={logo} width={36} height={36} alt="" /><span>Claude UI</span></a>
       <button ref={pickerButton} type="button" className="demo-chapter-toggle" aria-label={copy.components}
         aria-expanded={picker} aria-controls="demo-chapter-nav" onClick={() => setPicker(!picker)}>
         <span><small>{String(chapters.indexOf(chapter) + 1).padStart(2, '0')}</small>{copy[chapter]}</span><Icon name="CaretDown" size={16} className="demo-chapter-chevron" />
       </button>
       <nav id="demo-chapter-nav" aria-label={copy.components}>
         {chapters.map((id, index) => <a key={id} href={`#${id}`} aria-current={chapter === id ? 'page' : undefined}
-          onClick={() => { if (picker) { setPicker(false); title.current?.focus({ preventScroll: true }); } }}>
+          onClick={event => navigate(event, id, true)}>
           <span>{String(index + 1).padStart(2, '0')}</span>{copy[id]}</a>)}
         <p className="demo-sidebar-note">{locale === 'en' ? 'UI examples · Unofficial' : '界面示例 · 非官方'}</p>
       </nav>

@@ -20,16 +20,20 @@ import type { Locale } from './i18n';
 type Theme = 'system' | 'light' | 'dark';
 const chapters = ['type', 'controls', 'composer', 'feedback', 'workspace', 'images', 'micro', 'reading', 'gallery', 'menus', 'modes', 'tasks', 'recovery', 'segmented'] as const;
 type Chapter = typeof chapters[number];
-function readPreference(key: string) { try { return localStorage.getItem(`cui-demo-${key}`); } catch { return null; } }
+function readPreferences(key: 'locale' | 'theme') {
+  try { return [localStorage.getItem(`cui-demo-${key}`), localStorage.getItem(key === 'locale' ? 'claude-ui-studies.language' : 'claude-ui-studies.theme')]; }
+  catch { return []; }
+}
 function savePreference(key: string, value: string) { try { localStorage.setItem(`cui-demo-${key}`, value); } catch { /* Storage is optional. */ } }
 function currentChapter(): Chapter { return chapters.find(chapter => location.hash === `#${chapter}`) ?? 'type'; }
 function initialLocale(): Locale {
-  const preference = new URLSearchParams(location.search).get('lang') ?? readPreference('locale');
-  return preference === 'zh-Hans' || (!preference && navigator.language.startsWith('zh')) ? 'zh-Hans' : 'en';
+  const preference = [new URLSearchParams(location.search).get('lang'), ...readPreferences('locale')]
+    .find((value): value is Locale => value === 'en' || value === 'zh-Hans');
+  const browserLanguage = (navigator.languages?.[0] || navigator.language || 'en').toLowerCase();
+  return preference ?? (browserLanguage.startsWith('zh') ? 'zh-Hans' : 'en');
 }
 function initialTheme(): Theme {
-  const theme = readPreference('theme');
-  return theme === 'light' || theme === 'dark' ? theme : 'system';
+  return readPreferences('theme').find((value): value is Theme => value === 'system' || value === 'light' || value === 'dark') ?? 'system';
 }
 
 export function App() {

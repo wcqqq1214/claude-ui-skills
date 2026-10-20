@@ -7,7 +7,7 @@ type Drag = {
 };
 /** Imperative drag preview only. React/host state performs the final keyed reorder. */
 export function createPinnedDrag(list: HTMLOListElement, stage: HTMLDivElement, callbacks: PinnedDragCallbacks) {
-  let drag: Drag | null = null, suppressClick = false;
+  let drag: Drag | null = null, suppressClick = false, active = true;
   const rows = () => [...list.querySelectorAll<HTMLLIElement>(':scope > li')];
   function finish(commit = false, announce = true) {
     if (!drag) return;
@@ -59,7 +59,7 @@ export function createPinnedDrag(list: HTMLOListElement, stage: HTMLDivElement, 
   function lostCapture(event: PointerEvent) { if (event.target === drag?.row) cancelPointer(event); }
   function down(event: PointerEvent) {
     suppressClick = false;
-    if (drag || event.button !== 0 || !event.isPrimary || (event.target as HTMLElement).closest('.cui-pinned-more')) return;
+    if (!active || drag || event.button !== 0 || !event.isPrimary || (event.target as HTMLElement).closest('.cui-pinned-more')) return;
     const row = (event.target as HTMLElement).closest<HTMLLIElement>('.cui-pinned-row'); if (!row || row.parentElement !== list) return;
     callbacks.onStart(); const ordered = rows(), index = ordered.indexOf(row);
     drag = { row, id: event.pointerId, x: event.clientX, y: event.clientY, from: index, to: index, pointerX: event.clientX, pointerY: event.clientY, frame: 0, ordered, boxes: [], step: 27, viewportWidth: innerWidth, viewportHeight: innerHeight };
@@ -73,7 +73,7 @@ export function createPinnedDrag(list: HTMLOListElement, stage: HTMLDivElement, 
   }
   list.addEventListener('pointerdown', down); list.addEventListener('lostpointercapture', lostCapture); stage.addEventListener('click', click, true);
   document.addEventListener('pointerdown', clearClick, true); document.addEventListener('keydown', key, true);
-  return { cancel: () => finish(), dispose: () => {
+  return { cancel: () => finish(), setActive: (next: boolean) => { active = next; if (!active) finish(); }, dispose: () => {
     finish(false, false); list.removeEventListener('pointerdown', down); list.removeEventListener('lostpointercapture', lostCapture); stage.removeEventListener('click', click, true);
     document.removeEventListener('pointerdown', clearClick, true); document.removeEventListener('keydown', key, true);
   } };

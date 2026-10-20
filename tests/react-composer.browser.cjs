@@ -130,6 +130,24 @@ const { chromium } = require(process.env.PLAYWRIGHT_MODULE || 'playwright-core')
 
     const width = first.getByRole('slider', { name: 'Width' });
     const setWidth = async value => { await width.evaluate((element, value) => { Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value').set.call(element, String(value)); element.dispatchEvent(new Event('input', { bubbles: true })); }, value); await page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)))); };
+    await setWidth(246);
+    const formattedText = 'Space makes content easier to read. Headings appear gently; body text stays steady.';
+    await editor.fill(formattedText);
+    const plainHeight = await editor.evaluate(element => element.clientHeight);
+    const formatChanges = await first.locator('[data-changes]').textContent();
+    await editor.press('ControlOrMeta+a'); await editor.press('ControlOrMeta+b');
+    const boldHeight = await editor.evaluate(element => element.clientHeight);
+    assert.ok(boldHeight > plainHeight, 'native format input expands the editor when the same draft wraps onto another line');
+    assert.equal(await editor.evaluate(element => element.clientHeight), await editor.evaluate(element => element.scrollHeight), 'formatting below maxHeight does not leave an unnecessary inner scrollbar');
+    assert.equal(await first.locator('[data-changes]').textContent(), formatChanges, 'format-only input retains draft callback deduplication');
+    await editor.press('ControlOrMeta+z');
+    assert.equal(await editor.evaluate(element => element.clientHeight), plainHeight, 'native undo shrinks the editor when formatting no longer adds a line');
+    await editor.press('ControlOrMeta+Shift+z');
+    assert.equal(await editor.evaluate(element => element.clientHeight), boldHeight, 'native redo restores the measured formatted height');
+    await editor.press('ControlOrMeta+b');
+    assert.equal(await editor.evaluate(element => element.clientHeight), plainHeight, 'removing bold shrinks the editor without changing its width or text');
+    assert.equal(await first.locator('[data-changes]').textContent(), formatChanges, 'formatting undo/redo do not publish duplicate drafts');
+    assert.deepEqual(await draft(), { text: formattedText, mentions: [] });
     const chin = first.locator('.cui-composer-chin'), project = first.getByRole('button', { name: 'Project', exact: true });
     await project.focus();
     const folded = [], boundaries = []; let previous = await chin.getAttribute('data-picker-mode');

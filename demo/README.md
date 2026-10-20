@@ -13,6 +13,8 @@ npm run dev
 
 Open the printed Vite address. `/demo/` is an additional entry to the same application. `?lang=en` and `?lang=zh-Hans` select the language; `#controls`, `#segmented`, `#type` and `#reading` select chapters. Theme and language preferences persist locally. Changing chapters, language or theme preserves component state.
 
+Existing theme/language preferences from the pre-migration demo are retained; valid current preferences take precedence. Unsupported language parameters are ignored in favor of a valid saved preference or the browser language. Reselecting the current chapter returns to the top without adding a history entry.
+
 ```sh
 npm run build       # typecheck and build dist/index.html and dist/demo/index.html
 npm run preview     # open the printed address
@@ -191,5 +193,7 @@ Open `/demo/?lang=en#workspace` and `/demo/?lang=en#modes` (also available with 
 - `SidebarModes` takes options `{ id, label, icon, selectedIcon?, running?, runningLabel?, disabled? }`, value/defaultValue/onValueChange and native div props. Supply aria-label. Its arrows move focus only and reverse in RTL; Enter/Space/click selects. Hidden/removed options resolve to the first enabled option. Controlled hosts should update their own value when removing an option. Two/three options use the original 180/254px content-box folding thresholds. The host can supply a bold selected Code icon and a localized running label; the component does not invent application modes or jobs.
 - `PinnedList` takes controlled items `{ id, title }` and onOrderChange(ids). Keep IDs stable and synchronously update the React list order in that callback. value/defaultValue/onValueChange control conversation selection independently. Supply label, actionsLabel(item), menuLabel, moveUpLabel, moveDownLabel, movedLabel(item, position, total) and cancelledLabel; describedBy can reference host instructions. Optional initialStatus initializes the live message until the first move/cancel; remount with a new key for a full host reset.
 - Pinned dragging creates only an inert decorative copy and temporary neighbor transforms. Order commits on release, including the original 200ms lost-button fallback; Escape, pointer cancellation, resize/scroll and inactivity discard it. The menu provides the same reorder callback for keyboard use, with focus returning to the moved row. The popup portals to document.body, carrying its light/dark theme and direction; placement follows the trigger and clamps/flips within the viewport. Avoid transformed ancestors around the drag stage because its decorative copy uses fixed positioning.
+
+`PinnedList` uses `initialStatus` until a move or cancellation replaces it; this initial text can follow locale prop updates. Inactivity announces an interrupted drag through `cancelledLabel`, while unmounting silently cleans up pending work.
 
 For both chapters, active=false cancels transient interaction work; the host should hide/inert inactive content. Text, data, actual navigation and persistence belong to the host. [Independent consumer](../tests/fixtures/react-workspace/main.tsx) · [browser suite](../tests/react-workspace.browser.cjs).

@@ -26,6 +26,8 @@ Review regressions cover JSX tooltip content with parent state callbacks, exact 
 
 Migration-parity checks also cover transient notice dismissal on chapter exit while persistent notices survive, Finish retaining the skeleton's original 500ms deadline, Replay cancelling the old scroll working-mark animation, and submenu feedback retaining both preview and selected values.
 
+Further parity regressions cover queued Gallery close events during reopening, composer height after native formatting/undo/redo, legacy preference migration and invalid-language fallback, static title translation with explicit Replay, localized restored-order status, chapter reselection returning to the top, and drag-cancellation feedback when leaving a chapter. The corresponding suites also retain external dialog-close handling, draft callback deduplication, history length, inactive drag guards and silent unmount cleanup.
+
 `migration-links.test.cjs` checks local Markdown/HTML links and anchors, matches the component-guide index to every demo route, and verifies that component imports, CSS sources and asset URLs stay inside the copied `src/` tree. It exercises both POSIX and Windows relative paths with Node's `path.posix` and `path.win32`, including dynamic chapter and Markdown anchors. `source-imports.test.cjs` typechecks the public entry without Vite's ambient types. External URLs are kept out of deterministic tests.
 
 These checks prove local component behavior, not complete pixel/frame parity with Claude. Original-app observation limits remain in [coverage](../docs/coverage.md).
