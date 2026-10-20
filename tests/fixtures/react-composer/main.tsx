@@ -73,5 +73,14 @@ function AttachmentActivityConsumer() {
     </Activity> : null}</div>
   </main>;
 }
+function InactiveMentionConsumer() {
+  const [active, setActive] = useState(true), [draft, setDraft] = useState<ComposerDraft>({ text: '', mentions: [] });
+  return <main style={{ padding: 20 }}>
+    <button onClick={() => flushSync(() => setActive(false))}>Deactivate mentions</button><button onClick={() => flushSync(() => setActive(true))}>Activate mentions</button>
+    <output data-inactive-draft>{JSON.stringify(draft)}</output>
+    <MentionEditor active={active} label="Visible mention draft" placeholder="Type here" mentionListLabel="Visible mention references" deleteLabel="Delete visible reference"
+      options={[{ id: 'landscape', title: 'Landscape illustration' }]} onDraftChange={setDraft} />
+  </main>;
+}
 const query = new URLSearchParams(location.search);
-createRoot(document.getElementById('root')!).render(<StrictMode>{query.has('attachment-activity') ? <AttachmentActivityConsumer /> : query.has('activity') ? <ActivityConsumer /> : <Consumer />}</StrictMode>);
+createRoot(document.getElementById('root')!).render(<StrictMode>{query.has('inactive-mentions') ? <InactiveMentionConsumer /> : query.has('attachment-activity') ? <AttachmentActivityConsumer /> : query.has('activity') ? <ActivityConsumer /> : <Consumer />}</StrictMode>);

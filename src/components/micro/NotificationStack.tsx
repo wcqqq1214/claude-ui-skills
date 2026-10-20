@@ -66,6 +66,12 @@ export function NotificationStack({ ref, dismissLabel, label, mode = 'stack', de
     else commit([item, ...current.filter(value => value.id !== item.id)]);
     return item.id;
   }, [commit, mode, prefix]);
+  const runAction = useCallback((item: Notice) => {
+    item.action!.onClick();
+    // A host callback can synchronously replace this ID, before or during a
+    // React commit. The old action only dismisses the version that invoked it.
+    if (snapshot.current.includes(item)) dismiss(item.id);
+  }, [dismiss]);
   // A callback ref or a host layout effect may notify as soon as the handle is
   // attached, including an Activity reconnection. Invalidate old handles during
   // layout cleanup so a real unmount still rejects later imperative calls.
@@ -111,16 +117,16 @@ export function NotificationStack({ ref, dismissLabel, label, mode = 'stack', de
     {!items.length ? empty : null}
     {items.map((item, index) => {
       const layer = item.exiting ? index : visibleIndex++;
-      return <NotificationCard key={item.id} item={item} layer={layer} zIndex={items.length - index} height={frontHeight} dismissLabel={dismissLabel} active={active} onDismiss={dismiss} onExited={remove}>
+      return <NotificationCard key={item.id} item={item} layer={layer} zIndex={items.length - index} height={frontHeight} dismissLabel={dismissLabel} active={active} onDismiss={dismiss} onAction={runAction} onExited={remove}>
         {renderMessage ? renderMessage(item.message, item.count) : <>{item.message}{item.count > 1 ? ` (×${item.count})` : null}</>}
       </NotificationCard>;
     })}
   </div>;
 }
 
-function NotificationCard({ item, layer, zIndex, height, dismissLabel, active, onDismiss, onExited, children }: {
+function NotificationCard({ item, layer, zIndex, height, dismissLabel, active, onDismiss, onAction, onExited, children }: {
   item: Notice; layer: number; zIndex: number; height: number; dismissLabel: string; active: boolean;
-  onDismiss: (id: string) => void; onExited: (id: string) => void; children: ReactNode;
+  onDismiss: (id: string) => void; onAction: (item: Notice) => void; onExited: (id: string) => void; children: ReactNode;
 }) {
   const root = useRef<HTMLDivElement>(null), [entering, setEntering] = useState(true);
   useLayoutEffect(() => { void root.current!.offsetHeight; setEntering(false); }, []);
@@ -148,7 +154,7 @@ function NotificationCard({ item, layer, zIndex, height, dismissLabel, active, o
     <div className="cui-notice-content" style={{ height: layer > 0 && !item.exiting && height ? height : undefined }}>
       <span aria-hidden="true" className="size-5 shrink-0 text-cui-secondary"><Icon name="Info" size={20} /></span>
       <div className="min-w-0 flex-1 text-pretty wrap-break-word"><div className="m-0 text-[inherit] leading-[inherit] font-medium">{children}</div>
-        {item.action ? <div className="mt-2"><button type="button" onClick={() => { item.action!.onClick(); onDismiss(item.id); }} className="cursor-pointer whitespace-nowrap rounded border-0 bg-transparent px-1.5 py-px font-[inherit] text-[11px] text-[var(--cui-clay)] focus-visible:outline-2 focus-visible:outline-cui-accent">{item.action.label}</button></div> : null}
+        {item.action ? <div className="mt-2"><button type="button" onClick={() => onAction(item)} className="cursor-pointer whitespace-nowrap rounded border-0 bg-transparent px-1.5 py-px font-[inherit] text-[11px] text-[var(--cui-clay)] focus-visible:outline-2 focus-visible:outline-cui-accent">{item.action.label}</button></div> : null}
       </div>
       <button type="button" aria-label={dismissLabel} onClick={() => onDismiss(item.id)} className="cui-notice-dismiss box-border -mt-0.5 -mr-1 -mb-1 inline-flex size-6 shrink-0 cursor-pointer items-center justify-center rounded-md border-0 bg-transparent p-1 text-inherit focus-visible:outline-2 focus-visible:outline-cui-accent"><Icon name="X" size={16} /></button>
     </div>

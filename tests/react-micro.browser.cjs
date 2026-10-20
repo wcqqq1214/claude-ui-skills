@@ -15,6 +15,62 @@ const { chromium } = require(process.env.PLAYWRIGHT_MODULE || 'playwright-core')
     const errors = [];
     page.on('pageerror', error => errors.push(error.message));
     page.on('console', message => { if (message.type() === 'error') errors.push(message.text()); });
+    for (const mode of ['stack', 'single']) for (const delivery of ['batch', 'flush']) for (const duration of ['persistent', 'timed']) {
+      for (const replacement of mode === 'stack' ? ['same'] : ['same', 'different', 'unkeyed']) {
+        const action = await browser.newPage();
+        action.on('pageerror', error => errors.push(error.message));
+        await action.clock.install(); await action.clock.pauseAt(new Date(Date.now() + 1000));
+        await action.goto(`${base}/tests/fixtures/react-micro/?notice-action=${mode}&delivery=${delivery}&replacement=${replacement}&duration=${duration}`);
+        const click = async name => { await action.getByRole('button', { name, exact: true }).evaluate(element => element.click()); await action.clock.runFor(1); };
+        const cards = action.getByRole('region', { name: 'Action notices', exact: true }).locator('[data-cui-notice]');
+        const result = async () => JSON.parse(await action.locator('[data-action-result]').textContent());
+        await click('Seed action notice');
+        const original = await cards.elementHandle(), id = await cards.getAttribute('data-cui-notice');
+        await click('Refresh notice');
+        assert.equal((await result()).refreshedId, id, `${mode}/${replacement}/${delivery} reuses the original public ID`);
+        assert.equal(await cards.getAttribute('data-ending'), null, `${mode}/${replacement}/${delivery} old action cannot dismiss its replacement`);
+        assert.equal(await cards.evaluate((element, original) => element === original, original), true, 'refresh retains its card DOM');
+        assert.ok((await cards.textContent()).includes('Refreshed notice 1'));
+        if (mode === 'stack') assert.ok((await cards.textContent()).includes('×2'), 'action refresh preserves key deduplication counts');
+        await action.clock.runFor(500);
+        await click('Refresh notice');
+        assert.equal((await result()).count, 2, 'the replacement action remains usable');
+        assert.equal(await cards.getAttribute('data-ending'), null, 'a repeated action refresh cannot dismiss the latest version');
+        assert.ok((await cards.textContent()).includes('Refreshed notice 2'));
+        if (mode === 'stack') assert.ok((await cards.textContent()).includes('×3'));
+        await action.clock.runFor(750);
+        assert.equal(await cards.count(), 1, 'refreshed notice survives the obsolete action exit interval');
+        assert.equal(await cards.getAttribute('data-ending'), null, 'the newest refresh survives the previous refresh deadline');
+        if (duration === 'timed') {
+          await action.clock.runFor(500);
+          assert.ok(!await cards.count() || await cards.getAttribute('data-ending') === 'true', 'the replacement still expires at its own finite deadline');
+        } else {
+          await action.clock.runFor(7000);
+          assert.equal(await cards.getAttribute('data-ending'), null, 'a persistent replacement remains until explicitly dismissed');
+          await click('Dismiss refreshed ID');
+        }
+        await cards.waitFor({ state: 'detached' });
+        await action.close();
+      }
+    }
+    for (const mode of ['stack', 'single']) for (const replacement of mode === 'stack' ? ['none', 'unrelated'] : ['none']) {
+      const action = await browser.newPage();
+      action.on('pageerror', error => errors.push(error.message));
+      await action.goto(`${base}/tests/fixtures/react-micro/?notice-action=${mode}&replacement=${replacement}`);
+      const click = name => action.getByRole('button', { name, exact: true }).click();
+      await click('Seed action notice'); await click('Refresh notice');
+      const result = JSON.parse(await action.locator('[data-action-result]').textContent());
+      await action.locator(`[data-cui-notice="${result.originalId}"]`).waitFor({ state: 'detached' });
+      assert.equal(result.count, 1, 'an ordinary action still invokes its host exactly once');
+      const cards = action.getByRole('region', { name: 'Action notices', exact: true }).locator('[data-cui-notice]');
+      if (replacement === 'unrelated') {
+        assert.equal(await cards.count(), 1, 'an unrelated stack arrival does not prevent the old action from dismissing');
+        assert.equal(await cards.getAttribute('data-cui-notice'), result.refreshedId);
+        await click('Clear action notices'); await cards.waitFor({ state: 'detached' });
+      } else assert.equal(await cards.count(), 0, 'an ordinary action still automatically dismisses its notice');
+      await action.close();
+    }
+    if (process.argv.includes('--notice-action-only')) { assert.deepEqual(errors, []); console.log('React notification actions: batched/flushSync same-key and single replacement, repeated actions, finite/persistent deadlines, normal dismissal and public dismiss/clear passed'); return; }
     // Both public copy consumers share the same feedback deadline. Activity
     // retains their DOM/state, but disconnects and reconnects their effects.
     for (const kind of ['button', 'source']) {

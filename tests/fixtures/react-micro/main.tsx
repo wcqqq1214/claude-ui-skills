@@ -65,6 +65,38 @@ function DeadlineConsumer({ mode }: { mode: 'single' | 'stack' }) {
     <NotificationStack ref={notices} mode={mode} label="Deadline notices" dismissLabel="Dismiss deadline notice" />
   </main>;
 }
+function ActionRefreshConsumer({ params }: { params: URLSearchParams }) {
+  const notices = useRef<NotificationStackHandle>(null), actionCount = useRef(0), currentId = useRef('');
+  const [result, setResult] = useState({ count: 0, originalId: '', refreshedId: '' });
+  const mode = params.get('notice-action') === 'single' ? 'single' : 'stack';
+  const replacement = params.get('replacement') ?? 'same';
+  const onAction = () => {
+    const refresh = () => {
+      actionCount.current++;
+      let refreshedId = '';
+      if (replacement !== 'none') refreshedId = notices.current!.notify({
+        key: replacement === 'same' ? 'repeat' : replacement === 'different' || replacement === 'unrelated' ? `replacement-${actionCount.current}` : undefined,
+        message: `Refreshed notice ${actionCount.current}`,
+        duration: params.get('duration') === 'timed' ? 1200 : null,
+        action: { label: 'Refresh notice', onClick: onAction },
+      });
+      currentId.current = refreshedId || currentId.current;
+      setResult(value => ({ ...value, count: actionCount.current, refreshedId }));
+    };
+    if (params.get('delivery') === 'flush') flushSync(refresh);
+    else refresh();
+  };
+  return <main>
+    <button onClick={() => {
+      const id = notices.current!.notify({ key: 'repeat', message: 'Original action notice', duration: null, action: { label: 'Refresh notice', onClick: onAction } });
+      currentId.current = id; setResult({ count: 0, originalId: id, refreshedId: '' });
+    }}>Seed action notice</button>
+    <button onClick={() => notices.current?.dismiss(currentId.current)}>Dismiss refreshed ID</button>
+    <button onClick={() => notices.current?.clear()}>Clear action notices</button>
+    <output data-action-result>{JSON.stringify(result)}</output>
+    <div style={{ marginTop: 50 }}><NotificationStack ref={notices} mode={mode} label="Action notices" dismissLabel="Dismiss action notice" /></div>
+  </main>;
+}
 function CopyActivityConsumer() {
   const [mode, setMode] = useState<'hidden' | 'visible'>('visible'), [mounted, setMounted] = useState(true), [results, setResults] = useState(0);
   return <main data-cui-theme="light">
@@ -109,4 +141,5 @@ function NoticeActivityConsumer({ delivery }: { delivery: NoticeDelivery }) {
 }
 const deadlineMode = new URLSearchParams(location.search).get('deadline');
 const noticeDelivery = new URLSearchParams(location.search).get('notice-activity');
-createRoot(document.getElementById('root')!).render(<StrictMode>{noticeDelivery ? <NoticeActivityConsumer delivery={noticeDelivery === 'ref' ? 'ref' : noticeDelivery === 'layout' ? 'layout' : 'exit'} /> : new URLSearchParams(location.search).has('copy-activity') ? <CopyActivityConsumer /> : deadlineMode ? <DeadlineConsumer mode={deadlineMode === 'single' ? 'single' : 'stack'} /> : <Consumer />}</StrictMode>);
+const actionParams = new URLSearchParams(location.search);
+createRoot(document.getElementById('root')!).render(<StrictMode>{actionParams.has('notice-action') ? <ActionRefreshConsumer params={actionParams} /> : noticeDelivery ? <NoticeActivityConsumer delivery={noticeDelivery === 'ref' ? 'ref' : noticeDelivery === 'layout' ? 'layout' : 'exit'} /> : new URLSearchParams(location.search).has('copy-activity') ? <CopyActivityConsumer /> : deadlineMode ? <DeadlineConsumer mode={deadlineMode === 'single' ? 'single' : 'stack'} /> : <Consumer />}</StrictMode>);

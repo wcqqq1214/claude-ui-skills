@@ -48,4 +48,26 @@ function ActivitySliderConsumer() {
     </Activity> : null}
   </main>;
 }
-createRoot(document.getElementById('root')!).render(<StrictMode>{new URLSearchParams(location.search).has('activity') ? <ActivitySliderConsumer /> : <Consumer />}</StrictMode>);
+function PointerBoundarySliderConsumer({ mode }: { mode: string }) {
+  const [visible, setVisible] = useState(true), [mounted, setMounted] = useState(true), [disabled, setDisabled] = useState(mode === 'disabled'), [single, setSingle] = useState(false);
+  const [downs, setDowns] = useState(0), [changes, setChanges] = useState(0);
+  return <main style={{ padding: 20 }}>
+    <button onClick={() => flushSync(() => { setVisible(true); setDisabled(false); setSingle(false); })}>Restore slider</button>
+    <output data-pointer-downs>{downs}</output><output data-pointer-changes>{changes}</output>
+    {mounted ? <Activity mode={visible ? 'visible' : 'hidden'}>
+      <div style={{ width: 300, marginTop: 20 }}><DiscreteSlider aria-label="Pointer boundary slider" options={single ? initialOptions.slice(0, 1) : initialOptions} defaultValue="b" disabled={disabled}
+        onValueChange={() => setChanges(value => value + 1)} onPointerDown={event => {
+          setDowns(value => value + 1);
+          if (mode === 'prevented') event.preventDefault();
+          if (mode === 'unmount') flushSync(() => setMounted(false));
+          if (mode === 'disable') flushSync(() => setDisabled(true));
+          if (mode === 'single') flushSync(() => setSingle(true));
+          if (mode === 'hide' || mode === 'reconnect') flushSync(() => setVisible(false));
+          if (mode === 'reconnect') flushSync(() => setVisible(true));
+          if (mode === 'blur') window.dispatchEvent(new Event('blur'));
+        }} /></div>
+    </Activity> : null}
+  </main>;
+}
+const query = new URLSearchParams(location.search);
+createRoot(document.getElementById('root')!).render(<StrictMode>{query.has('pointer-boundary') ? <PointerBoundarySliderConsumer mode={query.get('pointer-boundary')!} /> : query.has('activity') ? <ActivitySliderConsumer /> : <Consumer />}</StrictMode>);

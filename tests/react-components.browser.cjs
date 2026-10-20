@@ -17,6 +17,38 @@ const { chromium } = require(process.env.PLAYWRIGHT_MODULE || 'playwright-core')
     page.on('pageerror', error => errors.push(error.message));
     page.on('console', message => { if (message.type() === 'error') errors.push(message.text()); });
     page.on('response', response => { if (response.status() >= 400) errors.push(`${response.status()} ${response.url()}`); });
+    // Use actual pointer input: synthetic dispatch has no active native pointer
+    // and cannot reproduce detached-node setPointerCapture failures faithfully.
+    for (const mode of ['unmount', 'normal', 'prevented', 'disabled', 'disable', 'single', 'hide', 'reconnect', 'blur']) {
+      await page.goto(`${base}/tests/fixtures/react-consumer/?pointer-boundary=${mode}`);
+      const input = page.getByRole('slider', { name: 'Pointer boundary slider', exact: true });
+      await input.waitFor();
+      const retained = await input.elementHandle();
+      await input.evaluate(element => {
+        window.pointerCaptures = [];
+        const capture = element.setPointerCapture;
+        element.setPointerCapture = function (id) { window.pointerCaptures.push(id); return capture.call(this, id); };
+      });
+      const bounds = await input.boundingBox();
+      await page.mouse.move(bounds.x + bounds.width * .65, bounds.y + bounds.height / 2);
+      await page.mouse.down();
+      assert.equal(await page.locator('[data-pointer-downs]').textContent(), '1', `${mode}: the host receives the native pointerdown once`);
+      assert.equal(await page.evaluate(() => window.pointerCaptures.length), mode === 'normal' ? 1 : 0, `${mode}: only a still-valid pointerdown claims capture`);
+      assert.equal(await retained.evaluate(element => element.parentElement?.getAttribute('data-dragging') ?? null), mode === 'normal' ? 'true' : null, `${mode}: a cancelled opening cannot revive drag feedback`);
+      await page.mouse.move(bounds.x + bounds.width + 100, bounds.y + 80);
+      await page.mouse.up();
+      assert.deepEqual(errors, [], `${mode}: host pointer callbacks cause no uncaught browser error`);
+      if (mode !== 'unmount') {
+        const value = await retained.inputValue(), calls = await page.locator('[data-pointer-changes]').textContent();
+        await page.getByRole('button', { name: 'Restore slider', exact: true }).evaluate(element => element.click());
+        assert.equal(await input.evaluate((element, original) => element === original, retained), true, `${mode}: reconnection retains the input`);
+        assert.equal(await input.locator('..').getAttribute('data-dragging'), null, `${mode}: release/reconnect has no stale drag`);
+        assert.equal(await input.inputValue(), mode === 'single' ? '1' : value, `${mode}: restoring options/reconnection preserves the selected option ID`);
+        assert.equal(await page.locator('[data-pointer-changes]').textContent(), calls, `${mode}: reconnection publishes no value change`);
+        await input.press('Home');
+        assert.equal(await input.inputValue(), '0', `${mode}: keyboard editing still works`);
+      } else assert.equal(await retained.evaluate(element => element.isConnected), false, 'the callback truly unmounted the input');
+    }
     await page.goto(`${base}/tests/fixtures/react-consumer/`);
     const controlled = page.getByRole('radiogroup', { name: 'Controlled', exact: true });
     const independent = page.getByRole('radiogroup', { name: 'Independent', exact: true });

@@ -13,6 +13,48 @@ const { chromium } = require(process.env.PLAYWRIGHT_MODULE || 'playwright-core')
     const errors = [];
     page.on('pageerror', error => errors.push(error.message));
     page.on('console', message => { if (message.type() === 'error') errors.push(message.text()); });
+    // active controls custom overlays, while the visible native editing island
+    // remains editable and keeps its mention transaction and undo history.
+    await page.goto(`${base}/tests/fixtures/react-composer/?inactive-mentions`);
+    const inactiveEditor = page.getByRole('textbox', { name: 'Visible mention draft', exact: true });
+    const inactivePopup = page.getByRole('listbox', { name: 'Visible mention references', exact: true });
+    const inactiveAtoms = inactiveEditor.locator('[data-cui-mention]');
+    const inactiveDraft = async () => JSON.parse(await page.locator('[data-inactive-draft]').textContent());
+    await inactiveEditor.fill('@'); await inactivePopup.waitFor(); await inactiveEditor.press('Tab');
+    assert.equal(await inactiveAtoms.count(), 1);
+    const beforeInactive = await inactiveDraft(), originalEditor = await inactiveEditor.elementHandle();
+    await inactiveAtoms.click({ button: 'right' }); await page.getByRole('menu').waitFor();
+    await page.getByRole('button', { name: 'Deactivate mentions', exact: true }).click();
+    assert.equal(await page.getByRole('menu').count(), 0, 'deactivating closes an existing context menu');
+    await inactiveEditor.evaluate(element => element.addEventListener('contextmenu', event => {
+      window.inactiveContextPrevented = event.defaultPrevented;
+      // Observe the component first, then keep Chrome's native popup from
+      // consuming the keyboard input used for the editing assertions below.
+      event.preventDefault();
+    }));
+    await inactiveEditor.focus(); await inactiveAtoms.click({ button: 'right' });
+    assert.equal(await page.getByRole('menu').count(), 0, 'right-clicking an inactive mention cannot reopen its custom menu');
+    assert.equal(await page.evaluate(() => window.inactiveContextPrevented), false, 'inactive component leaves the native contextmenu event alone');
+    assert.equal(await inactivePopup.count(), 0, 'inactive mentions also keep candidate suggestions closed');
+    assert.equal(await inactiveEditor.evaluate(element => element === document.activeElement), true, 'inactive right-click does not move focus into a custom menu');
+    await page.keyboard.press('Escape');
+    assert.deepEqual(await inactiveDraft(), beforeInactive, 'deactivation and native context menu preserve the draft');
+    assert.equal(await inactiveEditor.getAttribute('contenteditable'), 'true', 'inactive editor stays natively editable');
+    await inactiveEditor.focus(); await inactiveEditor.press('End'); await inactiveEditor.pressSequentially(' @land');
+    assert.equal(await inactivePopup.count(), 0, 'typing an inactive mention query never opens suggestions');
+    const editedInactive = await inactiveDraft();
+    assert.ok(editedInactive.text.endsWith('@land') && editedInactive.text.length > beforeInactive.text.length, `native inactive edits still publish the draft: ${JSON.stringify(editedInactive)}`);
+    assert.deepEqual(editedInactive.mentions, beforeInactive.mentions);
+    await page.getByRole('button', { name: 'Activate mentions', exact: true }).click();
+    assert.equal(await inactiveEditor.evaluate((element, original) => element === original, originalEditor), true, 'reactivation retains the editing DOM');
+    await inactiveEditor.focus(); await inactiveEditor.press('Escape');
+    await inactiveAtoms.click({ button: 'right' }); await page.getByRole('menu').waitFor();
+    await page.getByRole('menu').press('ArrowDown'); await page.keyboard.press('Enter');
+    assert.equal(await inactiveAtoms.count(), 0, 'reactivated context deletion works normally');
+    assert.equal(await inactiveEditor.evaluate(element => element === document.activeElement), true, 'deletion restores editor focus');
+    await inactiveEditor.press('ControlOrMeta+z');
+    assert.equal(await inactiveAtoms.count(), 1, 'native undo restores the context-deleted mention after reactivation');
+    assert.deepEqual(await inactiveDraft(), editedInactive, 'undo also restores the inactive text edits');
     await page.goto(`${base}/tests/fixtures/react-composer/?activity`);
     const activityEditor = page.getByRole('textbox', { name: 'Activity draft', exact: true });
     const activityDraft = async () => JSON.parse(await page.locator('[data-activity-draft]').textContent());

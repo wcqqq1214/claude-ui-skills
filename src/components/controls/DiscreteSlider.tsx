@@ -15,20 +15,21 @@ export function DiscreteSlider({ options, value, defaultValue, onValueChange, on
   const [internalValue, setInternalValue] = useState(defaultValue ?? options[0]?.value);
   const [dragging, setDragging] = useState(false);
   const activePointer = useRef<number | null>(null);
+  const connected = useRef(false), gestureRevision = useRef(0);
   const candidate = options.findIndex(option => option.value === (value ?? internalValue));
   const index = Math.max(0, candidate);
   const unavailable = disabled || options.length < 2;
 
   // Pointer capture covers release outside the control. Blur also covers a lost window.
   useEffect(() => {
-    const stop = () => { activePointer.current = null; setDragging(false); };
+    connected.current = true;
     window.addEventListener('blur', stop);
     // Activity can hide the retained input before its release is delivered.
     // Disconnecting ends that gesture without resetting the selected value.
-    return () => { window.removeEventListener('blur', stop); stop(); };
+    return () => { connected.current = false; window.removeEventListener('blur', stop); stop(); };
   }, []);
 
-  function stop() { activePointer.current = null; setDragging(false); }
+  function stop() { gestureRevision.current++; activePointer.current = null; setDragging(false); }
   return (
     <div data-dragging={dragging && !unavailable || undefined} data-disabled={unavailable || undefined}
       className={classes('cui-range relative h-8 w-full min-w-6 data-disabled:opacity-40', className)}
@@ -51,10 +52,13 @@ export function DiscreteSlider({ options, value, defaultValue, onValueChange, on
           onValueChange?.(option.value);
         }}
         onPointerDown={event => {
+          const input = event.currentTarget, revision = gestureRevision.current;
           onPointerDown?.(event);
-          if (event.defaultPrevented || event.button !== 0 || activePointer.current !== null) return;
+          // A host callback can disconnect and reconnect this same retained DOM.
+          // Its old pointerdown must not resume a cancelled gesture afterwards.
+          if (event.defaultPrevented || event.button !== 0 || activePointer.current !== null || !connected.current || gestureRevision.current !== revision || !input.isConnected || input.disabled) return;
           activePointer.current = event.pointerId;
-          event.currentTarget.setPointerCapture(event.pointerId);
+          input.setPointerCapture(event.pointerId);
           setDragging(true);
         }}
         onPointerUp={event => { onPointerUp?.(event); if (event.pointerId === activePointer.current) stop(); }}

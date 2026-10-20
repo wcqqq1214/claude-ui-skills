@@ -33,6 +33,7 @@ Import from `src/index.ts` with the shared stylesheet; see [integration](../../d
 - Group headings appear only when the raw query is exactly empty; a whitespace-only query renders flat results. Empty results get a status message.
 - The search ring follows keyboard focus. Programmatic initial focus uses `focus({ preventScroll: true, focusVisible: false })`. Clicking the still-focused field stays neutral; clicking after blur, or Tab re-entry, shows the ring.
 - Selecting a result clears the query, focuses the destination heading without scrolling, then centers it smoothly once scrolling settles. User input cancels the extra centering, and a new selection cancels the previous highlight.
+- A heading's focus handler may synchronously cancel, deactivate, disconnect or replace the highlight request. The old request must stop before scheduling scrolling or animation, and cancellation must retain ownership of the newest request's cleanup.
 - The row's Actions button or Alt/Option+Enter opens the card from the thumbnail already on screen; measure the thumbnail offset first.
 - Focus the first action after two frames, unless the user has moved focus meanwhile; closing cancels the pending focus.
 - In the card, arrows move focus and Enter, Space, click or digits 1–9 choose the corresponding enabled action. Escape, ArrowLeft or Alt/Option+Enter close it from the trigger or the menu, including before the deferred focus lands.

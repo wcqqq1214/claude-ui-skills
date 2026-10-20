@@ -194,7 +194,7 @@ export function createMentionEditing(editor: HTMLDivElement, template: HTMLEleme
   });
   listen(editor, 'contextmenu', raw => {
     const event = raw as MouseEvent, node = (event.target as Element).closest<HTMLElement>('[data-cui-mention]');
-    if (!node) return;
+    if (!active || !node) return;
     event.preventDefault(); close(); closeMenu(); contextNode = node; contextSelection = selectionRange()?.cloneRange() ?? null;
     bindings.setContext({ x: event.clientX, y: event.clientY });
   });

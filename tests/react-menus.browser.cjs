@@ -112,6 +112,56 @@ const { chromium } = require(process.env.PLAYWRIGHT_MODULE || 'playwright-core')
     await trigger.click(); await page.getByRole('button', { name: 'Mount', exact: true }).click(); await frames(); assert.equal(await card.count(), 0);
     await page.getByRole('button', { name: 'Mount', exact: true }).click(); assert.equal(await first.locator('[data-changes]').textContent(), '0');
 
+    // focus() synchronously calls the host before the settling controller exists.
+    // Cancelling or replacing that request must win after the host returns.
+    const highlightMarks = '.cui-feature-anchor-highlight, .cui-feature-anchor-row-fill';
+    for (const focusCase of ['cancel', 'inactive', 'replace', 'unmount', 'hidden', 'pagehide']) {
+      await page.goto(`${base}/tests/fixtures/react-menus/reentry.html?focus=${focusCase}`);
+      await page.getByRole('button', { name: 'Saved highlight first', exact: true }).click();
+      await page.waitForTimeout(500);
+      if (focusCase === 'replace') {
+        await page.waitForFunction(() => document.querySelector('[data-target="second"] h3').classList.contains('cui-feature-anchor-highlight'));
+        assert.equal(await page.locator('[data-target="first"] .cui-feature-anchor-highlight').count(), 0, 'outer focus request cannot overwrite its nested replacement');
+        assert.equal(await page.locator('[data-target="first"].cui-feature-anchor-row-fill').count(), 0);
+        assert.equal(await page.locator('[data-target="second"] .cui-feature-anchor-highlight').count(), 1, 'nested destination retains the only active request');
+        assert.equal(await page.locator('[data-target="second"].cui-feature-anchor-row-fill').count(), 1);
+      } else {
+        assert.equal(await page.locator(highlightMarks).count(), 0, `${focusCase} inside focus prevents pending highlight from starting`);
+      }
+      await page.getByRole('button', { name: 'Cancel highlight', exact: true }).click();
+      assert.equal(await page.locator(highlightMarks).count(), 0, `${focusCase}: cancellation owns every row and title`);
+      if (focusCase === 'inactive' || focusCase === 'hidden') {
+        await page.getByRole('button', { name: 'Saved highlight second', exact: true }).click();
+        await page.waitForTimeout(500);
+        assert.equal(await page.locator(highlightMarks).count(), 0, `${focusCase}: a saved callback cannot restart disconnected or inactive work`);
+        await page.getByRole('button', { name: focusCase === 'hidden' ? 'Toggle Activity' : 'Toggle active', exact: true }).click();
+        await page.getByRole('button', { name: 'Saved highlight second', exact: true }).click();
+        await page.waitForFunction(() => document.querySelector('[data-target="second"] h3').classList.contains('cui-feature-anchor-highlight'));
+        await page.getByRole('button', { name: 'Cancel highlight', exact: true }).click();
+        assert.equal(await page.locator(highlightMarks).count(), 0, `${focusCase}: saved methods work after reactivation and still clean up`);
+      }
+    }
+
+    await page.goto(`${base}/tests/fixtures/react-menus/reentry.html`);
+    await page.evaluate(() => { window.retainedHighlightTitle = document.querySelector('[data-target="second"] h3'); });
+    await page.getByRole('button', { name: 'Saved highlight second', exact: true }).click();
+    await page.waitForFunction(() => document.querySelector('[data-target="second"] h3').classList.contains('cui-feature-anchor-highlight'));
+    await page.getByRole('button', { name: 'Toggle Activity', exact: true }).click();
+    assert.equal(await page.locator(highlightMarks).count(), 0, 'Activity disconnect clears an established highlight');
+    await page.getByRole('button', { name: 'Saved highlight second', exact: true }).click();
+    await page.waitForTimeout(500);
+    assert.equal(await page.locator(highlightMarks).count(), 0, 'saved methods cannot schedule new work while Activity retains hidden DOM');
+    await page.getByRole('button', { name: 'Toggle Activity', exact: true }).click();
+    assert.equal(await page.evaluate(() => document.querySelector('[data-target="second"] h3') === window.retainedHighlightTitle), true, 'Activity reconnect retains the original target DOM');
+    await page.getByRole('button', { name: 'Saved highlight second', exact: true }).click();
+    await page.waitForFunction(() => document.querySelector('[data-target="second"] h3').classList.contains('cui-feature-anchor-highlight'));
+    await page.evaluate(() => window.dispatchEvent(new Event('pagehide')));
+    assert.equal(await page.locator(highlightMarks).count(), 0, 'pagehide clears the reconnected controller');
+    await page.getByRole('button', { name: 'Toggle mount', exact: true }).click();
+    await page.getByRole('button', { name: 'Saved highlight first', exact: true }).click();
+    await page.waitForTimeout(500);
+    assert.equal(await page.locator(highlightMarks).count(), 0, 'saved methods remain inert after unmount');
+
     for (const width of [1280, 390, 320]) for (const theme of ['light', 'dark']) for (const locale of ['en', 'zh-Hans']) {
       await page.setViewportSize({ width, height: 1000 }); await page.goto(`${base}/demo/?lang=${locale}#menus`); await page.reload();
       await setTheme(page, theme); await page.evaluate(() => document.fonts.ready);
@@ -142,6 +192,6 @@ const { chromium } = require(process.env.PLAYWRIGHT_MODULE || 'playwright-core')
     await setTheme(page, 'dark');
     await page.locator('.cui-feature-anchor-highlight').waitFor();
     assert.equal(await page.locator('.cui-feature-anchor-highlight').textContent(), '外观');
-    assert.deepEqual(errors, []); console.log('React menus: independent consumers, keyboard preview/commit, search/filter/focus/settling, interruptible palette return, lifecycle and bilingual responsive layouts passed');
+    assert.deepEqual(errors, []); console.log('React menus: independent consumers, keyboard preview/commit, search/filter/focus/settling and synchronous reentry, interruptible palette return, retained Activity lifecycle and bilingual responsive layouts passed');
   } finally { await browser?.close(); await server.close(); }
 })().catch(error => { console.error(error); process.exitCode = 1; });
