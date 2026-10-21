@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useLayoutEffect, useRef, useState } from 'react';
 
 export type CopyState = 'idle' | 'copied' | 'failed';
 /** Latest request wins. Page exit and unmount invalidate pending writes. */
@@ -15,13 +15,15 @@ export function useClipboard() {
     if (remaining <= 0) reset();
     else timer.current = setTimeout(reset, remaining);
   }
-  useEffect(() => {
+  useLayoutEffect(() => {
     const invalidate = () => { ++request.current; clearTimeout(timer.current); };
     const leave = () => { invalidate(); expiresAt.current = undefined; setState('idle'); };
     // Activity disconnects effects while retaining state. Keep the original
     // expiry so time spent hidden still counts toward the two-second feedback.
     resumeFeedback();
     window.addEventListener('pagehide', leave);
+    // Cancel during the hide/unmount commit, before Promise continuations can
+    // deliver a result while passive cleanup is still deferred.
     return () => { invalidate(); window.removeEventListener('pagehide', leave); };
   }, []);
   async function copy(text: string, onResult?: (copied: boolean) => void) {

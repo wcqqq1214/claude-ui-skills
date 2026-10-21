@@ -1,6 +1,74 @@
 const assert = require('node:assert/strict');
 
+async function testCopyDefaultCommit(page, base) {
+  const errors = [];
+  const pageError = error => errors.push(error.message);
+  const consoleError = message => { if (message.type() === 'error') errors.push(message.text()); };
+  page.on('pageerror', pageError); page.on('console', consoleError);
+  const control = name => page.getByRole('button', { name, exact: true }).evaluate(element => element.click());
+  const button = () => page.locator('#delivery-copy');
+  const status = () => page.locator('[data-copy-host] [role="status"]');
+  const results = () => page.locator('[data-copy-results]').evaluate(element => JSON.parse(element.textContent));
+  try {
+    // Keep real timers here. Advancing a mocked clock or using flushSync can
+    // drain passive effects before the callback and mask this commit boundary.
+    for (const strict of ['off', 'on']) for (const action of ['hide', 'unmount']) for (const outcome of ['resolve', 'reject']) {
+      const context = `${strict}/${action}/${outcome}/default-commit`;
+      await page.goto(`${base}/tests/fixtures/react-micro/copy-delivery.html?strict=${strict}`);
+      await button().waitFor();
+      await page.waitForFunction(() => window.copyDelivery.events.some(event => event.type === 'passive-connect'));
+      assert.equal(await page.evaluate(() => window.isSecureContext), true, context);
+      const original = await button().elementHandle(), oldStatus = await status().elementHandle();
+      const instance = await page.locator('[data-copy-host]').getAttribute('data-instance');
+      await button().evaluate(element => element.click());
+      assert.equal(await page.evaluate(() => window.copyDelivery.requests.length), 1, `${context}: one asynchronous write is genuinely pending`);
+      assert.equal(await status().textContent(), '', `${context}: no feedback precedes write completion`);
+      await page.evaluate(({ action, outcome }) => window.copyDelivery.interruptDefault(action, outcome, 0), { action, outcome });
+      await page.waitForFunction(() => {
+        const trace = window.copyDelivery.events, start = trace.findIndex(event => event.type === 'default-interrupt');
+        return start >= 0 && trace.slice(start).some(event => event.type === 'default-settle') && trace.slice(start).some(event => event.type === 'passive-disconnect');
+      });
+      const trace = await page.evaluate(() => window.copyDelivery.events);
+      const interruption = trace.findIndex(event => event.type === 'default-interrupt');
+      const settlement = trace.findIndex(event => event.type === 'default-settle');
+      const settled = trace[settlement];
+      assert.ok(interruption >= 0 && settlement > interruption, `${context}: the timer commits before the outside sibling settles the write`);
+      assert.equal(trace.filter(event => event.type === 'default-settle').length, 1, `${context}: only one write settlement occurs`);
+      assert.equal(String(settled.instance), instance);
+      assert.equal(settled.connected, action === 'hide', `${context}: settlement observes retained or removed DOM after mutation`);
+      assert.equal(settled.visible, false, `${context}: the old button is already invisible at settlement`);
+      assert.ok(trace.slice(interruption, settlement).some(event => event.type === 'disconnect' && String(event.instance) === instance), `${context}: layout cleanup already disconnected the old instance`);
+      assert.deepEqual(trace.filter(event => event.type === 'result'), [], `${context}: a write settled during disconnection cannot deliver an old callback`);
+      assert.deepEqual(await results(), [], `${context}: the host stays silent`);
+      if (action === 'hide') {
+        assert.equal(await original.evaluate(element => element.isConnected), true, `${context}: Activity keeps the original button DOM`);
+        assert.equal(await oldStatus.evaluate(element => element.isConnected), true, `${context}: Activity keeps the original status DOM`);
+        await control('Show delivery Activity');
+        assert.equal(await button().evaluate((element, previous) => element === previous, original), true, `${context}: reveal reconnects the retained instance`);
+      } else {
+        assert.equal(await original.evaluate(element => element.isConnected), false, `${context}: this is a true button unmount`);
+        assert.equal(await oldStatus.evaluate(element => element.isConnected), false, `${context}: true unmount removes the live status region`);
+        assert.equal(await oldStatus.textContent(), '', `${context}: the removed live region stays silent`);
+        await control('Mount delivery copy');
+        assert.equal(await button().evaluate((element, previous) => element === previous, original), false, `${context}: remount creates a fresh instance`);
+      }
+      assert.equal(await status().textContent(), '', `${context}: the obsolete write cannot publish feedback on reveal or remount`);
+      assert.deepEqual(await results(), [], `${context}: reconnecting cannot replay its callback`);
+      await button().evaluate(element => element.click());
+      await page.evaluate(outcome => window.copyDelivery.settle(1, outcome), outcome);
+      await page.waitForFunction(() => JSON.parse(document.querySelector('[data-copy-results]').textContent).length === 1);
+      assert.deepEqual((await results()).map(result => result.copied), [outcome === 'resolve'], `${context}: a fresh normal copy still delivers once`);
+      assert.equal(await status().textContent(), outcome === 'resolve' ? 'Delivery copied' : 'Delivery failed', `${context}: fresh success or failure feedback remains usable`);
+      await original.dispose(); await oldStatus.dispose();
+      assert.deepEqual(errors, [], context);
+    }
+  } finally {
+    page.off('pageerror', pageError); page.off('console', consoleError);
+  }
+}
+
 async function testCopyDelivery(page, base) {
+  await testCopyDefaultCommit(page, base);
   const errors = [];
   const pageError = error => errors.push(error.message);
   const consoleError = message => { if (message.type() === 'error') errors.push(message.text()); };
@@ -112,4 +180,4 @@ async function testCopyDelivery(page, base) {
   }
 }
 
-module.exports = { testCopyDelivery };
+module.exports = { testCopyDelivery, testCopyDefaultCommit };

@@ -1,4 +1,4 @@
-import { Activity, StrictMode, useLayoutEffect, useState } from 'react';
+import { Activity, StrictMode, useEffect, useLayoutEffect, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import { flushSync } from 'react-dom';
 import { CopyButton } from '../../../src';
@@ -7,11 +7,13 @@ import '../../../src/styles/index.css';
 type Interruption = 'hide' | 'reconnect' | 'unmount' | 'unmount-remount' | 'pagehide' | 'latest';
 type CopyRequest = { text: string; resolve: () => void; reject: () => void };
 type Result = { copied: boolean; instance: number };
+type DefaultCommit = { action: 'hide' | 'unmount'; outcome: 'resolve' | 'reject'; request: number; instance: number; node: HTMLButtonElement };
 const events: Record<string, unknown>[] = [], requests: CopyRequest[] = [], nodes = new Map<number, HTMLButtonElement>();
 let nextInstance = 0;
 const lifecycle = {
   events, requests, nodes,
   interrupt: (_action: Interruption) => {},
+  interruptDefault: (_action: DefaultCommit['action'], _outcome: DefaultCommit['outcome'], _request: number) => {},
   settle(index: number, outcome: 'resolve' | 'reject', interruption?: Interruption) {
     events.push({ type: 'settle', request: index, outcome });
     requests[index][outcome]();
@@ -34,6 +36,10 @@ function CopyInstance({ onResult }: { onResult: (result: Result) => void }) {
     events.push({ type: 'connect', instance });
     return () => { events.push({ type: 'disconnect', instance, connected: !!nodes.get(instance)?.isConnected }); };
   }, [instance]);
+  useEffect(() => {
+    events.push({ type: 'passive-connect', instance });
+    return () => { events.push({ type: 'passive-disconnect', instance, connected: !!nodes.get(instance)?.isConnected }); };
+  }, [instance]);
   return <section data-copy-host data-instance={instance}>
     <CopyButton id="delivery-copy" ref={node => { if (node) nodes.set(instance, node); }} text="Exact delivery text" copyLabel="Copy delivery" copiedLabel="Delivery copied" failedLabel="Delivery failed" onCopyResult={copied => {
       const node = nodes.get(instance);
@@ -43,8 +49,32 @@ function CopyInstance({ onResult }: { onResult: (result: Result) => void }) {
   </section>;
 }
 
+function DefaultCommitSettlement({ commit }: { commit: DefaultCommit | null }) {
+  useLayoutEffect(() => {
+    if (!commit) return;
+    const { action, outcome, request, instance, node } = commit;
+    // This sibling runs after DOM mutation, before deferred passive cleanup.
+    // Completing the write here exposes real default-priority disconnection.
+    events.push({ type: 'default-settle', action, outcome, request, instance, connected: node.isConnected, visible: !!node.getClientRects().length });
+    lifecycle.settle(request, outcome);
+  }, [commit]);
+  return null;
+}
+
 function Consumer() {
   const [visible, setVisible] = useState(true), [mounted, setMounted] = useState(true), [results, setResults] = useState<Result[]>([]);
+  const [defaultCommit, setDefaultCommit] = useState<DefaultCommit | null>(null);
+  lifecycle.interruptDefault = (action, outcome, request) => {
+    // A timer gives these updates ordinary default priority. Do not flushSync:
+    // that would eagerly run passive cleanup and conceal the delivery window.
+    setTimeout(() => {
+      const node = document.getElementById('delivery-copy') as HTMLButtonElement;
+      const instance = Number(node.closest<HTMLElement>('[data-copy-host]')!.dataset.instance);
+      events.push({ type: 'default-interrupt', action, instance, connected: node.isConnected, visible: !!node.getClientRects().length });
+      if (action === 'hide') setVisible(false); else setMounted(false);
+      setDefaultCommit({ action, outcome, request, instance, node });
+    }, 0);
+  };
   lifecycle.interrupt = action => {
     const node = document.getElementById('delivery-copy');
     events.push({ type: 'interrupt-before', action, connected: !!node?.isConnected, visible: !!node?.getClientRects().length, requests: requests.length });
@@ -66,6 +96,7 @@ function Consumer() {
     <button onClick={() => flushSync(() => setMounted(true))}>Mount delivery copy</button>
     <output data-copy-results>{JSON.stringify(results)}</output>
     {mounted ? <Activity mode={visible ? 'visible' : 'hidden'}><CopyInstance onResult={result => setResults(previous => [...previous, result])} /></Activity> : null}
+    <DefaultCommitSettlement commit={defaultCommit} />
   </main>;
 }
 
