@@ -2,7 +2,7 @@ const { setTheme, setLanguage, chooseChapter } = require('./demo-helpers.cjs');
 const assert = require('node:assert/strict');
 const { resolve } = require('node:path');
 const { chromium } = require(process.env.PLAYWRIGHT_MODULE || 'playwright-core');
-const { testPinnedActivityReconnect } = require('./pinned-activity-checks.cjs');
+const { testPinnedActivityReconnect, testPinnedDragCancellation } = require('./pinned-activity-checks.cjs');
 const { testWorkspacePreviewIsolation } = require('./workspace-preview-checks.cjs');
 async function testResizeFocusReentry(page, base) {
   const errors = [];
@@ -52,7 +52,8 @@ async function testResizeFocusReentry(page, base) {
     const reentryPage = await browser.newPage({ viewport: { width: 1280, height: 1000 } });
     await testResizeFocusReentry(reentryPage, base); await reentryPage.close();
     const activityPage = await browser.newPage({ viewport: { width: 1280, height: 1000 } });
-    await testPinnedActivityReconnect(activityPage, base); await activityPage.close();
+    await testPinnedActivityReconnect(activityPage, base);
+    await testPinnedDragCancellation(activityPage, base); await activityPage.close();
     const previewPage = await browser.newPage({ viewport: { width: 1280, height: 1000 } });
     await testWorkspacePreviewIsolation(previewPage, base); await previewPage.close();
     const systemPage = await browser.newPage({ viewport: { width: 1280, height: 1000 }, colorScheme: 'light' });

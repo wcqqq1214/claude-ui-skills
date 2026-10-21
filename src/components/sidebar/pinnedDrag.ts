@@ -74,7 +74,9 @@ export function createPinnedDrag(list: HTMLOListElement, stage: HTMLDivElement, 
   list.addEventListener('pointerdown', down); list.addEventListener('lostpointercapture', lostCapture); stage.addEventListener('click', click, true);
   document.addEventListener('pointerdown', clearClick, true); document.addEventListener('keydown', key, true);
   return { cancel: () => finish(), setActive: (next: boolean) => { active = next; if (!active) finish(); }, dispose: () => {
+    const interrupted = !!drag?.ghost;
     finish(false, false); list.removeEventListener('pointerdown', down); list.removeEventListener('lostpointercapture', lostCapture); stage.removeEventListener('click', click, true);
     document.removeEventListener('pointerdown', clearClick, true); document.removeEventListener('keydown', key, true);
+    return interrupted;
   } };
 }

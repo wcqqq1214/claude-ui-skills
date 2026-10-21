@@ -29,6 +29,7 @@ export function PinnedList({ items, onOrderChange, label, actionsLabel, menuLabe
   const selected = value ?? local, menuIndex = items.findIndex(item => item.id === menuId), id = useId();
   const stage = useRef<HTMLDivElement>(null), list = useRef<HTMLOListElement>(null), menu = useRef<HTMLDivElement>(null), drag = useRef<ReturnType<typeof createPinnedDrag> | null>(null);
   const latest = useRef({ items, onOrderChange }), menuKey = useRef(menuId), keyboardMenu = useRef(false), pendingFocus = useRef<string | null>(null);
+  const interruptedDrag = useRef(false);
   const row = (key: string) => [...(list.current?.children ?? [])].find(node => (node as HTMLElement).dataset.pin === key) as HTMLLIElement | undefined;
   const main = (key: string) => row(key)?.querySelector<HTMLButtonElement>('.cui-pinned-main');
   const more = (key: string) => row(key)?.querySelector<HTMLButtonElement>('.cui-pinned-more');
@@ -68,8 +69,16 @@ export function PinnedList({ items, onOrderChange, label, actionsLabel, menuLabe
     if (active && target) main(target)?.focus({ preventScroll: true });
   });
   useLayoutEffect(() => {
-    drag.current = createPinnedDrag(list.current!, stage.current!, { onMove: move, onCancel: () => setAnnouncement('cancelled'), onStart: () => close() });
-    return () => { drag.current?.dispose(); drag.current = null; };
+    const controller = createPinnedDrag(list.current!, stage.current!, { onMove: move, onCancel: () => setAnnouncement('cancelled'), onStart: () => close() });
+    drag.current = controller;
+    // Publish deferred feedback only if this retained instance reconnects.
+    // A true unmount has no subsequent setup and therefore stays silent.
+    if (interruptedDrag.current) { interruptedDrag.current = false; setAnnouncement('cancelled'); }
+    return () => {
+      const interrupted = controller.dispose();
+      interruptedDrag.current ||= interrupted;
+      drag.current = null;
+    };
   }, []);
   useLayoutEffect(() => {
     const dismiss = () => { pendingFocus.current = null; close(); };

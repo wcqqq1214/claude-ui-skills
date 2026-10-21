@@ -2,6 +2,7 @@ const { setTheme, setLanguage, chooseChapter } = require('./demo-helpers.cjs');
 const assert = require('node:assert/strict');
 const { resolve } = require('node:path');
 const { chromium } = require(process.env.PLAYWRIGHT_MODULE || 'playwright-core');
+const { testTooltipRequests } = require('./tooltip-request-checks.cjs');
 
 (async () => {
   const { createServer } = await import('vite');
@@ -11,6 +12,8 @@ const { chromium } = require(process.env.PLAYWRIGHT_MODULE || 'playwright-core')
   let browser;
   try {
     browser = await chromium.launch({ executablePath: process.env.CHROME_BIN, headless: true });
+    const tooltipPage = await browser.newPage({ viewport: { width: 1280, height: 1000 } });
+    await testTooltipRequests(tooltipPage, base); await tooltipPage.close();
     const page = await browser.newPage({ viewport: { width: 1280, height: 1000 } });
     const errors = [];
     page.on('pageerror', error => errors.push(error.message));
