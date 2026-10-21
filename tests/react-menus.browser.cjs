@@ -2,6 +2,147 @@ const { setTheme, setLanguage, chooseChapter } = require('./demo-helpers.cjs');
 const assert = require('node:assert/strict');
 const { resolve } = require('node:path');
 const { chromium } = require(process.env.PLAYWRIGHT_MODULE || 'playwright-core');
+
+async function testMountHighlights(page, base) {
+  const marks = '.cui-feature-anchor-highlight, .cui-feature-anchor-row-fill';
+  const title = page.getByRole('heading', { name: 'Mount destination', exact: true });
+  const button = name => page.getByRole('button', { name, exact: true });
+  async function highlighted(label) {
+    await page.waitForFunction(() => document.querySelector('[data-mount-row] h3')?.classList.contains('cui-feature-anchor-highlight'));
+    assert.equal(await page.locator('[data-mount-row].cui-feature-anchor-row-fill').count(), 1, `${label}: row and title belong to the same active request`);
+    const destination = await title.evaluate(element => {
+      const scroller = document.querySelector('[data-mount-scroll]');
+      const bounds = scroller.getBoundingClientRect(), target = element.getBoundingClientRect();
+      return { focused: document.activeElement === element, scroll: scroller.scrollTop, center: Math.abs((target.top + target.bottom) / 2 - (bounds.top + bounds.bottom) / 2) };
+    });
+    assert.equal(destination.focused, true, `${label}: the descendant request focuses its destination`);
+    assert.ok(destination.scroll > 0 && destination.center < 2, `${label}: destination centers inside its local scroller: ${JSON.stringify(destination)}`);
+  }
+  async function blocked(label) {
+    const result = await page.evaluate(async () => {
+      const scroller = document.querySelector('[data-mount-scroll]');
+      const focus = document.activeElement, scroll = scroller.scrollTop;
+      document.querySelector('[data-mount-saved]').click();
+      await new Promise(resolve => setTimeout(resolve, 450));
+      return { focusUnchanged: document.activeElement === focus, scrollUnchanged: scroller.scrollTop === scroll, marks: document.querySelectorAll('.cui-feature-anchor-highlight, .cui-feature-anchor-row-fill').length };
+    });
+    assert.deepEqual(result, { focusUnchanged: true, scrollUnchanged: true, marks: 0 }, `${label}: saved calls cannot focus, scroll, or schedule a highlight`);
+  }
+  for (const source of ['ref', 'layout']) for (const strict of ['off', 'on']) {
+    const label = `${source}/StrictMode ${strict}`;
+    const url = `${base}/tests/fixtures/react-menus/mount.html?source=${source}&strict=${strict}`;
+    await page.goto(url);
+    await highlighted(`${label} first mount`);
+    await page.evaluate(() => { window.mountHighlightNodes = [...document.querySelectorAll('[data-mount-scroll], [data-mount-row], [data-mount-row] h3')]; });
+    await button('Cancel mounting highlight').click();
+    assert.equal(await page.locator(marks).count(), 0, `${label}: cancellation owns the mount request`);
+    for (let reconnect = 1; reconnect <= 2; reconnect++) {
+      await page.locator('[data-mount-scroll]').evaluate(element => { element.scrollTop = 0; });
+      await button('Toggle mounting Activity').click();
+      await page.locator('[data-mount-state][data-visible="false"]').waitFor();
+      assert.equal(await page.locator(marks).count(), 0, `${label}: hiding clears the prior request`);
+      await blocked(`${label} hidden cycle ${reconnect}`);
+      await button('Toggle mounting Activity').click();
+      await highlighted(`${label} reconnect ${reconnect}`);
+      assert.equal(await page.evaluate(() => [...document.querySelectorAll('[data-mount-scroll], [data-mount-row], [data-mount-row] h3')].every((node, index) => node === window.mountHighlightNodes[index])), true, `${label}: reconnect ${reconnect} retains the scroller, row, and title DOM`);
+      if (reconnect === 1) await button('Cancel mounting highlight').click();
+      else await page.evaluate(() => window.dispatchEvent(new Event('pagehide')));
+      assert.equal(await page.locator(marks).count(), 0, `${label}: ${reconnect === 1 ? 'cancel' : 'pagehide'} owns the reconnected request`);
+    }
+    // Without a new descendant request, calls made while hidden must not be
+    // replayed when that same DOM becomes visible again.
+    await page.locator('[data-mount-scroll]').evaluate(element => { element.scrollTop = 0; });
+    await button('Toggle mounting Activity').click();
+    await page.locator('[data-mount-state][data-visible="false"]').waitFor();
+    await button('Toggle automatic request').click();
+    await blocked(`${label} hidden without automatic reconnect`);
+    await button('Saved highlight then show Activity').click();
+    await page.waitForTimeout(450);
+    assert.equal(await page.locator(marks).count(), 0, `${label}: hidden calls are not replayed by a same-task Activity reveal`);
+    assert.equal(await title.evaluate(element => element === document.activeElement), false);
+    assert.equal(await page.locator('[data-mount-scroll]').evaluate(element => element.scrollTop), 0);
+    await button('Saved mounting highlight').click();
+    await highlighted(`${label} explicit request after reconnect`);
+    await button('Cancel mounting highlight').click();
+    assert.equal(await page.locator(marks).count(), 0);
+
+    await page.goto(`${url}&inactive`);
+    await title.waitFor();
+    await page.waitForTimeout(450);
+    assert.equal(await page.locator(marks).count(), 0, `${label}: an initially inactive descendant request stays inert`);
+    assert.equal(await title.evaluate(element => element === document.activeElement), false);
+    assert.equal(await page.locator('[data-mount-scroll]').evaluate(element => element.scrollTop), 0);
+    await blocked(`${label} initially inactive`);
+    await button('Toggle automatic request').click();
+    await button('Saved highlight then activate').click();
+    await page.waitForTimeout(450);
+    assert.equal(await page.locator(marks).count(), 0, `${label}: inactive calls are not replayed by a same-task activation`);
+    assert.equal(await title.evaluate(element => element === document.activeElement), false);
+    assert.equal(await page.locator('[data-mount-scroll]').evaluate(element => element.scrollTop), 0);
+    await button('Saved mounting highlight').click();
+    await highlighted(`${label} explicit request after activation`);
+    await page.evaluate(() => window.dispatchEvent(new Event('pagehide')));
+    assert.equal(await page.locator(marks).count(), 0);
+
+    for (const queued of ['cancel', 'replace', 'pagehide']) {
+      await page.goto(`${url}&queued=${queued}`);
+      await title.waitFor();
+      if (queued === 'replace') {
+        await page.waitForFunction(() => document.querySelector('[data-mount-second-row] h3')?.classList.contains('cui-feature-anchor-highlight'));
+        assert.equal(await page.locator('[data-mount-row].cui-feature-anchor-row-fill, [data-mount-row] .cui-feature-anchor-highlight').count(), 0, `${label}: a queued replacement invalidates the original descendant request`);
+        assert.equal(await page.locator('[data-mount-second-row].cui-feature-anchor-row-fill').count(), 1);
+        assert.equal(await page.getByRole('heading', { name: 'Replacement mount destination', exact: true }).evaluate(element => document.activeElement === element), true);
+      } else {
+        await page.waitForTimeout(450);
+        assert.equal(await page.locator(marks).count(), 0, `${label}: synchronous ${queued} invalidates an unstarted descendant request`);
+        assert.equal(await title.evaluate(element => element === document.activeElement), false, `${label}: cancelled queued work never focuses`);
+        assert.equal(await page.locator('[data-mount-scroll]').evaluate(element => element.scrollTop), 0, `${label}: cancelled queued work never scrolls`);
+      }
+      await button('Cancel mounting highlight').click();
+      assert.equal(await page.locator(marks).count(), 0, `${label}: queued ${queued} leaves no unowned row or title`);
+    }
+
+    await page.goto(`${url}&cleanup`);
+    await highlighted(`${label} before cleanup reentry`);
+    await button('Toggle automatic request').click();
+    await button('Cancel mounting highlight').click();
+    await page.locator('[data-mount-scroll]').evaluate(element => { element.scrollTop = 0; });
+    await button('Hide then show mounting Activity').click();
+    await page.waitForTimeout(450);
+    assert.equal(await page.locator(marks).count(), 0, `${label}: a descendant layout cleanup request cannot replay after same-task hide and show`);
+    assert.equal(await title.evaluate(element => element === document.activeElement), false);
+    assert.equal(await page.locator('[data-mount-scroll]').evaluate(element => element.scrollTop), 0);
+    await button('Saved mounting highlight').click();
+    await highlighted(`${label} fresh request after cleanup reentry`);
+    await button('Cancel mounting highlight').click();
+    assert.equal(await page.locator(marks).count(), 0);
+
+    // Keep the original active-generation callback, then change active while
+    // visible before hiding. Its external target stays visibly connected, so
+    // only the hook's committed inactive state can reject this stale method.
+    await page.goto(url);
+    await highlighted(`${label} before inactive generation change`);
+    await button('Toggle automatic request').click();
+    await button('Cancel mounting highlight').click();
+    await page.locator('[data-mount-scroll]').evaluate(element => { element.scrollTop = 0; });
+    await button('Toggle mounting active').click();
+    await page.locator('[data-mount-state][data-active="false"]').waitFor();
+    await button('Toggle mounting Activity').click();
+    await page.locator('[data-mount-state][data-visible="false"]').waitFor();
+    await button('Inactive external highlight then activate and show').click();
+    await page.waitForTimeout(450);
+    assert.equal(await page.locator(marks).count(), 0, `${label}: an inactive saved generation cannot queue visible external DOM through same-task activation and reveal`);
+    assert.equal(await page.getByRole('heading', { name: 'External mount destination', exact: true }).evaluate(element => element === document.activeElement), false);
+    assert.equal(await page.locator('[data-external-scroll]').evaluate(element => element.scrollTop), 0);
+    assert.equal(await title.evaluate(element => element === document.activeElement), false);
+    assert.equal(await page.locator('[data-mount-scroll]').evaluate(element => element.scrollTop), 0);
+    await button('Saved mounting highlight').click();
+    await highlighted(`${label} explicit request after inactive generation reconnect`);
+    await button('Cancel mounting highlight').click();
+    assert.equal(await page.locator(marks).count(), 0);
+  }
+}
+
 (async () => {
   const { createServer } = await import('vite');
   const server = await createServer({ root: resolve(__dirname, '..'), server: { host: '127.0.0.1', port: 0, open: false } }); await server.listen();
@@ -11,6 +152,7 @@ const { chromium } = require(process.env.PLAYWRIGHT_MODULE || 'playwright-core')
     browser = await chromium.launch({ executablePath: process.env.CHROME_BIN, headless: true });
     const page = await browser.newPage({ viewport: { width: 1280, height: 1200 } });
     const errors = []; page.on('pageerror', error => errors.push(error.message));
+    await testMountHighlights(page, base);
     await page.goto(`${base}/tests/fixtures/react-menus/`);
     const first = page.getByRole('region', { name: 'First menu' }), second = page.getByRole('region', { name: 'Second menu' });
     const search = page.getByRole('region', { name: 'Search', exact: true }), input = search.getByRole('searchbox');
@@ -192,6 +334,6 @@ const { chromium } = require(process.env.PLAYWRIGHT_MODULE || 'playwright-core')
     await setTheme(page, 'dark');
     await page.locator('.cui-feature-anchor-highlight').waitFor();
     assert.equal(await page.locator('.cui-feature-anchor-highlight').textContent(), '外观');
-    assert.deepEqual(errors, []); console.log('React menus: independent consumers, keyboard preview/commit, search/filter/focus/settling and synchronous reentry, interruptible palette return, retained Activity lifecycle and bilingual responsive layouts passed');
+    assert.deepEqual(errors, []); console.log('React menus: independent consumers, keyboard preview/commit, search/filter/focus/settling and synchronous reentry, descendant ref/layout mount and retained Activity requests with StrictMode on/off, interruptible palette return and bilingual responsive layouts passed');
   } finally { await browser?.close(); await server.close(); }
 })().catch(error => { console.error(error); process.exitCode = 1; });

@@ -33,6 +33,8 @@ Import from `src/index.ts` with the shared stylesheet; see [integration](../../d
 - Group headings appear only when the raw query is exactly empty; a whitespace-only query renders flat results. Empty results get a status message.
 - The search ring follows keyboard focus. Programmatic initial focus uses `focus({ preventScroll: true, focusVisible: false })`. Clicking the still-focused field stays neutral; clicking after blur, or Tab re-entry, shows the ring.
 - Selecting a result clears the query, focuses the destination heading without scrolling, then centers it smoothly once scrolling settles. User input cancels the extra centering, and a new selection cancels the previous highlight.
+- A parent may own `useSearchHighlight` while a destination child requests its highlight from a callback ref or `useLayoutEffect`, including on first mount and when Activity reconnects retained DOM, with or without StrictMode. For reconnection, the destination DOM follows the same Activity's visibility; calls targeting its hidden retained DOM are discarded rather than replayed on reveal. Saved methods cannot start focus, scrolling or animation while the hook is inactive or after true unmount.
+- External or portal destinations follow the host's `active` contract: pass active=false when hiding or disabling the host, and request a highlight only when the destination should be shown.
 - A heading's focus handler may synchronously cancel, deactivate, disconnect or replace the highlight request. The old request must stop before scheduling scrolling or animation, and cancellation must retain ownership of the newest request's cleanup.
 - The row's Actions button or Alt/Option+Enter opens the card from the thumbnail already on screen; measure the thumbnail offset first.
 - Focus the first action after two frames, unless the user has moved focus meanwhile; closing cancels the pending focus.
@@ -41,6 +43,6 @@ Import from `src/index.ts` with the shared stylesheet; see [integration](../../d
 
 ## Check
 
-The [independent consumer suite](../../tests/react-menus.browser.cjs) covers nested Escape, focus versus selection, disabled skipping, controlled updates, grouping/filtering, repeated destinations, language/theme changes, rapid palette return, lifecycle cleanup and responsive layouts. [Deterministic highlight tests](../../tests/search-highlight.test.cjs) cover both implementations, including the 250/1500ms bounds, user-input suppression and cleanup.
+The [independent consumer suite](../../tests/react-menus.browser.cjs) covers nested Escape, focus versus selection, disabled skipping, controlled updates, grouping/filtering, repeated destinations, language/theme changes, rapid palette return, lifecycle cleanup and responsive layouts. Highlight cases cover child callback refs and layout effects on initial mount and Activity retained-DOM reconnection, with StrictMode enabled and disabled, alongside synchronous focus reentry and inactive-method protection. [Deterministic highlight tests](../../tests/search-highlight.test.cjs) cover both implementations, including the 250/1500ms bounds, user-input suppression and cleanup.
 
 Local adaptations and limits: [coverage](../../docs/coverage.md#menus).
