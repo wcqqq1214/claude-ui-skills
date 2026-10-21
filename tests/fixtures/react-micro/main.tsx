@@ -142,4 +142,5 @@ function NoticeActivityConsumer({ delivery }: { delivery: NoticeDelivery }) {
 const deadlineMode = new URLSearchParams(location.search).get('deadline');
 const noticeDelivery = new URLSearchParams(location.search).get('notice-activity');
 const actionParams = new URLSearchParams(location.search);
-createRoot(document.getElementById('root')!).render(<StrictMode>{actionParams.has('notice-action') ? <ActionRefreshConsumer params={actionParams} /> : noticeDelivery ? <NoticeActivityConsumer delivery={noticeDelivery === 'ref' ? 'ref' : noticeDelivery === 'layout' ? 'layout' : 'exit'} /> : new URLSearchParams(location.search).has('copy-activity') ? <CopyActivityConsumer /> : deadlineMode ? <DeadlineConsumer mode={deadlineMode === 'single' ? 'single' : 'stack'} /> : <Consumer />}</StrictMode>);
+const content = actionParams.has('notice-action') ? <ActionRefreshConsumer params={actionParams} /> : noticeDelivery ? <NoticeActivityConsumer delivery={noticeDelivery === 'ref' ? 'ref' : noticeDelivery === 'layout' ? 'layout' : 'exit'} /> : actionParams.has('copy-activity') ? <CopyActivityConsumer /> : deadlineMode ? <DeadlineConsumer mode={deadlineMode === 'single' ? 'single' : 'stack'} /> : <Consumer />;
+createRoot(document.getElementById('root')!).render(actionParams.get('strict') === 'off' ? content : <StrictMode>{content}</StrictMode>);
