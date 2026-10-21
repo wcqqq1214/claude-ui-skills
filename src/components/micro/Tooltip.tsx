@@ -107,10 +107,23 @@ export function Tooltip<T extends HTMLElement = HTMLButtonElement>({ content, ch
     };
   }, [active, delay, overflowOnly]);
   useEffect(() => {
-    const current = connection.current;
+    const current = connection.current, element = target.current;
     // End the exception after this connection's StrictMode passive flush; an
     // older flush must not clear the focus request of a newer connection.
     queueMicrotask(() => { if (connection.current === current) { current.probing = false; replayableFocus.current = false; } });
+    return () => {
+      if (connection.current !== current || current.connected) return;
+      // Activity hides its host roots after layout cleanup, before passive
+      // cleanup. StrictMode replays leave the DOM visible. Inspect inline
+      // styles, without forcing layout or blurring a retained focused target.
+      let hidden = !element?.isConnected;
+      for (let ancestor: HTMLElement | null = element; !hidden && ancestor; ancestor = ancestor.parentElement) hidden = ancestor.style.display === 'none';
+      if (hidden) {
+        clearTimeout(timer.current); timer.current = undefined;
+        deadline.current = undefined; replayableFocus.current = false;
+        engagement.current = { pointer: false, focus: false, dismissed: false };
+      }
+    };
   }, [active, delay, overflowOnly]);
   useEffect(() => {
     const dismiss = () => { engagement.current.dismissed = true; hide(); };
