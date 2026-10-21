@@ -3,6 +3,86 @@ const assert = require('node:assert/strict');
 const { resolve } = require('node:path');
 const { chromium } = require(process.env.PLAYWRIGHT_MODULE || 'playwright-core');
 
+async function testMenuActivity(page, base, kinds = ['artifact', 'submenu']) {
+  const focused = locator => locator.evaluate(element => element === document.activeElement);
+  const frames = () => page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(() => requestAnimationFrame(resolve)))));
+  for (const strict of ['off', 'on']) for (const kind of kinds) {
+    const label = `${kind}/StrictMode ${strict}`;
+    await page.goto(`${base}/tests/fixtures/react-menus/activity.html?strict=${strict}`);
+    const region = page.locator(kind === 'artifact' ? '[data-retained-artifact]' : '[data-retained-submenu]');
+    const trigger = region.getByRole('button', { name: kind === 'artifact' ? 'Retained Artifact actions' : 'Retained model settings', exact: true });
+    const outside = page.getByRole('textbox', { name: 'Outside menu input' });
+    await trigger.waitFor();
+    await region.evaluate(element => { window.retainedMenuNodes = [element, element.querySelector('[aria-haspopup="menu"]')]; });
+    async function open() {
+      await trigger.click();
+      if (kind === 'submenu') await region.getByRole('menuitem', { name: /Retained thinking effort/ }).press('ArrowRight');
+      await frames();
+      assert.equal(await trigger.getAttribute('aria-expanded'), 'true', `${label}: fresh opening works`);
+      if (kind === 'artifact') assert.equal(await focused(region.getByRole('menuitem', { name: 'Open retained artwork', exact: true })), true, `${label}: normal delayed entry focuses the action`);
+      else assert.equal(await focused(region.getByRole('menuitemradio', { name: 'High', exact: true })), true, `${label}: entry focuses the committed option`);
+    }
+    async function closed(reason) {
+      await frames();
+      assert.equal(await trigger.getAttribute('aria-expanded'), 'false', `${label}: ${reason} dismisses transient open state`);
+      assert.equal(await region.getByRole('menu').count(), 0, `${label}: ${reason} leaves no old menu`);
+      assert.equal(await region.locator('[data-returning="true"]').count(), 0, `${label}: ${reason} does not restart the return animation`);
+      assert.equal(await region.evaluate(element => element === window.retainedMenuNodes[0] && element.querySelector('[aria-haspopup="menu"]') === window.retainedMenuNodes[1]), true, `${label}: ${reason} retains the region and trigger DOM`);
+      assert.equal(await page.locator('[data-menu-state]').getAttribute('data-changes'), '0', `${label}: dismissal never commits an action or selection`);
+    }
+    // Both props change in the same commit: Activity disconnects effects before
+    // the inactive setup can run. A later reveal must not resurrect either menu.
+    await open();
+    await page.locator('[data-menu-hide]').evaluate(element => element.click());
+    await page.locator('[data-menu-state][data-visible="false"][data-active="false"]').waitFor();
+    assert.equal(await region.evaluate(element => element.isConnected && !element.getClientRects().length), true, `${label}: hidden Activity keeps the original DOM`);
+    await outside.focus();
+    await page.locator('[data-menu-show]').evaluate(element => element.click());
+    await closed('Activity reconnect');
+    assert.equal(await focused(outside), true, `${label}: reconnect preserves focus placed outside while hidden`);
+
+    await open();
+    await page.locator('[data-menu-cycle]').evaluate(element => element.click());
+    await closed('same-task hide/show');
+    // Repeat in one task before Artifact's delayed entry can run: disconnect
+    // must cancel that old focus request without moving focus to its trigger.
+    if (kind === 'artifact') await trigger.evaluate(element => {
+      element.focus(); element.click();
+      document.querySelector('[data-menu-cycle]').click();
+      document.querySelector('[data-menu-outside]').focus();
+    });
+    else {
+      await trigger.click();
+      await region.getByRole('menuitem', { name: /Retained thinking effort/ }).press('ArrowRight');
+      await page.evaluate(() => {
+        document.querySelector('[data-menu-cycle]').click();
+        document.querySelector('[data-menu-outside]').focus();
+      });
+    }
+    await closed('repeated same-task reconnect');
+    assert.equal(await focused(outside), true, `${label}: old entry work cannot steal outside focus`);
+
+    await open();
+    await page.locator('[data-menu-active]').evaluate(element => element.click());
+    await page.locator('[data-menu-state][data-active="false"]').waitFor();
+    await closed('explicit inactive update');
+    await outside.focus();
+    await page.locator('[data-menu-active]').evaluate(element => element.click());
+    await closed('reactivation');
+    assert.equal(await focused(outside), true, `${label}: explicit reactivation preserves outside focus`);
+    await open();
+    if (kind === 'artifact') await region.getByRole('menuitem', { name: 'Open retained artwork', exact: true }).click();
+    else {
+      await page.keyboard.press('ArrowUp');
+      assert.equal(await focused(region.getByRole('menuitemradio', { name: 'Low', exact: true })), true, `${label}: new submenu entry retains disabled-option skipping`);
+      await page.keyboard.press('Enter');
+    }
+    assert.equal(await trigger.getAttribute('aria-expanded'), 'false');
+    assert.equal(await focused(trigger), true, `${label}: a new explicit selection still restores trigger focus`);
+    assert.equal(await page.locator('[data-menu-state]').getAttribute('data-changes'), '1');
+  }
+}
+
 async function testMountHighlights(page, base) {
   const marks = '.cui-feature-anchor-highlight, .cui-feature-anchor-row-fill';
   const title = page.getByRole('heading', { name: 'Mount destination', exact: true });
@@ -152,6 +232,7 @@ async function testMountHighlights(page, base) {
     browser = await chromium.launch({ executablePath: process.env.CHROME_BIN, headless: true });
     const page = await browser.newPage({ viewport: { width: 1280, height: 1200 } });
     const errors = []; page.on('pageerror', error => errors.push(error.message));
+    await testMenuActivity(page, base);
     await testMountHighlights(page, base);
     await page.goto(`${base}/tests/fixtures/react-menus/`);
     const first = page.getByRole('region', { name: 'First menu' }), second = page.getByRole('region', { name: 'Second menu' });

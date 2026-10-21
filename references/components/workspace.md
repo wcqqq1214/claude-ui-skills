@@ -26,6 +26,7 @@ Import `FileWorkspace` from `src/index.ts` with the shared stylesheet; see [inte
 - CSS constrains the rendered width while the chosen width is kept for the next expansion. Use this panel's bounds rather than another panel's.
 - Ignore Ctrl/Meta/Alt, resize keys during a drag, and repeated endpoint or reset keys. Shift changes only the arrow step.
 - A drag commits only after 3px of movement; a cancelled or unchanged drag restores the stored width, including on `pointercancel`.
+- A handle's focus callback can synchronously deactivate, expand, hide, unmount or reconnect its owner. The interrupted pointerdown must not capture the pointer, resize or commit a width; a fresh gesture remains available afterward.
 - Expanding hides and inerts the list and takes the separator out of the Tab order.
 - Switching files keeps the current Preview/Code choice.
 - The toolbar title centers its 20px File icon and label in a flex group, without the inline baseline offset.

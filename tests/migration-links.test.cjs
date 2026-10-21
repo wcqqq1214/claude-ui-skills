@@ -41,7 +41,8 @@ function anchors(file) {
 
 test('skill, guides and README links resolve to local files and valid anchors', () => {
   const documents = ['SKILL.md', 'README.md', 'README.zh-CN.md', 'demo/README.md', 'tests/README.md',
-    ...filesIn('references'), ...filesIn('docs')].filter(file => file.endsWith('.md'));
+    // docs/dev is the ignored, user-local research archive, not shipped guides.
+    ...filesIn('references'), ...filesIn('docs').filter(file => !file.startsWith('docs/dev/'))].filter(file => file.endsWith('.md'));
   for (const file of documents) for (const target of links(prose(read(file)))) {
     if (/^[a-z][a-z\d+.-]*:|^\/\//i.test(target)) continue;
     const [location, fragment] = target.split('#');

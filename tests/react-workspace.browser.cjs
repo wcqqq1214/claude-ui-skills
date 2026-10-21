@@ -2,6 +2,44 @@ const { setTheme, setLanguage, chooseChapter } = require('./demo-helpers.cjs');
 const assert = require('node:assert/strict');
 const { resolve } = require('node:path');
 const { chromium } = require(process.env.PLAYWRIGHT_MODULE || 'playwright-core');
+async function testResizeFocusReentry(page, base) {
+  const errors = [];
+  page.on('pageerror', error => errors.push(error.message));
+  const state = () => page.locator('[data-resize-state]').evaluate(element => JSON.parse(element.textContent));
+  const width = () => page.getByRole('separator', { name: 'Resize', exact: true }).getAttribute('aria-valuenow').then(Number);
+  for (const strict of ['off', 'on']) for (const handler of ['capture', 'bubble']) for (const action of ['inactive', 'unmount', 'hide', 'hide-show', 'inactive-active', 'expanded']) {
+    const context = `${strict}/${handler}/${action}`;
+    await page.goto(`${base}/tests/fixtures/react-workspace/resize-reentry.html?strict=${strict}&handler=${handler}&action=${action}`);
+    const handle = page.getByRole('separator', { name: 'Resize', exact: true });
+    await handle.press('Shift+ArrowRight');
+    assert.equal(await width(), 276, `${context}: establish a non-default chosen width`);
+    const retained = await handle.elementHandle();
+    await page.getByRole('button', { name: 'Arm resize reentry', exact: true }).click();
+    let box = await handle.boundingBox(); const x = box.x + box.width / 2, y = box.y + box.height / 2;
+    await page.mouse.move(x, y); await page.mouse.down();
+    assert.equal((await state()).reentries, 1, `${context}: focus synchronously changes the owner`);
+    await page.mouse.move(x + 72, y); await page.mouse.up();
+    assert.deepEqual((await state()).changes, [], `${context}: stale pointer work cannot commit a width`);
+    assert.equal(await page.locator('[data-resizing]').count(), 0, `${context}: no drag survives the focus boundary`);
+    assert.equal(await retained.evaluate(element => element.hasPointerCapture(1)), false, `${context}: the cancelled pointer is not captured`);
+    assert.deepEqual(errors, [], `${context}: synchronous owner changes do not throw`);
+    await page.getByRole('button', { name: 'Restore resize owner', exact: true }).click();
+    const restored = page.getByRole('separator', { name: 'Resize', exact: true }); await restored.waitFor();
+    if (action !== 'unmount') assert.equal(await restored.evaluate((element, previous) => element === previous, retained), true, `${context}: Activity retains the same separator`);
+    const chosen = action === 'unmount' ? 244 : 276;
+    assert.equal(await width(), chosen, `${context}: cancellation preserves the chosen width`);
+    assert.deepEqual((await state()).changes, [], `${context}: restoring the owner does not emit a callback`);
+    box = await restored.boundingBox();
+    await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2); await page.mouse.down();
+    await page.mouse.move(box.x + box.width / 2 + 64, box.y + box.height / 2); await page.mouse.up();
+    assert.equal(await width(), chosen + 64, `${context}: a fresh pointer gesture works`);
+    assert.deepEqual((await state()).changes, [chosen + 64], `${context}: one fresh gesture emits one callback`);
+    await restored.press('ArrowRight');
+    assert.equal(await width(), chosen + 72, `${context}: keyboard resizing still works`);
+    assert.deepEqual((await state()).changes, [chosen + 64, chosen + 72]);
+    assert.deepEqual(errors, [], `${context}: recovery does not throw`);
+  }
+}
 (async () => {
   const { createServer } = await import('vite');
   const server = await createServer({ root: resolve(__dirname, '..'), server: { host: '127.0.0.1', port: 0, open: false } }); await server.listen();
@@ -9,6 +47,8 @@ const { chromium } = require(process.env.PLAYWRIGHT_MODULE || 'playwright-core')
   let browser;
   try {
     browser = await chromium.launch({ executablePath: process.env.CHROME_BIN, headless: true });
+    const reentryPage = await browser.newPage({ viewport: { width: 1280, height: 1000 } });
+    await testResizeFocusReentry(reentryPage, base); await reentryPage.close();
     const systemPage = await browser.newPage({ viewport: { width: 1280, height: 1000 }, colorScheme: 'light' });
     await systemPage.goto(`${base}/demo/?lang=en#modes`);
     assert.equal(await systemPage.locator('.demo-topbar button[data-preference]').getAttribute('data-preference'), 'system');

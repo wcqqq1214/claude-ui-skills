@@ -15,8 +15,9 @@ type Drag = { id: number; x: number; width: number; changed: boolean };
 /** Owns only the pane CSS variable and pointer transaction; React owns content. */
 export function usePaneResize({ root, layout, list, handle, defaultWidth, expanded, active, onWidthChange }: Options) {
   const chosen = useRef(defaultWidth), drag = useRef<Drag | null>(null), notify = useRef(onWidthChange);
+  const revision = useRef(0), owner = useRef({ connected: false, active, expanded });
   const [geometry, setGeometry] = useState({ width: defaultWidth, max: 520 });
-  useLayoutEffect(() => { notify.current = onWidthChange; });
+  useLayoutEffect(() => { notify.current = onWidthChange; owner.current.active = active; owner.current.expanded = expanded; });
   const measured = () => Math.round(list.current?.getBoundingClientRect().width ?? chosen.current);
   function sync() {
     if (!handle.current?.getClientRects().length || getComputedStyle(handle.current).visibility === 'hidden') return;
@@ -26,6 +27,8 @@ export function usePaneResize({ root, layout, list, handle, defaultWidth, expand
   function render(width = chosen.current) { root.current?.style.setProperty('--cui-pane-width', `${width}px`); sync(); }
   function save(width: number) { if (chosen.current === width) return; chosen.current = width; notify.current?.(width); }
   function finish(commit = false) {
+    // Also cancel a pointerdown whose focus handler has not created its drag yet.
+    revision.current++;
     const state = drag.current;
     if (!state) return;
     drag.current = null;
@@ -36,11 +39,12 @@ export function usePaneResize({ root, layout, list, handle, defaultWidth, expand
   }
   function reset() { save(defaultWidth); render(); }
   useLayoutEffect(() => {
+    owner.current.connected = true;
     render();
     const observer = new ResizeObserver(sync);
     if (layout.current) observer.observe(layout.current);
     if (list.current) observer.observe(list.current);
-    return () => { observer.disconnect(); finish(); };
+    return () => { owner.current.connected = false; observer.disconnect(); finish(); };
   }, []);
   useLayoutEffect(() => { if (expanded || !active) finish(); if (!expanded && active) render(); }, [expanded, active]);
   useEffect(() => {
@@ -49,10 +53,14 @@ export function usePaneResize({ root, layout, list, handle, defaultWidth, expand
     return () => { window.removeEventListener('blur', cancel); window.removeEventListener('pagehide', cancel); };
   }, []);
   function pointerDown(event: PointerEvent<HTMLDivElement>) {
-    if (event.button !== 0 || !event.isPrimary || !active || expanded || drag.current) return;
-    event.preventDefault(); event.currentTarget.focus();
+    if (event.button !== 0 || !event.isPrimary || !owner.current.connected || !owner.current.active || owner.current.expanded || drag.current) return;
+    const target = event.currentTarget, request = ++revision.current;
+    event.preventDefault(); target.focus();
+    // Focus can synchronously deactivate, expand, hide, unmount, or reconnect the
+    // owner. A same-task reconnect must not revive this older pointer gesture.
+    if (revision.current !== request || !owner.current.connected || !owner.current.active || owner.current.expanded || drag.current || handle.current !== target || !target.isConnected || !target.getClientRects().length || getComputedStyle(target).visibility === 'hidden') return;
     drag.current = { id: event.pointerId, x: event.clientX, width: measured(), changed: false };
-    event.currentTarget.setPointerCapture(event.pointerId); root.current?.setAttribute('data-resizing', '');
+    target.setPointerCapture(event.pointerId); root.current?.setAttribute('data-resizing', '');
   }
   function pointerMove(event: PointerEvent<HTMLDivElement>) {
     const state = drag.current;

@@ -3,6 +3,55 @@ const assert = require('node:assert/strict');
 const { resolve } = require('node:path');
 const { chromium } = require(process.env.PLAYWRIGHT_MODULE || 'playwright-core');
 
+async function testReturnFocusReentry(page, base) {
+  const errors = [];
+  const onError = error => errors.push(error.message);
+  page.on('pageerror', onError);
+  const state = () => page.locator('[data-return-state]').evaluate(element => JSON.parse(element.textContent));
+  const frames = () => page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
+  try {
+    for (const strict of ['off', 'on']) for (const handler of ['capture', 'bubble']) for (const action of ['inactive', 'unmount', 'hide', 'hide-show', 'inactive-active']) {
+      const label = `${strict}/${handler}/${action}`;
+      await page.goto(`${base}/tests/fixtures/react-reading/return.html?strict=${strict}&handler=${handler}&action=${action}`);
+      const region = page.getByRole('region', { name: 'Return content', exact: true });
+      const button = page.getByRole('button', { name: 'Return to latest', exact: true });
+      await region.waitFor(); await frames();
+      const retained = await region.elementHandle();
+      const pause = async () => {
+        await region.evaluate(element => { element.scrollTop = 80; element.dispatchEvent(new Event('scroll')); element.dispatchEvent(new KeyboardEvent('keydown', { key: 'Home', bubbles: true })); });
+        await button.waitFor(); await frames();
+        assert.equal(await region.evaluate(element => element.scrollTop), 80, `${label}: establish a paused reading position`);
+      };
+      await pause();
+      await retained.evaluate(element => {
+        const scroll = element.scrollTo;
+        element.dataset.returnScrollCalls = '0';
+        element.scrollTo = function (...args) { this.dataset.returnScrollCalls = String(Number(this.dataset.returnScrollCalls) + 1); return scroll.apply(this, args); };
+      });
+      await page.getByRole('button', { name: 'Arm Return reentry', exact: true }).click();
+      await button.click(); await frames();
+      assert.equal((await state()).reentries, 1, `${label}: Return focus synchronously changes its owner`);
+      assert.deepEqual(errors, [], `${label}: a cancelled Return never dereferences detached refs`);
+      assert.equal(await retained.evaluate(element => element.dataset.returnScrollCalls), '0', `${label}: the old Return cannot scroll a disconnected or inactive viewport`);
+      if (action !== 'unmount' && action !== 'hide') assert.equal(await retained.evaluate(element => element.scrollTop), 80, `${label}: cancellation preserves the reading position`);
+      await page.getByRole('button', { name: 'Restore Return owner', exact: true }).click();
+      await region.waitFor(); await frames();
+      if (action !== 'unmount') {
+        assert.equal(await region.evaluate((element, old) => element === old, retained), true, `${label}: reconnection retains the viewport DOM`);
+        assert.equal(await region.evaluate(element => element.scrollTop), 80, `${label}: restoration preserves the cancelled position`);
+        await page.getByRole('button', { name: 'Append Return content', exact: true }).click(); await frames();
+        assert.equal(await region.evaluate(element => element.scrollTop), 80, `${label}: cancellation did not silently resume following`);
+      }
+      await pause(); await button.click(); await frames();
+      assert.equal(await region.evaluate(element => document.activeElement === element), true, `${label}: a fresh Return still transfers focus`);
+      assert.equal(await region.evaluate(element => element.scrollHeight - element.clientHeight - element.scrollTop < 2), true, `${label}: a fresh Return reaches the latest content`);
+      await page.getByRole('button', { name: 'Append Return content', exact: true }).click(); await frames();
+      assert.equal(await region.evaluate(element => element.scrollHeight - element.clientHeight - element.scrollTop < 2), true, `${label}: fresh Return restores following`);
+      assert.deepEqual(errors, []);
+    }
+  } finally { page.removeListener('pageerror', onError); }
+}
+
 (async () => {
   const { createServer } = await import('vite');
   const server = await createServer({ root: resolve(__dirname, '..'), server: { host: '127.0.0.1', port: 0, open: false } });
@@ -11,6 +60,8 @@ const { chromium } = require(process.env.PLAYWRIGHT_MODULE || 'playwright-core')
   let browser;
   try {
     browser = await chromium.launch({ executablePath: process.env.CHROME_BIN, headless: true });
+    const returnPage = await browser.newPage({ viewport: { width: 1280, height: 1000 } });
+    await testReturnFocusReentry(returnPage, base); await returnPage.close();
     // In a short window the Replay button is fully visible while its stream
     // is below the 25% automatic-playback threshold. Exercise actual geometry
     // and pointer clicks; a mocked IntersectionObserver misses this regression.

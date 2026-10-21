@@ -21,6 +21,7 @@ export function ScrollFollower({ label, returnLabel, busy = false, active = true
   const nearEnd = useRef(true), fadeNearEnd = useRef(true);
   const previousReset = useRef<{ key: typeof resetKey } | null>(null);
   const followAllowed = useRef(followContent);
+  const connected = useRef(false), lifetime = useRef(0);
   const [showReturn, setShowReturn] = useState(false), [showFade, setShowFade] = useState(false);
   function update() { setShowReturn(!pinned.current && !nearEnd.current); setShowFade(!pinned.current && !fadeNearEnd.current); }
   function follow() {
@@ -32,6 +33,12 @@ export function ScrollFollower({ label, returnLabel, busy = false, active = true
     }
     update();
   }
+  useLayoutEffect(() => {
+    connected.current = active;
+    // A focus handler can hide and reconnect this same DOM in one task.
+    // The previous Return must stay cancelled even if active is true again.
+    return () => { connected.current = false; lifetime.current++; };
+  }, [active]);
   useLayoutEffect(() => {
     // Reconnecting Activity effects is not a new reading session. A key changed
     // while hidden is still applied when this effect reconnects.
@@ -78,8 +85,11 @@ export function ScrollFollower({ label, returnLabel, busy = false, active = true
     <div aria-hidden="true" data-visible={showFade || undefined} className="cui-scroll-fade pointer-events-none absolute inset-x-0 bottom-0 h-12 bg-linear-to-t from-cui-surface to-transparent" />
     <button type="button" aria-label={returnLabel} aria-hidden={!showReturn} inert={!showReturn} tabIndex={showReturn ? 0 : -1}
       onClick={event => {
-        if (document.activeElement === event.currentTarget) viewport.current!.focus({ preventScroll: true });
-        pinned.current = true; viewport.current!.scrollTo({ top: viewport.current!.scrollHeight, behavior: 'instant' }); lastTop.current = viewport.current!.scrollTop; update();
+        const element = viewport.current, revision = lifetime.current;
+        if (!connected.current || !element?.isConnected) return;
+        if (document.activeElement === event.currentTarget) element.focus({ preventScroll: true });
+        if (!connected.current || lifetime.current !== revision || viewport.current !== element || !element.isConnected) return;
+        pinned.current = true; element.scrollTo({ top: element.scrollHeight, behavior: 'instant' }); lastTop.current = element.scrollTop; update();
       }}
       className={classes('cui-return-button group absolute bottom-5 left-1/2 inline-flex size-9 -translate-x-1/2 cursor-pointer items-center justify-center rounded-full border-[.5px] border-solid border-cui-line bg-[color-mix(in_srgb,var(--cui-surface)_80%,transparent)] p-0 text-cui-text backdrop-blur-[8px] transition-opacity duration-200 ease-[ease] hover:bg-cui-surface focus-visible:outline-2 focus-visible:outline-cui-accent', showReturn ? 'pointer-events-auto opacity-100' : 'pointer-events-none opacity-0')}>
       <span className={classes('absolute inset-0 m-auto size-5 transition-opacity duration-200 ease-[ease-out]', busy ? 'opacity-0 group-hover:opacity-100 group-focus-visible:opacity-100' : 'opacity-100')}><Icon name="ArrowDown" size={20} /></span>

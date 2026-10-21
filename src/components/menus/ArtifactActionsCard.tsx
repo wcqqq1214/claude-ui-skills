@@ -36,9 +36,15 @@ export function ArtifactActionsCard({ title, subtitle, image, actionsLabel, acti
     returnFrom.current = null; clearReturn(); cancelFocus(); setOpening(false);
     openState.current = true; setOpen(true);
   }
-  useLayoutEffect(() => { activeState.current = active; if (!active) close(false, false); }, [active]);
   useLayoutEffect(() => {
-    if (open && card.current && origin.current) {
+    activeState.current = active;
+    if (!active) close(false, false);
+    // Activity can disconnect before an inactive setup runs. Drop the open
+    // request now so retained layout effects cannot restart entry on reveal.
+    return () => { activeState.current = false; close(false, false); };
+  }, [active]);
+  useLayoutEffect(() => {
+    if (open && openState.current && activeState.current && card.current && origin.current) {
       const to = card.current.getBoundingClientRect(), from = origin.current;
       card.current.style.setProperty('--cui-card-from-x', `${from.left - to.left}px`);
       card.current.style.setProperty('--cui-card-from-y', `${from.top - to.top}px`);

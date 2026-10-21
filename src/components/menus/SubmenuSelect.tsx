@@ -16,10 +16,12 @@ export type SubmenuSelectProps = {
   className?: string;
 };
 export function SubmenuSelect({ label, submenuLabel, options, value, defaultValue, onValueChange, onPreviewChange, renderPreview, active = true, className }: SubmenuSelectProps) {
-  const [local, setLocal] = useState(defaultValue), [level, setLevel] = useState<0 | 1 | 2>(0), [preview, setPreview] = useState<string>();
+  const [local, setLocal] = useState(defaultValue), [level, updateLevel] = useState<0 | 1 | 2>(0), [preview, setPreview] = useState<string>();
   const selected = value ?? local, selectedOption = options.find(option => option.value === selected), id = useId();
   const root = useRef<HTMLDivElement>(null), trigger = useRef<HTMLButtonElement>(null), owner = useRef<HTMLButtonElement>(null), submenu = useRef<HTMLDivElement>(null);
+  const currentLevel = useRef<0 | 1 | 2>(0);
   const enabled = options.filter(option => !option.disabled);
+  function setLevel(next: 0 | 1 | 2) { currentLevel.current = next; updateLevel(next); }
   function close(restore = false) { setLevel(0); if (restore) trigger.current?.focus({ preventScroll: true }); }
   function focusSelection() {
     const buttons = [...submenu.current!.querySelectorAll<HTMLButtonElement>('button:not(:disabled)')];
@@ -27,10 +29,16 @@ export function SubmenuSelect({ label, submenuLabel, options, value, defaultValu
   }
   function openSubmenu() { if (level === 2) focusSelection(); else setLevel(2); }
   useLayoutEffect(() => {
+    if (!active) close();
+    return () => close();
+  }, [active]);
+  useLayoutEffect(() => {
+    // A reconnect can run with the old level before cleanup's state update
+    // renders. Its synchronous dismissal must win before any focus is moved.
+    if (!active || currentLevel.current !== level) return;
     if (level === 1) owner.current?.focus({ preventScroll: true });
     if (level === 2) focusSelection();
   }, [level]);
-  useEffect(() => { if (!active) close(); }, [active]);
   useEffect(() => {
     const outside = (event: Event) => { if (!root.current?.contains(event.target as Node)) close(); };
     const leave = () => close();

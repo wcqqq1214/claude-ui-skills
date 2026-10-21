@@ -26,6 +26,7 @@ Import through `src/index.ts` and the component stylesheet. The demo owns sample
 - Upward input releases following. Keep both resize observations so language and width changes remeasure.
 - Activity effect reconnection preserves the paused reading position or current following mode. Only a changed resetKey requests a reset; changes made while hidden apply on reconnection.
 - Returning jumps straight to the bottom, restores following and moves focus from the disappearing button to the scroll region.
+- If that focus callback synchronously deactivates, hides or unmounts the component, cancel the old Return without scrolling or changing following state. Same-task reconnection does not revive it; a new Return still works.
 - Replay cancels earlier timers, clears appended paragraphs and resets following, even when only its button is visible and the scroll region is below the 25% automatic-playback threshold. A later visibility entry still restarts the example; leaving the chapter, hiding the document or leaving view cancels pending sample changes.
 - One-shot effects replay when their card enters view, each with its own replay button; body timers clear when the card leaves. Loading pauses offscreen and in hidden documents.
 - The working mark pauses when hidden or complete, replay cancels it, and missing artwork leaves the arrow in place.
