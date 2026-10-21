@@ -1,19 +1,11 @@
 const { setTheme, setLanguage, chooseChapter } = require('./demo-helpers.cjs');
 const assert = require('node:assert/strict');
-const { resolve } = require('node:path');
-const { chromium } = require(process.env.PLAYWRIGHT_MODULE || 'playwright-core');
+const { withDevBrowser } = require('./dev-browser.cjs');
 const { testTooltipRequests } = require('./tooltip-request-checks.cjs');
 const { testCopyDelivery } = require('./copy-delivery-checks.cjs');
 const { testNotificationRepeat } = require('./notification-repeat-checks.cjs');
 
-(async () => {
-  const { createServer } = await import('vite');
-  const server = await createServer({ root: resolve(__dirname, '..'), server: { host: '127.0.0.1', port: 0, open: false } });
-  await server.listen();
-  const base = `http://127.0.0.1:${server.httpServer.address().port}`;
-  let browser;
-  try {
-    browser = await chromium.launch({ executablePath: process.env.CHROME_BIN, headless: true });
+withDevBrowser(async ({ browser, base }) => {
     const deliveryPage = await browser.newPage();
     await testCopyDelivery(deliveryPage, base); await deliveryPage.close();
     const tooltipPage = await browser.newPage({ viewport: { width: 1280, height: 1000 } });
@@ -407,5 +399,4 @@ const { testNotificationRepeat } = require('./notification-repeat-checks.cjs');
     }
     assert.deepEqual(errors, []);
     console.log('React micro: tooltip delay/overflow/Escape, ghost motion, copy fallback/lifecycle, notification ordering/dedupe/geometry/expiry/focus/reopen and responsive bilingual demo passed');
-  } finally { await browser?.close(); await server.close(); }
-})().catch(error => { console.error(error); process.exitCode = 1; });
+}).catch(error => { console.error(error); process.exitCode = 1; });

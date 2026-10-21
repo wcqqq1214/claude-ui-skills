@@ -2,14 +2,8 @@ const { setTheme, setLanguage, chooseChapter } = require('./demo-helpers.cjs');
 const assert = require('node:assert/strict');
 const { resolve } = require('node:path');
 const { readFileSync } = require('node:fs');
-const { chromium } = require(process.env.PLAYWRIGHT_MODULE || 'playwright-core');
-(async () => {
-  const { createServer } = await import('vite');
-  const server = await createServer({ root: resolve(__dirname, '..'), server: { host: '127.0.0.1', port: 0, open: false } }); await server.listen();
-  const base = `http://127.0.0.1:${server.httpServer.address().port}`;
-  let browser;
-  try {
-    browser = await chromium.launch({ executablePath: process.env.CHROME_BIN, headless: true });
+const { withDevBrowser } = require('./dev-browser.cjs');
+withDevBrowser(async ({ browser, base }) => {
     for (const transitions of ['native', 'unavailable', 'throws']) {
       const consumer = await browser.newPage({ viewport: { width: 1280, height: 800 } }), consumerErrors = [];
       consumer.on('pageerror', error => consumerErrors.push(error.message));
@@ -341,5 +335,4 @@ const { chromium } = require(process.env.PLAYWRIGHT_MODULE || 'playwright-core')
       await context.close();
     }
     assert.deepEqual(errors, []); console.log('React images: independent consumers, native transitions, focus, interruption, lifecycle and responsive demos passed.');
-  } finally { await browser?.close(); await server.close(); }
-})().catch(error => { console.error(error); process.exitCode = 1; });
+}).catch(error => { console.error(error); process.exitCode = 1; });

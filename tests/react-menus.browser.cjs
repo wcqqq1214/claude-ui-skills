@@ -1,7 +1,6 @@
 const { setTheme, setLanguage, chooseChapter } = require('./demo-helpers.cjs');
 const assert = require('node:assert/strict');
-const { resolve } = require('node:path');
-const { chromium } = require(process.env.PLAYWRIGHT_MODULE || 'playwright-core');
+const { withDevBrowser } = require('./dev-browser.cjs');
 const { testMenuCallbackLifecycle } = require('./menu-callback-checks.cjs');
 
 async function testMenuActivity(page, base, kinds = ['artifact', 'submenu']) {
@@ -224,13 +223,7 @@ async function testMountHighlights(page, base) {
   }
 }
 
-(async () => {
-  const { createServer } = await import('vite');
-  const server = await createServer({ root: resolve(__dirname, '..'), server: { host: '127.0.0.1', port: 0, open: false } }); await server.listen();
-  const base = `http://127.0.0.1:${server.httpServer.address().port}`;
-  let browser;
-  try {
-    browser = await chromium.launch({ executablePath: process.env.CHROME_BIN, headless: true });
+withDevBrowser(async ({ browser, base }) => {
     const callbackPage = await browser.newPage();
     await testMenuCallbackLifecycle(callbackPage, base); await callbackPage.close();
     const page = await browser.newPage({ viewport: { width: 1280, height: 1200 } });
@@ -419,5 +412,4 @@ async function testMountHighlights(page, base) {
     await page.locator('.cui-feature-anchor-highlight').waitFor();
     assert.equal(await page.locator('.cui-feature-anchor-highlight').textContent(), '外观');
     assert.deepEqual(errors, []); console.log('React menus: independent consumers, keyboard preview/commit, search/filter/focus/settling and synchronous reentry, descendant ref/layout mount and retained Activity requests with StrictMode on/off, interruptible palette return and bilingual responsive layouts passed');
-  } finally { await browser?.close(); await server.close(); }
-})().catch(error => { console.error(error); process.exitCode = 1; });
+}).catch(error => { console.error(error); process.exitCode = 1; });

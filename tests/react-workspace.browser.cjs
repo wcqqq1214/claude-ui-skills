@@ -1,7 +1,6 @@
 const { setTheme, setLanguage, chooseChapter } = require('./demo-helpers.cjs');
 const assert = require('node:assert/strict');
-const { resolve } = require('node:path');
-const { chromium } = require(process.env.PLAYWRIGHT_MODULE || 'playwright-core');
+const { withDevBrowser } = require('./dev-browser.cjs');
 const { testPinnedActivityReconnect, testPinnedDragCancellation } = require('./pinned-activity-checks.cjs');
 const { testWorkspacePreviewIsolation } = require('./workspace-preview-checks.cjs');
 async function testResizeFocusReentry(page, base) {
@@ -42,13 +41,7 @@ async function testResizeFocusReentry(page, base) {
     assert.deepEqual(errors, [], `${context}: recovery does not throw`);
   }
 }
-(async () => {
-  const { createServer } = await import('vite');
-  const server = await createServer({ root: resolve(__dirname, '..'), server: { host: '127.0.0.1', port: 0, open: false } }); await server.listen();
-  const base = `http://127.0.0.1:${server.httpServer.address().port}`;
-  let browser;
-  try {
-    browser = await chromium.launch({ executablePath: process.env.CHROME_BIN, headless: true });
+withDevBrowser(async ({ browser, base }) => {
     const reentryPage = await browser.newPage({ viewport: { width: 1280, height: 1000 } });
     await testResizeFocusReentry(reentryPage, base); await reentryPage.close();
     const activityPage = await browser.newPage({ viewport: { width: 1280, height: 1000 } });
@@ -237,5 +230,4 @@ async function testResizeFocusReentry(page, base) {
       const menu = page.getByRole('menu'); await menu.waitFor(); const rect = await menu.boundingBox(); assert.ok(rect.x >= 4 && rect.x + rect.width <= w - 4, 'menu clamps to viewport'); await page.keyboard.press('Escape');
     }
     assert.deepEqual(errors, []); console.log('React workspace/sidebar: resize commit boundaries, cancellation, state preservation, F6, mode folding/RTL, pinned drag/menu ownership, portal themes and responsive bilingual layouts passed');
-  } finally { await browser?.close(); await server.close(); }
-})().catch(error => { console.error(error); process.exitCode = 1; });
+}).catch(error => { console.error(error); process.exitCode = 1; });

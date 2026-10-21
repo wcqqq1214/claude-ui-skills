@@ -24,12 +24,11 @@ export function ExpandableTable({ columns, rows, label, heading = label, dialogT
   const viewport = useRef<HTMLDivElement>(null), table = useRef<HTMLTableElement>(null), dialog = useRef<HTMLDialogElement>(null);
   const [overflowing, setOverflowing] = useState(false), [open, setOpen] = useState(false);
   const [exiting, setExiting] = useState(false), [openRequest, setOpenRequest] = useState(0);
-  const nativeOpened = useRef(false), connected = useRef(false), exitRevision = useRef(0);
+  const nativeOpened = useRef(false), exitRevision = useRef(0);
   const titleId = useId();
   useLayoutEffect(() => {
-    connected.current = true;
     setExiting(false);
-    return () => { connected.current = false; ++exitRevision.current; };
+    return () => { ++exitRevision.current; };
   }, []);
   useLayoutEffect(() => {
     const measure = () => setOverflowing(viewport.current!.scrollWidth > viewport.current!.clientWidth + 3);
@@ -88,7 +87,7 @@ export function ExpandableTable({ columns, rows, label, heading = label, dialogT
       // retain the full dialog until its own CSS exit (not cell animations) ends.
       void element.offsetHeight;
       void Promise.allSettled(element.getAnimations().map(animation => animation.finished)).then(() => {
-        if (connected.current && revision === exitRevision.current && !element.open) setExiting(false);
+        if (revision === exitRevision.current && !element.open) setExiting(false);
       });
     }}>
       <header className="mb-3 flex items-center justify-between gap-4"><h2 id={titleId} className="m-0 font-cui text-sm font-(--cui-bold)">{dialogTitle}</h2><IconButton aria-label={closeLabel} onClick={() => dialog.current?.close()}><Icon name="X" /></IconButton></header>

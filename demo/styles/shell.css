@@ -29,14 +29,17 @@
 .demo-section-head { display:flex; align-items:center; justify-content:space-between; gap:10px; min-height:32px; padding-right:88px; margin-bottom:20px; }
 .demo-section-head h1 { margin:0; font-size:22px; font-weight:var(--cui-medium); line-height:1.35; letter-spacing:-.4px; }
 .demo-stage { --chapter-width:720px; position:relative; container-type:inline-size; display:grid; justify-items:center; align-items:center; min-height:calc(100dvh - 116px); border-radius:14px; background:var(--cui-canvas); }
-.demo-stage[data-chapter=controls],.demo-stage[data-chapter=type],.demo-stage[data-chapter=micro],.demo-stage[data-chapter=menus],.demo-stage[data-chapter=modes],.demo-stage[data-chapter=recovery],.demo-stage[data-chapter=segmented] { --chapter-width:600px; }
-.demo-stage[data-chapter=composer],.demo-stage[data-chapter=tasks],.demo-stage[data-chapter=images] { --chapter-width:680px; }
-.demo-stage[data-chapter=reading] { --chapter-width:880px; }
+.demo-stage[data-chapter=controls],.demo-stage[data-chapter=micro],.demo-stage[data-chapter=modes],.demo-stage[data-chapter=segmented] { --chapter-width:600px; }
+.demo-stage:is([data-chapter=type],[data-chapter=menus]) { --chapter-width:980px; }
+.demo-stage[data-chapter=composer],.demo-stage[data-chapter=tasks] { --chapter-width:680px; }
+.demo-stage[data-chapter=images] { --chapter-width:480px; }
+.demo-stage[data-chapter=reading] { --chapter-width:940px; }
 .demo-stage[data-chapter=gallery] { --chapter-width:960px; }
 .demo-stage[data-chapter=feedback] { --chapter-width:980px; }
+.demo-stage[data-chapter=recovery] { --chapter-width:640px; align-items:center; }
 .demo-stage[data-chapter=workspace] { --chapter-width:100cqw; }
 .demo-specimen { min-width:0; grid-area:1 / 1; width:min(100% - 48px,var(--chapter-width)); margin:24px 0; }
-.demo-stage:is([data-chapter=type],[data-chapter=feedback],[data-chapter=reading],[data-chapter=menus],[data-chapter=tasks],[data-chapter=recovery]) { align-items:start; }
+.demo-stage:is([data-chapter=type],[data-chapter=feedback],[data-chapter=reading],[data-chapter=menus],[data-chapter=tasks]) { align-items:start; }
 .demo-stage[data-chapter=controls] .demo-specimen { margin:16px 0; }
 .demo-stage[data-chapter=workspace] .demo-specimen { align-self:stretch; display:flex; flex-direction:column; }
 .demo-stage[data-chapter=workspace] .demo-specimen > * { flex:1 1 auto; }
@@ -51,8 +54,8 @@
 .demo-button.small { font-size:11px; padding:5px 10px; }
 .demo-button.subtle { background:transparent; }
 .demo-effect-card { display:flex; flex-direction:column; padding:0; overflow:hidden; }
-.demo-effect-heading { display:flex; align-items:center; justify-content:space-between; gap:12px; padding:16px 18px 0; }
-.demo-effect-heading h2 { font-size:13px; font-weight:var(--cui-medium); line-height:1.4; }
+.demo-effect-heading { display:flex; align-items:center; justify-content:space-between; gap:12px; min-height:46px; padding:16px 20px 0; }
+.demo-effect-heading h2 { font-size:14px; font-weight:var(--cui-medium); line-height:1.6; }
 .demo-effect-card > .demo-card-foot { margin:0; margin-top:auto; }
 .demo-control-card { padding:0; display:flex; flex-direction:column; }
 .demo-control-row { min-height:100px; padding:20px 24px; display:flex; align-items:center; justify-content:center; gap:20px; }
@@ -93,13 +96,6 @@
 .demo-wide .demo-control-row > div { width:min(360px,calc(100% - 20px)); max-width:none; }
 
 .demo-stage[data-chapter=recovery] .demo-specimen { width:100%; margin:0; }
-
-.demo-stage:is([data-chapter=type],[data-chapter=menus]) { --chapter-width:980px; }
-.demo-stage[data-chapter=reading] { --chapter-width:940px; }
-.demo-stage[data-chapter=images] { --chapter-width:480px; }
-.demo-stage[data-chapter=recovery] { --chapter-width:640px; align-items:center; }
-.demo-effect-heading { min-height:46px; padding:16px 20px 0; }
-.demo-effect-heading h2 { font-size:14px; line-height:1.6; }
 
 .demo-effect-heading > button { width:30px; height:30px; }
 

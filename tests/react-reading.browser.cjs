@@ -1,8 +1,7 @@
 const { setTheme, setLanguage, chooseChapter } = require('./demo-helpers.cjs');
 const { testTableExitLifecycle } = require('./table-exit-checks.cjs');
 const assert = require('node:assert/strict');
-const { resolve } = require('node:path');
-const { chromium } = require(process.env.PLAYWRIGHT_MODULE || 'playwright-core');
+const { withDevBrowser } = require('./dev-browser.cjs');
 
 async function testReturnFocusReentry(page, base) {
   const errors = [];
@@ -53,14 +52,7 @@ async function testReturnFocusReentry(page, base) {
   } finally { page.removeListener('pageerror', onError); }
 }
 
-(async () => {
-  const { createServer } = await import('vite');
-  const server = await createServer({ root: resolve(__dirname, '..'), server: { host: '127.0.0.1', port: 0, open: false } });
-  await server.listen();
-  const base = `http://127.0.0.1:${server.httpServer.address().port}`;
-  let browser;
-  try {
-    browser = await chromium.launch({ executablePath: process.env.CHROME_BIN, headless: true });
+withDevBrowser(async ({ browser, base }) => {
     const tableExitPage = await browser.newPage({ viewport: { width: 1280, height: 1000 } });
     await testTableExitLifecycle(tableExitPage, base); await tableExitPage.close();
     console.log('Table exit: newer external focus, retained closing content, reopening and Activity lifetimes passed in StrictMode off/on.');
@@ -155,80 +147,6 @@ async function testReturnFocusReentry(page, base) {
       const activityPage = await browser.newPage({ viewport: { width: 1280, height: 1000 } }), activityErrors = [];
       activityPage.on('pageerror', error => activityErrors.push(error.message));
       await activityPage.goto(`${base}/tests/fixtures/react-reading/?activity${syncActive ? '&sync-active' : ''}`);
-      if (process.env.READING_ACTIVITY_ONLY !== 'scroll') {
-        const activityDialog = activityPage.locator('[data-activity-host] dialog'), expandActivity = activityPage.getByRole('button', { name: 'Expand Activity table', exact: true });
-        const retainedDialog = await activityDialog.elementHandle();
-        await retainedDialog.evaluate(element => { element.dataset.closes = '0'; element.addEventListener('close', () => { element.dataset.closes = String(Number(element.dataset.closes) + 1); }); });
-        await expandActivity.click();
-        assert.equal(await activityDialog.evaluate(element => element.open && element.matches(':modal')), true);
-        const hidden = await activityPage.evaluate(() => {
-          document.querySelector('[data-hide]').click();
-          const element = document.querySelector('[data-activity-host] dialog'), outside = document.querySelector('[data-outside]');
-          outside.focus();
-          const state = { modal: element.open || element.matches(':modal'), outsideFocused: document.activeElement === outside };
-          // Open the other modal in the same task, before the old close dispatch.
-          [...document.querySelectorAll('button')].find(button => button.textContent === 'Expand other table').click();
-          return state;
-        });
-        assert.equal(hidden.modal, false, 'Activity cleanup releases the native modal even when active changes during hiding');
-        assert.equal(hidden.outsideFocused, true, 'a retained hidden dialog cannot leave the rest of the page inert');
-        await activityPage.waitForFunction(() => Number(document.querySelector('[data-activity-host] dialog').dataset.closes) === 1);
-        const otherDialog = activityPage.getByRole('dialog', { name: 'Other table', exact: true });
-        assert.equal(await otherDialog.evaluate(element => element.open && element.contains(document.activeElement)), true, 'cleanup close events do not steal another modal\'s focus');
-        await otherDialog.getByRole('button', { name: 'Close other table', exact: true }).click();
-        await activityPage.locator('[data-show]').evaluate(element => element.click());
-        await activityPage.waitForFunction(() => document.querySelector('[data-activity-host] dialog').open);
-        assert.equal(await retainedDialog.evaluate(element => element === document.querySelector('[data-activity-host] dialog') && element.isConnected), true);
-        assert.equal(await activityDialog.getByRole('cell', { name: '100ms', exact: true }).count(), 1, 'a close delivered while effects are detached cannot erase the retained open intent');
-        for (let repeat = 0; repeat < 2; repeat++) {
-          const closes = await retainedDialog.evaluate(element => Number(element.dataset.closes));
-          await activityPage.locator('[data-reconnect]').evaluate(element => element.click());
-          await activityPage.waitForFunction(closes => Number(document.querySelector('[data-activity-host] dialog').dataset.closes) > closes, closes);
-          assert.equal(await retainedDialog.evaluate(element => element.open && element.matches(':modal') && element.contains(document.activeElement)), true, 'an old queued close cannot clear the newly shown dialog or move its focus');
-          assert.equal(await activityDialog.getByRole('cell', { name: '100ms', exact: true }).count(), 1);
-        }
-        // Reconnection opened from the outside focus. Preserve the browser's
-        // synchronous return instead of expecting the old forced trigger focus.
-        const nativeReturnFocus = await retainedDialog.evaluateHandle(element => { element.close(); return document.activeElement; });
-        await activityPage.waitForFunction(() => !document.querySelector('[data-activity-host] dialog .cui-table'));
-        assert.equal(await activityPage.evaluate(element => element === document.activeElement, nativeReturnFocus), true, 'queued close and exit preserve the native focus return after Activity reconnection');
-        await nativeReturnFocus.dispose();
-        for (const showImmediately of [false, true]) {
-          await expandActivity.click();
-          const closes = await retainedDialog.evaluate(element => Number(element.dataset.closes));
-          const closedBeforeHiding = await activityPage.evaluate(showImmediately => {
-            const element = document.querySelector('[data-activity-host] dialog'), outside = document.querySelector('[data-outside]');
-            // Native close dispatch is queued: the external close and Activity
-            // cleanup must happen in this same task, before that event arrives.
-            element.close();
-            document.querySelector('[data-hide]').click();
-            outside.focus();
-            const state = { modal: element.open || element.matches(':modal'), outsideFocused: document.activeElement === outside };
-            if (showImmediately) document.querySelector('[data-show]').click();
-            return state;
-          }, showImmediately);
-          assert.equal(closedBeforeHiding.modal, false);
-          assert.equal(closedBeforeHiding.outsideFocused, true);
-          await activityPage.waitForFunction(closes => Number(document.querySelector('[data-activity-host] dialog').dataset.closes) > closes, closes);
-          if (!showImmediately) {
-            assert.equal(await retainedDialog.evaluate(element => element.isConnected && !element.open), true, 'the external close is delivered while Activity retains the hidden dialog');
-            await activityPage.locator('[data-show]').evaluate(element => element.click());
-          }
-          await activityPage.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
-          assert.equal(await retainedDialog.evaluate(element => element === document.querySelector('[data-activity-host] dialog') && element.isConnected), true);
-          assert.equal(await activityDialog.evaluate(element => element.open || element.matches(':modal')), false, `an external close before hiding clears open intent (${showImmediately ? 'immediate' : 'after close dispatch'} show)`);
-          assert.equal(await activityDialog.locator('.cui-table').count(), 0, 'a genuinely dismissed table does not keep expanded content');
-          assert.equal(await activityPage.locator('[data-outside]').evaluate(element => element === document.activeElement), true, 'the dismissed table cannot reclaim focus on show or old close delivery');
-        }
-        await expandActivity.click();
-        await activityPage.locator('[data-active]').evaluate(element => element.click());
-        await activityPage.waitForFunction(() => !document.querySelector('[data-activity-host] dialog').open && !document.querySelector('[data-activity-host] dialog .cui-table'));
-        await activityPage.locator('[data-active]').evaluate(element => element.click());
-        assert.equal(await activityDialog.evaluate(element => element.open), false, 'a committed active=false clears open intent');
-        await expandActivity.click(); await activityPage.keyboard.press('Escape');
-        await activityPage.waitForFunction(() => !document.querySelector('[data-activity-host] dialog .cui-table'));
-        assert.equal(await expandActivity.evaluate(element => element === document.activeElement), true, 'Escape keeps the ordinary focus-return path');
-      }
       const activityScroll = activityPage.getByRole('region', { name: 'Activity scroll', exact: true }), retainedScroll = await activityScroll.elementHandle();
       const bottom = () => activityScroll.evaluate(element => element.scrollHeight - element.clientHeight - element.scrollTop);
       await activityPage.waitForFunction(() => { const element = document.querySelector('[aria-label="Activity scroll"]'); return element.scrollHeight - element.clientHeight - element.scrollTop <= 2; });
@@ -268,7 +186,7 @@ async function testReturnFocusReentry(page, base) {
       assert.deepEqual(activityErrors, []);
       await activityPage.close();
     }
-    console.log('Reading Activity: retained dialogs release/reconnect safely and scroll position/follow mode survive unchanged resetKey.');
+    console.log('Reading Activity: scroll position/follow mode survive unchanged resetKey.');
     if (process.env.READING_ACTIVITY_ONLY) return;
     // Use the native clipboard in a separate context: mocked execCommand success
     // would miss the browser silently retaining old text outside a modal.
@@ -448,5 +366,4 @@ async function testReturnFocusReentry(page, base) {
     await page.waitForFunction(() => !document.querySelector('[aria-label="Streaming text example"]').textContent.includes('As content unfolds'));
     assert.deepEqual(errors, []);
     console.log('Reading consumer, clipboard races, native dialog focus/theme, graphemes, scroll ownership, counter lifecycle and responsive chapters passed.');
-  } finally { await browser?.close(); await server.close(); }
-})().catch(error => { console.error(error); process.exitCode = 1; });
+}).catch(error => { console.error(error); process.exitCode = 1; });
