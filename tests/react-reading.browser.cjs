@@ -1,4 +1,5 @@
 const { setTheme, setLanguage, chooseChapter } = require('./demo-helpers.cjs');
+const { testTableExitLifecycle } = require('./table-exit-checks.cjs');
 const assert = require('node:assert/strict');
 const { resolve } = require('node:path');
 const { chromium } = require(process.env.PLAYWRIGHT_MODULE || 'playwright-core');
@@ -60,6 +61,10 @@ async function testReturnFocusReentry(page, base) {
   let browser;
   try {
     browser = await chromium.launch({ executablePath: process.env.CHROME_BIN, headless: true });
+    const tableExitPage = await browser.newPage({ viewport: { width: 1280, height: 1000 } });
+    await testTableExitLifecycle(tableExitPage, base); await tableExitPage.close();
+    console.log('Table exit: newer external focus, retained closing content, reopening and Activity lifetimes passed in StrictMode off/on.');
+    if (process.env.TABLE_EXIT_ONLY) return;
     const returnPage = await browser.newPage({ viewport: { width: 1280, height: 1000 } });
     await testReturnFocusReentry(returnPage, base); await returnPage.close();
     // In a short window the Replay button is fully visible while its stream
@@ -182,9 +187,12 @@ async function testReturnFocusReentry(page, base) {
           assert.equal(await retainedDialog.evaluate(element => element.open && element.matches(':modal') && element.contains(document.activeElement)), true, 'an old queued close cannot clear the newly shown dialog or move its focus');
           assert.equal(await activityDialog.getByRole('cell', { name: '100ms', exact: true }).count(), 1);
         }
-        await retainedDialog.evaluate(element => element.close());
+        // Reconnection opened from the outside focus. Preserve the browser's
+        // synchronous return instead of expecting the old forced trigger focus.
+        const nativeReturnFocus = await retainedDialog.evaluateHandle(element => { element.close(); return document.activeElement; });
         await activityPage.waitForFunction(() => !document.querySelector('[data-activity-host] dialog .cui-table'));
-        assert.equal(await expandActivity.evaluate(element => element === document.activeElement), true, 'external close still clears expanded content and restores trigger focus');
+        assert.equal(await activityPage.evaluate(element => element === document.activeElement, nativeReturnFocus), true, 'queued close and exit preserve the native focus return after Activity reconnection');
+        await nativeReturnFocus.dispose();
         for (const showImmediately of [false, true]) {
           await expandActivity.click();
           const closes = await retainedDialog.evaluate(element => Number(element.dataset.closes));

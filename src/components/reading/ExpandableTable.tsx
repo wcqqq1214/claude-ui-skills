@@ -19,12 +19,18 @@ export interface ExpandableTableProps {
   active?: boolean;
 }
 
-/** Data cells are rendered twice only while the expanded native dialog is open. */
+/** Expanded cells stay mounted through the native dialog's closing transition. */
 export function ExpandableTable({ columns, rows, label, heading = label, dialogTitle = label, expandLabel, closeLabel, minWidth = 720, className, active = true }: ExpandableTableProps) {
-  const viewport = useRef<HTMLDivElement>(null), table = useRef<HTMLTableElement>(null), dialog = useRef<HTMLDialogElement>(null), trigger = useRef<HTMLButtonElement>(null);
+  const viewport = useRef<HTMLDivElement>(null), table = useRef<HTMLTableElement>(null), dialog = useRef<HTMLDialogElement>(null);
   const [overflowing, setOverflowing] = useState(false), [open, setOpen] = useState(false);
-  const nativeOpened = useRef(false);
+  const [exiting, setExiting] = useState(false), [openRequest, setOpenRequest] = useState(0);
+  const nativeOpened = useRef(false), connected = useRef(false), exitRevision = useRef(0);
   const titleId = useId();
+  useLayoutEffect(() => {
+    connected.current = true;
+    setExiting(false);
+    return () => { connected.current = false; ++exitRevision.current; };
+  }, []);
   useLayoutEffect(() => {
     const measure = () => setOverflowing(viewport.current!.scrollWidth > viewport.current!.clientWidth + 3);
     const observer = new ResizeObserver(measure);
@@ -33,7 +39,13 @@ export function ExpandableTable({ columns, rows, label, heading = label, dialogT
   }, []);
   useLayoutEffect(() => {
     const element = dialog.current!;
-    if (!active) { nativeOpened.current = false; element.close(); if (open) setOpen(false); return; }
+    if (!active) {
+      ++exitRevision.current;
+      nativeOpened.current = false;
+      element.close(); setExiting(false);
+      if (open) setOpen(false);
+      return;
+    }
     if (!open) return;
     nativeOpened.current = true;
     if (!element.open) element.showModal();
@@ -46,7 +58,15 @@ export function ExpandableTable({ columns, rows, label, heading = label, dialogT
       nativeOpened.current = false;
       element.close();
     };
-  }, [open, active]);
+  }, [open, active, openRequest]);
+  function expand() {
+    if (!active || dialog.current?.open) return;
+    ++exitRevision.current;
+    // A new request can precede the old native close event and React's commit.
+    // Its effect cleanup must not dismiss this newer intent.
+    nativeOpened.current = false;
+    setExiting(false); setOpen(true); setOpenRequest(request => request + 1);
+  }
   function content(expanded = false) {
     return <table ref={expanded ? undefined : table} style={{ minWidth }} className="w-full border-collapse text-left text-[.9375em] leading-[1.5] tabular-nums lining-nums">
       <thead><tr>{columns.map(column => <th key={column.key} scope="col">{column.header}</th>)}</tr></thead>
@@ -57,16 +77,22 @@ export function ExpandableTable({ columns, rows, label, heading = label, dialogT
   }
   return <div className={classes('min-w-0', className)}>
     <div className="mb-4 flex min-h-8 flex-wrap items-center justify-between gap-3"><span className="font-cui text-[13px] leading-[1.6] font-(--cui-medium)">{heading}</span>
-      <button ref={trigger} type="button" hidden={!overflowing} onClick={() => setOpen(true)} className="cui-table-expand cursor-pointer rounded-[7px] border border-solid border-transparent bg-cui-surface px-2.5 py-[5px] font-cui text-[11px] leading-[1.6] font-(--cui-medium) text-cui-text focus-visible:outline-2 focus-visible:outline-cui-accent">{expandLabel}</button></div>
+      <button type="button" hidden={!overflowing} onClick={expand} className="cui-table-expand cursor-pointer rounded-[7px] border border-solid border-transparent bg-cui-surface px-2.5 py-[5px] font-cui text-[11px] leading-[1.6] font-(--cui-medium) text-cui-text focus-visible:outline-2 focus-visible:outline-cui-accent">{expandLabel}</button></div>
     <div ref={viewport} role="region" aria-label={label} tabIndex={0} data-overflowing={overflowing || undefined} className="cui-table relative max-w-full overflow-auto rounded-lg border border-solid border-cui-line bg-cui-surface font-cui-serif text-[15px] focus-visible:outline-2 focus-visible:outline-cui-accent">{content()}</div>
     <dialog ref={dialog} aria-labelledby={titleId} className="cui-table-dialog" onClose={event => {
       if (event.currentTarget.open || !nativeOpened.current) return;
       nativeOpened.current = false;
-      setOpen(false);
-      if (active && trigger.current?.offsetParent) trigger.current.focus();
+      const element = event.currentTarget, revision = ++exitRevision.current;
+      setExiting(true); setOpen(false);
+      // Native close already returned focus. Preserve any newer host focus and
+      // retain the full dialog until its own CSS exit (not cell animations) ends.
+      void element.offsetHeight;
+      void Promise.allSettled(element.getAnimations().map(animation => animation.finished)).then(() => {
+        if (connected.current && revision === exitRevision.current && !element.open) setExiting(false);
+      });
     }}>
       <header className="mb-3 flex items-center justify-between gap-4"><h2 id={titleId} className="m-0 font-cui text-sm font-(--cui-bold)">{dialogTitle}</h2><IconButton aria-label={closeLabel} onClick={() => dialog.current?.close()}><Icon name="X" /></IconButton></header>
-      {open ? <div className="cui-table max-w-full overflow-auto rounded-lg border border-solid border-cui-line bg-cui-surface font-cui-serif text-[15px]">{content(true)}</div> : null}
+      {open || exiting ? <div className="cui-table max-w-full overflow-auto rounded-lg border border-solid border-cui-line bg-cui-surface font-cui-serif text-[15px]">{content(true)}</div> : null}
     </dialog>
   </div>;
 }

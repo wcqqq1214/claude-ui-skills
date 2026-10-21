@@ -166,3 +166,4 @@
 
 .cui-pinned-row, .cui-pinned-main, .cui-pinned-more, .cui-pinned-menu, .cui-pinned-menu button { box-sizing: border-box; }
 .cui-pinned-main, .cui-pinned-more { border: 0; font: inherit; cursor: pointer; }
+.cui-pinned-main { font-weight: var(--cui-medium); }

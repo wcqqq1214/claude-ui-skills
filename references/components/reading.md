@@ -35,7 +35,7 @@ The library receives code, table data and translated labels through props. CodeB
 - Tabular figures need font support and do not stop width changes when the digit count changes; keep the format fixed.
 - The edge-shadow masks use the table's panel color in each theme; keep them matched when theming.
 - Switching to the code/table view remeasures table overflow.
-- The expanded dialog renders the same translated table data and reuses its prose sizing; Escape closes it and returns focus.
+- The expanded dialog renders the same translated table data and reuses its prose sizing. Native close (including Escape) returns focus; its queued close event must preserve any newer focus chosen by the host. Keep the expanded content mounted through the dialog's closing transition, then release it; reopening invalidates the previous exit completion.
 - Activity cleanup releases the native modal without moving focus into the hidden view. Reconnection restores its retained open state; an obsolete close event must not empty that restored dialog or steal focus. A real native close before cleanup clears that intent even if its event is still queued, so redisplaying Activity keeps the table dismissed.
 - Offscreen or hidden number samples pause their interval; page visibility pauses and resumes it.
 

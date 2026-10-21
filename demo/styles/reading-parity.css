@@ -6,7 +6,12 @@
 .demo-type-user-stage { align-items: flex-end; }
 .demo-type-working-stage { align-items: center; }
 .demo-type-scroll-example { grid-column: 1 / -1; }
-@media (max-width: 620px) { .demo-type-effects { grid-template-columns: minmax(0, 1fr); gap: 16px; } }
+/* Only the fixed introduction reserves space; streamed paragraphs keep their natural height. */
+.demo-type-scroll-example .cui-scroll-content > div > p { min-height: 73px; }
+@media (max-width: 620px) {
+  .demo-type-effects { grid-template-columns: minmax(0, 1fr); gap: 16px; }
+  .demo-type-scroll-example .cui-scroll-content > div > p { min-height: 0; }
+}
 
 .demo-reading-card.demo-card { display: flex; flex-direction: column; padding: 22px; gap: 24px; }
 .demo-reading-tabs { align-self: flex-start; max-width: 100%; overflow-x: auto; }
