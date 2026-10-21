@@ -62,18 +62,25 @@ export function PinnedList({ items, onOrderChange, label, actionsLabel, menuLabe
     setPortalStyle(previous => previous.theme === theme && previous.direction === direction && previous.font === font ? previous : { theme, direction, font });
   }
   useLayoutEffect(() => {
-    latest.current = { items, onOrderChange }; menuKey.current = menuId;
+    latest.current = { items, onOrderChange };
     measureTitles(); positionMenu(); syncPortalStyle();
-    if (pendingFocus.current) { main(pendingFocus.current)?.focus({ preventScroll: true }); pendingFocus.current = null; }
+    const target = pendingFocus.current; pendingFocus.current = null;
+    if (active && target) main(target)?.focus({ preventScroll: true });
   });
   useLayoutEffect(() => {
     drag.current = createPinnedDrag(list.current!, stage.current!, { onMove: move, onCancel: () => setAnnouncement('cancelled'), onStart: () => close() });
     return () => { drag.current?.dispose(); drag.current = null; };
   }, []);
-  useLayoutEffect(() => { drag.current?.setActive(active); if (!active) close(); }, [active]);
+  useLayoutEffect(() => {
+    const dismiss = () => { pendingFocus.current = null; close(); };
+    drag.current?.setActive(active); if (!active) dismiss();
+    return dismiss;
+  }, [active]);
   useLayoutEffect(() => { drag.current?.cancel(); if (menuKey.current && !items.some(item => item.id === menuKey.current)) close(); }, [items]);
   useLayoutEffect(() => {
-    if (!menuId || !menu.current) return;
+    // A reconnect may still render the old menuId after cleanup cancelled it.
+    // Keep that render from restoring the dismissed menu's focus request.
+    if (!active || !menuId || menuKey.current !== menuId || !menu.current) return;
     menu.current.querySelector('.cui-pinned-menu-scroll')!.scrollTop = 0; positionMenu();
     (keyboardMenu.current ? menu.current.querySelector<HTMLButtonElement>('button') : menu.current)?.focus({ preventScroll: true });
     const observer = new ResizeObserver(positionMenu); observer.observe(menu.current);

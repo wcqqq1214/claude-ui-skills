@@ -1,4 +1,4 @@
-import { useId, useLayoutEffect, useRef, useState } from 'react';
+import { Fragment, useId, useLayoutEffect, useRef, useState } from 'react';
 import type { ReactNode } from 'react';
 import { Icon } from '../icons/Icon';
 import type { IconName } from '../icons/glyphs';
@@ -68,7 +68,7 @@ export function FileWorkspace({ files, labels, value, defaultValue, onValueChang
           ]} onValueChange={next => { if (view === undefined) setLocalView(next as WorkspaceView); onViewChange?.(next as WorkspaceView); }} /></div>
         </div>
         <article ref={content} tabIndex={-1} aria-label={selected?.name ?? labels.empty} className="cui-workspace-content">
-          {!selected ? <p>{labels.empty}</p> : mode === 'preview' ? selected.preview : <pre aria-label={`${selected.name} ${labels.source}`}>{selected.code.split('\n').map((line, index) => <span key={index} className="cui-workspace-code-line">{line || ' '}</span>)}</pre>}
+          {!selected ? <p>{labels.empty}</p> : mode === 'preview' ? <Fragment key={selected.id}>{selected.preview}</Fragment> : <pre aria-label={`${selected.name} ${labels.source}`}>{selected.code.split('\n').map((line, index) => <span key={index} className="cui-workspace-code-line">{line || ' '}</span>)}</pre>}
         </article>
       </div>
     </div>

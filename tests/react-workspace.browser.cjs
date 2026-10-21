@@ -2,6 +2,8 @@ const { setTheme, setLanguage, chooseChapter } = require('./demo-helpers.cjs');
 const assert = require('node:assert/strict');
 const { resolve } = require('node:path');
 const { chromium } = require(process.env.PLAYWRIGHT_MODULE || 'playwright-core');
+const { testPinnedActivityReconnect } = require('./pinned-activity-checks.cjs');
+const { testWorkspacePreviewIsolation } = require('./workspace-preview-checks.cjs');
 async function testResizeFocusReentry(page, base) {
   const errors = [];
   page.on('pageerror', error => errors.push(error.message));
@@ -49,6 +51,10 @@ async function testResizeFocusReentry(page, base) {
     browser = await chromium.launch({ executablePath: process.env.CHROME_BIN, headless: true });
     const reentryPage = await browser.newPage({ viewport: { width: 1280, height: 1000 } });
     await testResizeFocusReentry(reentryPage, base); await reentryPage.close();
+    const activityPage = await browser.newPage({ viewport: { width: 1280, height: 1000 } });
+    await testPinnedActivityReconnect(activityPage, base); await activityPage.close();
+    const previewPage = await browser.newPage({ viewport: { width: 1280, height: 1000 } });
+    await testWorkspacePreviewIsolation(previewPage, base); await previewPage.close();
     const systemPage = await browser.newPage({ viewport: { width: 1280, height: 1000 }, colorScheme: 'light' });
     await systemPage.goto(`${base}/demo/?lang=en#modes`);
     assert.equal(await systemPage.locator('.demo-topbar button[data-preference]').getAttribute('data-preference'), 'system');
