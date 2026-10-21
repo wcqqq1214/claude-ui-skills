@@ -3,6 +3,7 @@ const assert = require('node:assert/strict');
 const { resolve } = require('node:path');
 const { chromium } = require(process.env.PLAYWRIGHT_MODULE || 'playwright-core');
 const { testTooltipRequests } = require('./tooltip-request-checks.cjs');
+const { testCopyDelivery } = require('./copy-delivery-checks.cjs');
 
 (async () => {
   const { createServer } = await import('vite');
@@ -12,6 +13,8 @@ const { testTooltipRequests } = require('./tooltip-request-checks.cjs');
   let browser;
   try {
     browser = await chromium.launch({ executablePath: process.env.CHROME_BIN, headless: true });
+    const deliveryPage = await browser.newPage();
+    await testCopyDelivery(deliveryPage, base); await deliveryPage.close();
     const tooltipPage = await browser.newPage({ viewport: { width: 1280, height: 1000 } });
     await testTooltipRequests(tooltipPage, base); await tooltipPage.close();
     const page = await browser.newPage({ viewport: { width: 1280, height: 1000 } });

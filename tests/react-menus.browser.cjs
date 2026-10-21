@@ -2,6 +2,7 @@ const { setTheme, setLanguage, chooseChapter } = require('./demo-helpers.cjs');
 const assert = require('node:assert/strict');
 const { resolve } = require('node:path');
 const { chromium } = require(process.env.PLAYWRIGHT_MODULE || 'playwright-core');
+const { testMenuCallbackLifecycle } = require('./menu-callback-checks.cjs');
 
 async function testMenuActivity(page, base, kinds = ['artifact', 'submenu']) {
   const focused = locator => locator.evaluate(element => element === document.activeElement);
@@ -230,6 +231,8 @@ async function testMountHighlights(page, base) {
   let browser;
   try {
     browser = await chromium.launch({ executablePath: process.env.CHROME_BIN, headless: true });
+    const callbackPage = await browser.newPage();
+    await testMenuCallbackLifecycle(callbackPage, base); await callbackPage.close();
     const page = await browser.newPage({ viewport: { width: 1280, height: 1200 } });
     const errors = []; page.on('pageerror', error => errors.push(error.message));
     await testMenuActivity(page, base);

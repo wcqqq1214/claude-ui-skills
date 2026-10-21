@@ -19,18 +19,27 @@ export function SubmenuSelect({ label, submenuLabel, options, value, defaultValu
   const [local, setLocal] = useState(defaultValue), [level, updateLevel] = useState<0 | 1 | 2>(0), [preview, setPreview] = useState<string>();
   const selected = value ?? local, selectedOption = options.find(option => option.value === selected), id = useId();
   const root = useRef<HTMLDivElement>(null), trigger = useRef<HTMLButtonElement>(null), owner = useRef<HTMLButtonElement>(null), submenu = useRef<HTMLDivElement>(null);
-  const currentLevel = useRef<0 | 1 | 2>(0);
+  const currentLevel = useRef<0 | 1 | 2>(0), activeState = useRef(active), interaction = useRef(0);
   const enabled = options.filter(option => !option.disabled);
-  function setLevel(next: 0 | 1 | 2) { currentLevel.current = next; updateLevel(next); }
+  function setLevel(next: 0 | 1 | 2) { interaction.current++; currentLevel.current = next; updateLevel(next); }
   function close(restore = false) { setLevel(0); if (restore) trigger.current?.focus({ preventScroll: true }); }
   function focusSelection() {
     const buttons = [...submenu.current!.querySelectorAll<HTMLButtonElement>('button:not(:disabled)')];
     (buttons.find(button => button.dataset.value === selected) ?? buttons[0])?.focus({ preventScroll: true });
   }
   function openSubmenu() { if (level === 2) focusSelection(); else setLevel(2); }
+  function select(option: SubmenuOption) {
+    if (option.disabled || !activeState.current || currentLevel.current !== 2) return;
+    const current = interaction.current;
+    if (value === undefined) setLocal(option.value);
+    onValueChange?.(option.value);
+    // A synchronous host update owns any dismissal and new focus it causes.
+    if (current === interaction.current && activeState.current && currentLevel.current === 2 && root.current?.isConnected) close(true);
+  }
   useLayoutEffect(() => {
+    activeState.current = active;
     if (!active) close();
-    return () => close();
+    return () => { activeState.current = false; close(); };
   }, [active]);
   useLayoutEffect(() => {
     // A reconnect can run with the old level before cleanup's state update
@@ -57,7 +66,7 @@ export function SubmenuSelect({ label, submenuLabel, options, value, defaultValu
       }}>{submenuLabel}<span>{selectedOption?.label} <span aria-hidden="true">›</span></span></button>
     </div> : null}
     {level === 2 ? <div ref={submenu} id={`${id}-submenu`} role="menu" aria-label={submenuLabel} className="cui-local-menu cui-submenu">
-      {options.map(option => <button key={option.value} type="button" role="menuitemradio" tabIndex={-1} data-value={option.value} aria-checked={option.value === selected} disabled={option.disabled} onFocus={() => { setPreview(option.value); onPreviewChange?.(option.value); }} onClick={() => { if (value === undefined) setLocal(option.value); onValueChange?.(option.value); close(true); }} onKeyDown={event => {
+      {options.map(option => <button key={option.value} type="button" role="menuitemradio" tabIndex={-1} data-value={option.value} aria-checked={option.value === selected} disabled={option.disabled} onFocus={() => { setPreview(option.value); onPreviewChange?.(option.value); }} onClick={() => select(option)} onKeyDown={event => {
         if (['ArrowDown', 'ArrowUp', 'Home', 'End'].includes(event.key)) {
           event.preventDefault(); const buttons = [...submenu.current!.querySelectorAll<HTMLButtonElement>('button:not(:disabled)')], index = buttons.indexOf(event.currentTarget);
           const next = event.key === 'Home' ? 0 : event.key === 'End' ? buttons.length - 1 : (index + (event.key === 'ArrowDown' ? 1 : buttons.length - 1)) % buttons.length;

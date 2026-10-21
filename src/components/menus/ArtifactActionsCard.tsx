@@ -17,13 +17,14 @@ export type ArtifactActionsCardProps = {
 export function ArtifactActionsCard({ title, subtitle, image, actionsLabel, actions, active = true, className }: ArtifactActionsCardProps) {
   const id = useId(), root = useRef<HTMLDivElement>(null), trigger = useRef<HTMLButtonElement>(null), thumb = useRef<HTMLDivElement>(null), card = useRef<HTMLDivElement>(null), picture = useRef<HTMLImageElement>(null);
   const [open, setOpen] = useState(false), [opening, setOpening] = useState(false), [returning, setReturning] = useState(false);
-  const openState = useRef(false), activeState = useRef(active), origin = useRef<DOMRect | null>(null), returnFrom = useRef<DOMRect | null>(null), focusFrame = useRef(0);
+  const openState = useRef(false), activeState = useRef(active), interaction = useRef(0), origin = useRef<DOMRect | null>(null), returnFrom = useRef<DOMRect | null>(null), focusFrame = useRef(0);
   const enabledButtons = () => [...(card.current?.querySelectorAll<HTMLButtonElement>('button:not(:disabled)') ?? [])];
   function cancelFocus() { cancelAnimationFrame(focusFrame.current); focusFrame.current = 0; }
   function clearReturn() {
     setReturning(false); thumb.current?.style.removeProperty('--cui-thumb-from-x'); thumb.current?.style.removeProperty('--cui-thumb-from-y');
   }
   function close(restore = true, animate = true) {
+    interaction.current++;
     cancelFocus();
     returnFrom.current = animate && openState.current && activeState.current ? card.current?.getBoundingClientRect() ?? null : null;
     openState.current = false; clearReturn(); setOpen(false); setOpening(false);
@@ -32,6 +33,7 @@ export function ArtifactActionsCard({ title, subtitle, image, actionsLabel, acti
   function toggle() {
     if (openState.current) return close();
     if (!activeState.current) return;
+    interaction.current++;
     origin.current = thumb.current?.getBoundingClientRect() ?? null;
     returnFrom.current = null; clearReturn(); cancelFocus(); setOpening(false);
     openState.current = true; setOpen(true);
@@ -74,7 +76,13 @@ export function ArtifactActionsCard({ title, subtitle, image, actionsLabel, acti
     if (!openState.current || !(event.key === 'Escape' || event.key === 'ArrowLeft' || event.key === 'Enter' && event.altKey && !event.metaKey && !event.ctrlKey && !event.shiftKey)) return false;
     event.preventDefault(); event.stopPropagation(); if (!event.repeat) close(); return true;
   }
-  function activate(action: ArtifactAction) { if (action.disabled) return; action.onSelect(); close(); }
+  function activate(action: ArtifactAction) {
+    if (action.disabled || !activeState.current || !openState.current) return;
+    const current = interaction.current;
+    action.onSelect();
+    // Host callbacks may disconnect this menu or start another interaction.
+    if (current === interaction.current && activeState.current && openState.current && root.current?.isConnected) close();
+  }
   return <div ref={root} className={classes('font-cui text-cui-text', className)}>
     <div className="flex items-center gap-2.5 rounded-md bg-(--cui-menu-hover) px-2.5 py-2">
       <Icon name="File" size={20} /><span className="min-w-0 flex-1 overflow-hidden text-[13px] text-ellipsis whitespace-nowrap">{title}</span>

@@ -24,7 +24,7 @@ export function useClipboard() {
     window.addEventListener('pagehide', leave);
     return () => { invalidate(); window.removeEventListener('pagehide', leave); };
   }, []);
-  async function copy(text: string) {
+  async function copy(text: string, onResult?: (copied: boolean) => void) {
     const current = ++request.current;
     let copied = false;
     try {
@@ -55,6 +55,13 @@ export function useClipboard() {
     setState(copied ? 'copied' : 'failed');
     expiresAt.current = copied ? Date.now() + 2000 : undefined;
     resumeFeedback();
+    if (onResult) {
+      // Preserve the consumer's delivery turn, but recheck ownership after it.
+      // A completed write can be superseded or disconnected before delivery.
+      await Promise.resolve();
+      if (current !== request.current) return;
+      onResult(copied);
+    }
     return copied;
   }
   return { state, copy };
