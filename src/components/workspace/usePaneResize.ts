@@ -70,7 +70,7 @@ export function usePaneResize({ root, layout, list, handle, defaultWidth, expand
     render(state.width + delta);
   }
   function keyDown(event: KeyboardEvent<HTMLDivElement>) {
-    if (event.metaKey || event.ctrlKey || event.altKey || event.nativeEvent.isComposing || drag.current || !active || expanded) return;
+    if (event.metaKey || event.ctrlKey || event.altKey || event.nativeEvent.isComposing || drag.current || !owner.current.connected || !owner.current.active || owner.current.expanded) return;
     let next: number;
     if (event.key === 'ArrowLeft') next = measured() - (event.shiftKey ? 32 : 8);
     else if (event.key === 'ArrowRight') next = measured() + (event.shiftKey ? 32 : 8);

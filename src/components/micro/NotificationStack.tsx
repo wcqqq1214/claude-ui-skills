@@ -67,11 +67,17 @@ export function NotificationStack({ ref, dismissLabel, label, mode = 'stack', de
     return item.id;
   }, [commit, mode, prefix]);
   const runAction = useCallback((item: Notice) => {
+    const element = root.current;
     item.action!.onClick();
     // A host callback can synchronously replace this ID, before or during a
     // React commit. The old action only dismisses the version that invoked it.
-    if (snapshot.current.includes(item)) dismiss(item.id);
-  }, [dismiss]);
+    if (!snapshot.current.includes(item)) return;
+    if (alive.current) dismiss(item.id);
+    // An accepted action still closes its unchanged notice if the callback
+    // hid retained DOM. A true unmount stays silent; hidden completion must
+    // not arrange focus restoration on the next Activity connection.
+    else if (element?.isConnected) commit(snapshot.current.map(value => value === item ? { ...value, exiting: true } : value));
+  }, [commit, dismiss]);
   // A callback ref or a host layout effect may notify as soon as the handle is
   // attached, including an Activity reconnection. Invalidate old handles during
   // layout cleanup so a real unmount still rejects later imperative calls.

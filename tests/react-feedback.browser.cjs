@@ -2,6 +2,7 @@ const { setTheme, setLanguage, chooseChapter } = require('./demo-helpers.cjs');
 const assert = require('node:assert/strict');
 const { resolve } = require('node:path');
 const { chromium } = require(process.env.PLAYWRIGHT_MODULE || 'playwright-core');
+const { testStatusCommitDelivery } = require('./status-notice-lifecycle-checks.cjs');
 
 (async () => {
   const { createServer } = await import('vite');
@@ -107,6 +108,8 @@ const { chromium } = require(process.env.PLAYWRIGHT_MODULE || 'playwright-core')
     } finally { global.Image = originalImage; global.setTimeout = originalSetTimeout; global.clearTimeout = originalClearTimeout; }
 
     browser = await chromium.launch({ executablePath: process.env.CHROME_BIN, headless: true });
+    const commitPage = await browser.newPage({ viewport: { width: 1280, height: 1000 } });
+    await testStatusCommitDelivery(commitPage, base); await commitPage.close();
     const page = await browser.newPage({ viewport: { width: 1280, height: 1000 } });
     const errors = [];
     page.on('pageerror', error => errors.push(error.message));

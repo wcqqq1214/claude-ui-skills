@@ -4,8 +4,11 @@ const { withDevBrowser } = require('./dev-browser.cjs');
 const { testTooltipRequests } = require('./tooltip-request-checks.cjs');
 const { testCopyDelivery } = require('./copy-delivery-checks.cjs');
 const { testNotificationRepeat } = require('./notification-repeat-checks.cjs');
+const { testNotificationActionHide } = require('./status-notice-lifecycle-checks.cjs');
 
 withDevBrowser(async ({ browser, base }) => {
+    const actionHidePage = await browser.newPage({ viewport: { width: 1280, height: 1000 } });
+    await testNotificationActionHide(actionHidePage, base); await actionHidePage.close();
     const deliveryPage = await browser.newPage();
     await testCopyDelivery(deliveryPage, base); await deliveryPage.close();
     const tooltipPage = await browser.newPage({ viewport: { width: 1280, height: 1000 } });

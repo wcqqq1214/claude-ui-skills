@@ -2,6 +2,7 @@ const { setTheme, setLanguage, chooseChapter } = require('./demo-helpers.cjs');
 const assert = require('node:assert/strict');
 const { withDevBrowser } = require('./dev-browser.cjs');
 const { testMenuCallbackLifecycle } = require('./menu-callback-checks.cjs');
+const { testSubmenuCaptureHide } = require('./capture-lifecycle-checks.cjs');
 
 async function testMenuActivity(page, base, kinds = ['artifact', 'submenu']) {
   const focused = locator => locator.evaluate(element => element === document.activeElement);
@@ -224,6 +225,8 @@ async function testMountHighlights(page, base) {
 }
 
 withDevBrowser(async ({ browser, base }) => {
+    const capturePage = await browser.newPage({ viewport: { width: 1280, height: 1000 } });
+    await testSubmenuCaptureHide(capturePage, base); await capturePage.close();
     const callbackPage = await browser.newPage();
     await testMenuCallbackLifecycle(callbackPage, base); await callbackPage.close();
     const page = await browser.newPage({ viewport: { width: 1280, height: 1200 } });

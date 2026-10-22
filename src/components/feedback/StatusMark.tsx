@@ -22,9 +22,11 @@ export function StatusMark({ activity, running = true, active = true, replayKey,
   const callbacks = useRef({ onActivityEnter, onComplete });
   const visible = useVisible(root, active);
   useLayoutEffect(() => { callbacks.current = { onActivityEnter, onComplete }; });
-  useEffect(() => {
+  useLayoutEffect(() => {
     const instance = playback.current ??= createStatusPlayback(root.current!, strip.current!, value => callbacks.current.onActivityEnter?.(value), () => callbacks.current.onComplete?.());
     instance.connect();
+    // Invalidate playback during the hide/unmount commit, before external
+    // layout effects can settle an animation while passive cleanup is pending.
     return () => instance.disconnect();
   }, []);
   // A fresh run is explicit. Activity changes only select the next authored handoff.

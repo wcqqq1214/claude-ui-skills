@@ -7,11 +7,23 @@ import '../styles/reading-parity.css';
 
 function NumberSample({ locale, active }: { locale: Locale; active: boolean }) {
   const ref = useRef<HTMLDivElement>(null), visible = useVisible(ref, active);
+  const pageActive = useRef(true);
   const [frame, setFrame] = useState(0);
+  // A retained Activity reconnects on the live page, even if its effects missed pageshow.
+  useEffect(() => { pageActive.current = true; }, []);
   useEffect(() => {
-    if (!visible) return;
-    const timer = setInterval(() => setFrame(value => (value + 7) % 6000), 50);
-    return () => clearInterval(timer);
+    let timer: ReturnType<typeof setInterval> | undefined;
+    const stop = () => { clearInterval(timer); timer = undefined; };
+    const sync = () => {
+      stop();
+      if (visible && pageActive.current && !document.hidden) timer = setInterval(() => setFrame(value => (value + 7) % 6000), 50);
+    };
+    const hide = () => { pageActive.current = false; stop(); };
+    const show = () => { pageActive.current = true; sync(); };
+    window.addEventListener('pagehide', hide);
+    window.addEventListener('pageshow', show);
+    sync();
+    return () => { stop(); window.removeEventListener('pagehide', hide); window.removeEventListener('pageshow', show); };
   }, [visible]);
   const t = (text: string) => translate(locale, text);
   const text = `00:${String(Math.floor(frame / 100)).padStart(2, '0')}.${String(frame % 100).padStart(2, '0')}`;

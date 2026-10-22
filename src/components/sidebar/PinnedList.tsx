@@ -28,7 +28,7 @@ export function PinnedList({ items, onOrderChange, label, actionsLabel, menuLabe
   const [announcement, setAnnouncement] = useState<{ id: string; position: number } | 'cancelled' | null>(null), [portalStyle, setPortalStyle] = useState({ theme: 'light', direction: 'ltr' as 'ltr' | 'rtl', font: '' });
   const selected = value ?? local, menuIndex = items.findIndex(item => item.id === menuId), id = useId();
   const stage = useRef<HTMLDivElement>(null), list = useRef<HTMLOListElement>(null), menu = useRef<HTMLDivElement>(null), drag = useRef<ReturnType<typeof createPinnedDrag> | null>(null);
-  const latest = useRef({ items, onOrderChange }), menuKey = useRef(menuId), keyboardMenu = useRef(false), pendingFocus = useRef<string | null>(null);
+  const latest = useRef({ items, onOrderChange, active }), menuKey = useRef(menuId), keyboardMenu = useRef(false), pendingFocus = useRef<string | null>(null);
   const interruptedDrag = useRef(false);
   const row = (key: string) => [...(list.current?.children ?? [])].find(node => (node as HTMLElement).dataset.pin === key) as HTMLLIElement | undefined;
   const main = (key: string) => row(key)?.querySelector<HTMLButtonElement>('.cui-pinned-main');
@@ -63,7 +63,7 @@ export function PinnedList({ items, onOrderChange, label, actionsLabel, menuLabe
     setPortalStyle(previous => previous.theme === theme && previous.direction === direction && previous.font === font ? previous : { theme, direction, font });
   }
   useLayoutEffect(() => {
-    latest.current = { items, onOrderChange };
+    latest.current = { items, onOrderChange, active };
     measureTitles(); positionMenu(); syncPortalStyle();
     const target = pendingFocus.current; pendingFocus.current = null;
     if (active && target) main(target)?.focus({ preventScroll: true });
@@ -134,7 +134,7 @@ export function PinnedList({ items, onOrderChange, label, actionsLabel, menuLabe
       {items.map(item => <li key={item.id} data-pin={item.id} data-selected={selected === item.id || undefined} data-menu-open={menuId === item.id || undefined} className="cui-pinned-row">
         <button type="button" className="cui-pinned-main" tabIndex={item.id === (items.some(option => option.id === tabId) ? tabId : items[0]?.id) ? 0 : -1} aria-current={selected === item.id ? 'page' : undefined} onClick={() => { if (value === undefined) setLocal(item.id); onValueChange?.(item.id); }}><span className="cui-pinned-title"><span>{item.title}</span></span></button>
         <button type="button" className="cui-pinned-more" tabIndex={-1} disabled={items.length < 2} aria-label={actionsLabel(item)} aria-haspopup="menu" aria-expanded={menuId === item.id} aria-controls={menuId === item.id ? id : undefined} onClick={event => {
-          if (!active) return;
+          if (!drag.current || !latest.current.active) return;
           drag.current?.cancel(); if (menuKey.current === item.id) return close(true);
           keyboardMenu.current = event.detail === 0; setHighlighted(null); menuKey.current = item.id; setMenuId(item.id);
         }} onKeyDown={event => { if (event.repeat && ['Enter', ' '].includes(event.key)) event.preventDefault(); }}><Icon name="DotsVertical" /></button>

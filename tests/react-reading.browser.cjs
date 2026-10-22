@@ -2,6 +2,7 @@ const { setTheme, setLanguage, chooseChapter } = require('./demo-helpers.cjs');
 const { testTableExitLifecycle } = require('./table-exit-checks.cjs');
 const assert = require('node:assert/strict');
 const { withDevBrowser } = require('./dev-browser.cjs');
+const { testReadingPageLifecycle, testWorkingPageLifecycle } = require('./page-lifecycle-checks.cjs');
 
 async function testReturnFocusReentry(page, base) {
   const errors = [];
@@ -57,6 +58,10 @@ withDevBrowser(async ({ browser, base }) => {
     await testTableExitLifecycle(tableExitPage, base); await tableExitPage.close();
     console.log('Table exit: newer external focus, retained closing content, reopening and Activity lifetimes passed in StrictMode off/on.');
     if (process.env.TABLE_EXIT_ONLY) return;
+    const pageLifecycle = await browser.newPage({ viewport: { width: 1280, height: 1000 } });
+    await testReadingPageLifecycle(pageLifecycle, base); await pageLifecycle.close();
+    const workingLifecycle = await browser.newPage({ viewport: { width: 1280, height: 1000 } });
+    await testWorkingPageLifecycle(workingLifecycle, base); await workingLifecycle.close();
     const returnPage = await browser.newPage({ viewport: { width: 1280, height: 1000 } });
     await testReturnFocusReentry(returnPage, base); await returnPage.close();
     // In a short window the Replay button is fully visible while its stream

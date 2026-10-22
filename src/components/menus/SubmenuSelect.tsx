@@ -27,7 +27,7 @@ export function SubmenuSelect({ label, submenuLabel, options, value, defaultValu
     const buttons = [...submenu.current!.querySelectorAll<HTMLButtonElement>('button:not(:disabled)')];
     (buttons.find(button => button.dataset.value === selected) ?? buttons[0])?.focus({ preventScroll: true });
   }
-  function openSubmenu() { if (level === 2) focusSelection(); else setLevel(2); }
+  function openSubmenu() { if (!activeState.current) return; if (level === 2) focusSelection(); else setLevel(2); }
   function select(option: SubmenuOption) {
     if (option.disabled || !activeState.current || currentLevel.current !== 2) return;
     const current = interaction.current;
@@ -55,7 +55,8 @@ export function SubmenuSelect({ label, submenuLabel, options, value, defaultValu
     return () => { document.removeEventListener('pointerdown', outside); document.removeEventListener('focusin', outside); window.removeEventListener('pagehide', leave); };
   }, []);
   return <div ref={root} className={classes('relative min-h-[42px] font-cui text-cui-text', className)}>
-    <button ref={trigger} type="button" aria-haspopup="menu" aria-expanded={level > 0} aria-controls={level ? `${id}-parent` : undefined} disabled={!enabled.length} onClick={() => level ? close(true) : setLevel(1)} onKeyDown={event => {
+    <button ref={trigger} type="button" aria-haspopup="menu" aria-expanded={level > 0} aria-controls={level ? `${id}-parent` : undefined} disabled={!enabled.length} onClick={() => { if (activeState.current) level ? close(true) : setLevel(1); }} onKeyDown={event => {
+      if (!activeState.current) return;
       if (['ArrowDown', 'ArrowUp'].includes(event.key)) { event.preventDefault(); setLevel(1); }
       if (event.key === 'Escape' && level) { event.preventDefault(); close(true); }
     }} className="cui-submenu-trigger inline-block cursor-pointer rounded-[7px] border border-solid border-transparent bg-cui-surface px-[13px] py-2 text-xs leading-[1.6] font-(--cui-medium) whitespace-nowrap disabled:cursor-default disabled:opacity-50 focus-visible:outline-2 focus-visible:outline-cui-accent">{label} <span aria-hidden="true">⌄</span></button>
