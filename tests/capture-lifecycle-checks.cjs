@@ -26,22 +26,26 @@ async function assertInterrupted(page, retained, action, context) {
   assert.deepEqual((await state(page)).changes, [], `${context}: reconnect and true unmount stay silent`);
 }
 
-async function testSubmenuCaptureHide(page, base) {
+async function testSubmenuCaptureHide(page, base, interactions = ['trigger-click', 'trigger-down', 'trigger-up', 'owner-click', 'owner-right', ...['Escape', 'ArrowLeft', 'ArrowDown', 'ArrowUp', 'Home', 'End'].map(key => `option-${key}`)]) {
   const errors = [], onError = error => errors.push(error.message);
   page.on('pageerror', onError);
   try {
-    for (const strict of ['off', 'on']) for (const action of ['hide', 'hide-inactive', 'inactive', 'unmount']) for (const interaction of ['trigger-click', 'trigger-down', 'trigger-up', 'owner-click', 'owner-right']) {
+    for (const strict of ['off', 'on']) for (const action of ['hide', 'hide-inactive', 'inactive', 'unmount']) for (const interaction of interactions) {
       const context = `submenu/${strict}/${action}/${interaction}`;
+      const optionKey = interaction.startsWith('option-') ? interaction.slice('option-'.length) : null;
       await visit(page, base, 'submenu', strict, action, interaction.endsWith('click') ? 'click' : 'keydown');
       const retained = await page.locator('[data-capture-owner]').elementHandle(), trigger = page.getByRole('button', { name: 'Model settings', exact: false });
-      if (interaction.startsWith('owner')) await trigger.click();
+      if (interaction.startsWith('owner') || optionKey) await trigger.click();
+      if (optionKey) await page.getByRole('menu', { name: 'Model settings', exact: true }).getByRole('menuitem').press('ArrowRight');
       await control(page, 'arm');
-      if (interaction === 'trigger-click') await trigger.click();
+      if (optionKey) await page.getByRole('menuitemradio', { name: 'High', exact: true }).press(optionKey);
+      else if (interaction === 'trigger-click') await trigger.click();
       else if (interaction.startsWith('trigger')) await trigger.press(interaction === 'trigger-down' ? 'ArrowDown' : 'ArrowUp');
       else {
         const owner = page.getByRole('menu', { name: 'Model settings', exact: true }).getByRole('menuitem');
         if (interaction === 'owner-click') await owner.click(); else await owner.press('ArrowRight');
       }
+      assert.deepEqual(errors, [], `${context}: the obsolete key cannot access detached submenu refs`);
       await assertInterrupted(page, retained, action, context);
       assert.equal(await page.getByRole('menu').count(), 0, `${context}: an obsolete open request never survives reconnection`);
       assert.equal(await trigger.getAttribute('aria-expanded'), 'false');
@@ -51,11 +55,24 @@ async function testSubmenuCaptureHide(page, base) {
       const owner = page.getByRole('menu', { name: 'Model settings', exact: true }).getByRole('menuitem');
       assert.equal(await focused(owner), true, `${context}: a fresh request still focuses the parent item`);
       await owner.press('ArrowRight');
-      await page.getByRole('menuitemradio', { name: 'Low', exact: true }).click();
+      const high = page.getByRole('menuitemradio', { name: 'High', exact: true }), low = page.getByRole('menuitemradio', { name: 'Low', exact: true });
+      if (optionKey) {
+        assert.equal(await focused(high), true, `${context}: fresh entry focuses the committed option`);
+        await high.press(optionKey);
+        if (['Escape', 'ArrowLeft'].includes(optionKey)) {
+          assert.equal(await focused(owner), true, `${context}: a fresh return key focuses the parent item`);
+          assert.equal(await page.getByRole('menuitemradio').count(), 0);
+          await owner.press('ArrowRight');
+        } else assert.equal(await focused(optionKey === 'End' ? high : low), true, `${context}: fresh navigation retains wrap and endpoint behavior`);
+        await page.keyboard.press('Home');
+        assert.equal(await focused(low), true, `${context}: fresh keyboard navigation can reach a selection`);
+        await low.press('Enter');
+      } else await low.click();
       assert.deepEqual((await state(page)).changes, ['low'], `${context}: fresh selection emits exactly once`);
       assert.equal(await focused(trigger), true, `${context}: fresh selection returns focus`);
       // A normal retained reconnect still dismisses an existing menu.
-      await trigger.click(); await control(page, 'hide'); await frames(page); await control(page, 'restore'); await frames(page);
+      await trigger.click(); if (optionKey) await owner.press('ArrowRight');
+      await control(page, 'hide'); await frames(page); await control(page, 'restore'); await frames(page);
       assert.equal(await page.getByRole('menu').count(), 0);
       assert.equal(await focused(page.getByRole('textbox', { name: 'Outside draft', exact: true })), true);
       assert.deepEqual((await state(page)).changes, ['low']);

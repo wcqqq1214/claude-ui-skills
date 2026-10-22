@@ -16,7 +16,7 @@ function Consumer() {
   const [order, setOrder] = useState(['a', 'b', 'c']), outside = useRef<HTMLInputElement>(null);
   function capture(event: MouseEvent<HTMLDivElement> | KeyboardEvent<HTMLDivElement>) {
     const target = event.target as HTMLElement;
-    if (!armed || !(kind === 'pinned' ? target.closest('.cui-pinned-more') : kind === 'pane' ? target.closest('[role="separator"]') : target.closest('button[aria-haspopup="menu"]'))) return;
+    if (!armed || !(kind === 'pinned' ? target.closest('.cui-pinned-more') : kind === 'pane' ? target.closest('[role="separator"]') : target.closest('button[aria-haspopup="menu"], button[role="menuitemradio"]'))) return;
     // Moving focus during capture otherwise lets Space's native text insertion
     // target the outside input. The obsolete bubble handler must still be silent.
     if (kind === 'pane' && 'key' in event && event.key === ' ') event.preventDefault();

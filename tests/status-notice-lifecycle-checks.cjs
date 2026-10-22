@@ -136,4 +136,80 @@ async function testNotificationActionHide(page, base) {
     }
   } finally { page.off('pageerror', onError); page.off('console', onConsole); }
 }
-module.exports = { testStatusCommitDelivery, testNotificationActionHide };
+
+async function testStatusReconnectRequests(page, base) {
+  const errors = [], onError = error => errors.push(error.message), onConsole = message => { if (message.type() === 'error') errors.push(message.text()); };
+  page.on('pageerror', onError); page.on('console', onConsole);
+  await page.addInitScript(() => {
+    if (!location.pathname.endsWith('/reconnect-request.html')) return;
+    const animate = Element.prototype.animate;
+    Element.prototype.animate = function (...args) {
+      const animation = animate.apply(this, args), play = animation.play.bind(animation);
+      animation.pause(); animation.currentTime = 0;
+      animation.play = () => { play(); animation.pause(); };
+      return animation;
+    };
+  });
+  const mark = () => page.locator('[data-status-reconnect]');
+  const phase = value => page.waitForFunction(value => document.querySelector('[data-status-reconnect]')?.dataset.phase === value, value);
+  const events = () => page.evaluate(() => window.statusReconnect.events);
+  const count = async type => (await events()).filter(event => event.type === type).length;
+  const finish = async next => {
+    await mark().evaluate(element => element.firstElementChild.getAnimations().find(animation => animation.playState === 'paused').finish());
+    await phase(next);
+  };
+  const settleCommit = () => page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
+  try {
+    for (const strict of ['off', 'on']) for (const interrupted of ['grow', 'out']) for (const request of interrupted === 'grow' ? ['replay'] : ['replay', 'resume']) for (const delivery of ['hidden', 'reveal']) {
+      const context = `${strict}/${interrupted}/${request}/${delivery}`;
+      await page.goto(`${base}/tests/fixtures/react-feedback/reconnect-request.html?strict=${strict}`);
+      await phase('grow');
+      if (interrupted === 'out') {
+        await finish('think-in'); await finish('think-loop');
+        await page.evaluate(() => window.statusReconnect.finish()); await finish('think-out');
+      }
+      const original = await mark().elementHandle(), entered = await count('enter'), completed = await count('complete');
+      await mark().evaluate(element => { element.firstElementChild.getAnimations().find(animation => animation.playState === 'paused').currentTime = 120; });
+      await page.getByRole('textbox', { name: 'Outside reconnect focus', exact: true }).focus();
+      await page.evaluate(() => window.statusReconnect.hide());
+      assert.equal(await original.evaluate(element => element.isConnected && !element.getClientRects().length), true, `${context}: Activity really hides retained DOM`);
+      if (delivery === 'hidden') await page.evaluate(request => window.statusReconnect.prepare(request), request);
+      await page.evaluate(request => window.statusReconnect.show(request, true), delivery === 'hidden' ? null : request);
+      await page.waitForFunction(() => window.statusReconnect.events.some(event => event.type === 'reveal-layout'));
+      await settleCommit();
+      const revealed = (await events()).find(event => event.type === 'reveal-layout');
+      assert.equal(revealed.connected && revealed.visible, true, `${context}: external layout completion runs after the retained DOM is shown`);
+      assert.equal(await mark().evaluate((element, old) => element === old, original), true, `${context}: revealing keeps the same StatusMark DOM`);
+      assert.equal(await count('complete'), completed, `${context}: a new request cancels the old exit completion before external layout settlement`);
+      if (request === 'replay') {
+        await phase('grow');
+        assert.equal(await count('enter'), entered, `${context}: the old grow cannot enter before the new grow completes`);
+        await finish('think-in'); await finish('think-loop');
+      } else {
+        // If connection itself waits for passive effects, the host layout has
+        // no animation to complete. It is equally valid to retain that exit
+        // until its normal finish; the cancelled completion must stay silent.
+        const resumedPhase = await mark().getAttribute('data-phase');
+        assert.ok(['think-out', 'think-in'].includes(resumedPhase), `${context}: resuming cancels completion and retains the authored handoff`);
+        if (resumedPhase === 'think-out') await finish('think-in');
+        await finish('think-loop');
+      }
+      assert.equal(await count('enter'), entered + 1, `${context}: only the selected run enters once`);
+      // A plain reconnect still resumes the exact frame without replaying the
+      // selected run or repeating callbacks, after the interrupted request.
+      await mark().evaluate(element => { element.firstElementChild.getAnimations().find(animation => animation.playState === 'paused').currentTime = 120; });
+      await page.evaluate(() => { window.statusReconnect.hide(); window.statusReconnect.show(null, false); });
+      await page.waitForFunction(() => window.statusReconnect.events.filter(event => event.type === 'reveal-layout').length === 2);
+      await phase('think-loop'); await settleCommit();
+      await page.waitForFunction(() => document.querySelector('[data-status-reconnect]').firstElementChild.getAnimations().some(animation => animation.playState === 'paused'));
+      assert.equal(await mark().evaluate(element => element.firstElementChild.getAnimations().find(animation => animation.playState === 'paused').currentTime), 120, `${context}: ordinary reconnect preserves the current animation frame`);
+      assert.equal(await count('enter'), entered + 1, `${context}: ordinary reconnect does not repeat entry`);
+      await page.evaluate(() => window.statusReconnect.finish()); await finish('think-out'); await finish('done');
+      await page.waitForFunction(count => window.statusReconnect.events.filter(event => event.type === 'complete').length === count, completed + 1);
+      assert.equal(await count('complete'), completed + 1, `${context}: normal fresh completion is delivered exactly once`);
+      assert.equal(await page.getByRole('textbox', { name: 'Outside reconnect focus', exact: true }).evaluate(element => element === document.activeElement), true, `${context}: playback preserves external focus`);
+      await original.dispose(); assert.deepEqual(errors, [], context);
+    }
+  } finally { page.off('pageerror', onError); page.off('console', onConsole); }
+}
+module.exports = { testStatusCommitDelivery, testNotificationActionHide, testStatusReconnectRequests };

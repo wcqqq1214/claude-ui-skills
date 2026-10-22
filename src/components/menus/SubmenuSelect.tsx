@@ -68,6 +68,7 @@ export function SubmenuSelect({ label, submenuLabel, options, value, defaultValu
     </div> : null}
     {level === 2 ? <div ref={submenu} id={`${id}-submenu`} role="menu" aria-label={submenuLabel} className="cui-local-menu cui-submenu">
       {options.map(option => <button key={option.value} type="button" role="menuitemradio" tabIndex={-1} data-value={option.value} aria-checked={option.value === selected} disabled={option.disabled} onFocus={() => { setPreview(option.value); onPreviewChange?.(option.value); }} onClick={() => select(option)} onKeyDown={event => {
+        if (!activeState.current || currentLevel.current !== 2) return;
         if (['ArrowDown', 'ArrowUp', 'Home', 'End'].includes(event.key)) {
           event.preventDefault(); const buttons = [...submenu.current!.querySelectorAll<HTMLButtonElement>('button:not(:disabled)')], index = buttons.indexOf(event.currentTarget);
           const next = event.key === 'Home' ? 0 : event.key === 'End' ? buttons.length - 1 : (index + (event.key === 'ArrowDown' ? 1 : buttons.length - 1)) % buttons.length;
