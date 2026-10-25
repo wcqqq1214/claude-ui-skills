@@ -46,6 +46,49 @@ async function testStandaloneButtons(page, base) {
   assert.deepEqual(failures, []);
 }
 
+async function testAccordionTypography(page, base) {
+  for (const strict of ['off', 'on']) {
+    await page.goto(`${base}/tests/fixtures/react-visual-parity/?strict=${strict}`);
+    const section = page.getByRole('region', { name: 'Accordion typography', exact: true });
+    const trigger = section.getByRole('button', { name: 'Custom disclosure', exact: true });
+    const draft = section.getByRole('textbox', { name: 'Disclosure draft' });
+    await trigger.waitFor();
+    await trigger.evaluate(node => { window.typographyTrigger = node; });
+    for (const theme of ['Light', 'Dark']) {
+      await page.getByRole('button', { name: `${theme} theme`, exact: true }).click();
+      const regular = theme === 'Light' ? '400' : '360';
+      const expected = [
+        ['Custom disclosure', '12px', '500', '19.2px', 'mono'],
+        // text-xs supplies both the font size and its default line height.
+        ['Size override', '12px', regular, '16px', 'sans'],
+        ['Weight override', '18px', '500', '32.4px', 'sans'],
+        ['Line height override', '18px', regular, '28.8px', 'sans'],
+        ['Family override', '18px', regular, '32.4px', 'mono'],
+      ];
+      async function typography(phase) {
+        for (const [name, size, weight, lineHeight, family] of expected) {
+          const actual = await section.getByRole('button', { name, exact: true }).evaluate((node, family) => {
+            const probe = document.createElement('span'); probe.style.fontFamily = `var(--cui-font-${family})`; node.append(probe);
+            const expectedFamily = getComputedStyle(probe).fontFamily; probe.remove();
+            const style = getComputedStyle(node);
+            return { size: style.fontSize, weight: style.fontWeight, lineHeight: style.lineHeight, family: style.fontFamily, expectedFamily };
+          }, family);
+          assert.deepEqual(actual, { size, weight, lineHeight, family: actual.expectedFamily, expectedFamily: actual.expectedFamily }, `${strict}/${theme}/${phase}/${name}: explicit utilities override defaults; unspecified properties inherit`);
+        }
+      }
+      await typography('visible');
+      await draft.fill('retained draft');
+      const toggle = page.getByRole('button', { name: 'Toggle typography Activity', exact: true });
+      await toggle.click(); await section.waitFor({ state: 'hidden' });
+      await toggle.click(); await section.waitFor({ state: 'visible' });
+      assert.equal(await trigger.evaluate(node => node === window.typographyTrigger), true, 'Activity retains the trigger DOM');
+      assert.equal(await draft.inputValue(), 'retained draft');
+      assert.equal(await toggle.evaluate(node => node === document.activeElement), true, 'reconnection preserves outside focus');
+      await typography('reconnected');
+    }
+  }
+}
+
 async function testSearchInitialFocus(page, base) {
   for (const strict of ['off', 'on']) for (const autoFocus of [true, false]) {
     const context = `${strict}/autoFocus=${autoFocus}`;
@@ -146,4 +189,4 @@ async function testDemoOriginalCopy(page, base) {
   }
 }
 
-module.exports = { testStandaloneButtons, testSearchInitialFocus, testGalleryEffects, testDemoOriginalCopy };
+module.exports = { testAccordionTypography, testStandaloneButtons, testSearchInitialFocus, testGalleryEffects, testDemoOriginalCopy };

@@ -87,6 +87,10 @@
 .cui-skeleton[data-active='false'] .cui-skeleton-band { animation-play-state: paused; }
 @keyframes cui-skeleton-enter { from { opacity: 0; } to { opacity: 1; } }
 @keyframes cui-skeleton-wave { from { transform: translateX(-100%); } to { transform: translateX(100%); } }
+/* Defaults inherit from the host; triggerClassName utilities can override them. */
+@layer components {
+  .cui-accordion-trigger { font: inherit; }
+}
 .cui-accordion {
   display: grid; grid-template-rows: 0fr; opacity: 0;
   transition: grid-template-rows 200ms cubic-bezier(.19,1,.22,1), opacity 200ms cubic-bezier(.19,1,.22,1);
