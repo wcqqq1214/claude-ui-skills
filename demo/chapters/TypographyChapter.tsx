@@ -36,7 +36,7 @@ export function TypographyChapter({ locale, active }: { locale: Locale; active: 
       </button></div>
     </EffectCard>
     <EffectCard title={t('Scroll following')} replayLabel={t('Replay scroll following')} onReplay={stream.replay} parameters={t('Scroll up to pause · Return to follow')} className="demo-type-scroll-example">
-      <div ref={scrollRef} className="mt-4"><ScrollFollower label={t('Streaming text example')} returnLabel={t('Return to bottom')} active={active} busy={stream.playing} followContent={stream.count > 0} resetKey={stream.generation}>
+      <div ref={scrollRef} className="mt-4"><ScrollFollower label={t('Streaming text example')} returnLabel={t('Scroll to bottom')} active={active} busy={stream.playing} followContent={stream.count > 0} resetKey={stream.generation}>
         <div className="font-cui-serif text-[13px] leading-[1.85] text-cui-secondary">
           <p className="max-w-[36em]">{t(bodyText)}</p>
           <div key={stream.generation}>{paragraphs.slice(0, stream.count).map((text, index) => <p key={index} className="my-[18px] max-w-[36em]"><FadeIn>{t(text)}</FadeIn></p>)}</div>

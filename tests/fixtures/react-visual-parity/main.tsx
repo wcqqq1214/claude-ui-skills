@@ -1,7 +1,7 @@
 import { StrictMode, useState } from 'react';
 import type { CSSProperties } from 'react';
 import { createRoot } from 'react-dom/client';
-import { FileWorkspace, PinnedList } from '../../../src';
+import { Accordion, FileWorkspace, GroupedSearch, NotificationStack, PinnedList, SidebarModes, SubmenuSelect } from '../../../src';
 import type { WorkspaceLabels } from '../../../src';
 import '../../../src/styles/index.css';
 
@@ -16,7 +16,14 @@ function Consumer() {
     <button onClick={() => { setTheme('dark'); setCustom(false); }}>Dark theme</button>
     <button onClick={() => { setTheme('dark'); setCustom(true); }}>Custom clay</button>
     <button>Outside focus</button>
-    <section aria-label="Workspace sample" style={{ marginTop: 20 }}><FileWorkspace files={files} labels={labels} /></section>
+    <section aria-label="Workspace sample" style={{ marginTop: 20 }}><FileWorkspace className="consumer-typography" files={files} labels={labels} /></section>
+    <section aria-label="Button samples" style={{ fontSize: 18, lineHeight: 1.6 }}>
+      <SubmenuSelect className="consumer-typography" label="Model settings" submenuLabel="Effort" options={[{ value: 'high', label: 'High' }]} />
+      <GroupedSearch className="consumer-typography" label="Search" emptyMessage="No results" items={[{ id: 'result', label: 'Search result' }]} onSelect={() => {}} />
+      <SidebarModes className="consumer-typography" aria-label="Modes" options={[{ id: 'chat', label: 'Chat mode', icon: null }]} />
+      <Accordion className="consumer-typography" title="Disclosure title">Disclosure content</Accordion>
+      <NotificationStack className="consumer-typography" dismissLabel="Dismiss" defaultNotices={[{ message: 'Notice', duration: null, action: { label: 'Undo action', onClick: () => {} } }]} />
+    </section>
     <section aria-label="Pinned sample" style={{ marginTop: 20 }}><PinnedList items={order.map(id => initial.find(item => item.id === id)!)} onOrderChange={setOrder} label="Pinned conversations" actionsLabel={item => `Actions for ${item.title}`} menuLabel="Move conversation" moveUpLabel="Move up" moveDownLabel="Move down" movedLabel={(item, position) => `${item.title} moved to ${position}`} cancelledLabel="Move cancelled" /></section>
   </main>;
 }

@@ -17,6 +17,8 @@ interface Drag { id: number; image: HTMLImageElement; x: number; y: number; tx: 
 export function createGalleryInteraction(elements: GalleryElements) {
   const { dialog, rail, viewport, header, close, previous, next, bottom, slides, triggers } = elements;
   let id = elements.initialId, opened = false, nativeOpened = false, closing = false, disposed = false, revision = 0;
+  let handleConnected = false;
+  const pending: (() => void)[] = [];
   let opening: number | null = null, openingSequence = 0;
   let zoom: GalleryZoomState | null = null, drag: Drag | null = null, painted: HTMLImageElement | null = null;
   let suppressClick = false, suppressTimer: ReturnType<typeof setTimeout> | undefined;
@@ -79,10 +81,10 @@ export function createGalleryInteraction(elements: GalleryElements) {
     return true;
   }
   function clearTransition() { transition?.skipTransition(); transition = null; sheet?.remove(); sheet = null; }
-  function setOpen(value: boolean) {
+  function setOpen(value: boolean, sync = true) {
     if (disposed || opened === value) return;
     opened = value; nativeOpened = value && dialog.open; closing = !value;
-    const current = ++revision; clearTransition(); emit(); elements.opened(value);
+    const current = ++revision; clearTransition(); emit(sync); elements.opened(value);
     if (disposed || revision !== current) return;
     const render = () => {
       if (disposed || revision !== current) return;
@@ -93,7 +95,7 @@ export function createGalleryInteraction(elements: GalleryElements) {
         nativeOpened = true;
         void rail.offsetWidth; rail.style.removeProperty('transition');
       } else {
-        clearDrag(); setZoom(null);
+        clearDrag(); setZoom(null, sync);
         const focused = document.activeElement;
         const outside = focused instanceof HTMLElement && focused !== document.body && !dialog.contains(focused);
         dialog.close();
@@ -117,7 +119,7 @@ export function createGalleryInteraction(elements: GalleryElements) {
       void running.finished.catch(() => {}).finally(finish);
     } catch { render(); finish(); }
   }
-  function open(value?: string, trigger?: HTMLElement) {
+  function open(value?: string, trigger?: HTMLElement, sync = true) {
     if (disposed || opened || !elements.items().length) return;
     const current = revision, request = ++openingSequence, previousOrigin = origin;
     opening = request;
@@ -126,7 +128,7 @@ export function createGalleryInteraction(elements: GalleryElements) {
     try {
       // Selection notifies the host before opening. Its synchronous update may
       // cancel this request, dispose the controller, or open another item.
-      if (select(Math.max(0, at), false) && !disposed && revision === current && opening === request) setOpen(true);
+      if (select(Math.max(0, at), false, true, sync) && !disposed && revision === current && opening === request) setOpen(true, sync);
     } finally {
       if (opening === request) opening = null;
       // A cancelled opening must leave an earlier close transition and its
@@ -135,7 +137,7 @@ export function createGalleryInteraction(elements: GalleryElements) {
     }
   }
   function reset(sync = false, notify = true) {
-    ++revision; opening = null; clearTransition(); clearDrag();
+    ++revision; opening = null; pending.length = 0; clearTransition(); clearDrag();
     const wasOpen = opened; opened = false; nativeOpened = false; closing = false; origin = null;
     zoom = null; paint(null); dialog.close(); rail.style.removeProperty('transition'); emit(sync);
     if (wasOpen && notify) elements.opened(false);
@@ -221,7 +223,18 @@ export function createGalleryInteraction(elements: GalleryElements) {
   dialog.addEventListener('wheel', onWheel, { passive: false });
   window.addEventListener('pagehide', pagehide); window.addEventListener('resize', resize); window.addEventListener('blur', blur);
   return {
-    open, close: () => { opening = null; setOpen(false); }, reset,
+    // Initial effect calls wait out StrictMode's probe. reset/dispose also
+    // cancel this queue, so pagehide or deactivation cannot revive a request.
+    runImperative(request: () => void) {
+      if (disposed) return;
+      if (handleConnected) request(); else pending.push(request);
+    },
+    connectHandle() {
+      if (disposed) return;
+      handleConnected = true;
+      while (pending.length && !disposed) pending.shift()!();
+    },
+    open, close: (sync = true) => { opening = null; setOpen(false, sync); }, reset,
     reconcile() {
       clearDrag(); setZoom(null, false);
       if (!elements.items().length) { id = null; reset(); }

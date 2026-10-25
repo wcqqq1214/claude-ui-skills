@@ -1,7 +1,10 @@
 const { setTheme, setLanguage, chooseChapter } = require('./demo-helpers.cjs');
 const assert = require('node:assert/strict');
 const { withDevBrowser } = require('./dev-browser.cjs');
+const { testGalleryEffects } = require('./migration-review-checks.cjs');
 withDevBrowser(async ({ browser, base }) => {
+    const effectPage = await browser.newPage();
+    await testGalleryEffects(effectPage, base); await effectPage.close();
     for (const transitions of ['native', 'unavailable', 'throws']) {
       for (const action of ['inactive', 'empty', 'unmount', 'remove', 'close', 'reopen', 'replace', 'remove-after-close', 'close-after-close', 'nested-cancel-after-close']) {
         const afterClose = action.endsWith('-after-close');

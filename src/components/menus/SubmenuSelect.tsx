@@ -59,7 +59,7 @@ export function SubmenuSelect({ label, submenuLabel, options, value, defaultValu
       if (!activeState.current) return;
       if (['ArrowDown', 'ArrowUp'].includes(event.key)) { event.preventDefault(); setLevel(1); }
       if (event.key === 'Escape' && level) { event.preventDefault(); close(true); }
-    }} className="cui-submenu-trigger inline-block cursor-pointer rounded-[7px] border border-solid border-transparent bg-cui-surface px-[13px] py-2 text-xs leading-[1.6] font-(--cui-medium) whitespace-nowrap disabled:cursor-default disabled:opacity-50 focus-visible:outline-2 focus-visible:outline-cui-accent">{label} <span aria-hidden="true">⌄</span></button>
+    }} className="cui-submenu-trigger inline-block cursor-pointer rounded-[7px] border border-solid border-transparent bg-cui-surface px-[13px] py-2 font-[inherit] text-inherit text-xs leading-[1.6] font-(--cui-medium) whitespace-nowrap disabled:cursor-default disabled:opacity-50 focus-visible:outline-2 focus-visible:outline-cui-accent">{label} <span aria-hidden="true">⌄</span></button>
     {level > 0 ? <div id={`${id}-parent`} role="menu" aria-label={label} className="cui-local-menu">
       <button ref={owner} type="button" role="menuitem" tabIndex={-1} aria-haspopup="menu" aria-expanded={level === 2} aria-controls={level === 2 ? `${id}-submenu` : undefined} onClick={openSubmenu} onKeyDown={event => {
         if (event.key === 'ArrowRight') { event.preventDefault(); openSubmenu(); }

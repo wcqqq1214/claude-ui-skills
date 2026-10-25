@@ -163,12 +163,12 @@ withDevBrowser(async ({ browser, base }) => {
       await setTheme(page, theme);
       await page.getByRole('switch', { name: 'Switch', exact: true }).click();
       await page.getByRole('checkbox', { name: 'Checkbox', exact: true }).uncheck();
-      await page.getByRole('slider', { name: 'Thinking effort' }).press('Home');
+      await page.getByRole('slider', { name: 'Effort' }).press('Home');
       await setLanguage(page, 'zh-Hans');
       assert.equal(await page.getByRole('switch', { name: '开关' }).getAttribute('aria-checked'), 'false');
       assert.equal(await page.getByRole('checkbox', { name: '复选框' }).isChecked(), false);
       assert.equal(await page.getByRole('slider', { name: '思考强度' }).inputValue(), '0');
-      assert.equal(await page.getByRole('slider', { name: '思考强度' }).getAttribute('aria-valuetext'), '第 1 级，共 4 级');
+      assert.equal(await page.getByRole('slider', { name: '思考强度' }).getAttribute('aria-valuetext'), '第 1 档，共 4 档');
       await chooseChapter(page, 'segmented');
       const demoSegment = page.getByRole('radiogroup', { name: '视图格式', exact: true });
       await demoSegment.getByRole('radio', { name: '代码', exact: true }).click();

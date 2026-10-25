@@ -2,7 +2,9 @@ const assert = require('node:assert/strict');
 const { withDevBrowser } = require('./dev-browser.cjs');
 const { testStreamParagraphGeometry, testWorkspaceReadoutTheme, testPinnedTextWeight } = require('./visual-parity-checks.cjs');
 
-const checks = { stream: testStreamParagraphGeometry, readout: testWorkspaceReadoutTheme, pinned: testPinnedTextWeight };
+const { testStandaloneButtons, testDemoOriginalCopy } = require('./migration-review-checks.cjs');
+
+const checks = { buttons: testStandaloneButtons, copy: testDemoOriginalCopy, stream: testStreamParagraphGeometry, readout: testWorkspaceReadoutTheme, pinned: testPinnedTextWeight };
 const requested = process.argv.slice(2), selected = requested.length ? requested : Object.keys(checks);
 for (const name of selected) assert.ok(checks[name], `Unknown visual parity check: ${name}`);
 withDevBrowser(async ({ browser, base }) => {

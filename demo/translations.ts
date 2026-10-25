@@ -3,7 +3,8 @@ import type { Locale } from './i18n';
 const chinese: Record<string, string> = {
   "Waiting": "等待",
   "Close table": "关闭表格",
-  "Return to bottom": "返回底部",
+  "Scroll to bottom": "回到底部",
+  "Level {0} of {1}": "第 {0} 档，共 {1} 档",
   "Click the thumbnail to preview. Click the image or press Esc to return.": "点击缩略图预览，点击图片或按 Esc 返回。",
   "Hover hint": "悬停提示",
   "Hover or focus to see the hint.": "悬停或聚焦，查看提示。",

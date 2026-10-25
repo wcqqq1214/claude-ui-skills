@@ -2,6 +2,7 @@ const { setTheme, setLanguage, chooseChapter } = require('./demo-helpers.cjs');
 const assert = require('node:assert/strict');
 const { withDevBrowser } = require('./dev-browser.cjs');
 const { testMenuCallbackLifecycle } = require('./menu-callback-checks.cjs');
+const { testSearchInitialFocus } = require('./migration-review-checks.cjs');
 const { testSubmenuCaptureHide } = require('./capture-lifecycle-checks.cjs');
 
 async function testMenuActivity(page, base, kinds = ['artifact', 'submenu']) {
@@ -231,6 +232,7 @@ withDevBrowser(async ({ browser, base }) => {
     await testMenuCallbackLifecycle(callbackPage, base); await callbackPage.close();
     const page = await browser.newPage({ viewport: { width: 1280, height: 1200 } });
     const errors = []; page.on('pageerror', error => errors.push(error.message));
+    await testSearchInitialFocus(page, base);
     await testMenuActivity(page, base);
     await testMountHighlights(page, base);
     await page.goto(`${base}/tests/fixtures/react-menus/`);

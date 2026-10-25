@@ -21,6 +21,7 @@ export function DropTarget({ state, active = true, children, className, ...props
       const visible = !element.hidden, style = animation.current ? getComputedStyle(element) : null, from = style ? { opacity: style.opacity, transform: style.transform } : null;
       animation.current?.cancel(); animation.current = null;
       element.dataset.state = state; element.hidden = false;
+      // WAAPI copy of --cui-ease-out-cubic.
       if (visible && from) animation.current = element.animate([from, { opacity: 1, transform: 'scale(1)' }], { duration: 150, easing: 'cubic-bezier(.215,.61,.355,1)' });
     }
   }, [state, active]);

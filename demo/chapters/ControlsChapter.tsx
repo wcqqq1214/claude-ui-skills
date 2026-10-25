@@ -2,6 +2,7 @@ import { useState } from 'react';
 import type { CSSProperties } from 'react';
 import { Checkbox, DiscreteSlider, Switch } from '../../src';
 import type { Copy, Locale } from '../i18n';
+import { translate } from '../translations';
 import { Specimen } from '../components/Specimen';
 
 export function ControlsChapter({ copy, locale }: { copy: Copy; locale: Locale }) {
@@ -10,7 +11,7 @@ export function ControlsChapter({ copy, locale }: { copy: Copy; locale: Locale }
   const [enabled, setEnabled] = useState(true);
   const [effort, setEffort] = useState('2');
   const options = ['0', '1', '2', '3'].map((value, index) => ({
-    value, label: locale === 'en' ? `Level ${index + 1} of 4` : `第 ${index + 1} 级，共 4 级`, recommended: index === 2,
+    value, label: translate(locale, 'Level {0} of {1}', index + 1, 4), recommended: index === 2,
   }));
   return (
     <div className="demo-controls-grid" style={{ '--cui-motion-scale': slow ? 5 : 1 } as CSSProperties}>

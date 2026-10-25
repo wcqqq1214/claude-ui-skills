@@ -52,6 +52,7 @@ export function SegmentedControl({ options, value, defaultValue, onValueChange, 
       thumb.style.width = `${width}px`;
       thumb.style.transform = `translateX(${left}px)`;
       if (animate && previous && previous.value !== selected) {
+        // WAAPI copy of --cui-ease-snap.
         animationRef.current = thumb.animate([
           { transform: `translateX(${(current.left - rect.left) / scale}px) scaleX(${current.width / scale / width})` },
           { transform: `translateX(${left}px) scaleX(1)` },

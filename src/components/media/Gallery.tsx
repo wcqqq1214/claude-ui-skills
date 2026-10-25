@@ -1,4 +1,4 @@
-import { useId, useImperativeHandle, useLayoutEffect, useRef, useState } from 'react';
+import { useEffect, useId, useImperativeHandle, useLayoutEffect, useRef, useState } from 'react';
 import { flushSync } from 'react-dom';
 import type { CSSProperties, Ref } from 'react';
 import { classes } from '../../lib/classes';
@@ -47,12 +47,29 @@ export function Gallery({ items, labels, defaultValue, onValueChange, onOpenChan
     controller.current = interaction;
     return () => { interaction.dispose(); controller.current = null; };
   }, []);
+  useEffect(() => {
+    const interaction = controller.current;
+    // Settle the initial effect probe before delivering imperative requests.
+    queueMicrotask(() => interaction?.connectHandle());
+  }, []);
   // Item labels may change without disturbing zoom. Resource/ID changes need new geometry.
   const resources = JSON.stringify(items.map(item => [item.id, item.src]));
   useLayoutEffect(() => { controller.current?.reconcile(); }, [resources]);
   useLayoutEffect(() => { if (!active) controller.current?.reset(); }, [active]);
   function open(id?: string, trigger?: HTMLElement) { if (latest.current.active) controller.current?.open(id, trigger); }
-  useImperativeHandle(ref, () => ({ open, close: () => controller.current?.close() }), []);
+  // Handles can be called from host effects; React commits their queued state.
+  useImperativeHandle(ref, () => ({
+    open: id => {
+      const interaction = controller.current;
+      if (latest.current.active && latest.current.items.length) interaction?.runImperative(() => {
+        if (latest.current.active) interaction.open(id, undefined, false);
+      });
+    },
+    close: () => {
+      const interaction = controller.current;
+      interaction?.runImperative(() => interaction.close(false));
+    },
+  }), []);
   const index = Math.max(0, items.findIndex(item => item.id === state.id)), selected = items[index];
   return <>
     <div className={classes('grid grid-cols-3 gap-[3px]', className)}>{items.map((item, at) => <button key={item.id} ref={element => { if (element) triggers.current.set(item.id, element); else triggers.current.delete(item.id); }} type="button" aria-label={labels.open(item, at)} aria-haspopup="dialog" aria-controls={dialogId} aria-expanded={state.open && selected?.id === item.id} onClick={event => open(item.id, event.currentTarget)} className="aspect-[4/3] min-w-0 cursor-zoom-in overflow-hidden rounded-md border-0 bg-cui-bg p-0 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cui-accent">

@@ -4,14 +4,23 @@ async function testStreamParagraphGeometry(page, base) {
   for (const strict of ['off', 'on']) for (const width of [1280, 621, 620, 390]) {
     const context = `${strict}/${width}px`;
     await page.setViewportSize({ width, height: 1000 });
-    await page.goto(`${base}/tests/fixtures/react-visual-parity/demo.html?lang=en&strict=${strict}#type`);
+    // A distinct document per width prevents hash navigation from reusing an
+    // already-running demo sequence (which may reset during measurement).
+    const response = await page.goto(`${base}/tests/fixtures/react-visual-parity/demo.html?lang=en&strict=${strict}&width=${width}#type`);
+    assert.ok(response, `${context}: viewport checks load a fresh document`);
     await page.evaluate(() => document.fonts.ready);
     const stream = page.getByRole('region', { name: 'Streaming text example', exact: true });
     await stream.scrollIntoViewIfNeeded();
     // Use the real demo arrival timer, so this checks appended paragraphs as
     // well as the static introduction instead of a synthetic copy of the DOM.
-    await stream.locator('p').nth(1).waitFor({ state: 'attached' });
-    const paragraphs = await stream.locator('p').evaluateAll(nodes => nodes.map(node => ({ minHeight: getComputedStyle(node).minHeight, height: node.getBoundingClientRect().height })));
+    // Capture presence and geometry in one task even if a slow machine lets
+    // the sequence reach another replay cycle before the next protocol call.
+    const snapshot = await page.waitForFunction(() => {
+      const nodes = document.querySelectorAll('[aria-label="Streaming text example"] p');
+      return nodes.length >= 2 ? [...nodes].map(node => ({ minHeight: getComputedStyle(node).minHeight, height: node.getBoundingClientRect().height })) : false;
+    });
+    const paragraphs = await snapshot.jsonValue();
+    await snapshot.dispose();
     assert.ok(paragraphs.length >= 2, `${context}: the real stream contains its introduction and appended content`);
     for (const [index, paragraph] of paragraphs.entries()) {
       // Legacy .reading p reserves the introduction's desktop height, while
