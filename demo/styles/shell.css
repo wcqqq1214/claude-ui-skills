@@ -117,6 +117,7 @@
 .demo-slow svg { width:24px; height:24px; }
 .demo-slow[aria-pressed=true] { color:var(--cui-accent); background:var(--cui-surface); box-shadow:inset 0 0 0 var(--demo-line) currentColor; }
 .demo-control-params { display: flex; flex-wrap: wrap; justify-content: center; gap: 4px 12px; }
+.demo-shell :is(.demo-card-foot, .demo-implementation, .demo-implementation > p, p.demo-reading-detail, .demo-workspace-card > footer) { color: var(--cui-muted); }
 .demo-shell[data-show-notes=false] :is(.demo-card-foot, .demo-implementation, p.demo-reading-detail, .demo-workspace-card > footer) { display: none; }
 @media (max-width:520px) {
   .demo-sidebar { padding-right:100px; gap:8px; }
