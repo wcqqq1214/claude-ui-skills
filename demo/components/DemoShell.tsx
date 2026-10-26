@@ -3,7 +3,6 @@ import type { MouseEvent, ReactNode } from 'react';
 import type { Copy, Locale } from '../i18n';
 import logo from '../../src/assets/artwork/claude-logo.svg';
 import { Icon } from '../../src';
-import { DemoSelect } from './DemoSelect';
 
 type Theme = 'system' | 'light' | 'dark';
 export function DemoShell({ chapter, chapters, copy, locale, theme, onLocale, onTheme, children }: {
@@ -101,8 +100,10 @@ export function DemoShell({ chapter, chapters, copy, locale, theme, onLocale, on
               </button>)}
             </div>
           </div>
-          <DemoSelect className="demo-theme-select" label={copy.theme} value={theme} onChange={onTheme}
-            options={(['light', 'dark', 'system'] as const).map(value => ({ value, label: copy[value] }))} />
+          <select className="demo-theme-select" aria-label={copy.theme} title={copy.theme} data-value={theme} value={theme}
+            onChange={event => onTheme(event.target.value as Theme)}>
+            {(['light', 'dark', 'system'] as const).map(value => <option key={value} value={value}>{copy[value]}</option>)}
+          </select>
         </div>
       </header>
       <main>

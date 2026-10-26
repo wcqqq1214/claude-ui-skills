@@ -59,7 +59,15 @@ withDevBrowser(async ({ browser, base }) => {
         for (const theme of ['light', 'dark', 'system']) {
           const themeTrigger = page.locator('.demo-theme-select');
           await setChoice(page, themeTrigger, theme);
-          for (const target of [themeTrigger, page.locator('.demo-speed-select')]) {
+          const native = await themeTrigger.evaluate(node => ({
+            tag: node.tagName, options: node.options.length, size: getComputedStyle(node).fontSize,
+            scheme: getComputedStyle(node).colorScheme, resolved: document.documentElement.dataset.cuiTheme,
+          }));
+          assert.equal(native.tag, 'SELECT', 'theme picker uses the native control');
+          assert.equal(native.options, 3);
+          assert.equal(native.size, '14px');
+          assert.equal(native.scheme, native.resolved, 'native popup follows the resolved theme');
+          for (const target of [page.locator('.demo-speed-select')]) {
             await target.click();
             const menu = await page.getByRole('listbox').boundingBox();
             const text = await target.evaluate(node => {
@@ -86,10 +94,8 @@ withDevBrowser(async ({ browser, base }) => {
     try {
       await touch.goto(`${base}/?lang=zh-Hans#controls`);
       const theme = touch.locator('.demo-theme-select');
-      await theme.tap();
-      await touch.getByRole('option', { name: '深色', exact: true }).tap();
-      assert.equal(await theme.getAttribute('data-value'), 'dark');
-      assert.equal(await theme.getAttribute('aria-expanded'), 'false');
+      await theme.selectOption('dark');
+      assert.equal(await theme.inputValue(), 'dark');
       await touch.locator('.demo-speed-select').tap();
       await touch.getByRole('option', { name: '慢速（0.2×）', exact: true }).tap();
       assert.equal(await touch.locator('.demo-speed-select').getAttribute('data-value'), '0.2');

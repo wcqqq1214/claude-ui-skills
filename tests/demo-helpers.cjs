@@ -1,8 +1,11 @@
 const assert = require('node:assert/strict');
 async function setChoice(page, trigger, value) {
-  await trigger.click();
-  const id = await trigger.getAttribute('aria-controls');
-  await page.locator(`[role=listbox][id="${id}"] [role=option][data-value="${value}"]`).click();
+  if (await trigger.evaluate(node => node.tagName === 'SELECT')) await trigger.selectOption(value);
+  else {
+    await trigger.click();
+    const id = await trigger.getAttribute('aria-controls');
+    await page.locator(`[role=listbox][id="${id}"] [role=option][data-value="${value}"]`).click();
+  }
   assert.equal(await trigger.getAttribute('data-value'), value);
 }
 async function setTheme(page, theme) {
