@@ -1,0 +1,4 @@
+@font-face { font-family: cui-icons; src: url('../assets/fonts/anthropicons-variable.woff2') format('woff2'); font-weight: 400 700; font-display: block; }
+.cui-icon { font-family: cui-icons; font-feature-settings: 'liga' 0; font-optical-sizing: auto; font-variation-settings: normal; font-style: normal; line-height: 1; display: inline-flex; align-items: center; justify-content: center; width: 1em; height: 1em; flex-shrink: 0; user-select: none; vertical-align: -.125em; }
+.cui-icon > [data-icon-layer='secondary'] { width: 1em; flex: none; margin-inline-end: -1em; color: color-mix(in srgb, currentColor 40%, transparent); }
+@media (forced-colors: active) { .cui-icon > [data-icon-layer='secondary'] { forced-color-adjust: none; color: canvastext; position: relative; } }

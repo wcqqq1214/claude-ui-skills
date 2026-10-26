@@ -1,21 +1,59 @@
 # Input and attachments
 
-Use this for Claude-inspired input surfaces, hover/focus transitions and attachment entrance, removal and reflow. The editable sample demonstrates appearance and growth, not a chat workflow.
+Use for: the composer surface and its hover/focus states, `@` Artifact references, the project row that folds as width shrinks, and attachment entrance, removal and reflow.
 
-## Read the running code
+## React implementation
 
-[HTML](../../showcase/index.html#composer) · [JS](../../showcase/components/composer.js) · [CSS](../../showcase/components/composer.css)
+[ComposerSurface/Toolbar/Picker](../../src/components/composer/ComposerToolbar.tsx) · [MentionEditor](../../src/components/composer/MentionEditor.tsx) · [editing controller](../../src/components/composer/mentionEditing.ts) · [AttachmentList](../../src/components/composer/AttachmentList.tsx) · [styles](../../src/styles/composer.css) · [demo](../../demo/chapters/ComposerChapter.tsx)
 
-`initComposerDemo()` binds `resizeInput()` to input and width changes; `initComposerAttachments()` owns the fixed filename tiles, add/remove controls and their View Transition lifecycle. Read `.composer-box`, `.composer-attachments`, `.composer-attachment`, `addSample()` and `remove()` together.
+Follow the [source integration guide](../../demo/README.md). The editor, attachments and compact toolbar can be imported separately. The demo owns sample files, the width slider, locale and disabled send action.
 
-## Design and adaptation
+- `ComposerSurface`: normal div props/children and the authored hover/focus ring. `ComposerPicker` takes native button props/ref, with measured press feedback.
+- `ComposerToolbar`: projectLabel, modelLabel/modelAriaLabel, optional action callbacks, describedBy, trailing content and className. This is the empty-project picker variant. It preserves the trigger across words+caret → words → icon modes, including coarse-pointer sizes and 2px unfolding hysteresis.
+- `MentionEditor`: required label/placeholder/mentionListLabel/deleteLabel, optional heading, options with stable id/title/description, defaultText, resetKey, active, maxHeight and onDraftChange. Its ref exposes focus, clear and getDraft. The draft contains display text (without icon glyphs) and ordered mention metadata; it is not a portable rich-document schema.
+- React owns surrounding controls and candidate/context-menu rendering. The browser owns the editable subtree, selection and undo history. Do not insert React children or rewrite innerHTML while typing. defaultText is initial-only until resetKey changes; localization and resizing never replace draft nodes. Existing atom titles keep the wording used at insertion.
+- Activity effect reconnection keeps that same draft DOM, native undo and semantic blank lines without reapplying defaultText or republishing an unchanged draft. An explicit resetKey change while hidden applies when the editor reconnects.
+- Options filter by title. Arrows clamp at the first/last result, Enter/Tab insert, Escape dismisses and selection stays in the editor. IME composition cannot accept a candidate. Plain-text paste cannot create reference nodes. The native insertHTML/delete transactions retain Backspace and undo/redo. The host chooses if/when to submit; ordinary Enter remains a newline outside an open candidate list.
+- `AttachmentList`: controlled items (id/name/type), label, removeLabel, onRemove and optional onEmptyFocus. onRemove must synchronously update the items in React; it runs inside the browser snapshot update and flushes that commit so animation geometry matches. Items use unique instance-scoped transition names. Last-tile, hidden-page and unsupported-API removals update directly; interrupted updates run at most once. Activity hiding cancels visual snapshots but preserves accepted deletion, including a native update delivered while hidden; reconnection does not steal focus. True unmount cancels pending work and removes held-key guards.
+- active=false keeps candidate and mention context menus closed while allowing native draft editing. Right-clicking an existing mention cannot reopen a custom menu or move focus into it while inactive. Use a containing hidden/inert state when hiding an entire composer. Draft and attachments can stay mounted across chapter changes.
 
-- Resize the textarea from its scroll height, capped at 130px in this demo. Native textarea editing preserves Enter/newlines and IME composition; there is no send or command key handler. Width changes remeasure the draft, including when returning to the chapter.
-- The composer uses a 12px radius, an outer ring in light mode and an inset ring in dark mode. Hover strengthens the ring except over internal buttons; focus raises shadow alpha from 3.5% to 7.5% with a 200ms transition.
+## Parameters
 
-- `.composer-attachments` enters from opacity 0 / translateY(-8px) over 200ms; individual `.composer-attachment` tiles enter from opacity 0 / scale(.92) translateY(4px) over 180ms. Both use cubic-bezier(.215,.61,.355,1). Typed View Transitions move surviving tiles over 180ms and fade/scale removed tiles to .5 over 130ms with cubic-bezier(.55,.055,.675,.19). The last tile skips that removal transition; unsupported or hidden documents update directly. Interrupted removals still apply once.
-- The demo starts with two fixed mock attachments, using the same `addSample()` path as the labeled Add attachment control; the control adds up to three fixed filenames. Remove with X, Delete or Backspace; modified keys, IME composition and held-key repeats are ignored. Keyboard focus moves to the next removal control, then the previous one, then the input. Filenames stay unchanged across language switches; accessible action labels translate.
+| Part | Value |
+| --- | --- |
+| Box | 12px radius; ring outer in light, inset in dark |
+| Focus shadow | Alpha 3.5% → 7.5%, 200ms `--cui-ease-standard` |
+| Editor height | Follows `scrollHeight`; default/demo cap `min(40svh, 384px)`; test fixture cap 130px |
+| Mention popup | Opens above the caret, flips below when short of room; 16px viewport padding; max height 384px |
+| Project row | Three modes: words + caret → words → icon (16px; 20px on coarse pointers) |
+| Row text | 12px; 10px when the row is ≤ 400px wide. Coarse pointers: 13px, and 11px when narrow |
+| Row pickers | 20px tall, 5px radius, 12px text; on coarse pointers 32px tall, 8px radius, 13px text |
+| Press feedback | Fill shrinks by `clamp(.5px, height / 32, 1.5px)` per side (scale ≥ .8); releases over 450ms the authored spring curve |
+| Attachment row enter | From opacity 0, translateY(-8px); 200ms `--cui-ease-out-cubic` |
+| Tile enter | From opacity 0, scale(.92) translateY(4px); 180ms `--cui-ease-out-cubic` |
+| Tile reflow and removal | Survivors move over 180ms; a removed tile fades and scales to .5 over 130ms `--cui-ease-in-cubic` |
+| Tile geometry | 120px tiles, 6px gap, 20px remove control |
 
-The attachment example animates local sample tiles. The 120px tiles, 6px gap and 20px removal control use default sizing; sample names, four-line labels, tile typography/surfaces, immediate empty-container collapse, focus targeting and addition control are local adaptations. This small demo does not reproduce every filename-tail, restored-draft, clipped-container or gesture branch. There is no file chooser, file reading, upload or sending. Validate add/remove/re-add, interrupted removal, last-tile cleanup, wrapping, language/theme changes and keyboard return.
+## Rules
 
-The labeled attachment control, two initial sample tiles, parameter caption and centered, unframed desktop presentation are local choices, not Claude startup behavior. The textarea cap, padding and toolbar are local bindings. Check hover versus focus, multiline growth, draft retention across chapter/language changes and narrow wrapping.
+- Hover strengthens the ring, except while the pointer is over an internal button.
+- Typing `@` opens Artifact candidates. Enter or Tab inserts, arrows stop at the first and last row, and Escape dismisses. Focus stays in the editor throughout.
+- An inserted reference is one atomic inline node: Backspace removes it whole and undo restores it.
+- Width changes remeasure the draft, including when the chapter becomes visible again.
+- The project row folds to the next mode when its content stops fitting. It unfolds only when the wider mode fits with 2px to spare and the labels are unchanged. Keep the same trigger element across modes so focus survives resizing.
+- A tile is removed with its X, Delete or Backspace. Modified keys, IME composition and held-key repeats are ignored.
+- On hover-capable devices the remove control appears on hover and focus; on coarse or no-hover input it stays visible.
+- After a removal, focus moves to the next remove control, else the previous one, else the editor.
+- The last tile skips the removal transition. Browsers without View Transitions, and hidden documents, update directly. An interrupted removal still applies once.
+- Filenames stay as written across language switches; action labels translate.
+
+## Check
+
+- [ ] Hover versus focus on the box
+- [ ] Multiline growth to the cap; draft kept across chapter and language changes
+- [ ] `@` insert with Enter and Tab, Escape, Backspace and undo over a reference
+- [ ] Project row at each mode boundary, narrowing and widening
+- [ ] Add, remove, re-add; interrupted removal; last-tile cleanup
+- [ ] Narrow wrapping, both themes, both languages, keyboard focus return
+
+Local adaptations and limits: [coverage](../../docs/coverage.md#composer).

@@ -1,0 +1,34 @@
+{
+  "name": "claude-ui-skills",
+  "private": true,
+  "description": "Agent skill and local showcase for Claude Desktop-style UI and motion.",
+  "license": "MIT",
+  "scripts": {
+    "test": "npm run test:unit && npm run build && npm run test:browser",
+    "test:unit": "node --test tests/*.test.cjs",
+    "test:browser": "node tests/run-browser.cjs",
+    "dev": "vite --open /",
+    "build": "npm run typecheck && vite build",
+    "preview": "vite preview --host 127.0.0.1",
+    "typecheck": "tsc --noEmit",
+    "test:react": "node tests/run-browser.cjs react-",
+    "test:production": "npm run build && node tests/run-browser.cjs production"
+  },
+  "devDependencies": {
+    "@tailwindcss/vite": "^4.3.3",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "@vitejs/plugin-react": "^6.1.2",
+    "playwright-core": "1.56.0",
+    "tailwindcss": "^4.3.3",
+    "typescript": "^7.0.2",
+    "vite": "^8.3.4"
+  },
+  "dependencies": {
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1"
+  },
+  "engines": {
+    "node": "^20.19.0 || >=22.12.0"
+  }
+}

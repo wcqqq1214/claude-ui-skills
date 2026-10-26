@@ -1,0 +1,36 @@
+@import '../src/styles/index.css';
+@import '../src/styles/fonts.css';
+@import './styles/shell.css';
+@source './';
+
+/* Page defaults belong to the demo, not the component stylesheet. */
+@layer base {
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--cui-bg); color: var(--cui-text); font-family: var(--cui-font-sans); font-size: 14px; font-weight: var(--cui-regular); line-height: 1.6; }
+  button, input, select { font: inherit; }
+  button { color: inherit; cursor: pointer; border: 0; background: transparent; }
+  button:disabled { cursor: default; }
+  button:where(:not(.cui-switch):not(.cui-image-origin):not(.cui-accordion-trigger)) { font-weight: var(--cui-medium); }
+  b { font-weight: var(--cui-bold); }
+  h1, h2, h3 { text-wrap: balance; }
+  p { text-wrap: pretty; }
+  svg { display: block; }
+  h1, h2, h3, p { margin: 0; }
+  a { color: inherit; text-decoration: none; }
+  button, a, select { -webkit-tap-highlight-color: transparent; }
+  button:focus-visible, a:focus-visible, select:focus-visible, input:focus-visible, textarea:focus-visible, [tabindex]:focus-visible { outline: 2px solid var(--cui-accent); outline-offset: 4px; }
+  html { font-synthesis: none; -webkit-font-smoothing: antialiased; }
+}
+[hidden] { display: none !important; }
+
+.demo-baseline-guide { display: inline-block; position: relative; vertical-align: baseline; width: 0; height: 0; }
+.demo-baseline-guide::after { content: ''; position: absolute; inset: 0 auto auto 0; width: 7.5em; border-top: 1px dashed var(--cui-line); pointer-events: none; }
+
+.demo-menus-container { container-type: inline-size; }
+.demo-menus-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); grid-template-areas: 'selection artifact' 'search artifact'; grid-template-rows: auto 1fr; gap: 20px; align-items: start; }
+.demo-menus-selection { grid-area: selection; }
+.demo-menus-artifact { grid-area: artifact; }
+.demo-menus-search { grid-area: search; }
+.demo-menus-search-layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 16px; }
+@container (max-width: 800px) { .demo-menus-grid { grid-template-columns: minmax(0, 1fr); grid-template-areas: 'selection' 'artifact' 'search'; grid-template-rows: auto; gap: 16px; } }
+@container (max-width: 540px) { .demo-menus-search-layout { grid-template-columns: minmax(0, 1fr); } }

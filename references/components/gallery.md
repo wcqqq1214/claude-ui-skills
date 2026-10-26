@@ -1,18 +1,45 @@
 # Image gallery, zoom and pan
 
-Use this when several images share an overlay with neighboring previews, keyboard navigation and bounded zoom/pan. For a single thumbnail transition alone, use [image preview](images.md).
+Use for: several images sharing one overlay, with neighbor previews, keyboard paging and bounded zoom/pan. For a single thumbnail opening into a preview, use [image preview](images.md).
 
-## Read the running code
+## Code
 
-[HTML](../../showcase/index.html#gallery) · [JS](../../showcase/components/gallery.js) · [CSS](../../showcase/components/gallery.css)
+[Gallery.tsx](../../src/components/media/Gallery.tsx) · [native gestures](../../src/components/media/galleryInteraction.ts) · [zoom geometry](../../src/components/media/galleryZoom.ts) · [gallery.css](../../src/styles/gallery.css) · [React demo](../../demo/chapters/GalleryChapter.tsx)
 
-`initGalleryDemo()` builds slides and binds the dialog. Read `switchGallery()`, `applyZoom()`, `resetZoom()` and the wheel/pointer handlers with [gallery-zoom.js](../../showcase/gallery-zoom.js) (`GalleryZoom.nextScale`). Geometry helpers come from [shared.js](../../showcase/shared.js); `.image-close` is shared in [style.css](../../showcase/style.css).
+Import `Gallery` from `src/index.ts` and the shared [style entry](../../src/styles/index.css); see [integration](../../demo/README.md). Each item has a stable `id`, `src`, optional `thumbnailSrc`, `alt` and `filename`. The host supplies all labels, including functions for the thumbnail, zoom action and count. `defaultValue` chooses the initial item; `onValueChange` reports selection changes. A ref exposes `open(id?)` and `close()`. `onOpenChange` reports opening/dismissal, without firing on mount. Use `active={false}` when hiding the host chapter.
 
-## Design and adaptation
+React renders the thumbnails, slides, caption, count and ARIA state. The isolated controller owns modal focus, the 180ms native crossfade, wheel input and captured-pointer geometry. The pure TypeScript module implements scale, focal-point retention and bounds. Label updates preserve zoom; resource changes reset geometry while keeping the selected ID if it still exists. Removing the selected item chooses the first remaining one; emptying items closes the dialog. No demo IDs, translated globals or page-wide reset is required.
 
-- Changing the current slide resets zoom/pan and updates neighbors, controls, caption and focus together. Slide movement takes 300ms. Neighbor clicks select rather than zoom.
-- Maximum zoom is `max(original width / fitted width, 2)`: 2 is a floor, not a cap. Initial wheel zoom is at least 1.25, with exponential gain .01; reset at ≤1.05 only while shrinking.
-- Ctrl-wheel zoom converts non-pixel deltas with factor 16. Ordinary PAGE-mode panning uses viewport dimensions instead. Preserve this distinction and keep the pointer's focal point stable while scaling.
-- `maxPan()` bounds pan using fitted size, viewport and scale. Only zoomed images capture the pointer; a 4px movement threshold separates dragging from clicking. ArrowLeft/ArrowRight navigation and Escape remain available.
+Selection callbacks may synchronously update the host. If `onValueChange` sets `active={false}`, disconnects the gallery through Activity or unmounting, empties its items, or cancels an opening, that old request cannot subsequently show a modal. A newer opening requested from the callback takes precedence.
 
-Three local SVGs, native-dialog geometry and local focus/resize handling are demo choices. Numerical checks do not establish physical Ctrl-wheel or long-gallery behavior in Claude. Check neighboring slides, keyboard zoom/reset, drag-versus-click, close and focus return.
+## Parameters
+
+| Part | Value |
+| --- | --- |
+| Image corners | 16px |
+| Controls | 32px close, 36px paging |
+| Filename | Left of the bottom bar; moves above the centered navigation below 40rem |
+| Slide movement | 300ms |
+| Open / close | 180ms crossfade |
+| Maximum zoom | `max(natural width / fitted width, 2)`: 2 is a floor, not a cap |
+| Wheel zoom | First step at least 1.25; exponential gain .01; resets at ≤ 1.05 while shrinking |
+| Wheel deltas | Ctrl-wheel converts non-pixel deltas × 16; page-mode panning converts with the viewport size |
+| Drag threshold | 4px separates dragging from clicking |
+
+## Rules
+
+- Changing slide resets zoom and pan and updates neighbors, controls, caption and focus together.
+- A neighbor click selects that slide while fitted; while zoomed, it first resets the current image.
+- Keep the pointer's focal point fixed while scaling.
+- `bound()` limits pan from the fitted size, viewport and scale. Only a zoomed image captures the pointer.
+- ArrowLeft/ArrowRight page, Escape closes, and focus returns to the opener.
+
+## Check
+
+The [independent consumer suite](../../tests/react-gallery.browser.cjs) checks focal zoom, ideal pan, wheel units, pointer ownership, 3/4px drag boundaries, animation/zero-size measurement guards, neighbor reset/selection, close-button buffer, keyboard paging/focus, RTL, host item updates, multiple galleries, transition interruption and cleanup/fallback. Demo checks cover English/Chinese light/dark layouts at 1280/390/320px. [Deterministic geometry tests](../../tests/gallery-zoom.test.cjs) exercise the migrated TypeScript geometry.
+
+React Activity checks retain the dialog DOM while effects disconnect and reconnect. Without a new opening request, reconnection keeps the modal closed, clears thumbnail expansion and zoom, and retains the selected ID. When the host calls `open()` again, synchronously or in a microtask, old native close events do not cancel that opening; cleanup remains silent and subsequent external native closes still report dismissal.
+
+After a pointer drag, the next keyboard action clears the post-drag click guard even if its zero-delay timer has not run yet. Pointer clicks remain suppressed until that timer; the guard cannot swallow a later keyboard paging action. Pagehide, inactivity and unmount invalidate delayed transition callbacks, release capture and remove temporary transition styles.
+
+Local adaptations and limits: [coverage](../../docs/coverage.md#gallery).

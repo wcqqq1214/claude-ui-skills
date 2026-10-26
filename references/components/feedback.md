@@ -1,22 +1,54 @@
 # Waiting, skeletons and accordion
 
-Use an animated thinking mark and a text-clipped sweep for an ongoing status summary, a delayed skeleton for content that has not arrived, and an accordion to keep optional detail close without occupying permanent space.
+Use for: an animated activity mark with a shimmering status line while work is under way, a delayed skeleton for content that has not arrived, and an accordion that keeps optional detail close without taking permanent space.
 
-## Read the running code
+## React implementation
 
-[HTML](../../showcase/index.html#feedback) · [JS](../../showcase/components/feedback.js) · [CSS](../../showcase/components/feedback.css)
+[StatusMark](../../src/components/feedback/StatusMark.tsx) · [playback controller](../../src/components/feedback/statusPlayback.ts) · [ShimmerText](../../src/components/feedback/ShimmerText.tsx) · [SkeletonGroup/Line](../../src/components/feedback/Skeleton.tsx) · [Accordion](../../src/components/feedback/Accordion.tsx) · [styles](../../src/styles/feedback.css) · [React demo](../../demo/chapters/FeedbackChapter.tsx)
 
-`STATUS_MARKS` and `createStatusMark()` select the bundled [status sheets](../../showcase/components/status-assets/) for thinking, reading, writing and coding. Include the shared `grow.webp` and each selected variant's `*-in.webp`, `*-loop.webp` and `*-out.webp` when adapting the JS. `createStatusShimmer()` owns the status text and its hidden visual clone; `.status-shimmer` supplies the sweep. `initFeedbackDemo()` reuses `setupSegment()` from [segmented.js](../../showcase/components/segmented.js) and [segmented.css](../../showcase/components/segmented.css) for the compact status selector, alongside Finish/Replay and timeline controls. Load these shared files first; language changes call `refresh()`. `runSkeleton()` / `clearSkeleton()` own the skeleton-delay timer, the shared sweep clip and its ResizeObserver. Loaded content also uses `.word-fade` from [text styles](../../showcase/components/type.css).
+Follow the [source integration instructions](../../demo/README.md). Import components from `src/` and retain the status assets. The host owns translated labels, loading state and the delay before showing a skeleton.
 
-## Design and adaptation
+- `StatusMark`: `activity` (`think/read/write/code`), `running`, `active`, `replayKey`, `onActivityEnter`, `onComplete`. Set `running=false` to finish the current stage and exit; change `replayKey` to begin a new grow sequence. A new activity/running selection can cancel pending completion during exit. Update status text from `onActivityEnter`, so labels follow the rendered artwork. The mark is decorative; expose a separate readable status line.
+- `active=false`, offscreen layout and document visibility pause the sprite and cancel its wall-clock seam timer; resuming schedules from the paused animation time. Unmount cancels playback and ignores late decode/completion. Decode failure keeps the previous artwork or the static dot and still allows completion.
+- React Activity retains the authored stage, animation time and completed state across effect reconnection. Hidden time does not advance playback; reconnecting never repeats entry/completion callbacks. An explicit `replayKey` change while hidden still starts a new run when shown.
+- `ShimmerText`: string children, `shimmering` and `active`. Text changes retain the sweep phase. Use it on an unclamped block status label.
+- `SkeletonGroup`: `SkeletonLine` descendants plus container props and `active`. It measures all row rectangles with one shared sweep, observes row/group resize and descendant additions/removals or layout changes, and pauses offscreen. Nested components may update their own rows without replacing the group's children. Use it as a plain layout container without borders or transforms on individual rows. The demo owns its 500ms insertion delay.
+- `Accordion`: `title`, children, `open/defaultOpen/onOpenChange`, `disabled` and container/trigger classes. Native button semantics; an inert labelled panel stays mounted while collapsed, retaining local state. Collapsing while focus is inside returns it to the trigger.
 
-- Status marks: 48px frames in a fixed 20px slot; 33.3333ms per frame, with a shared 10-frame grow. Entry/loop/exit counts are **think 16/110/15**, **read 21/60/19**, **write 31/60/14**, **code 16/75/9**; loops last approximately 3.67/2/2/2.5 seconds respectively. Preserve the artwork and `steps(frameCount, jump-none)` playback; a CSS dot bounce is not equivalent. The selected activity determines which animation the demo plays.
-- Selection updates the slider immediately while the old mark finishes its handoff: old loop → old out → latest target in → new loop. Think has seam frame 54; code has 18/37/56. `scheduleSeam()` selects the first seam strictly beyond `currentTime + 50ms`; otherwise, and for read/write, it waits for the loop end. An entry completes before its loop. Ordinary activity changes never replay grow. Repeated selection preserves phase; rapid changes cancel the old seam timer and retain only the latest target, including during exit.
-- Slider selection, equal-width compact options, status text/cycle updates on new entry, and Finish/Replay are local demonstration choices. The controls share a wrapping row; the independent timeline card sizes to its content, including when collapsed. Switching while running keeps the skeleton and shimmer; switching after completion starts a fresh example. Missing target artwork leaves the current mark unchanged, or shows a static dot before the first animation.
-- Status shimmer uses the secondary variant: 3s cycle, 0–15% initial hold, 15–85% travel with `cubic-bezier(.714,.121,.211,.888)`, then a final hold. The 120° gradient has 37.5/50/62.5% stops; light uses `--secondary`, dark uses `--muted`, with a 30%-base/white peak. The text-background fallback spans 400% and moves from 83.333% to 16.667%. Supported Chromium uses the masked clone with a -62.5% to -12.5% band instead.
-- The example uses a block flex item without line clamping. If adapting to inline or clamped text, keep the fallback or check the layout before enabling the animation. The stable clone updates without restarting its animation on translation; completion hides/empties it and stops the sweep. This is status-summary motion, not an effect applied to expanded reasoning.
-- Wait 500ms before inserting a skeleton, then fade it in over 150ms. One 2s linear sweep crosses the group; a 105° gradient with 35%–65% stops is clipped to the actual child rectangles. Recompute the clip when the group resizes.
-- The status and skeleton start automatically and loop until **Finish**. Finish cancels any scheduled handoff, waits for the current mark stage and exit, then stops the shimmer, disconnects the skeleton observer and shows translated content. Repeated Finish presses are ignored while closing; the same button retains focus and becomes **Replay** on completion. Replay clears the previous delay/observer and starts the selected variant from grow. Selecting another variant during completion resumes the handoff without resetting it. There is no automatic completion timer. This manual lifecycle and reserved empty mark slot are local adaptations; unavailable artwork or animation support retains a static dot while waiting.
-- The timeline toggles `aria-expanded`, its grid track and opacity over 200ms; hidden detail is inert. The demo uses a CSS grid transition for collapse.
+## Parameters
 
-The two-row skeleton and page-lifetime status example omit cross-mount phase compensation, blocked/default/sphere tail-crossfades and nested/cross-group synchronization. Check repeated Finish/Replay, resize during the sweep, translated loaded content and accordion focus reachability.
+| Part | Value |
+| --- | --- |
+| Mark frames | 48px frames in a fixed 20px slot; 33.33ms per frame; `steps(frameCount, jump-none)` |
+| Grow | 10 frames, shared by all variants |
+| In / loop / out frames | think 16/110/15 · read 21/60/19 · write 31/60/14 · code 16/75/9 (loops ≈ 3.67/2/2/2.5s) |
+| Loop seams | think frame 54; code frames 18/37/56; read and write hand off at the loop end |
+| Shimmer cycle | 3s: hold 0–15%, travel 15–85% with the authored shimmer curve, hold to the end |
+| Shimmer gradient | 120°, stops 37.5/50/62.5%; light uses `--cui-secondary`, dark `--cui-muted`, with a 30%-base/white peak |
+| Shimmer fallback | Text background 400% wide, moving 83.333% → 16.667%; Chromium uses the masked clone with a −62.5% → −12.5% band |
+| Skeleton | Inserted after 500ms, fades in over 150ms; one 2s linear sweep, 105° gradient with 35–65% stops, clipped to the child rectangles |
+| Accordion | Grid track, opacity and chevron over 200ms `--cui-ease-out-expo` |
+
+## Rules
+
+- Play the sprite artwork with stepped timing; a CSS dot bounce is a different effect.
+- A new selection updates the selector at once while the old mark finishes its handoff: old loop → old out → new in → new loop.
+- `scheduleSeam()` hands off at the first seam strictly beyond `currentTime + 50ms`, otherwise at the loop end. An entry completes before its loop starts.
+- Activity changes never replay grow. Re-selecting the current variant keeps its phase. Rapid changes keep only the latest target, including during an exit.
+- If the target artwork is missing, keep the current mark (or the static dot).
+- The shimmer runs on a block flex item without line clamping. For inline or clamped text, keep the text-background fallback or port the layout check.
+- Translating the status text updates the clone without restarting the sweep. Completion hides and empties the clone and stops the sweep.
+- The shimmer belongs on the one-line status summary, not on expanded reasoning.
+- Recompute the skeleton clip whenever the group resizes.
+- Ending a wait: cancel any scheduled handoff, let the current stage and exit finish, then stop the shimmer, disconnect the skeleton observer and reveal the content.
+- The accordion toggles `aria-expanded`; collapsed detail is inert.
+
+## Check
+
+- [ ] Rapid variant changes, including during an exit
+- [ ] Ending and restarting a wait repeatedly
+- [ ] Resizing during the skeleton sweep
+- [ ] Translated status text and loaded content
+- [ ] Accordion focus reachability, open and closed
+
+Local adaptations and limits: [coverage](../../docs/coverage.md#feedback).

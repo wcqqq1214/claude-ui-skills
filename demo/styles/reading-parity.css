@@ -1,0 +1,39 @@
+/* Demo geometry mirrors the original type and reading specimens. */
+.demo-type-effects { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; min-width: 0; }
+.demo-type-effect-stage { padding: 20px; min-height: 140px; display: flex; flex-direction: column; justify-content: center; }
+.demo-type-heading { margin: 13px 0; min-height: 40px; font-family: var(--cui-font-serif); font-size: 18px; line-height: 1.65; font-weight: var(--cui-regular); letter-spacing: normal; text-wrap: wrap; }
+.demo-type-body { margin: 0; min-height: 73px; font-family: var(--cui-font-serif); font-size: 13px; line-height: 1.85; color: var(--cui-secondary); }
+.demo-type-user-stage { align-items: flex-end; }
+.demo-type-working-stage { align-items: center; }
+.demo-type-scroll-example { grid-column: 1 / -1; }
+/* Only the fixed introduction reserves space; streamed paragraphs keep their natural height. */
+.demo-type-scroll-example .cui-scroll-content > div > p { min-height: 73px; }
+@media (max-width: 620px) {
+  .demo-type-effects { grid-template-columns: minmax(0, 1fr); gap: 16px; }
+  .demo-type-scroll-example .cui-scroll-content > div > p { min-height: 0; }
+}
+
+.demo-reading-card.demo-card { display: flex; flex-direction: column; padding: 22px; gap: 24px; }
+.demo-reading-tabs { align-self: flex-start; max-width: 100%; overflow-x: auto; }
+.demo-reading-panels { min-height: 370px; }
+.demo-reading-layout { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); gap: 32px; }
+.demo-reading-code { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr); align-items: start; gap: 28px; }
+.demo-reading-width-control { display: flex; align-items: center; gap: 12px; font-size: 12px; line-height: 1.6; color: var(--cui-secondary); }
+.demo-reading-width-control input { min-width: 0; width: 140px; max-width: 100%; accent-color: var(--cui-clay); }
+.demo-reading-detail { display: block; font-size: 12px; line-height: 1.6; color: var(--cui-secondary); }
+.demo-reading-tech-detail { grid-column: 1 / -1; overflow-wrap: anywhere; }
+.demo-reading-comparisons { min-width: 0; font-size: 15px; }
+.demo-reading-comparisons > div { margin: 0 0 22px; }
+.demo-reading-comparisons > div:last-child { margin-bottom: 0; }
+.demo-reading-comparison { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.demo-reading-label { grid-column: 1 / -1; color: var(--cui-secondary); font-size: 12px; line-height: 1.6; }
+.demo-reading-baseline-label { display: block; margin-bottom: 6px; color: var(--cui-secondary); font-family: var(--cui-font-sans); font-size: 12px; line-height: 1.6; }
+.demo-reading-code-title { display: flex; align-items: center; min-height: 32px; margin: 0 0 16px; font-size: 13px; font-weight: var(--cui-medium); }
+@container (max-width: 760px) {
+  .demo-reading-layout, .demo-reading-code { grid-template-columns: minmax(0, 1fr); gap: 28px; }
+  .demo-reading-panels { min-height: 0; }
+  .demo-reading-card.demo-card { padding: 16px; }
+}
+
+/* Preserve the original demo-only <=1150px segment padding. */
+@media (max-width:1150px) { .demo-reading-tabs .cui-segment button { padding:8px 11px; } }

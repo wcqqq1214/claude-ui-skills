@@ -1,0 +1,147 @@
+const grow = new URL('../../assets/status/grow.webp', import.meta.url).href;
+const thinkIn = new URL('../../assets/status/think-in.webp', import.meta.url).href;
+const thinkLoop = new URL('../../assets/status/think-loop.webp', import.meta.url).href;
+const thinkOut = new URL('../../assets/status/think-out.webp', import.meta.url).href;
+const readIn = new URL('../../assets/status/read-in.webp', import.meta.url).href;
+const readLoop = new URL('../../assets/status/read-loop.webp', import.meta.url).href;
+const readOut = new URL('../../assets/status/read-out.webp', import.meta.url).href;
+const writeIn = new URL('../../assets/status/write-in.webp', import.meta.url).href;
+const writeLoop = new URL('../../assets/status/write-loop.webp', import.meta.url).href;
+const writeOut = new URL('../../assets/status/write-out.webp', import.meta.url).href;
+const codeIn = new URL('../../assets/status/code-in.webp', import.meta.url).href;
+const codeLoop = new URL('../../assets/status/code-loop.webp', import.meta.url).href;
+const codeOut = new URL('../../assets/status/code-out.webp', import.meta.url).href;
+
+export type Activity = 'think' | 'read' | 'write' | 'code';
+type Stage = 'dot' | 'grow' | 'in' | 'loop' | 'out' | 'done';
+const frameMs = 33.3333;
+const marks = {
+  think: { frames: [16, 110, 15], seams: [54], urls: [thinkIn, thinkLoop, thinkOut] },
+  read: { frames: [21, 60, 19], seams: [], urls: [readIn, readLoop, readOut] },
+  write: { frames: [31, 60, 14], seams: [], urls: [writeIn, writeLoop, writeOut] },
+  code: { frames: [16, 75, 9], seams: [18, 37, 56], urls: [codeIn, codeLoop, codeOut] },
+};
+
+/** Owns only the decorative strip. React owns props, labels and completion state. */
+export function createStatusPlayback(host: HTMLElement, strip: HTMLElement, onEnter: (activity: Activity) => void, onComplete: () => void) {
+  const decoded = new Set<Activity>(), pending = new Map<Activity, Promise<boolean>>();
+  let activity: Activity = 'think', wanted: Activity = 'think', stage: Stage = 'dot';
+  let revision = 0, animation: Animation | null = null, seamTimer: ReturnType<typeof setTimeout> | undefined;
+  let finishing = false, paused = true, disposed = false, connected = true, completionPending = false;
+  let resumeTime = 0;
+  const target = () => decoded.has(wanted) ? wanted : activity;
+  const clearSeam = () => { clearTimeout(seamTimer); seamTimer = undefined; };
+  function notifyCompletion() {
+    const run = revision;
+    // StrictMode and Activity disconnect effects before pending microtasks run.
+    // Keep an undelivered completion for reconnect, but never notify after unmount.
+    queueMicrotask(() => {
+      if (!disposed && connected && run === revision && stage === 'done' && completionPending) {
+        completionPending = false; onComplete();
+      }
+    });
+  }
+  function settle() {
+    clearSeam(); animation?.cancel(); animation = null;
+    host.dataset.phase = stage = 'done';
+    if (finishing) {
+      finishing = false; completionPending = true; notifyCompletion();
+    }
+  }
+  function scheduleSeam() {
+    clearSeam();
+    if (paused || stage !== 'loop' || target() === activity || finishing || !animation || animation.currentTime === null) return;
+    const time = Number(animation.currentTime);
+    const seam = marks[activity].seams.map(frame => frame * frameMs).find(ms => ms > time + 50);
+    if (seam === undefined) return;
+    const current = animation, run = revision;
+    seamTimer = setTimeout(() => {
+      if (run === revision && animation === current && target() !== activity && !finishing && !paused) void play('out', run);
+    }, seam - time);
+  }
+  async function play(nextStage: 'grow' | 'in' | 'loop' | 'out', run: number, restoredTime?: number) {
+    if (disposed || !connected || run !== revision) return;
+    clearSeam(); animation?.cancel(); animation = null;
+    stage = nextStage;
+    const index = nextStage === 'in' ? 0 : nextStage === 'loop' ? 1 : 2;
+    const frames = nextStage === 'grow' ? 10 : marks[activity].frames[index];
+    host.dataset.phase = nextStage === 'grow' ? 'grow' : `${activity}-${nextStage}`;
+    strip.style.backgroundImage = `url("${nextStage === 'grow' ? grow : marks[activity].urls[index]}")`;
+    strip.style.height = `${frames * 20}px`;
+    if (nextStage === 'in' && restoredTime === undefined) onEnter(activity);
+    if (disposed || !connected || run !== revision) return;
+    let current: Animation | undefined;
+    try {
+      current = animation = strip.animate(Array.from({ length: frames }, (_, frame) => ({ transform: `translateY(-${frame * 20}px)` })), {
+        duration: frames * frameMs, iterations: 1, easing: `steps(${frames}, jump-none)`, fill: 'forwards',
+      });
+      if (restoredTime !== undefined) current.currentTime = restoredTime;
+      if (paused) current.pause();
+      scheduleSeam();
+      await current.finished;
+    } catch {
+      if (!disposed && run === revision && (!current || animation === current)) {
+        clearSeam(); animation = null; host.dataset.phase = stage = 'dot';
+        if (finishing) settle();
+      }
+      return;
+    }
+    if (disposed || run !== revision || animation !== current) return;
+    if (nextStage === 'out') {
+      if (finishing) return settle();
+      activity = target(); return play('in', run);
+    }
+    if (nextStage === 'grow') { activity = target(); return play('in', run); }
+    // Always finish entry, then loop; changed targets leave at a seam or loop end.
+    void play(finishing || nextStage === 'loop' && target() !== activity ? 'out' : 'loop', run);
+  }
+  function select(nextActivity: Activity) {
+    if (disposed) return;
+    wanted = nextActivity; finishing = false;
+    const run = revision;
+    if (!pending.has(wanted)) {
+      pending.set(wanted, Promise.all([grow, ...marks[wanted].urls].map(url => {
+        const image = new Image(); image.src = url; return image.decode();
+      })).then(() => { decoded.add(nextActivity); return true; }, () => false));
+    }
+    scheduleSeam();
+    void pending.get(wanted)!.then(ready => {
+      if (!ready || disposed || !connected || run !== revision || wanted !== nextActivity || finishing || stage === 'done') return;
+      if (stage === 'dot') { activity = wanted; void play('grow', run); }
+      else scheduleSeam();
+    });
+  }
+  return {
+    start(nextActivity: Activity) {
+      revision++; clearSeam(); animation?.cancel(); animation = null;
+      completionPending = false;
+      host.dataset.phase = stage = 'dot'; strip.style.backgroundImage = '';
+      activity = nextActivity; select(nextActivity);
+    },
+    select,
+    finish() {
+      if (stage === 'done' || finishing) return;
+      finishing = true; clearSeam();
+      if (!animation) { revision++; settle(); }
+    },
+    pause(value: boolean) {
+      paused = value;
+      if (paused) { animation?.pause(); clearSeam(); }
+      else { animation?.play(); scheduleSeam(); }
+    },
+    connect() {
+      if (disposed || connected) return;
+      connected = true;
+      if (stage === 'done') { if (completionPending) notifyCompletion(); }
+      else if (stage === 'dot') { if (finishing) settle(); else select(wanted); }
+      else void play(stage, revision, resumeTime);
+    },
+    disconnect() {
+      if (!connected) return;
+      connected = false; revision++; clearSeam();
+      resumeTime = Number(animation?.currentTime ?? 0);
+      animation?.cancel(); animation = null;
+    },
+    dispose() { disposed = true; revision++; clearSeam(); animation?.cancel(); animation = null; },
+  };
+}

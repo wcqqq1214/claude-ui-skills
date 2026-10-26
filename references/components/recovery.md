@@ -1,17 +1,49 @@
 # Notification stacks
 
-Use this for notifications that remain manageable as messages arrive or leave. It models presentation only.
+Use for: notifications that stay manageable as messages arrive and leave. Presentation only.
 
-## Read the running code
+## React implementation
 
-[HTML](../../showcase/index.html#recovery) · [JS](../../showcase/components/recovery.js) · [CSS](../../showcase/components/recovery.css)
+[NotificationStack](../../src/components/micro/NotificationStack.tsx) · [styles](../../src/styles/micro.css) · [demo](../../demo/chapters/NotificationsChapter.tsx) · [source integration](../../demo/README.md)
 
-`initRecoveryDemo(showToast)` binds `addNotice()`, `removeNotice()` and `arrangeNotices()`. Its callback shows a local result using [micro.js](../../showcase/components/micro.js); include [micro.css](../../showcase/components/micro.css) for that single notification’s container positioning, width and stacking level. The `.stack-toast` skin is also used by that single-notification example.
+`NotificationStack` owns its items, deadlines, animation exit cleanup and focus order. A ref exposes `notify({ message, key?, action?, duration? })`, `dismiss(id)` and `clear()`. `notify` returns the instance-local ID. Messages/action labels are React nodes; an action supplies an onClick callback. No global provider is needed.
 
-## Design and adaptation
+- Ordinary notices default to 6000ms. Action notices default to persistence; duration overrides either behavior, and null always persists. Each item keeps an absolute deadline, so unrelated additions never extend it.
+- Replacing a single notice or refreshing a matching key invalidates its previous deadline, even if that timer's callback is already queued. The replacement's duration, including null, takes effect immediately.
+- A key deduplicates non-exiting entries and increments the count. The default display appends `(×count)`; `renderMessage(message, count)` supports translated or custom text. Repetitions after the second suppress repeated live announcements.
+- `mode="single"` replaces and refreshes the existing entry, including while exiting. Its obsolete exit completion is cancelled. Stack mode keeps exiting entries separate when the same key arrives again.
+- An action calls the host and then dismisses only the notice version that supplied that action, including when the callback hides a retained Activity. Hidden completion cannot restore focus. A synchronous same-key refresh or single-mode replacement keeps its new message, action and deadline; public `dismiss(id)` still dismisses the current version of that ID. A true unmount stays silent.
+- `defaultNotices` initializes a stack once. `dismissLabel` is required; `label`, `empty`, wrapper class/style and fallbackFocus are optional. Use one stable component instance per local stack.
+- `active=false` makes the stack inert and disables live announcements/focus restoration. Deadlines continue to run while hidden. Unmount clears its timers and ignores pending exits.
+- Activity reconnection completes an already dismissed entry without leaving invisible cards or empty space. The attached handle is callable from a callback ref or a host layout effect; saved handles reject calls while disconnected or after a true unmount.
+- The host owns placement and business effects. Pass presentational message content; use action for interactive controls. For dynamic localization, render messages with renderMessage or context-aware React nodes so existing notices update too.
+- Messages and `renderMessage` results may contain block presentation nodes, including paragraphs or metadata containers. Their flow container preserves valid server HTML and hydrates the existing DOM without replacement.
 
-- The stack exposes three layers while retaining further entries. Limited entries are hidden and inert, so closing front entries reveals queued items. Repeated messages reuse their existing entry; action notifications persist, while ordinary ones use a 6s timer.
-- Entry moves from translateY(100%)/opacity 0; exit goes to scale .85/opacity 0. Both use 200ms `cubic-bezier(.165,.84,.44,1)`. Rear content fades by opacity/visibility; exiting content retains its state until transitions complete.
-- Active indices exclude exiting items; exiting indices follow DOM order. Front height is natural, rear layers use it, and ResizeObserver updates geometry. Focused entries retain their ordering; closing moves focus to a usable neighbor or trigger.
+## Parameters
 
-A persistent action notice seeds the preview; “Stack three” adds three ordinary timed notices through the same `addNotice()` path. “Clear notices” sends all active entries through `removeNotice()`, cancelling their timers and preserving exit transitions and observer cleanup. The preview layout, batch controls, action-button styling and focus policy are local. There is no hover expansion. Check clearing during exit, adding after clearing, dedupe, action persistence and queue replenishment with more than three messages.
+| Part | Value |
+| --- | --- |
+| Visible layers | Three; further entries wait hidden and inert |
+| Rear layers | Each step back moves −14px and scales by −4% |
+| Enter | From translateY(100%), opacity 0; 200ms `--cui-ease-out` |
+| Exit | To scale .85, opacity 0; 200ms `--cui-ease-out` |
+| Timer | Ordinary notices 6s; action notices persist |
+| Dismiss control | 16px X with 4px padding in an explicit 24×24px centered box |
+| Surface | 10px radius |
+
+## Rules
+
+- A repeated message reuses its existing entry.
+- Closing a front entry reveals the next queued one.
+- Active indices skip exiting items; exiting items keep DOM order.
+- The front entry has its natural height and rear layers take that height; ResizeObserver keeps the geometry current.
+- Rear content fades through opacity and visibility. Exiting content keeps its state until its transitions finish.
+- A focused entry keeps its place in the order. Closing it moves focus to a usable neighbor, else the trigger.
+
+## Check
+
+- [ ] Clearing during an exit; adding after clearing
+- [ ] Deduplication and action-notice persistence
+- [ ] Queue refill with more than three messages
+
+Local adaptations and limits: [coverage](../../docs/coverage.md#recovery).
