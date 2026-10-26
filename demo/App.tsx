@@ -25,7 +25,6 @@ function readPreferences(key: 'locale' | 'theme') {
 }
 function savePreference(key: string, value: string) { try { localStorage.setItem(`cui-demo-${key}`, value); } catch { /* Storage is optional. */ } }
 function currentChapter(): Chapter {
-  if (location.hash === '#segmented') return 'controls';
   return chapters.find(chapter => location.hash === `#${chapter}`) ?? 'type';
 }
 function initialLocale(): Locale {

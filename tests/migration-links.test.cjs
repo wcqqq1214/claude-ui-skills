@@ -35,7 +35,7 @@ function anchors(file) {
     duplicates.set(slug, count + 1); ids.add(count ? `${slug}-${count}` : slug);
   }
   // These fragments are React routes, not static HTML element IDs.
-  if (normalized === 'demo/index.html' || normalized === 'index.html') [...chapters(), 'segmented'].forEach(id => ids.add(id));
+  if (normalized === 'demo/index.html' || normalized === 'index.html') chapters().forEach(id => ids.add(id));
   return ids;
 }
 
@@ -59,7 +59,6 @@ test('chapter and Markdown anchors accept both POSIX and Windows relative paths'
   for (const file of demoFiles) {
     const ids = anchors(file);
     for (const route of chapters()) assert.ok(ids.has(route), `${file}: missing chapter ${route}`);
-    assert.ok(ids.has('segmented'), `${file}: retain the legacy segmented alias`);
   }
   assert.ok(anchors(win32.relative('C:\\repo', 'C:\\repo\\demo\\README.md')).has('run'), 'Windows Markdown links retain heading anchors');
 });

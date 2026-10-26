@@ -50,22 +50,21 @@ withDevBrowser(async ({ browser, base }) => {
       await page.getByRole('button', { name: 'Toggle mount', exact: true }).evaluate(node => node.click());
       assert.equal(await speed.count(), 0);
       assert.equal(await outside.evaluate(node => node === document.activeElement), true);
-      await page.goto(`${base}/tests/fixtures/react-visual-parity/demo.html?strict=${strict}&lang=en#segmented`);
+      await page.goto(`${base}/tests/fixtures/react-visual-parity/demo.html?strict=${strict}&lang=en#controls`);
       await page.getByRole('heading', { name: 'Controls', exact: true }).waitFor();
       assert.equal(await page.locator('nav a').count(), 13);
-      assert.equal(await page.locator('nav a[href="#segmented"]').count(), 0);
-      assert.equal(await page.locator('nav a[aria-current]').getAttribute('href'), '#controls', 'legacy URL selects Controls');
+      assert.equal(await page.locator('nav a[aria-current]').getAttribute('href'), '#controls', 'Controls URL selects its navigation entry');
       const merged = page.getByRole('radiogroup', { name: 'View format', exact: true });
       await merged.getByRole('radio', { name: 'Code', exact: true }).click();
       await chooseChapter(page, 'type');
       await page.goBack();
       await page.getByRole('heading', { name: 'Controls', exact: true }).waitFor();
-      assert.equal(await merged.getByRole('radio', { name: 'Code', exact: true }).getAttribute('aria-checked'), 'true', 'history to the legacy route retains selection');
+      assert.equal(await merged.getByRole('radio', { name: 'Code', exact: true }).getAttribute('aria-checked'), 'true', 'history to Controls retains selection');
       await page.goForward();
       await page.getByRole('heading', { name: 'Typography', exact: true }).waitFor();
-      await page.evaluate(() => { location.hash = 'segmented'; });
+      await page.evaluate(() => { location.hash = 'controls'; });
       await page.getByRole('heading', { name: 'Controls', exact: true }).waitFor();
-      assert.equal(await merged.getByRole('radio', { name: 'Code', exact: true }).getAttribute('aria-checked'), 'true', 'hashchange alias retains selection');
+      assert.equal(await merged.getByRole('radio', { name: 'Code', exact: true }).getAttribute('aria-checked'), 'true', 'hashchange to Controls retains selection');
       for (const locale of ['en', 'zh-Hans']) {
         await setLanguage(page, locale);
         const notes = page.getByRole('button', { name: locale === 'en' ? 'Implementation notes' : '实现说明', exact: true });

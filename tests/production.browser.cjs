@@ -60,9 +60,9 @@ const { chromium } = require(process.env.PLAYWRIGHT_MODULE || 'playwright-core')
     const chapters = ['controls', 'type', 'reading', 'feedback', 'micro', 'recovery', 'composer', 'menus', 'workspace', 'modes', 'images', 'gallery', 'tasks'];
     for (const base of ['/', '/claude-ui-skills/']) {
       for (const entry of ['', 'demo/']) {
-        await page.goto(`${origin}${base}${entry}?lang=en#segmented`);
+        await page.goto(`${origin}${base}${entry}?lang=en#controls`);
         await page.getByRole('radiogroup', { name: 'View format', exact: true }).waitFor();
-        assert.equal(await page.locator('nav a[aria-current]').getAttribute('href'), '#controls', 'built entries resolve the legacy segmented route');
+        assert.equal(await page.locator('nav a[aria-current]').getAttribute('href'), '#controls', 'built entries open the merged Controls chapter');
       }
       await page.goto(`${origin}${base}?lang=en#controls`);
       await page.getByRole('switch', { name: 'Switch', exact: true }).waitFor();
