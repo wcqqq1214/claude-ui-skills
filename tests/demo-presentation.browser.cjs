@@ -1,6 +1,6 @@
 const assert = require('node:assert/strict');
 const { withDevBrowser } = require('./dev-browser.cjs');
-const { setChoice, setTheme, setLanguage, chooseChapter } = require('./demo-helpers.cjs');
+const { setTheme, setLanguage, chooseChapter } = require('./demo-helpers.cjs');
 
 withDevBrowser(async ({ browser, base }) => {
   const errors = [];
@@ -11,13 +11,12 @@ withDevBrowser(async ({ browser, base }) => {
   try {
     for (const strict of ['off', 'on']) {
       await page.goto(`${base}/tests/fixtures/react-visual-parity/demo.html?lang=en&strict=${strict}#controls`);
-      const speed = page.getByRole('combobox', { name: 'Playback speed', exact: true });
-      assert.equal(await speed.getAttribute('data-value'), '1', 'first visit shows the original animation speed');
+      const speed = page.getByRole('button', { name: 'Playback speed', exact: true });
+      assert.equal(await speed.getAttribute('aria-pressed'), 'true', 'first visit defaults to 0.2×');
       const grid = page.locator('.demo-controls-grid');
-      assert.equal(await grid.evaluate(node => getComputedStyle(node).getPropertyValue('--cui-motion-scale')), '1');
-      await setChoice(page, speed, '0.2');
       assert.equal(await grid.evaluate(node => getComputedStyle(node).getPropertyValue('--cui-motion-scale')), '5');
-      await setChoice(page, speed, '1');
+      await speed.click();
+      assert.equal(await grid.evaluate(node => getComputedStyle(node).getPropertyValue('--cui-motion-scale')), '1');
       const toggle = page.locator('.demo-notes-toggle');
       const control = page.getByRole('switch', { name: 'Switch', exact: true });
       await control.click();
@@ -77,6 +76,6 @@ withDevBrowser(async ({ browser, base }) => {
       assert.equal(await page.locator('html').getAttribute('lang'), 'zh-Hans');
     }
     assert.deepEqual(errors, []);
-    console.log('Demo presentation: both locales/themes, 320px/desktop, StrictMode off/on, optional notes, source-speed default, retained state and theme persistence passed.');
+    console.log('Demo presentation: both locales/themes, 320px/desktop, StrictMode off/on, optional notes, 0.2× default, retained state and theme persistence passed.');
   } finally { await page.close(); }
 });

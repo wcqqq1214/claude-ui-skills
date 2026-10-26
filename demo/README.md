@@ -15,7 +15,7 @@ Open the printed Vite address. `/demo/` is an additional entry to the same appli
 
 The [mobile preview](../docs/assets/demo-preview-mobile.jpg) shows the 320px layout.
 
-Use the original icon button to cycle System → Light → Dark. Its display, sun or moon icon indicates the current preference. The playback picker supports arrow keys to browse, Enter to select, Escape to cancel and Tab to move on. Implementation notes are hidden by default; the chapter-header toggle reveals descriptions and technical parameters without resetting the specimens. Controls start at normal playback speed; choose Slow (0.2×) to inspect their original motion.
+Use the original icon button to cycle System → Light → Dark. Its display, sun or moon icon indicates the current preference. The turtle button toggles playback between 0.2× and 1× with a click, Enter or Space. Implementation notes are hidden by default; the chapter-header toggle reveals descriptions and technical parameters without resetting the specimens. Controls start at 0.2× so their motion is easy to inspect; toggle the turtle button to restore normal speed.
 
 Existing theme/language preferences from the pre-migration demo are retained; valid current preferences take precedence. Unsupported language parameters are ignored in favor of a valid saved preference or the browser language. Reselecting the current chapter returns to the top without adding a history entry.
 

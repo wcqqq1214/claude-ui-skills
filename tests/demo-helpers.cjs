@@ -1,10 +1,4 @@
 const assert = require('node:assert/strict');
-async function setChoice(page, trigger, value) {
-  await trigger.click();
-  const id = await trigger.getAttribute('aria-controls');
-  await page.locator(`[role=listbox][id="${id}"] [role=option][data-value="${value}"]`).click();
-  assert.equal(await trigger.getAttribute('data-value'), value);
-}
 async function setTheme(page, theme) {
   const button = page.locator('.demo-topbar button[data-preference]');
   await button.waitFor();
@@ -27,4 +21,4 @@ async function chooseChapter(page, id) {
   await link.click();
   await page.waitForFunction(id => document.querySelector('nav a[aria-current]')?.getAttribute('href') === '#' + id, id);
 }
-module.exports = { setChoice, setTheme, setLanguage, chooseChapter };
+module.exports = { setTheme, setLanguage, chooseChapter };
