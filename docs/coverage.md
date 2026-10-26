@@ -2,7 +2,11 @@
 
 Claude UI Skills is an unofficial reference for Claude Desktop-style interfaces. The examples cover typography, motion, controls, menus, reading, panels, keyboard focus and visible feedback. They do not simulate backend execution, authentication or reconnection. Separate reduced-motion demonstrations are not provided.
 
-This page describes the visible examples in the [showcase](../showcase/index.html), their interactions and their limits. The [component guides](../references/components.md) provide further details. Coverage is limited to the examples and observations documented here.
+This page describes the visible examples in the [React demo](../demo/index.html), their interactions and their limits. The [component guides](../references/components.md) provide further details. Coverage is limited to the examples and observations documented here.
+
+## React migration status
+
+All examples are available in the React demo. [The migration record](react-migration.md) documents the transition. The sections below describe the example interactions and their limits.
 
 ## Using the examples
 
@@ -39,8 +43,8 @@ Not every size, disabled state, tooltip combination, long list, nested overlay, 
 
 ### Segmented control
 
-- **Behavior:** the example shows standard and compact segmented choices with sample labels. Changing the selection can interrupt an ongoing animation. Button spacing changes at the 1150px layout breakpoint.
-- **Limits:** the example uses a fixed set of choices and does not demonstrate disabled choices or linked tab panels.
+- **Behavior:** the example shows standard and compact segmented choices with sample labels. Changing the selection can interrupt an ongoing animation.
+- **Limits:** labels can vary and choices can be disabled. Linked tab panels are not demonstrated.
 
 <a id="composer"></a>
 
@@ -74,7 +78,7 @@ Not every size, disabled state, tooltip combination, long list, nested overlay, 
 ### Tooltips, ghost hover and copy
 
 - **Behavior:** the ghost sample demonstrates a hover animation and has a local label and explanation; it does not open an incognito session or add a tooltip or shortcut. Copy feedback appears in a fixed-position notice up to 360px wide and replaces the previous notice. The overflow-width slider ranges from 100 to 320px, subject to the container width; its readout shows the requested width. Sample filenames are used throughout.
-- **Limits:** automatic repositioning near screen edges, moving between grouped tooltips and keeping a tooltip open while hovering over it are not demonstrated.
+- **Limits:** tooltips can move below their trigger to stay within the viewport, but surrounding containers may still clip them. Moving between grouped tooltips and keeping a tooltip open while hovering over it are not demonstrated.
 
 <a id="reading"></a>
 
@@ -127,9 +131,13 @@ Not every size, disabled state, tooltip combination, long list, nested overlay, 
 
 ## Recorded validation
 
+[React visual comparison](react-visual-parity.md) records screenshot comparisons with the earlier local demo and their limits.
+
 The following are records of earlier checks, not a new validation run. They apply to the documented interactions and sessions.
 
 **Local demo:** the recorded 2026-10-14 check covered desktop light/dark themes and a 390px layout without whole-page horizontal overflow. Paths included replay, controls and segmented selection, waiting and accordion feedback, panel resize and return, image and gallery opening, closing, paging and zoom, tooltips and copy, menu exit, cards and notification merging. Escape closed the table dialog and returned focus. The check used the keyboard drop demonstration; a full physical-drag or trackpad check was not repeated. Separate checks covered a segmented control displayed at 75% size, small separator movements, interrupted image closing and reopening, skeleton resizing and replay, table overflow and replenishing a nine-notification stack.
+
+**React migration:** recorded checks covered the example chapters, saved preferences, unavailable browser storage and navigation history. Preview checks included the main entry page and switching to Chinese. [Test coverage mapping](../tests/README.md) records the tested interactions. Physical trackpad behavior and the excluded variants above remain outside this evidence.
 
 **Original app:** the recorded file-preview session showed Preview/Code switching and keyboard resizing. Keyboard resizing in a different file viewer was not confirmed. A nested menu opened with focus on Low while High stayed selected; this observation does not establish how a slider commits a value. Chat-copy success, code-editing effects and complete physical-gesture behavior were not established.
 

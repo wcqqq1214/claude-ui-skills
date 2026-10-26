@@ -4,11 +4,13 @@ Use for: several images sharing one overlay, with neighbor previews, keyboard pa
 
 ## Code
 
-[HTML](../../showcase/index.html#gallery) · [gallery.js](../../showcase/components/gallery.js) · [gallery.css](../../showcase/components/gallery.css) · [gallery-zoom.js](../../showcase/gallery-zoom.js)
+[Gallery.tsx](../../src/components/media/Gallery.tsx) · [native gestures](../../src/components/media/galleryInteraction.ts) · [zoom geometry](../../src/components/media/galleryZoom.ts) · [gallery.css](../../src/styles/gallery.css) · [React demo](../../demo/chapters/GalleryChapter.tsx)
 
-- `initGalleryDemo()` builds the slides and binds the dialog.
-- Read `switchGallery()`, `setZoom()`, `resetZoom()` and the wheel/pointer handlers with `GalleryZoom.nextScale`, `clickZoom`, `scaleAt` and `bound`.
-- The header, filename and navigation styles are scoped in gallery.css.
+Import `Gallery` from `src/index.ts` and the shared [style entry](../../src/styles/index.css); see [integration](../../demo/README.md). Each item has a stable `id`, `src`, optional `thumbnailSrc`, `alt` and `filename`. The host supplies all labels, including functions for the thumbnail, zoom action and count. `defaultValue` chooses the initial item; `onValueChange` reports selection changes. A ref exposes `open(id?)` and `close()`. `onOpenChange` reports opening/dismissal, without firing on mount. Use `active={false}` when hiding the host chapter.
+
+React renders the thumbnails, slides, caption, count and ARIA state. The isolated controller owns modal focus, the 180ms native crossfade, wheel input and captured-pointer geometry. The pure TypeScript module implements scale, focal-point retention and bounds. Label updates preserve zoom; resource changes reset geometry while keeping the selected ID if it still exists. Removing the selected item chooses the first remaining one; emptying items closes the dialog. No demo IDs, translated globals or page-wide reset is required.
+
+Selection callbacks may synchronously update the host. If `onValueChange` sets `active={false}`, disconnects the gallery through Activity or unmounting, empties its items, or cancels an opening, that old request cannot subsequently show a modal. A newer opening requested from the callback takes precedence.
 
 ## Parameters
 
@@ -29,15 +31,15 @@ Use for: several images sharing one overlay, with neighbor previews, keyboard pa
 - Changing slide resets zoom and pan and updates neighbors, controls, caption and focus together.
 - A neighbor click selects that slide while fitted; while zoomed, it first resets the current image.
 - Keep the pointer's focal point fixed while scaling.
-- `GalleryZoom.bound()` limits pan from the fitted size, viewport and scale. Only a zoomed image captures the pointer.
+- `bound()` limits pan from the fitted size, viewport and scale. Only a zoomed image captures the pointer.
 - ArrowLeft/ArrowRight page, Escape closes, and focus returns to the opener.
 
 ## Check
 
-- [ ] Neighbor slides, fitted and zoomed
-- [ ] Keyboard zoom and reset
-- [ ] Drag versus click around the 4px threshold
-- [ ] Close and focus return
-- [ ] Narrow layout below 40rem
+The [independent consumer suite](../../tests/react-gallery.browser.cjs) checks focal zoom, ideal pan, wheel units, pointer ownership, 3/4px drag boundaries, animation/zero-size measurement guards, neighbor reset/selection, close-button buffer, keyboard paging/focus, RTL, host item updates, multiple galleries, transition interruption and cleanup/fallback. Demo checks cover English/Chinese light/dark layouts at 1280/390/320px. [Deterministic geometry tests](../../tests/gallery-zoom.test.cjs) exercise the migrated TypeScript geometry.
+
+React Activity checks retain the dialog DOM while effects disconnect and reconnect. Without a new opening request, reconnection keeps the modal closed, clears thumbnail expansion and zoom, and retains the selected ID. When the host calls `open()` again, synchronously or in a microtask, old native close events do not cancel that opening; cleanup remains silent and subsequent external native closes still report dismissal.
+
+After a pointer drag, the next keyboard action clears the post-drag click guard even if its zero-delay timer has not run yet. Pointer clicks remain suppressed until that timer; the guard cannot swallow a later keyboard paging action. Pagehide, inactivity and unmount invalidate delayed transition callbacks, release capture and remove temporary transition styles.
 
 Local adaptations and limits: [coverage](../../docs/coverage.md#gallery).

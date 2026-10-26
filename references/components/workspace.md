@@ -4,10 +4,9 @@ Use for: a file list beside a preview, where readers switch files and view forma
 
 ## Code
 
-[HTML](../../showcase/index.html#workspace) · [workspace.js](../../showcase/components/workspace.js) · [workspace.css](../../showcase/components/workspace.css)
+[FileWorkspace.tsx](../../src/components/workspace/FileWorkspace.tsx) · [usePaneResize.ts](../../src/components/workspace/usePaneResize.ts) · [workspace.css](../../src/styles/workspace.css) · [React demo](../../demo/chapters/WorkspaceChapter.tsx)
 
-- `initWorkspaceDemo()` owns `renderFile()`, `commitPane()`, the drag lifecycle and scoped F6 navigation.
-- `fileSegment` uses the [segmented control](segmented.md) and the [icon map](../../showcase/icons.js); expansion calls `refresh()` after the layout changes.
+Import `FileWorkspace` from `src/index.ts` with the shared stylesheet; see [integration](../../demo/README.md#file-panels-and-sidebar-navigation). React owns file, view and expanded state. The private resize hook owns the measured CSS variable and pointer transaction, cancelling capture on inactivity/unmount. The compact view uses [SegmentedControl](../../src/components/segmented/SegmentedControl.tsx), and remeasures after layout changes. Files supply preview React nodes and plain source strings; demo sample content stays outside the component.
 
 ## Parameters
 
@@ -27,6 +26,7 @@ Use for: a file list beside a preview, where readers switch files and view forma
 - CSS constrains the rendered width while the chosen width is kept for the next expansion. Use this panel's bounds rather than another panel's.
 - Ignore Ctrl/Meta/Alt, resize keys during a drag, and repeated endpoint or reset keys. Shift changes only the arrow step.
 - A drag commits only after 3px of movement; a cancelled or unchanged drag restores the stored width, including on `pointercancel`.
+- A handle's focus callback can synchronously deactivate, expand, hide, unmount or reconnect its owner. The interrupted pointerdown must not capture the pointer, resize or commit a width; a fresh gesture remains available afterward.
 - Expanding hides and inerts the list and takes the separator out of the Tab order.
 - Switching files keeps the current Preview/Code choice.
 - The toolbar title centers its 20px File icon and label in a flex group, without the inline baseline offset.
@@ -35,10 +35,6 @@ Use for: a file list beside a preview, where readers switch files and view forma
 
 ## Check
 
-- [ ] Resize bounds by pointer and keyboard
-- [ ] Expand and restore repeatedly
-- [ ] F6 cycle with the list collapsed and expanded
-- [ ] Translated content and long filenames
-- [ ] The compact view control
+[Independent consumer and browser suite](../../tests/react-workspace.browser.cjs) cover the 3/4px commit boundary, 8/32px keyboard steps, bounds and no-op width preservation, cancellation, repeated expansion, F6, independent instances, long filenames and bilingual responsive layouts. The React panel stacks at a **container** width of 620px, rather than the original page viewport breakpoint, so it also works inside a narrow host.
 
 Local adaptations and limits: [coverage](../../docs/coverage.md#workspace).

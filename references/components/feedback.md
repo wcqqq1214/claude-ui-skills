@@ -2,15 +2,18 @@
 
 Use for: an animated activity mark with a shimmering status line while work is under way, a delayed skeleton for content that has not arrived, and an accordion that keeps optional detail close without taking permanent space.
 
-## Code
+## React implementation
 
-[HTML](../../showcase/index.html#feedback) · [feedback.js](../../showcase/components/feedback.js) · [feedback.css](../../showcase/components/feedback.css) · [status sheets](../../showcase/components/status-assets/)
+[StatusMark](../../src/components/feedback/StatusMark.tsx) · [playback controller](../../src/components/feedback/statusPlayback.ts) · [ShimmerText](../../src/components/feedback/ShimmerText.tsx) · [SkeletonGroup/Line](../../src/components/feedback/Skeleton.tsx) · [Accordion](../../src/components/feedback/Accordion.tsx) · [styles](../../src/styles/feedback.css) · [React demo](../../demo/chapters/FeedbackChapter.tsx)
 
-- `STATUS_MARKS` and `createStatusMark()`: sprite playback for think, read, write and code. Bring `grow.webp` plus each variant's `*-in.webp`, `*-loop.webp` and `*-out.webp`.
-- `createStatusShimmer()`: the status text and its hidden visual clone; `.status-shimmer` draws the sweep.
-- `runSkeleton()` / `clearSkeleton()`: the delay timer, the shared sweep clip and its ResizeObserver.
-- `initFeedbackDemo()`: the variant selector (reusing [segmented](segmented.md)), Finish/Replay and the timeline. Language changes call `refresh()`.
-- Loaded content uses `.word-fade` from [type.css](../../showcase/components/type.css). Load segmented.js/css before this chapter.
+Follow the [source integration instructions](../../demo/README.md). Import components from `src/` and retain the status assets. The host owns translated labels, loading state and the delay before showing a skeleton.
+
+- `StatusMark`: `activity` (`think/read/write/code`), `running`, `active`, `replayKey`, `onActivityEnter`, `onComplete`. Set `running=false` to finish the current stage and exit; change `replayKey` to begin a new grow sequence. A new activity/running selection can cancel pending completion during exit. Update status text from `onActivityEnter`, so labels follow the rendered artwork. The mark is decorative; expose a separate readable status line.
+- `active=false`, offscreen layout and document visibility pause the sprite and cancel its wall-clock seam timer; resuming schedules from the paused animation time. Unmount cancels playback and ignores late decode/completion. Decode failure keeps the previous artwork or the static dot and still allows completion.
+- React Activity retains the authored stage, animation time and completed state across effect reconnection. Hidden time does not advance playback; reconnecting never repeats entry/completion callbacks. An explicit `replayKey` change while hidden still starts a new run when shown.
+- `ShimmerText`: string children, `shimmering` and `active`. Text changes retain the sweep phase. Use it on an unclamped block status label.
+- `SkeletonGroup`: `SkeletonLine` descendants plus container props and `active`. It measures all row rectangles with one shared sweep, observes row/group resize and descendant additions/removals or layout changes, and pauses offscreen. Nested components may update their own rows without replacing the group's children. Use it as a plain layout container without borders or transforms on individual rows. The demo owns its 500ms insertion delay.
+- `Accordion`: `title`, children, `open/defaultOpen/onOpenChange`, `disabled` and container/trigger classes. Native button semantics; an inert labelled panel stays mounted while collapsed, retaining local state. Collapsing while focus is inside returns it to the trigger.
 
 ## Parameters
 
@@ -20,11 +23,11 @@ Use for: an animated activity mark with a shimmering status line while work is u
 | Grow | 10 frames, shared by all variants |
 | In / loop / out frames | think 16/110/15 · read 21/60/19 · write 31/60/14 · code 16/75/9 (loops ≈ 3.67/2/2/2.5s) |
 | Loop seams | think frame 54; code frames 18/37/56; read and write hand off at the loop end |
-| Shimmer cycle | 3s: hold 0–15%, travel 15–85% with `--ease-shimmer`, hold to the end |
-| Shimmer gradient | 120°, stops 37.5/50/62.5%; light uses `--secondary`, dark `--muted`, with a 30%-base/white peak |
+| Shimmer cycle | 3s: hold 0–15%, travel 15–85% with the authored shimmer curve, hold to the end |
+| Shimmer gradient | 120°, stops 37.5/50/62.5%; light uses `--cui-secondary`, dark `--cui-muted`, with a 30%-base/white peak |
 | Shimmer fallback | Text background 400% wide, moving 83.333% → 16.667%; Chromium uses the masked clone with a −62.5% → −12.5% band |
 | Skeleton | Inserted after 500ms, fades in over 150ms; one 2s linear sweep, 105° gradient with 35–65% stops, clipped to the child rectangles |
-| Accordion | Grid track, opacity and chevron over 200ms `--ease-out-expo` |
+| Accordion | Grid track, opacity and chevron over 200ms `--cui-ease-out-expo` |
 
 ## Rules
 

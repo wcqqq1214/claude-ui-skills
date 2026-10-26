@@ -4,23 +4,20 @@ Use for: top-level mode buttons that stay in natural Tab order, where arrows mov
 
 ## Code
 
-[HTML](../../showcase/index.html#modes) · [modes.js](../../showcase/components/modes.js) · [modes.css](../../showcase/components/modes.css)
+[SidebarModes.tsx](../../src/components/sidebar/SidebarModes.tsx) · [PinnedList.tsx](../../src/components/sidebar/PinnedList.tsx) · [pinnedDrag.ts](../../src/components/sidebar/pinnedDrag.ts) · [sidebar.css](../../src/styles/sidebar.css) · [React demo](../../demo/chapters/SidebarChapter.tsx)
 
-- `initModesDemo()` owns the visible options and selection: `chooseMode()` commits `aria-current`, `positionMode()` measures the selected button.
-- Read `.mode-track`, `.mode-thumb`, `data-snap` and both container queries together.
-- `initPinnedDemo()` owns the pinned list: drag preview, commit and cancel, and the Move up / Move down menu.
-- Mode glyphs come from [icons.js](../../showcase/icons.js) with the font assets in [fonts.css](../../showcase/fonts.css).
+Import the components from `src/index.ts`; [integration](../../demo/README.md#file-panels-and-sidebar-navigation) describes their props. The demo supplies mode icons, the running Code fixture, translated labels and controlled pinned order. The mode component measures the selected button and keeps focus independent from selection. PinnedList renders the list and portal menu; its isolated drag controller owns only the decorative copy, temporary row offsets and pointer capture. The host commits the returned ID order in React state.
 
 ## Parameters
 
 | Part | Value |
 | --- | --- |
 | Track | 28px high at a 16px rem; track radius 7px, thumb 6px, buttons 5px |
-| Indicator | Geometry over 120ms `--ease-snap`; background over 300ms, independently |
+| Indicator | Geometry over 120ms `--cui-ease-snap`; background over 300ms, independently |
 | Label folding | Unselected labels fold when the track's content box is ≤ 254px (three items) or ≤ 180px (two items); track padding is outside these widths |
 | Selected Code glyph | Weight 700 |
 | Running badge | Shown on Code while another mode is selected |
-| Pinned drag | Starts after 4px of movement; floating copy at 90% opacity, 6px radius, `--pin-float-shadow`; moves over 150ms ease-out |
+| Pinned drag | Starts after 4px of movement; floating copy at 90% opacity, 6px radius, `--cui-pin-float-shadow`; moves over 150ms ease-out |
 
 ## Rules
 
@@ -32,9 +29,6 @@ Use for: top-level mode buttons that stay in natural Tab order, where arrows mov
 
 ## Check
 
-- [ ] Focus moves without selecting; explicit selection
-- [ ] Two and three options, at the 254px and 180px boundaries
-- [ ] Rapid resize combined with selection; right-to-left
-- [ ] Pinned drag commit, Escape cancel, menu moves and focus return
+[Independent browser checks](../../tests/react-workspace.browser.cjs) cover focus versus selection, the exact two/three-item folding boundaries, RTL, pulse phase/forced colors, pinned 3/4px drag threshold, cancellation, 200ms lost-button fallback, menu moves/focus, portal theme inheritance and bilingual responsive layouts. The controller rechecks viewport and list bounds at commit, including delayed release, so a resize cannot commit before its event handler runs.
 
 Local adaptations and limits: [coverage](../../docs/coverage.md#modes).

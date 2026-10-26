@@ -12,9 +12,13 @@
   <img src="docs/assets/demo-preview.jpg" width="960" alt="Claude UI demo">
 </p>
 
+## React components
+
+Reusable TSX components styled with Tailwind CSS, with typed props and scoped themes. All 14 demo chapters import the same public components. [Run and import](demo/README.md) · [Migration record](docs/react-migration.md).
+
 ## Install
 
-Clone the complete repository into an unused Codex skill directory. The guides reference its bundled HTML, JS and CSS:
+Clone the complete repository into an unused Codex skill directory. The guides reference its bundled TSX and CSS:
 
 ```sh
 mkdir -p "${CODEX_HOME:-$HOME/.codex}/skills"
@@ -32,9 +36,9 @@ UI, frontend interactions, typography and motion only. [Scope and coverage](docs
 
 ## Demo
 
-Explore 13 interactive example groups, including segmented controls, panels, search highlighting and four status animations. Supports English, Simplified Chinese and light/dark themes.
+Explore 14 interactive chapters, including segmented controls, panels, search highlighting and four status animations. Supports English, Simplified Chinese and light/dark themes.
 
-For offline use, see [local preview instructions](showcase/README.md#local-preview). No build or Claude installation required.
+See [local preview instructions](demo/README.md#run). Source preview uses Node.js and Vite; the production build is a static site with local assets and no backend or Claude installation.
 
 ## License
 

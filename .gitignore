@@ -14,3 +14,6 @@ docs/evidence/
 # Private working notes stay local.
 docs/*-records/
 docs/dev/
+
+# React demo build.
+dist/

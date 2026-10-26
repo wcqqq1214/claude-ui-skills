@@ -1,0 +1,10 @@
+/* Optional bundled font entry. Asset rights remain those recorded in LICENSE/docs. */
+@font-face { font-family: cui-sans; src: url('../assets/fonts/anthropic-sans-variable.woff2') format('woff2'); font-weight: 300 800; font-style: normal; font-display: swap; }
+@font-face { font-family: cui-sans; src: url('../assets/fonts/anthropic-sans-italic-variable.woff2') format('woff2'); font-weight: 300 800; font-style: italic; font-display: swap; }
+:root, [data-cui-theme] { --cui-font-sans: cui-sans, system-ui, 'PingFang SC', 'Microsoft YaHei', sans-serif; }
+@font-face { font-family: cui-serif; src: url('../assets/fonts/anthropic-serif-variable.woff2') format('woff2'); font-weight: 300 800; font-style: normal; font-display: swap; }
+@font-face { font-family: cui-serif; src: url('../assets/fonts/anthropic-serif-italic-variable.woff2') format('woff2'); font-weight: 300 800; font-style: italic; font-display: swap; }
+@font-face { font-family: cui-mono; src: url('../assets/fonts/anthropic-mono-variable.woff2') format('woff2'); font-weight: 300 800; font-style: normal; font-display: swap; }
+@font-face { font-family: cui-mono; src: url('../assets/fonts/anthropic-mono-italic-variable.woff2') format('woff2'); font-weight: 300 800; font-style: italic; font-display: swap; }
+
+:root, [data-cui-theme] { --cui-font-serif: cui-serif, Georgia, 'PingFang SC', 'Microsoft YaHei', serif; --cui-font-mono: cui-mono, ui-monospace, monospace; }

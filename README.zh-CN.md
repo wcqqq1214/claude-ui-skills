@@ -12,9 +12,13 @@
   <img src="docs/assets/demo-preview.jpg" width="960" alt="Claude UI 演示">
 </p>
 
+## React 组件
+
+源码采用 TSX + React + Tailwind CSS，提供类型化 props 和独立主题。全部 14 个 demo 章节直接导入同一套公开组件。[运行与导入](demo/README.md) · [迁移记录](docs/react-migration.md)。
+
 ## 安装
 
-将完整仓库克隆到尚不存在的 Codex Skill 目录，指南直接引用其中的 HTML、JS 和 CSS：
+将完整仓库克隆到尚不存在的 Codex Skill 目录，指南直接引用其中的 TSX 和 CSS：
 
 ```sh
 mkdir -p "${CODEX_HOME:-$HOME/.codex}/skills"
@@ -32,9 +36,9 @@ git clone https://github.com/wcqqq1214/claude-ui-skills.git \
 
 ## 演示
 
-包含 13 组交互示例，涵盖分段控件、面板、搜索定位高亮和四种状态动画。支持简体中文、English 和深浅主题。
+包含 14 个交互章节，涵盖分段控件、面板、搜索定位高亮和四种状态动画。支持简体中文、English 和深浅主题。
 
-离线使用请见[本地预览说明](showcase/README.md#local-preview)，无需构建或安装 Claude。
+请见[本地预览说明](demo/README.md#run)。源码预览使用 Node.js 和 Vite；构建结果是包含本地资源的静态站点，无需后端或安装 Claude。
 
 ## 许可证
 
