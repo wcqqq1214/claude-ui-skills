@@ -105,8 +105,13 @@
 
 /* Optional implementation notes never unmount the specimens. */
 .demo-notes-control { display: inline-flex; flex-shrink: 0; }
-/* Keep this right-edge hint inside the page even before it is opened/measured. */
-.demo-notes-control .cui-tooltip { left: auto !important; right: 0; }
+/* This header hint stays below its trigger, including before Tooltip measures it. */
+.demo-notes-control .cui-tooltip {
+  left:auto !important; right:0; top:calc(100% + 8px) !important; bottom:auto !important;
+  padding:5px 9px; border:var(--demo-line) solid var(--cui-line); border-radius:6px;
+  background:var(--cui-surface); color:var(--cui-text); box-shadow:0 2px 6px var(--cui-shadow-depth);
+  font-size:12px; font-weight:400; line-height:18px; transform-origin:top right !important;
+}
 .demo-notes-toggle[aria-pressed=true] { color: var(--cui-text); background: var(--cui-muted-surface); }
 .demo-slow { display:inline-flex; align-items:center; justify-content:center; height:44px; padding:0 10px; gap:6px; font-size:14px; font-weight:400; border:var(--demo-line) solid transparent; border-radius:6px; background:transparent; }
 .demo-slow svg { width:24px; height:24px; }

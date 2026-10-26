@@ -113,6 +113,25 @@ withDevBrowser(async ({ browser, base }) => {
           assert.equal(notesBox.width, 32, 'notes icon matches the shell buttons');
           assert.equal(notesBox.height, 32);
           assert.ok(notesBox.x >= 0 && notesBox.x + notesBox.width <= width, `${width}/${locale}/${theme}: notes button fits`);
+          const notes = page.locator('.demo-notes-toggle'), hint = page.locator('.demo-notes-control [role="tooltip"]');
+          await themeButton.focus();
+          await notes.focus();
+          await page.waitForFunction(() => document.querySelector('.demo-notes-control [role="tooltip"]').getAttribute('data-open') === 'true');
+          await hint.evaluate(async node => { await Promise.all(node.getAnimations().map(animation => animation.finished)); });
+          const tipBox = await hint.boundingBox(), triggerBox = await notes.boundingBox();
+          assert.ok(Math.abs(tipBox.y - triggerBox.y - triggerBox.height - 8) < 1, 'header hint sits 8px below its trigger');
+          assert.ok(Math.abs(tipBox.x + tipBox.width - triggerBox.x - triggerBox.width) < 1, 'header hint aligns to the button’s right edge');
+          assert.ok(tipBox.x >= 0 && tipBox.x + tipBox.width <= width, `${width}/${locale}/${theme}: hint stays in the viewport`);
+          assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true, 'open hint does not widen the page');
+          const appearance = await hint.evaluate(node => {
+            const style = getComputedStyle(node), card = getComputedStyle(document.querySelector('.demo-control-card'));
+            return { background: style.backgroundColor, surface: card.backgroundColor, fontSize: style.fontSize, fontWeight: style.fontWeight };
+          });
+          assert.equal(appearance.background, appearance.surface, 'hint uses the current theme surface');
+          assert.equal(appearance.fontSize, '12px');
+          assert.equal(appearance.fontWeight, '400');
+          await notes.press('Escape');
+          assert.equal(await hint.getAttribute('aria-hidden'), 'true');
           const slow = page.locator('.demo-slow'), rect = await slow.boundingBox();
           assert.ok(rect.x >= 0 && rect.x + rect.width <= width, `${width}/${locale}/${theme}: speed button fits`);
           assert.equal(await slow.getAttribute('aria-pressed'), 'true');
