@@ -11,6 +11,6 @@ export function ImagesChapter({ locale, active }: { locale: Locale; active: bool
       previewAlt={t('Enlarged view of teal mountains and a clay-colored sun under a beige sky')}
       openLabel={t('Enlarge landscape example')} dialogLabel={t('Enlarged image preview')}
       actionsLabel={t('Image preview actions')} closeLabel={t('Close image preview')} />
-    <p className="mt-4 text-center text-[13px] leading-[1.5] text-cui-secondary">{t('Click the thumbnail to preview. Click the image or press Esc to return.')}</p>
+    <p className="demo-implementation mt-4 text-center text-sm leading-[1.5] text-cui-secondary">{t('Click the thumbnail to preview. Click the image or press Esc to return.')}</p>
   </div>;
 }

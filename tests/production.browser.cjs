@@ -67,7 +67,17 @@ const { chromium } = require(process.env.PLAYWRIGHT_MODULE || 'playwright-core')
         await page.locator(`nav a[href="#${id}"]`).click();
         await page.waitForFunction(id => document.querySelector('nav a[aria-current]')?.getAttribute('href') === '#' + id, id);
         assert.equal(await page.locator('main section:not([hidden])').count(), 1, `${id}: one visible chapter`);
-        assert.ok((await page.locator('main section:not([hidden])').innerText()).trim().length > 20, `${id}: rendered content`);
+        const section = page.locator('main section:not([hidden])');
+        if (id === 'images' || id === 'gallery') {
+          // Media chapters show thumbnails; optional explanations start hidden.
+          const names = id === 'images' ? ['Enlarge landscape example'] : [1, 2, 3].map(index => `Open gallery image ${index}`);
+          for (const name of names) {
+            const thumbnail = section.getByRole('button', { name, exact: true });
+            assert.equal(await thumbnail.isVisible(), true, `${id}: visible thumbnail action`);
+            await thumbnail.locator('img').evaluate(image => image.decode());
+            assert.ok(await thumbnail.locator('img').evaluate(image => image.naturalWidth > 0), `${id}: decoded thumbnail`);
+          }
+        } else assert.ok((await section.innerText()).trim().length > 20, `${id}: rendered content`);
         const heading = await page.locator('main h1').textContent();
         assert.equal(await page.locator('main section:not([hidden])').getAttribute('aria-label'), heading);
       }
@@ -105,7 +115,7 @@ const { chromium } = require(process.env.PLAYWRIGHT_MODULE || 'playwright-core')
     assert.equal(await page.locator('html').getAttribute('data-cui-theme'), 'light');
     await setLanguage(page, 'zh-Hans');
     await page.goto(`${origin}/claude-ui-skills/#unknown`);
-    await page.getByRole('heading', { name: '文字呈现', exact: true }).waitFor();
+    await page.getByRole('heading', { name: '文字与排版', exact: true }).waitFor();
     assert.equal(await page.locator('html').getAttribute('data-cui-theme'), 'light');
     await setTheme(page, 'system');
     await page.waitForFunction(() => document.documentElement.dataset.cuiTheme === 'dark');
@@ -183,35 +193,25 @@ const { chromium } = require(process.env.PLAYWRIGHT_MODULE || 'playwright-core')
       assert.equal(await localeTable.evaluate((element, previous) => element === previous, retainedTable), true, 'translation retains the table viewport DOM');
     }
     await localePage.close();
-    // These dimensions were measured through computer-use from dev 0a9c12c,
-    // at the same 1280x720 viewport, rather than inferred from the React CSS.
-    await page.setViewportSize({ width: 1280, height: 720 });
-    await chooseChapter(page, 'reading');
+    // The demo chrome intentionally changed; retain geometry assertions for the
+    // original controls rather than freezing the old card padding and captions.
     await page.setViewportSize({ width: 1280, height: 400 });
+    await chooseChapter(page, 'reading');
     await page.evaluate(() => window.scrollTo(0, 300));
     assert.ok(await page.evaluate(() => scrollY > 0));
     await chooseChapter(page, 'reading');
     assert.equal(await page.evaluate(() => scrollY), 0, 'desktop reselect also returns to the top');
     await page.setViewportSize({ width: 1280, height: 720 });
     await chooseChapter(page, 'controls');
-    const geometry = await page.evaluate(() => {
-      const rect = selector => { const r = document.querySelector(selector).getBoundingClientRect(); return { x: r.x, y: r.y, width: r.width, height: r.height }; };
-      return { grid: rect('.demo-controls-grid'), card: rect('.demo-control-card'), range: rect('.demo-wide .cui-range') };
-    });
-    const original = {
-      grid: { x: 453, y: 165.90625, width: 600, height: 448.1875 },
-      card: { x: 453, y: 223.90625, width: 293, height: 188.09375 },
-      range: { x: 493, y: 453, width: 520, height: 48 },
-    };
-    for (const key of Object.keys(original)) for (const field of Object.keys(original[key])) {
-      assert.ok(Math.abs(geometry[key][field] - original[key][field]) < .25, `${key}.${field}: ${geometry[key][field]} versus original ${original[key][field]}`);
-    }
+    const range = await page.locator('.demo-wide .cui-range').boundingBox();
+    assert.equal(range.width, 520, 'demo preserves the original slider width');
+    assert.equal(range.height, 48, 'demo preserves the original slider height');
     // Privacy settings may deny storage; rendering and explicit choices still work.
     const denied = await browser.newContext({ locale: 'zh-CN', colorScheme: 'dark' });
     await denied.addInitScript(() => Object.defineProperty(window, 'localStorage', { get() { throw new DOMException('Denied', 'SecurityError'); } }));
     const deniedPage = await denied.newPage(); observe(deniedPage);
     await deniedPage.goto(`${origin}/`);
-    await deniedPage.getByRole('heading', { name: '文字呈现', exact: true }).waitFor();
+    await deniedPage.getByRole('heading', { name: '文字与排版', exact: true }).waitFor();
     await chooseChapter(deniedPage, 'controls');
     await setLanguage(deniedPage, 'en');
     await deniedPage.getByRole('switch', { name: 'Switch', exact: true }).waitFor();

@@ -10,6 +10,7 @@ export function DemoShell({ chapter, chapters, copy, locale, theme, onLocale, on
   onLocale: (locale: Locale) => void; onTheme: (theme: Theme) => void; children: ReactNode;
 }) {
   const [picker, setPicker] = useState(false);
+  const [showNotes, setShowNotes] = useState(false);
   const [language, setLanguage] = useState(false);
   const [menuFocus, setMenuFocus] = useState<Locale>(locale);
   const sidebar = useRef<HTMLElement>(null);
@@ -57,8 +58,7 @@ export function DemoShell({ chapter, chapters, copy, locale, theme, onLocale, on
     }
     window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
   }
-  const nextTheme: Theme = theme === 'system' ? 'light' : theme === 'light' ? 'dark' : 'system';
-  return <div className="demo-shell">
+  return <div className="demo-shell" data-show-notes={showNotes}>
     <aside ref={sidebar} className="demo-sidebar" data-picker-open={picker || undefined}>
       <a className="demo-brand" href="#type" onClick={event => navigate(event, 'type')}><img src={logo} width={36} height={36} alt="" /><span>Claude UI</span></a>
       <button ref={pickerButton} type="button" className="demo-chapter-toggle" aria-label={copy.components}
@@ -69,7 +69,7 @@ export function DemoShell({ chapter, chapters, copy, locale, theme, onLocale, on
         {chapters.map((id, index) => <a key={id} href={`#${id}`} aria-current={chapter === id ? 'page' : undefined}
           onClick={event => navigate(event, id, true)}>
           <span>{String(index + 1).padStart(2, '0')}</span>{copy[id]}</a>)}
-        <p className="demo-sidebar-note">{locale === 'en' ? 'UI examples · Unofficial' : '界面示例 · 非官方'}</p>
+        <p className="demo-sidebar-note">{locale === 'en' ? 'Unofficial examples' : '非官方示例'}</p>
       </nav>
     </aside>
     <div className="demo-page">
@@ -100,16 +100,16 @@ export function DemoShell({ chapter, chapters, copy, locale, theme, onLocale, on
               </button>)}
             </div>
           </div>
-          <button type="button" className="demo-shell-icon" data-preference={theme} aria-label={copy.theme} title={`${copy.theme}: ${copy[theme]} → ${copy[nextTheme]}`}
-            onClick={() => onTheme(nextTheme)}>
-            <svg viewBox="0 0 24 24" aria-hidden="true">
-              {theme === 'system' ? <><rect x="3" y="4" width="18" height="13" rx="2" /><path d="M12 17v4m-4 0h8" /></> : theme === 'light' ? <><circle cx="12" cy="12" r="4" /><path d="M12 2v2m0 16v2M2 12h2m16 0h2M5 5l1.5 1.5m11 11L19 19M5 19l1.5-1.5m11-11L19 5" /></> : <path d="M20.5 13.5A9 9 0 0 1 10.5 3a9 9 0 1 0 10 10.5Z" />}
-            </svg>
-          </button>
+          <select className="demo-theme-select" aria-label={copy.theme} title={copy.theme} data-preference={theme} value={theme}
+            onChange={event => onTheme(event.target.value as Theme)}>
+            {(['light', 'dark', 'system'] as const).map(value => <option key={value} value={value}>{copy[value]}</option>)}
+          </select>
         </div>
       </header>
       <main>
-        <header className="demo-section-head"><h1 ref={title} tabIndex={-1}>{copy[chapter]}</h1></header>
+        <header className="demo-section-head"><h1 ref={title} tabIndex={-1}>{copy[chapter]}</h1>
+          <button type="button" className="demo-notes-toggle demo-button small subtle" aria-pressed={showNotes} onClick={() => setShowNotes(value => !value)}>{copy.notes}</button>
+        </header>
         <div className="demo-stage" data-chapter={chapter}>{children}</div>
       </main>
     </div>

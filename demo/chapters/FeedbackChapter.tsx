@@ -50,17 +50,17 @@ export function FeedbackChapter({ locale, active }: { locale: Locale; active: bo
         <ShimmerText shimmering={phase !== 'done'} active={visible}>{t(phase === 'done' ? 'Example content is ready' : status.status)}</ShimmerText>
       </div>
       <div className="min-h-[84px] px-6 pb-[23px]">
-        {phase === 'done' ? <div className="flex min-h-14 items-center gap-3"><Icon name="File" size={20} className="text-(--cui-clay)" /><div><b className="text-xs leading-[1.6]">{t('A clear set of design notes')}</b><p className="mt-[3px] text-[10px] text-cui-muted">{t('Reading rhythm, state changes and spatial continuity')}</p></div></div>
+        {phase === 'done' ? <div className="flex min-h-14 items-center gap-3"><Icon name="File" size={20} className="text-(--cui-clay)" /><div><b className="text-xs leading-[1.6]">{t('A clear set of design notes')}</b><p className="mt-[3px] text-xs text-cui-muted">{t('Reading rhythm, state changes and spatial continuity')}</p></div></div>
           : skeleton ? <SkeletonGroup active={active} aria-label={t('Loading content')} className="pt-1.5"><SkeletonLine /><SkeletonLine className="w-[65%]" /></SkeletonGroup> : null}
       </div>
       <footer className="demo-card-foot"><span><b>{Number((status.frames / 30).toFixed(2))} s</b> {t('dot cycle')}</span><span><b>500 ms</b> {t('skeleton delay')}</span></footer>
     </article>
     <article className="demo-card demo-timeline-card">
-      <Accordion title={<><span className="flex size-[25px] shrink-0 items-center justify-center rounded-full bg-(--cui-clay-soft) text-(--cui-clay)"><Icon name="Check" /></span><span><b className="text-xs leading-[1.6]">{t('3 design observations collected')}</b><small className="mt-1 block text-[10px] text-cui-muted">{t('Expand to see the process')}</small></span></>}>
+      <Accordion title={<><span className="flex size-[25px] shrink-0 items-center justify-center rounded-full bg-(--cui-clay-soft) text-(--cui-clay)"><Icon name="Check" /></span><span><b className="text-xs leading-[1.6]">{t('3 design observations collected')}</b><small className="mt-1 block text-xs text-cui-muted">{t('Expand to see the process')}</small></span></>}>
         <ol className="m-0 list-none px-6 pb-6 pl-[27px]">
           {observations.map(([title, detail], index) => <li key={title} className="relative flex items-start gap-3.5 pb-5 last:pb-0">
-            {index < observations.length - 1 ? <span aria-hidden="true" className="absolute top-[22px] bottom-0 left-[9px] w-px bg-cui-line" /> : null}
-            <span className="h-[23px] w-[19px] shrink-0 font-cui-mono text-[9px] leading-[23px] text-cui-muted">0{index + 1}</span><div><b className="text-[11px]">{t(title)}</b><p className="mt-0.5 text-[10px] text-cui-muted">{t(detail)}</p></div><span aria-hidden="true" className="ml-auto text-[10px] text-cui-muted">✓</span>
+            {index < observations.length - 1 ? <span aria-hidden="true" className="absolute top-[22px] bottom-0 left-[9px] w-[.5px] bg-cui-line" /> : null}
+            <span className="h-[23px] w-[19px] shrink-0 font-cui-mono text-xs leading-[23px] text-cui-muted">0{index + 1}</span><div><b className="text-xs">{t(title)}</b><p className="mt-0.5 text-xs text-cui-muted">{t(detail)}</p></div><span aria-hidden="true" className="ml-auto text-xs text-cui-muted">✓</span>
           </li>)}
         </ol>
       </Accordion>

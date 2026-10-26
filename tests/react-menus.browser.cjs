@@ -389,14 +389,14 @@ withDevBrowser(async ({ browser, base }) => {
     for (const width of [1280, 390, 320]) for (const theme of ['light', 'dark']) for (const locale of ['en', 'zh-Hans']) {
       await page.setViewportSize({ width, height: 1000 }); await page.goto(`${base}/demo/?lang=${locale}#menus`); await page.reload();
       await setTheme(page, theme); await page.evaluate(() => document.fonts.ready);
-      const section = page.locator('main section:not([hidden])'); const labels = locale === 'en' ? ['Model settings', 'Thinking effort', 'Artifact actions'] : ['模型设置', '思考深度', '作品操作菜单'];
+      const section = page.locator('main section:not([hidden])'); const labels = locale === 'en' ? ['Model settings', 'Thinking effort', 'Artifact actions'] : ['模型设置', '思考强度', '作品操作菜单'];
       await section.getByRole('button', { name: labels[0], exact: false }).click(); await section.getByRole('menuitem').press('ArrowRight');
       assert.equal(await section.getByRole('menuitemradio').count(), 4);
       await page.keyboard.press('ArrowUp');
-      assert.equal(await focused(section.getByRole('menuitemradio', { name: 'Medium', exact: true })), true);
-      const preview = locale === 'en' ? 'Focus preview: Medium · Selected: High' : '聚焦预览：Medium · 已选：High';
+      assert.equal(await focused(section.getByRole('menuitemradio', { name: locale === 'en' ? 'Medium' : '中', exact: true })), true);
+      const preview = locale === 'en' ? 'Focus preview: Medium; Selected: High' : '聚焦预览：中；已选：高';
       assert.equal(await section.getByText(preview, { exact: true }).count(), 1, 'preview includes both focused and committed values');
-      assert.equal(await section.getByRole('menuitemradio', { name: 'High', exact: true }).getAttribute('aria-checked'), 'true');
+      assert.equal(await section.getByRole('menuitemradio', { name: locale === 'en' ? 'High' : '高', exact: true }).getAttribute('aria-checked'), 'true');
       await page.keyboard.press('Escape'); await page.keyboard.press('Escape');
       await section.getByRole('button', { name: labels[2], exact: true }).click(); await frames();
       assert.equal(await section.getByRole('menu').count(), 1);

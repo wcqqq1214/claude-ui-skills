@@ -3,9 +3,9 @@
 <p align="center">用于实现 Claude 风格 UI 和动效的 Agent Skill，附可直接导入的 React + Tailwind CSS 组件与交互演示。</p>
 
 <p align="center">
-  <a href="#演示">演示</a> ·
-  <a href="#react-组件">React 组件</a> ·
-  <a href="references/components.md">组件指南</a> ·
+  <a href="#演示">演示</a> &nbsp;
+  <a href="#react-组件">React 组件</a> &nbsp;
+  <a href="references/components.md">组件指南</a> &nbsp;
   <a href="README.md">English</a>
 </p>
 
@@ -59,7 +59,9 @@ Skill 覆盖 UI、前端交互、排版与动效，详见[范围与覆盖](docs/
 
 ## 演示
 
-包含 14 个交互章节：文字呈现、基础控件、输入框与附件、等待与折叠、文件面板、图片预览、提示与反馈、阅读与表格、缩放与图库、菜单与搜索、侧栏模式、卡片与拖放、通知和分段控件。支持简体中文、English 和深浅主题。
+包含 14 个交互章节：文字与排版、基础控件、输入框与附件、加载与折叠、文件面板、图片预览、提示与反馈、阅读与表格、缩放与图库、菜单与搜索、侧栏模式、卡片与拖放、通知和分段控件。支持简体中文、English 和深浅主题。
+
+实现说明默认收起，可按需展开。控件默认以原速播放，主题可选择浅色、深色或跟随系统。
 
 使用 Node.js 22.12+（或 20.x 系列的 20.19+），在仓库根目录执行：
 

@@ -53,8 +53,8 @@ export function TasksChapter({ locale, active }: { locale: Locale; active: boole
         { id: 'motion', title: t('Check motion parameters'), status: 'stopped', statusLabel: t('Stopped'), detail: t('Stopped: this is a local state example.') },
         { id: 'details', title: t('Inspect interface details'), status: 'failed', statusLabel: t('Failed'), detail: t('Incomplete: this is a local state example.') },
       ]} />
-      <div className="mt-[18px] border-0 border-t border-solid border-cui-line pt-[15px]">
-        <div draggable tabIndex={0} role="button" aria-label={t('Design notes, press Enter to simulate a drop')} className="inline-flex cursor-grab flex-wrap items-center gap-2 rounded-[7px] border border-solid border-cui-line bg-cui-bg px-3 py-2.5 text-xs leading-[1.6] focus-visible:outline-2 focus-visible:outline-cui-accent" onDragStart={event => {
+      <div className="mt-[18px] border-0 border-t-[.5px] border-solid border-cui-line pt-[15px]">
+        <div draggable tabIndex={0} role="button" aria-label={t('Design notes, press Enter to simulate a drop')} className="inline-flex cursor-grab flex-wrap items-center gap-2 rounded-[7px] border-[.5px] border-solid border-cui-line bg-cui-bg px-3 py-2.5 text-xs leading-[1.6] focus-visible:outline-2 focus-visible:outline-cui-accent" onDragStart={event => {
           if (!active) { event.preventDefault(); return; } dragging.current = true; setDrop('off'); event.dataTransfer.setData('text/plain', 'local-design-note'); event.dataTransfer.effectAllowed = 'copy';
         }} onDragEnd={finishDrop} onKeyDown={event => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); add(); } }}>{t('▤ design-notes.md')}</div>
         <DropTarget state={drop} active={active} onDragOver={event => { if (!dragging.current || !active) return; event.preventDefault(); event.dataTransfer.dropEffect = 'copy'; setDrop('on'); }} onDragLeave={event => { if (dragging.current && !(event.relatedTarget instanceof Node && event.currentTarget.contains(event.relatedTarget))) setDrop('off'); }} onDrop={event => { if (!dragging.current || !active) return; event.preventDefault(); add(); }}>

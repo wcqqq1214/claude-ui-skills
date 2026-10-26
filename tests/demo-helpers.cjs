@@ -1,12 +1,8 @@
 const assert = require('node:assert/strict');
 async function setTheme(page, theme) {
-  const button = page.locator('.demo-topbar button[data-preference]');
-  await button.waitFor();
-  for (let i = 0; i < 3; i++) {
-    if (await button.getAttribute('data-preference') === theme) break;
-    await button.click();
-  }
-  assert.equal(await button.getAttribute('data-preference'), theme);
+  const select = page.locator('.demo-theme-select');
+  await select.selectOption(theme);
+  assert.equal(await select.inputValue(), theme);
   await page.waitForFunction(theme => document.documentElement.dataset.cuiTheme === (theme === 'system' ? matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light' : theme), theme);
 }
 async function setLanguage(page, locale) {

@@ -17,7 +17,7 @@ export function SegmentedChapter({ copy }: { copy: Copy }) {
       <Specimen title={copy.compact} parameters={copy.compactHint}>
         <SegmentedControl aria-label={copy.compactLabel} options={options.slice(0, 2)} defaultValue="code" size="compact" />
       </Specimen>
-      <p className="px-1 text-xs text-cui-secondary">{copy.segmentHint}</p>
+      <p className="demo-implementation px-1 text-xs text-cui-secondary">{copy.segmentHint}</p>
     </div>
   );
 }

@@ -35,7 +35,7 @@ export function TypographyChapter({ locale, active }: { locale: Locale; active: 
         <WorkingMark active={active} fallback={<Icon name="ArrowDown" size={20} />} className="transition-opacity duration-200 ease-[ease-out] group-hover:opacity-0 group-focus-visible:opacity-0" /><span className="absolute inset-0 m-auto size-5 opacity-0 transition-opacity duration-200 ease-[ease-out] group-hover:opacity-100 group-focus-visible:opacity-100"><Icon name="ArrowDown" size={20} /></span>
       </button></div>
     </EffectCard>
-    <EffectCard title={t('Scroll following')} replayLabel={t('Replay scroll following')} onReplay={stream.replay} parameters={t('Scroll up to pause · Return to follow')} className="demo-type-scroll-example">
+    <EffectCard title={t('Scroll following')} replayLabel={t('Replay scroll following')} onReplay={stream.replay} parameters={t('Scroll up to pause; Return to follow')} className="demo-type-scroll-example">
       <div ref={scrollRef} className="mt-4"><ScrollFollower label={t('Streaming text example')} returnLabel={t('Scroll to bottom')} active={active} busy={stream.playing} followContent={stream.count > 0} resetKey={stream.generation}>
         <div className="font-cui-serif text-[13px] leading-[1.85] text-cui-secondary">
           <p className="max-w-[36em]">{t(bodyText)}</p>

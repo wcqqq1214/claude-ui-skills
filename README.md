@@ -3,9 +3,9 @@
 <p align="center">An agent skill for Claude-inspired UI and motion, with reusable React + Tailwind CSS components and an interactive demo.</p>
 
 <p align="center">
-  <a href="#demo">Demo</a> ·
-  <a href="#react-components">React components</a> ·
-  <a href="references/components.md">Component guides</a> ·
+  <a href="#demo">Demo</a> &nbsp;
+  <a href="#react-components">React components</a> &nbsp;
+  <a href="references/components.md">Component guides</a> &nbsp;
   <a href="README.zh-CN.md">简体中文</a>
 </p>
 
@@ -59,7 +59,9 @@ The skill covers UI, frontend interactions, typography and motion. See [scope an
 
 ## Demo
 
-Explore 14 interactive chapters: typography, controls, input and attachments, waiting and disclosure, file panels, image previews, hints, reading and tables, galleries, menus and search, sidebar modes, cards and drop targets, notifications, and segmented controls. Supports English, Simplified Chinese and light/dark themes.
+Explore 14 interactive chapters: typography, controls, input and attachments, loading and disclosure, file panels, image previews, hints, reading and tables, galleries, menus and search, sidebar modes, cards and drop targets, notifications, and segmented controls. Supports English, Simplified Chinese and light/dark themes.
+
+Implementation notes are optional, and controls play at their original speed by default. Theme selection includes Light, Dark and System.
 
 With Node.js 22.12+ (or 20.19+ on the 20.x line), run from the repository root:
 

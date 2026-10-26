@@ -184,3 +184,10 @@ The demo's reading introduction again reserves 73px above the 620px viewport bou
 A separate production consumer copied only `src/`, built 18 source-only fixtures under `/consumer/` and executed 13 lifecycle helpers plus nine consumer-page checks. Strict public types, five preserved SSR nodes, clipboard and block notification/Artifact hydration, all 14 sprite resources, six text fonts and the icon font passed without page or network errors. Its temporary project was removed after verification.
 
 Final `npm test` passed all 15 unit/integration checks, strict type checking, the production build and all 13 browser suites, including routing/history and the new StrictMode regressions. The final source/Skill link checks passed on POSIX and Windows paths; the focused review found no unresolved P2-or-higher defect or additional behavior regression in this change.
+
+
+## Demo presentation refinement
+
+The later demo-only polish intentionally simplifies the showcase framing and bilingual copy. Implementation notes are optional, controls initially use the source's normal playback speed, and theme selection explicitly offers Light, Dark and System. Demo chrome uses 12/14/20px text, lighter single borders and fewer decorative surfaces; typography specimens retain their original teaching samples. The public `src/` tree, API, palette and component motion remain unchanged. The presentation matrix supplements the existing independent-consumer, lifecycle, SSR and production-delivery regressions.
+
+Validation passed 16 unit/integration checks, type checking and the production build. All 14 browser suites passed, with production rerun after replacing the media chapters' obsolete visible-copy-length assertions with visible-action and decoded-thumbnail checks. The new presentation suite covers all chapters with StrictMode off/on, English/Chinese, light/dark and desktop/320px layouts. Four desktop screenshots and one mobile screenshot were captured from the running demo. Source integration and Skill-link checks remain green.

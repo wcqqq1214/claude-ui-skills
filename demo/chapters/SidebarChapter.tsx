@@ -19,13 +19,13 @@ export function SidebarChapter({ locale, active }: { locale: Locale; active: boo
         <button type="button" className="demo-button demo-button-small demo-button-subtle" onClick={() => { if (!two && mode === 'Cowork') setMode('Chat'); setTwo(!two); }}>{t(two ? 'Show 3 items' : 'Show 2 items')}</button>
       </div>
       <div className="demo-mode-stage"><SidebarModes aria-label={t('Sidebar modes')} style={{ width, maxWidth: '100%' }} options={options} value={mode} onValueChange={setMode} active={active} /></div>
-      <p className="demo-mode-description">{translate(locale, 'Selected {0} · Arrows move focus only', mode)}</p>
-      <p className="demo-mode-description">{t('Code is working in this example. Switch to Code to hide its background indicator; switch away to see it again.')}</p>
+      <p className="demo-mode-description">{translate(locale, 'Selected: {0}', mode)}</p>
+      <p className="demo-mode-description demo-implementation">{t('Code is working in this example. Switch to Code to hide its background indicator; switch away to see it again.')}</p>
       <footer className="demo-card-foot"><span><b>120 ms</b> snap</span><span><b>≤254 / ≤180 px</b> {t('3 / 2 item folding')}</span></footer>
     </article>
     <article className={panel}>
       <div className="flex flex-wrap items-center justify-between gap-3"><h2 className="m-0 text-sm leading-[1.6] font-(--cui-medium)">{t('Pinned conversations')}</h2><button type="button" className="demo-button demo-button-small demo-button-subtle" onClick={() => { setOrder(initial.map(item => item.id)); setReset(value => value + 1); }}>{t('Restore order')}</button></div>
-      <p id={help} className="demo-mode-description">{t('Drag to reorder; Esc cancels. Use ↑ ↓ to focus a conversation, then → and Enter for its menu.')}</p>
+      <p id={help} className="demo-mode-description demo-implementation">{t('Drag to reorder; Esc cancels. Use ↑ ↓ to focus a conversation, then → and Enter for its menu.')}</p>
       <PinnedList key={reset} initialStatus={reset > 0 ? t('Order restored') : ''} className="mt-5" active={active} items={order.map(id => ({ id, title: t(initial.find(item => item.id === id)!.title) }))} onOrderChange={setOrder} label={t('Pinned conversations')} describedBy={help} actionsLabel={item => translate(locale, 'Actions for {0}', item.title)} menuLabel={t('Move conversation')} moveUpLabel={t('Move up')} moveDownLabel={t('Move down')} movedLabel={(item, position, total) => translate(locale, '{0} moved to position {1} of {2}', item.title, position, total)} cancelledLabel={t('Move cancelled')} />
     </article>
   </div>;

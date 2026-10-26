@@ -26,7 +26,7 @@ export function ComposerChapter({ locale, active }: { locale: Locale; active: bo
       <ComposerToolbar projectLabel={t('Project')} modelLabel="Sonnet 4.6" modelAriaLabel={t('Model: Sonnet 4.6')} describedBy={hint} className="mx-1.5" />
     </div>
     <div className="demo-composer-controls"><label htmlFor={widthId}>{t('Width limit')}</label><input id={widthId} type="range" min={coarse ? 168 : 156} max={680} value={Math.max(coarse ? 168 : 156, width)} onChange={event => setWidth(Number(event.target.value))} /><output htmlFor={widthId}>{Math.max(coarse ? 168 : 156, width)} px</output></div>
-    <p className="px-3.5 pt-3 text-[11px] leading-[1.5] text-cui-muted">{t('Type @ to reference the sample artwork. Choose with Enter or Tab, then keep typing. Esc dismisses the list.')}</p>
-    <p id={hint} className="px-3.5 pt-3 text-[11px] leading-[1.5] text-cui-muted">{t('Narrow the input to watch the project label simplify. Project, model and send are previews. Enter inserts a new line.')}</p>
+    <p className="demo-implementation px-3.5 pt-3 text-xs leading-[1.5] text-cui-muted">{t('Type @ to reference the sample artwork. Choose with Enter or Tab, then keep typing. Esc dismisses the list.')}</p>
+    <p id={hint} className="px-3.5 pt-3 text-xs leading-[1.5] text-cui-muted">{t('Narrow the input to watch the project label simplify. Project, model and send are previews. Enter inserts a new line.')}</p>
   </div>;
 }
