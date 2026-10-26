@@ -129,12 +129,13 @@
 .demo-select-menu > button[aria-selected=true] { font-weight:500; }
 .demo-select-menu > button[aria-selected=true] > .cui-icon { visibility:visible; }
 .demo-speed-select { min-width:108px; }
-.demo-theme-select { width: 112px; }
+.demo-theme-select { width:88px; min-height:32px; gap:4px; padding-inline:6px; border-radius:7px; }
+.demo-theme-select + .demo-select-menu { top:calc(100% + 4px); min-width:128px; padding:4px; border-radius:8px; box-shadow:0 4px 12px var(--cui-shadow-depth); }
+.demo-theme-select + .demo-select-menu > button { min-height:32px; gap:12px; padding:4px 8px; border-radius:4px; }
 .demo-speed-control { display: flex; align-items: center; gap: 12px; font-size: 14px; font-weight:400; color: var(--cui-secondary); }
 .demo-control-params { display: flex; flex-wrap: wrap; justify-content: center; gap: 4px 12px; }
 .demo-shell[data-show-notes=false] :is(.demo-card-foot, .demo-implementation, p.demo-reading-detail, .demo-workspace-card > footer) { display: none; }
 @media (max-width:520px) {
-  .demo-theme-select { width:88px; gap:4px; padding-inline:6px; }
   .demo-sidebar { padding-right:164px; gap:8px; }
   .demo-chapter-toggle small { display:none; }
 }
