@@ -118,7 +118,7 @@ export function App() {
       changeLocale(next);
       const url = new URL(location.href); url.searchParams.set('lang', next); history.replaceState(null, '', url);
     }} onTheme={setTheme}>
-          <section className="demo-specimen" hidden={chapter !== 'controls'} aria-label={copy.controls}><ControlsChapter copy={copy} locale={locale} /></section>
+          <section className="demo-specimen" hidden={chapter !== 'controls'} aria-label={copy.controls}><ControlsChapter copy={copy} locale={locale} active={chapter === 'controls'} /></section>
           <section className="demo-specimen" hidden={chapter !== 'segmented'} aria-label={copy.segmented}><SegmentedChapter copy={copy} /></section>
           <section className="demo-specimen" hidden={chapter !== 'type'} aria-label={copy.type}><TypographyChapter locale={locale} active={chapter === 'type'} /></section>
           <section className="demo-specimen" hidden={chapter !== 'reading'} aria-label={copy.reading}><ReadingChapter locale={locale} active={chapter === 'reading'} /></section>

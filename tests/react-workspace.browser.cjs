@@ -55,7 +55,7 @@ withDevBrowser(async ({ browser, base }) => {
     await testWorkspacePreviewIsolation(previewPage, base); await previewPage.close();
     const systemPage = await browser.newPage({ viewport: { width: 1280, height: 1000 }, colorScheme: 'light' });
     await systemPage.goto(`${base}/demo/?lang=en#modes`);
-    assert.equal(await systemPage.locator('.demo-theme-select').getAttribute('data-preference'), 'system');
+    assert.equal(await systemPage.locator('.demo-theme-select').getAttribute('data-value'), 'system');
     await systemPage.locator('.cui-pinned-main').first().focus(); await systemPage.keyboard.press('ArrowRight'); await systemPage.keyboard.press('Enter');
     const systemMenu = systemPage.getByRole('menu', { name: 'Move conversation', exact: true }); await systemMenu.waitFor();
     await systemPage.emulateMedia({ colorScheme: 'dark' });

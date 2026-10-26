@@ -1,6 +1,6 @@
 const assert = require('node:assert/strict');
 const { withDevBrowser } = require('./dev-browser.cjs');
-const { setLanguage, chooseChapter } = require('./demo-helpers.cjs');
+const { setChoice, setLanguage, chooseChapter } = require('./demo-helpers.cjs');
 
 withDevBrowser(async ({ browser, base }) => {
   const errors = [];
@@ -12,12 +12,12 @@ withDevBrowser(async ({ browser, base }) => {
     for (const strict of ['off', 'on']) {
       await page.goto(`${base}/tests/fixtures/react-visual-parity/demo.html?lang=en&strict=${strict}#controls`);
       const speed = page.getByRole('combobox', { name: 'Playback speed', exact: true });
-      assert.equal(await speed.inputValue(), '1', 'first visit shows the original animation speed');
+      assert.equal(await speed.getAttribute('data-value'), '1', 'first visit shows the original animation speed');
       const grid = page.locator('.demo-controls-grid');
       assert.equal(await grid.evaluate(node => getComputedStyle(node).getPropertyValue('--cui-motion-scale')), '1');
-      await speed.selectOption('0.2');
+      await setChoice(page, speed, '0.2');
       assert.equal(await grid.evaluate(node => getComputedStyle(node).getPropertyValue('--cui-motion-scale')), '5');
-      await speed.selectOption('1');
+      await setChoice(page, speed, '1');
       const toggle = page.locator('.demo-notes-toggle');
       const control = page.getByRole('switch', { name: 'Switch', exact: true });
       await control.click();
@@ -36,7 +36,7 @@ withDevBrowser(async ({ browser, base }) => {
         for (const locale of ['en', 'zh-Hans']) {
           await setLanguage(page, locale);
           for (const mode of ['light', 'dark']) {
-            await theme.selectOption(mode);
+            await setChoice(page, theme, mode);
             await page.waitForFunction(mode => document.documentElement.dataset.cuiTheme === mode, mode);
             assert.equal(await page.evaluate(() => localStorage.getItem('cui-demo-theme')), mode);
             for (const chapter of chapters) {
@@ -67,13 +67,13 @@ withDevBrowser(async ({ browser, base }) => {
           }
         }
       }
-      await theme.selectOption('system');
+      await setChoice(page, theme, 'system');
       for (const mode of ['dark', 'light']) {
         await page.emulateMedia({ colorScheme: mode });
         await page.waitForFunction(mode => document.documentElement.dataset.cuiTheme === mode, mode);
       }
       await page.reload();
-      assert.equal(await theme.inputValue(), 'system', 'explicit system preference persists');
+      assert.equal(await theme.getAttribute('data-value'), 'system', 'explicit system preference persists');
       assert.equal(await page.locator('html').getAttribute('lang'), 'zh-Hans');
     }
     assert.deepEqual(errors, []);

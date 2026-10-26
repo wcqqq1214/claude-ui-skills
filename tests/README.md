@@ -2,7 +2,7 @@
 
 Run `npm test`: deterministic geometry/search checks, documentation/source integration checks, a fresh production build, then every browser suite. Chrome/Chromium must be installed; `CHROME_BIN` can override discovery. `npm run test:react` runs source-consumer and chapter checks; `npm run test:production` rebuilds and verifies static delivery.
 
-Eleven ordinary development suites share [dev-browser.cjs](dev-browser.cjs) for Vite/Chrome startup and cleanup. Each suite retains its own pages, contexts, clocks and browser-error assertions. Feedback's controller loader, SSR middleware and the static production server keep their distinct entry paths. [Lifecycle checks](dev-browser.test.cjs) cover partial startup, assertion and cleanup failures, preserving the first error while releasing both resources.
+Twelve ordinary development suites share [dev-browser.cjs](dev-browser.cjs) for Vite/Chrome startup and cleanup. Each suite retains its own pages, contexts, clocks and browser-error assertions. Feedback's controller loader, SSR middleware and the static production server keep their distinct entry paths. [Lifecycle checks](dev-browser.test.cjs) cover partial startup, assertion and cleanup failures, preserving the first error while releasing both resources.
 
 The original tests loaded page-global scripts or queried the retired showcase DOM. Their behavioral coverage is carried by these suites:
 
@@ -25,6 +25,8 @@ The original tests loaded page-global scripts or queried the retired showcase DO
 React suites also exercise independently imported components without the demo stylesheet or globals, lifecycle cleanup and multiple instances. The production suite serves `dist/` with a plain HTTP file server, tests root/repository-subpath entries and both HTML entry points, traverses all 14 chapters, verifies image spring CSS and local asset delivery, and checks saved preferences, denied storage and history. It also verifies the restored language menu and narrow chapter picker, focus return, and the original slider dimensions. Demo framing and explanatory copy are intentionally simplified; source-component geometry and motion remain covered separately.
 
 [Demo presentation checks](demo-presentation.browser.cjs) traverse all 14 chapters in English and Chinese, light and dark themes, desktop and 320px layouts, with StrictMode off/on. They cover optional notes without remounting the controls, normal/slow playback selection, legible demo text, absence of middle-dot separators, narrow-screen navigation, horizontal overflow and persisted/system theme selection.
+
+[Demo picker checks](demo-select.browser.cjs) cover keyboard navigation, typeahead, Escape/Tab, pointer and emulated-touch selection, outside dismissal, pagehide, chapter switching, retained-DOM Activity reconnection, active changes and silent unmount. They run with StrictMode off/on and check bilingual light/dark menus at 320/390/1280px.
 
 `react-ssr.browser.cjs` renders the public source with Vite SSR, then hydrates it in Chrome under StrictMode. It checks matching initial markup without filesystem URLs, real sprite decoding, pause/resume, Replay, unmount cleanup and decode-failure fallback.
 

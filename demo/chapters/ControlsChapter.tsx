@@ -3,9 +3,10 @@ import type { CSSProperties } from 'react';
 import { Checkbox, DiscreteSlider, Switch } from '../../src';
 import type { Copy, Locale } from '../i18n';
 import { translate } from '../translations';
+import { DemoSelect } from '../components/DemoSelect';
 import { Specimen } from '../components/Specimen';
 
-export function ControlsChapter({ copy, locale }: { copy: Copy; locale: Locale }) {
+export function ControlsChapter({ copy, locale, active }: { copy: Copy; locale: Locale; active: boolean }) {
   const [slow, setSlow] = useState(false);
   const [checked, setChecked] = useState(true);
   const [enabled, setEnabled] = useState(true);
@@ -16,11 +17,10 @@ export function ControlsChapter({ copy, locale }: { copy: Copy; locale: Locale }
   return (
     <div className="demo-controls-grid" style={{ '--cui-motion-scale': slow ? 5 : 1 } as CSSProperties}>
       <div className="demo-controls-toolbar">
-        <label className="demo-speed-control">{copy.playback}
-          <select aria-label={copy.playback} value={slow ? '0.2' : '1'} onChange={event => setSlow(event.target.value === '0.2')}>
-            <option value="1">{copy.normalSpeed}</option><option value="0.2">{copy.slowSpeed}</option>
-          </select>
-        </label>
+        <div className="demo-speed-control"><span>{copy.playback}</span>
+          <DemoSelect className="demo-speed-select" label={copy.playback} active={active} value={slow ? '0.2' : '1'}
+            onChange={value => setSlow(value === '0.2')} options={[{ value: '1', label: copy.normalSpeed }, { value: '0.2', label: copy.slowSpeed }]} />
+        </div>
       </div>
         <Specimen title={copy.switch} description={copy.switchDescription} parameters={locale === 'en' ? "120ms; 16px travel; CSS transform" : "120ms; 16px 位移; CSS transform"}>
           <div className="[zoom:2]"><Switch aria-label={copy.switch} checked={enabled} onCheckedChange={setEnabled} /></div>

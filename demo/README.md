@@ -15,7 +15,7 @@ Open the printed Vite address. `/demo/` is an additional entry to the same appli
 
 The [mobile preview](../docs/assets/demo-preview-mobile.jpg) shows the 320px layout.
 
-Use the theme selector for Light, Dark or System. Implementation notes are hidden by default; the chapter-header toggle reveals descriptions and technical parameters without resetting the specimens. Controls start at normal playback speed; choose Slow (0.2×) to inspect their original motion.
+Use the theme selector for Light, Dark or System. Theme and playback pickers share the demo menu style: arrow keys browse, Enter selects, Escape cancels and Tab moves on. Implementation notes are hidden by default; the chapter-header toggle reveals descriptions and technical parameters without resetting the specimens. Controls start at normal playback speed; choose Slow (0.2×) to inspect their original motion.
 
 Existing theme/language preferences from the pre-migration demo are retained; valid current preferences take precedence. Unsupported language parameters are ignored in favor of a valid saved preference or the browser language. Reselecting the current chapter returns to the top without adding a history entry.
 

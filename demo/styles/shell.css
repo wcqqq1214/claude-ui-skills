@@ -103,10 +103,29 @@
 /* Optional implementation notes never unmount the specimens. */
 .demo-notes-toggle { flex-shrink: 0; }
 .demo-notes-toggle[aria-pressed=true] { background: var(--cui-muted-surface); }
-.demo-theme-select, .demo-speed-control select {
-  min-height: 36px; border: var(--demo-line) solid var(--cui-line); border-radius: 7px;
-  padding: 0 8px; font: inherit; font-size: 12px; color: var(--cui-text); background: var(--cui-surface);
+.demo-select { display:inline-block; position:relative; flex-shrink:0; vertical-align:middle; }
+.demo-select-trigger {
+  display:flex; align-items:center; justify-content:space-between; gap:8px; min-height:36px;
+  border:var(--demo-line) solid var(--cui-line); border-radius:8px; padding:0 8px;
+  font:inherit; font-size:12px; color:var(--cui-secondary); background:transparent;
 }
+.demo-select-trigger:hover, .demo-select-trigger[aria-expanded=true] { background:var(--cui-menu-hover); color:var(--cui-text); }
+.demo-select-trigger > span { min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.demo-select-trigger > .cui-icon { flex-shrink:0; color:var(--cui-muted); }
+.demo-select-menu {
+  position:absolute; top:calc(100% + 6px); right:0; z-index:60; min-width:max(100%,148px); padding:5px;
+  border:var(--demo-line) solid var(--cui-line); border-radius:10px; background:var(--cui-surface-popover);
+  box-shadow:0 8px 24px var(--cui-shadow-depth);
+}
+.demo-select-menu > button {
+  display:flex; align-items:center; justify-content:space-between; gap:20px; width:100%; min-height:34px;
+  border:0; border-radius:5px; padding:6px 9px; font:inherit; font-size:12px; text-align:left;
+  white-space:nowrap; color:var(--cui-text); background:transparent;
+}
+.demo-select-menu > button[data-highlighted] { background:var(--cui-menu-hover); }
+.demo-select-menu > button > .cui-icon { visibility:hidden; color:var(--cui-secondary); }
+.demo-select-menu > button[aria-selected=true] > .cui-icon { visibility:visible; }
+.demo-speed-select { min-width:108px; }
 .demo-theme-select { width: 112px; }
 .demo-speed-control { display: flex; align-items: center; gap: 12px; font-size: 12px; color: var(--cui-secondary); }
 .demo-control-params { display: flex; flex-wrap: wrap; justify-content: center; gap: 4px 12px; }
