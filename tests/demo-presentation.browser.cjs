@@ -7,7 +7,7 @@ withDevBrowser(async ({ browser, base }) => {
   const page = await browser.newPage();
   page.on('pageerror', error => errors.push(error.message));
   page.on('console', message => { if (message.type() === 'error') errors.push(message.text()); });
-  const chapters = ['type', 'controls', 'composer', 'feedback', 'workspace', 'images', 'micro', 'reading', 'gallery', 'menus', 'modes', 'tasks', 'recovery', 'segmented'];
+  const chapters = ['type', 'controls', 'composer', 'feedback', 'workspace', 'images', 'micro', 'reading', 'gallery', 'menus', 'modes', 'tasks', 'recovery'];
   try {
     for (const strict of ['off', 'on']) {
       await page.goto(`${base}/tests/fixtures/react-visual-parity/demo.html?lang=en&strict=${strict}#controls`);

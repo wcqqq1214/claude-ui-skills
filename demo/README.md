@@ -1,6 +1,6 @@
 # React demo
 
-The demo imports the public TSX components from `src/index.ts`. Its 14 chapters cover controls, segmented selection, typography, reading, feedback, hints, notifications, composer, menus, workspace, sidebar, image previews, galleries and tasks. Sample data, translations and replay controls belong to the demo. See [the migration record](../docs/react-migration.md).
+The demo imports the public TSX components from `src/index.ts`. Its 13 chapters cover controls (including segmented selection), typography, reading, feedback, hints, notifications, composer, menus, workspace, sidebar, image previews, galleries and tasks. Sample data, translations and replay controls belong to the demo. See [the migration record](../docs/react-migration.md).
 
 ## Run
 
@@ -11,7 +11,7 @@ npm ci
 npm run dev
 ```
 
-Open the printed Vite address. `/demo/` is an additional entry to the same application. `?lang=en` and `?lang=zh-Hans` select the language; `#controls`, `#segmented`, `#type` and `#reading` select chapters. Theme and language preferences persist locally. Changing chapters, language or theme preserves component state.
+Open the printed Vite address. `/demo/` is an additional entry to the same application. `?lang=en` and `?lang=zh-Hans` select the language; `#controls`, `#type` and `#reading` select chapters. The legacy `#segmented` address opens Controls. Theme and language preferences persist locally. Changing chapters, language or theme preserves component state.
 
 The [mobile preview](../docs/assets/demo-preview-mobile.jpg) shows the 320px layout.
 

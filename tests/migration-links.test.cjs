@@ -35,7 +35,7 @@ function anchors(file) {
     duplicates.set(slug, count + 1); ids.add(count ? `${slug}-${count}` : slug);
   }
   // These fragments are React routes, not static HTML element IDs.
-  if (normalized === 'demo/index.html' || normalized === 'index.html') chapters().forEach(id => ids.add(id));
+  if (normalized === 'demo/index.html' || normalized === 'index.html') [...chapters(), 'segmented'].forEach(id => ids.add(id));
   return ids;
 }
 
@@ -59,16 +59,17 @@ test('chapter and Markdown anchors accept both POSIX and Windows relative paths'
   for (const file of demoFiles) {
     const ids = anchors(file);
     for (const route of chapters()) assert.ok(ids.has(route), `${file}: missing chapter ${route}`);
+    assert.ok(ids.has('segmented'), `${file}: retain the legacy segmented alias`);
   }
   assert.ok(anchors(win32.relative('C:\\repo', 'C:\\repo\\demo\\README.md')).has('run'), 'Windows Markdown links retain heading anchors');
 });
 
-test('every demo chapter has one linked guide and a reusable TSX implementation', () => {
+test('every demo chapter has linked guides and reusable TSX implementations', () => {
   const routes = chapters();
   assert.equal(new Set(routes).size, routes.length, 'chapter routes must be unique');
   const rows = read('references/components.md').split('\n').filter(line => line.includes('../demo/index.html#'));
   const documented = rows.map(row => row.match(/\.\.\/demo\/index\.html#([^\s)]+)/)?.[1]);
-  assert.deepEqual([...documented].sort(), [...routes].sort(), 'the skill index must cover each route exactly once');
+  assert.deepEqual([...new Set(documented)].sort(), [...routes].sort(), 'the skill index must cover every route without stale chapter entries');
   for (const row of rows) {
     const guide = row.match(/\]\((components\/[^)]+\.md)\)/)?.[1];
     assert.ok(guide, `missing scenario guide: ${row}`);

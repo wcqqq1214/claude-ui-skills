@@ -9,6 +9,13 @@ withDevBrowser(async ({ browser, base }) => {
     for (const strict of ['off', 'on']) {
       await page.goto(`${base}/tests/fixtures/demo-settings/?strict=${strict}`);
       const speed = page.locator('.demo-slow'), outside = page.getByRole('textbox', { name: 'Outside focus' });
+      const standard = page.getByRole('radiogroup', { name: 'View format', exact: true });
+      const compact = page.getByRole('radiogroup', { name: 'Compact view format', exact: true });
+      await standard.getByRole('radio', { name: 'Preview', exact: true }).press('End');
+      await compact.getByRole('radio', { name: 'Code', exact: true }).press('Home');
+      assert.equal(await standard.getByRole('radio', { name: 'Details & notes' }).getAttribute('aria-checked'), 'true');
+      assert.equal(await compact.getByRole('radio', { name: 'Preview', exact: true }).getAttribute('aria-checked'), 'true');
+      await standard.evaluate(node => { window.retainedSegment = node; });
       const duration = () => page.locator('.cui-switch > span').evaluate(node => getComputedStyle(node).transitionDuration);
       assert.equal(await speed.getAttribute('aria-pressed'), 'true');
       assert.equal(await duration(), '0.6s', 'default 0.2× slows the original 120ms transition fivefold');
@@ -31,11 +38,34 @@ withDevBrowser(async ({ browser, base }) => {
         assert.equal(await speed.evaluate(node => node === window.retainedSpeed), true);
         assert.equal(await speed.getAttribute('aria-pressed'), 'false', 'retained chapter keeps normal speed');
         assert.equal(await outside.evaluate(node => node === document.activeElement), true);
+        assert.equal(await standard.evaluate(node => node === window.retainedSegment), true, 'segmented example retains its DOM on reconnect');
+        assert.equal(await standard.getByRole('radio', { name: 'Details & notes' }).getAttribute('aria-checked'), 'true');
+        assert.equal(await compact.getByRole('radio', { name: 'Preview', exact: true }).getAttribute('aria-checked'), 'true', 'sizes retain independent selections');
+        await page.waitForFunction(() => [...document.querySelectorAll('.demo-segmented-examples [role="radiogroup"]')].every(group => {
+          const selected = group.querySelector('[aria-checked="true"]').getBoundingClientRect();
+          const indicator = group.querySelector('[data-part="indicator"]').getBoundingClientRect();
+          return Math.abs(selected.left - indicator.left) <= 1 && Math.abs(selected.width - indicator.width) <= 1;
+        }));
       }
       await page.getByRole('button', { name: 'Toggle mount', exact: true }).evaluate(node => node.click());
       assert.equal(await speed.count(), 0);
       assert.equal(await outside.evaluate(node => node === document.activeElement), true);
-      await page.goto(`${base}/tests/fixtures/react-visual-parity/demo.html?strict=${strict}&lang=en#controls`);
+      await page.goto(`${base}/tests/fixtures/react-visual-parity/demo.html?strict=${strict}&lang=en#segmented`);
+      await page.getByRole('heading', { name: 'Controls', exact: true }).waitFor();
+      assert.equal(await page.locator('nav a').count(), 13);
+      assert.equal(await page.locator('nav a[href="#segmented"]').count(), 0);
+      assert.equal(await page.locator('nav a[aria-current]').getAttribute('href'), '#controls', 'legacy URL selects Controls');
+      const merged = page.getByRole('radiogroup', { name: 'View format', exact: true });
+      await merged.getByRole('radio', { name: 'Code', exact: true }).click();
+      await chooseChapter(page, 'type');
+      await page.goBack();
+      await page.getByRole('heading', { name: 'Controls', exact: true }).waitFor();
+      assert.equal(await merged.getByRole('radio', { name: 'Code', exact: true }).getAttribute('aria-checked'), 'true', 'history to the legacy route retains selection');
+      await page.goForward();
+      await page.getByRole('heading', { name: 'Typography', exact: true }).waitFor();
+      await page.evaluate(() => { location.hash = 'segmented'; });
+      await page.getByRole('heading', { name: 'Controls', exact: true }).waitFor();
+      assert.equal(await merged.getByRole('radio', { name: 'Code', exact: true }).getAttribute('aria-checked'), 'true', 'hashchange alias retains selection');
       for (const locale of ['en', 'zh-Hans']) {
         await setLanguage(page, locale);
         const notes = page.getByRole('button', { name: locale === 'en' ? 'Implementation notes' : '实现说明', exact: true });
@@ -68,6 +98,7 @@ withDevBrowser(async ({ browser, base }) => {
         assert.equal(await notes.getAttribute('aria-pressed'), 'false');
         assert.equal(await params.isVisible(), false);
         assert.equal(await page.locator('.cui-switch').first().evaluate(node => node === window.retainedSwitch), true, 'notes toggle retains the demonstration DOM');
+        assert.equal(await page.getByRole('radiogroup', { name: locale === 'en' ? 'View format' : '视图格式', exact: true }).getByRole('radio', { name: locale === 'en' ? 'Code' : '代码', exact: true }).getAttribute('aria-checked'), 'true', 'language and notes preserve segmented selection');
       }
       for (const width of [320, 390, 1280]) for (const locale of ['en', 'zh-Hans']) {
         await page.setViewportSize({ width, height: 900 }); await setLanguage(page, locale);

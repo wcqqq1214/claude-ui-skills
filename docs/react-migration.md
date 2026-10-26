@@ -148,7 +148,7 @@ All six delivery stages are complete. Source consumption requires React and Tail
 
 ## Visual parity follow-up
 
-The initial completion established the React delivery and interactions, but did not establish visual parity of the demo shell. The subsequent [computer-use comparison](react-visual-parity.md) restores the original framing and fixes measured component differences. It includes all 13 original chapters in both themes, narrow layouts, English code/table content and overlay states. The additional standalone segmented-control chapter remains chapter 14.
+The initial completion established the React delivery and interactions, but did not establish visual parity of the demo shell. The subsequent [computer-use comparison](react-visual-parity.md) restores the original framing and fixes measured component differences. It includes all 13 original chapters in both themes, narrow layouts, English code/table content and overlay states. The standalone segmented-control chapter was subsequently merged into Controls; the current demo has 13 chapters and retains `#segmented` as a Controls alias.
 
 ## Skill and behavior consistency follow-up
 

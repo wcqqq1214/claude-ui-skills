@@ -12,13 +12,13 @@
 <p align="center">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="docs/assets/demo-preview-dark.jpg">
-    <img src="docs/assets/demo-preview.jpg" width="960" alt="React demo: switch, checkbox and discrete slider, with navigation to all 14 chapters">
+    <img src="docs/assets/demo-preview.jpg" width="960" alt="React demo: switch, checkbox, discrete slider and segmented controls, with navigation to all 13 chapters">
   </picture>
 </p>
 
 ## React components
 
-The source and demo use **TSX + React 19 + Tailwind CSS 4**. All 14 demo chapters import the same public components from [`src/index.ts`](src/index.ts); sample data, translations and replay controls stay in `demo/`.
+The source and demo use **TSX + React 19 + Tailwind CSS 4**. All 13 demo chapters import the same public components from [`src/index.ts`](src/index.ts); sample data, translations and replay controls stay in `demo/`.
 
 Copy the complete `src/` directory into a React + TypeScript project with Tailwind CSS 4 configured, preserving its internal paths and assets. Import the component stylesheet once:
 
@@ -59,9 +59,9 @@ The skill covers UI, frontend interactions, typography and motion. See [scope an
 
 ## Demo
 
-Explore 14 interactive chapters: typography, controls, input and attachments, loading and disclosure, file panels, image previews, hints, reading and tables, galleries, menus and search, sidebar modes, cards and drop targets, notifications, and segmented controls. Supports English, Simplified Chinese and light/dark themes.
+Explore 13 interactive chapters: typography, controls, input and attachments, loading and disclosure, file panels, image previews, hints, reading and tables, galleries, menus and search, sidebar modes, cards and drop targets, and notifications. Segmented controls are included under Controls. Supports English, Simplified Chinese and light/dark themes.
 
-Implementation notes are optional, and controls play at their original speed by default. Theme selection includes Light, Dark and System.
+Implementation notes are optional. The turtle button defaults to 0.2× playback for the switch, checkbox and slider; click it to restore their original speed. Theme selection includes Light, Dark and System.
 
 With Node.js 22.12+ (or 20.19+ on the 20.x line), run from the repository root:
 

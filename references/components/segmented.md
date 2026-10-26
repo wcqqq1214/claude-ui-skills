@@ -4,7 +4,7 @@ Use for: a small fixed set of mutually exclusive views or options, such as previ
 
 ## React implementation
 
-[SegmentedControl.tsx](../../src/components/segmented/SegmentedControl.tsx) · [demo chapter](../../demo/chapters/SegmentedChapter.tsx) · [setup and API](../../demo/README.md).
+[SegmentedControl.tsx](../../src/components/segmented/SegmentedControl.tsx) · [demo chapter](../../demo/chapters/ControlsChapter.tsx) · [setup and API](../../demo/README.md).
 
 The TSX implementation keeps measured natural widths, pixel snapping, interruption from visible geometry and immediate-selection radio semantics. Use stable option IDs with `value/onValueChange` or `defaultValue`. Observers and animation handles are cleaned up on unmount; instances are independent. Label/size changes remeasure. Disabled options are skipped by keyboard navigation. Initialization does not call `onValueChange`. Component sizes are controlled by `size` and host styles.
 

@@ -5,7 +5,7 @@ description: Build or refine Claude-inspired UI, frontend interactions, and moti
 
 # Claude UI Skills
 
-Adapt Claude Desktop–style UI, typography and motion into an existing frontend. Reusable TSX components in `src/` are the implementation reference; all 14 chapters in `demo/` import them. Scenario guides link the component source and styles. See [integration](demo/README.md).
+Adapt Claude Desktop–style UI, typography and motion into an existing frontend. Reusable TSX components in `src/` are the implementation reference; all 13 chapters in `demo/` import them. Scenario guides link the component source and styles. See [integration](demo/README.md).
 
 ## Workflow
 
@@ -54,4 +54,4 @@ Sprite marks (status marks, working dots) step through frames with `steps(n, jum
 
 ## Demo
 
-Run `npm ci` and `npm run dev` from the skill root; see [demo instructions](demo/README.md#run). For static preview, run `npm run build` and serve `dist/`. All 14 chapters run locally without sending data or executing tools.
+Run `npm ci` and `npm run dev` from the skill root; see [demo instructions](demo/README.md#run). For static preview, run `npm run build` and serve `dist/`. All 13 chapters run locally without sending data or executing tools.

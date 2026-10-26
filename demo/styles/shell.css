@@ -93,6 +93,7 @@
 
 .demo-control-row > div { display:flex; align-items:center; line-height:1; }
 .demo-wide .demo-control-row > div { width:min(360px,calc(100% - 20px)); max-width:none; }
+.demo-wide .demo-control-row > .demo-segmented-examples { width:100%; max-width:100%; flex-wrap:wrap; gap:24px; justify-content:center; }
 
 .demo-stage[data-chapter=recovery] .demo-specimen { width:100%; margin:0; }
 

@@ -6,7 +6,7 @@ Date: 2026-10-20. Baseline: the local pre-migration showcase. Compared implement
 
 The initial migration retained component behavior but redesigned much of the demo presentation. That changed the visual result: navigation and theme controls, chapter widths, canvas centering, card rings/shadows, padding, type stages, button sizes and responsive breakpoints. Source-only tests did not establish parity with the original demo.
 
-This follow-up restores that presentation in React. The original default Typography page, 13 chapter positions and labels are retained; the additional standalone segmented-control chapter follows them as chapter 14. Reusable components remain in `src/`; demo framing stays under `demo/`.
+This follow-up restores that presentation in React. The original default Typography page, 13 chapter positions and labels are retained; the additional segmented-control examples now live under Controls, with `#segmented` retained as a compatibility alias. Reusable components remain in `src/`; demo framing stays under `demo/`.
 
 Component corrections include the original 30px icon buttons, medium task/file-row weights, Serif file content, theme-aware clay and popover colors, keyboard-shortcut keycaps, accordion padding/expo easing, table heading spacing, code/table surfaces and notification action padding. No backend behavior was added.
 

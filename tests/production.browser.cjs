@@ -57,12 +57,17 @@ const { chromium } = require(process.env.PLAYWRIGHT_MODULE || 'playwright-core')
     }
     const context = await browser.newContext({ viewport: { width: 1280, height: 900 }, colorScheme: 'dark' });
     const page = await context.newPage(); observe(page);
-    const chapters = ['controls', 'segmented', 'type', 'reading', 'feedback', 'micro', 'recovery', 'composer', 'menus', 'workspace', 'modes', 'images', 'gallery', 'tasks'];
+    const chapters = ['controls', 'type', 'reading', 'feedback', 'micro', 'recovery', 'composer', 'menus', 'workspace', 'modes', 'images', 'gallery', 'tasks'];
     for (const base of ['/', '/claude-ui-skills/']) {
+      for (const entry of ['', 'demo/']) {
+        await page.goto(`${origin}${base}${entry}?lang=en#segmented`);
+        await page.getByRole('radiogroup', { name: 'View format', exact: true }).waitFor();
+        assert.equal(await page.locator('nav a[aria-current]').getAttribute('href'), '#controls', 'built entries resolve the legacy segmented route');
+      }
       await page.goto(`${origin}${base}?lang=en#controls`);
       await page.getByRole('switch', { name: 'Switch', exact: true }).waitFor();
       assert.equal(await page.locator('html').getAttribute('data-cui-theme'), 'dark');
-      assert.equal(await page.getByRole('navigation').getByRole('link').count(), 14);
+      assert.equal(await page.getByRole('navigation').getByRole('link').count(), 13);
       for (const id of chapters) {
         await page.locator(`nav a[href="#${id}"]`).click();
         await page.waitForFunction(id => document.querySelector('nav a[aria-current]')?.getAttribute('href') === '#' + id, id);
@@ -232,7 +237,7 @@ const { chromium } = require(process.env.PLAYWRIGHT_MODULE || 'playwright-core')
       assert.equal((await response.arrayBuffer()).byteLength, (await stat(join(root, file))).size, file);
     }
     assert.deepEqual(errors, []);
-    console.log('Built root/subpath entries, 14 chapters, local assets, image spring, history/reselection, legacy/current preferences, language fallback and denied storage passed.');
+    console.log('Built root/subpath entries, 13 chapters, local assets, image spring, history/reselection, legacy/current preferences, language fallback and denied storage passed.');
   } finally {
     await browser?.close();
     await new Promise(done => server.close(done));

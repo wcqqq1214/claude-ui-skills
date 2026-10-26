@@ -12,13 +12,13 @@
 <p align="center">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="docs/assets/demo-preview-zh-dark.jpg">
-    <img src="docs/assets/demo-preview-zh.jpg" width="960" alt="React 演示：开关、复选框和分档滑块，以及全部 14 个章节的导航">
+    <img src="docs/assets/demo-preview-zh.jpg" width="960" alt="React 演示：开关、复选框、分档滑块和分段控件，以及全部 13 个章节的导航">
   </picture>
 </p>
 
 ## React 组件
 
-源码和 demo 均采用 **TSX + React 19 + Tailwind CSS 4**。全部 14 个 demo 章节从 [`src/index.ts`](src/index.ts) 导入同一套公开组件；示例数据、翻译和重播控制留在 `demo/` 中。
+源码和 demo 均采用 **TSX + React 19 + Tailwind CSS 4**。全部 13 个 demo 章节从 [`src/index.ts`](src/index.ts) 导入同一套公开组件；示例数据、翻译和重播控制留在 `demo/` 中。
 
 将完整的 `src/` 目录复制到已配置 Tailwind CSS 4 的 React + TypeScript 项目，保留内部路径和资源。在应用中导入一次组件样式：
 
@@ -59,9 +59,9 @@ Skill 覆盖 UI、前端交互、排版与动效，详见[范围与覆盖](docs/
 
 ## 演示
 
-包含 14 个交互章节：文字与排版、基础控件、输入框与附件、加载与折叠、文件面板、图片预览、提示与反馈、阅读与表格、缩放与图库、菜单与搜索、侧栏模式、卡片与拖放、通知和分段控件。支持简体中文、English 和深浅主题。
+包含 13 个交互章节：文字与排版、基础控件、输入框与附件、加载与折叠、文件面板、图片预览、提示与反馈、阅读与表格、缩放与图库、菜单与搜索、侧栏模式、卡片与拖放、通知。分段控件合并展示在基础控件中。支持简体中文、English 和深浅主题。
 
-实现说明默认收起，可按需展开。控件默认以原速播放，主题可选择浅色、深色或跟随系统。
+实现说明默认收起，可按需展开。乌龟按钮默认以 0.2× 播放开关、复选框和滑块的动效，点击可恢复原速。主题可选择浅色、深色或跟随系统。
 
 使用 Node.js 22.12+（或 20.x 系列的 20.19+），在仓库根目录执行：
 

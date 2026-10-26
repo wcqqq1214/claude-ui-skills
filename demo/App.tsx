@@ -12,20 +12,22 @@ import { MicroChapter } from './chapters/MicroChapter';
 import { NotificationsChapter } from './chapters/NotificationsChapter';
 import { FeedbackChapter } from './chapters/FeedbackChapter';
 import { ReadingChapter } from './chapters/ReadingChapter';
-import { SegmentedChapter } from './chapters/SegmentedChapter';
 import { DemoShell } from './components/DemoShell';
 import { messages } from './i18n';
 import type { Locale } from './i18n';
 
 type Theme = 'system' | 'light' | 'dark';
-const chapters = ['type', 'controls', 'composer', 'feedback', 'workspace', 'images', 'micro', 'reading', 'gallery', 'menus', 'modes', 'tasks', 'recovery', 'segmented'] as const;
+const chapters = ['type', 'controls', 'composer', 'feedback', 'workspace', 'images', 'micro', 'reading', 'gallery', 'menus', 'modes', 'tasks', 'recovery'] as const;
 type Chapter = typeof chapters[number];
 function readPreferences(key: 'locale' | 'theme') {
   try { return [localStorage.getItem(`cui-demo-${key}`), localStorage.getItem(key === 'locale' ? 'claude-ui-studies.language' : 'claude-ui-studies.theme')]; }
   catch { return []; }
 }
 function savePreference(key: string, value: string) { try { localStorage.setItem(`cui-demo-${key}`, value); } catch { /* Storage is optional. */ } }
-function currentChapter(): Chapter { return chapters.find(chapter => location.hash === `#${chapter}`) ?? 'type'; }
+function currentChapter(): Chapter {
+  if (location.hash === '#segmented') return 'controls';
+  return chapters.find(chapter => location.hash === `#${chapter}`) ?? 'type';
+}
 function initialLocale(): Locale {
   const preference = [new URLSearchParams(location.search).get('lang'), ...readPreferences('locale')]
     .find((value): value is Locale => value === 'en' || value === 'zh-Hans');
@@ -119,7 +121,6 @@ export function App() {
       const url = new URL(location.href); url.searchParams.set('lang', next); history.replaceState(null, '', url);
     }} onTheme={setTheme}>
           <section className="demo-specimen" hidden={chapter !== 'controls'} aria-label={copy.controls}><ControlsChapter copy={copy} locale={locale} active={chapter === 'controls'} /></section>
-          <section className="demo-specimen" hidden={chapter !== 'segmented'} aria-label={copy.segmented}><SegmentedChapter copy={copy} /></section>
           <section className="demo-specimen" hidden={chapter !== 'type'} aria-label={copy.type}><TypographyChapter locale={locale} active={chapter === 'type'} /></section>
           <section className="demo-specimen" hidden={chapter !== 'reading'} aria-label={copy.reading}><ReadingChapter locale={locale} active={chapter === 'reading'} /></section>
           <section className="demo-specimen" hidden={chapter !== 'feedback'} aria-label={copy.feedback}><FeedbackChapter locale={locale} active={chapter === 'feedback'} /></section>

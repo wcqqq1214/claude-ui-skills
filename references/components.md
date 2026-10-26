@@ -1,12 +1,12 @@
 # Component guides
 
-Choose a scenario, then read its linked TSX source and component styles. All 14 demo chapters import the public component entry. See [integration](../demo/README.md) and [visual foundations](visual.md).
+Choose a scenario, then read its linked TSX source and component styles. All 13 demo chapters import the public component entry. See [integration](../demo/README.md) and [visual foundations](visual.md).
 
 | Scenario | Guide | Demo |
 | --- | --- | --- |
 | Standalone grapheme/body reveal, user bubble, working dots and scroll following | [Text reveal and local scrolling](components/type.md) | [Demo](../demo/index.html#type) |
 | Binary choices and an ordered discrete scale | [Switch, checkbox and slider](components/controls.md) | [Demo](../demo/index.html#controls) |
-| Mutually exclusive views with unequal-width slider motion | [Segmented control](components/segmented.md) | [Demo](../demo/index.html#segmented) |
+| Mutually exclusive views with unequal-width slider motion | [Segmented control](components/segmented.md) | [Demo](../demo/index.html#controls) |
 | Composer surface, hover/focus transitions, `@` Artifact references, a folding project row and mock attachment add/remove/reflow motion | [Input and attachments](components/composer.md) | [Demo](../demo/index.html#composer) |
 | Waiting, delayed placeholders and optional detail | [Waiting and accordion](components/feedback.md) | [Demo](../demo/index.html#feedback) |
 | Files, view formats and a resizable preview | [File panel](components/workspace.md) | [Demo](../demo/index.html#workspace) |

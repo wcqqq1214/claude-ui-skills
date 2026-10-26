@@ -169,7 +169,8 @@ withDevBrowser(async ({ browser, base }) => {
       assert.equal(await page.getByRole('checkbox', { name: '复选框' }).isChecked(), false);
       assert.equal(await page.getByRole('slider', { name: '思考强度' }).inputValue(), '0');
       assert.equal(await page.getByRole('slider', { name: '思考强度' }).getAttribute('aria-valuetext'), '第 1 档，共 4 档');
-      await chooseChapter(page, 'segmented');
+      await chooseChapter(page, 'type');
+      await chooseChapter(page, 'controls');
       const demoSegment = page.getByRole('radiogroup', { name: '视图格式', exact: true });
       await demoSegment.getByRole('radio', { name: '代码', exact: true }).click();
       await aligned(demoSegment);
@@ -177,6 +178,7 @@ withDevBrowser(async ({ browser, base }) => {
       assert.equal(await page.getByRole('radiogroup', { name: 'View format', exact: true }).getByRole('radio', { name: 'Code', exact: true }).getAttribute('aria-checked'), 'true');
       await aligned(page.getByRole('radiogroup', { name: 'View format', exact: true }));
       assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), `overflow ${width}/${theme}`);
+      await page.goBack();
       await page.goBack();
       assert.equal(await page.getByRole('switch', { name: '开关', exact: true }).getAttribute('aria-checked'), 'false', 'chapter history preserves state and restores URL language');
     }
