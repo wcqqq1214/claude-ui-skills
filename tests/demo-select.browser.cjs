@@ -1,6 +1,6 @@
 const assert = require('node:assert/strict');
 const { withDevBrowser } = require('./dev-browser.cjs');
-const { setChoice, setLanguage, chooseChapter } = require('./demo-helpers.cjs');
+const { setChoice, setTheme, setLanguage, chooseChapter } = require('./demo-helpers.cjs');
 withDevBrowser(async ({ browser, base }) => {
   const page = await browser.newPage(), errors = [];
   page.on('pageerror', error => errors.push(error.message));
@@ -57,16 +57,13 @@ withDevBrowser(async ({ browser, base }) => {
       for (const width of [320, 390, 1280]) for (const locale of ['en', 'zh-Hans']) {
         await page.setViewportSize({ width, height: 900 }); await setLanguage(page, locale);
         for (const theme of ['light', 'dark', 'system']) {
-          const themeTrigger = page.locator('.demo-theme-select');
-          await setChoice(page, themeTrigger, theme);
-          const native = await themeTrigger.evaluate(node => ({
-            tag: node.tagName, options: node.options.length, size: getComputedStyle(node).fontSize,
-            scheme: getComputedStyle(node).colorScheme, resolved: document.documentElement.dataset.cuiTheme,
-          }));
-          assert.equal(native.tag, 'SELECT', 'theme picker uses the native control');
-          assert.equal(native.options, 3);
-          assert.equal(native.size, '14px');
-          assert.equal(native.scheme, native.resolved, 'native popup follows the resolved theme');
+          await setTheme(page, theme);
+          const themeButton = page.locator('.demo-theme-toggle');
+          const box = await themeButton.boundingBox();
+          assert.equal(box.width, 32, 'original theme button stays compact');
+          assert.equal(box.height, 32);
+          assert.equal(await themeButton.locator('svg').count(), 1);
+          assert.equal(await themeButton.getAttribute('aria-haspopup'), null, 'theme cycles without a dropdown');
           for (const target of [page.locator('.demo-speed-select')]) {
             await target.click();
             const menu = await page.getByRole('listbox').boundingBox();
@@ -83,6 +80,13 @@ withDevBrowser(async ({ browser, base }) => {
           }
         }
       }
+      await setTheme(page, 'system');
+      const themeButton = page.locator('.demo-theme-toggle');
+      for (const [key, expected] of [['Enter', 'light'], ['Space', 'dark'], ['Enter', 'system']]) {
+        await themeButton.press(key);
+        assert.equal(await themeButton.getAttribute('data-preference'), expected, 'keyboard follows original theme cycle');
+        assert.equal(await themeButton.evaluate(node => node === document.activeElement), true);
+      }
       const speed = page.locator('.demo-speed-select');
       await setChoice(page, speed, '0.2');
       assert.equal(await page.locator('.cui-switch > span').evaluate(node => getComputedStyle(node).transitionDuration), '0.6s');
@@ -93,9 +97,12 @@ withDevBrowser(async ({ browser, base }) => {
     const touch = await browser.newPage({ viewport: { width: 320, height: 740 }, hasTouch: true, isMobile: true });
     try {
       await touch.goto(`${base}/?lang=zh-Hans#controls`);
-      const theme = touch.locator('.demo-theme-select');
-      await theme.selectOption('dark');
-      assert.equal(await theme.inputValue(), 'dark');
+      const theme = touch.locator('.demo-theme-toggle');
+      assert.equal(await theme.getAttribute('data-preference'), 'system');
+      await theme.tap();
+      assert.equal(await theme.getAttribute('data-preference'), 'light');
+      await theme.tap();
+      assert.equal(await theme.getAttribute('data-preference'), 'dark');
       await touch.locator('.demo-speed-select').tap();
       await touch.getByRole('option', { name: '慢速（0.2×）', exact: true }).tap();
       assert.equal(await touch.locator('.demo-speed-select').getAttribute('data-value'), '0.2');

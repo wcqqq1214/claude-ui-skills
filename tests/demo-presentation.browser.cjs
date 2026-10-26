@@ -1,6 +1,6 @@
 const assert = require('node:assert/strict');
 const { withDevBrowser } = require('./dev-browser.cjs');
-const { setChoice, setLanguage, chooseChapter } = require('./demo-helpers.cjs');
+const { setChoice, setTheme, setLanguage, chooseChapter } = require('./demo-helpers.cjs');
 
 withDevBrowser(async ({ browser, base }) => {
   const errors = [];
@@ -30,13 +30,13 @@ withDevBrowser(async ({ browser, base }) => {
       await toggle.click();
       assert.equal(await control.getAttribute('aria-checked'), 'false');
       assert.equal(await control.evaluate(node => node === window.retainedDemoSwitch), true, 'showing notes retains component DOM/state');
-      const theme = page.locator('.demo-theme-select');
+      const theme = page.locator('.demo-theme-toggle');
       for (const width of [1280, 320]) {
         await page.setViewportSize({ width, height: 900 });
         for (const locale of ['en', 'zh-Hans']) {
           await setLanguage(page, locale);
           for (const mode of ['light', 'dark']) {
-            await setChoice(page, theme, mode);
+            await setTheme(page, mode);
             await page.waitForFunction(mode => document.documentElement.dataset.cuiTheme === mode, mode);
             assert.equal(await page.evaluate(() => localStorage.getItem('cui-demo-theme')), mode);
             for (const chapter of chapters) {
@@ -67,13 +67,13 @@ withDevBrowser(async ({ browser, base }) => {
           }
         }
       }
-      await setChoice(page, theme, 'system');
+      await setTheme(page, 'system');
       for (const mode of ['dark', 'light']) {
         await page.emulateMedia({ colorScheme: mode });
         await page.waitForFunction(mode => document.documentElement.dataset.cuiTheme === mode, mode);
       }
       await page.reload();
-      assert.equal(await theme.getAttribute('data-value'), 'system', 'explicit system preference persists');
+      assert.equal(await theme.getAttribute('data-preference'), 'system', 'explicit system preference persists');
       assert.equal(await page.locator('html').getAttribute('lang'), 'zh-Hans');
     }
     assert.deepEqual(errors, []);

@@ -26,7 +26,7 @@ React suites also exercise independently imported components without the demo st
 
 [Demo presentation checks](demo-presentation.browser.cjs) traverse all 14 chapters in English and Chinese, light and dark themes, desktop and 320px layouts, with StrictMode off/on. They cover optional notes without remounting the controls, normal/slow playback selection, legible demo text, absence of middle-dot separators, narrow-screen navigation, horizontal overflow and persisted/system theme selection.
 
-[Demo picker checks](demo-select.browser.cjs) verify the native theme selector and its resolved color scheme, and cover playback-menu keyboard navigation, typeahead, Escape/Tab, pointer and emulated-touch selection, outside dismissal, pagehide, chapter switching, retained-DOM Activity reconnection, active changes and silent unmount. They run with StrictMode off/on and check bilingual light/dark menus at 320/390/1280px.
+[Demo picker checks](demo-select.browser.cjs) verify the original 32px theme icon button, keyboard/touch cycling and system preference, and cover playback-menu keyboard navigation, typeahead, Escape/Tab, pointer and emulated-touch selection, outside dismissal, pagehide, chapter switching, retained-DOM Activity reconnection, active changes and silent unmount. They run with StrictMode off/on and check bilingual light/dark menus at 320/390/1280px.
 
 `react-ssr.browser.cjs` renders the public source with Vite SSR, then hydrates it in Chrome under StrictMode. It checks matching initial markup without filesystem URLs, real sprite decoding, pause/resume, Replay, unmount cleanup and decode-failure fallback.
 

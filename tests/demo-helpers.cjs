@@ -1,15 +1,18 @@
 const assert = require('node:assert/strict');
 async function setChoice(page, trigger, value) {
-  if (await trigger.evaluate(node => node.tagName === 'SELECT')) await trigger.selectOption(value);
-  else {
-    await trigger.click();
-    const id = await trigger.getAttribute('aria-controls');
-    await page.locator(`[role=listbox][id="${id}"] [role=option][data-value="${value}"]`).click();
-  }
+  await trigger.click();
+  const id = await trigger.getAttribute('aria-controls');
+  await page.locator(`[role=listbox][id="${id}"] [role=option][data-value="${value}"]`).click();
   assert.equal(await trigger.getAttribute('data-value'), value);
 }
 async function setTheme(page, theme) {
-  await setChoice(page, page.locator('.demo-theme-select'), theme);
+  const button = page.locator('.demo-topbar button[data-preference]');
+  await button.waitFor();
+  for (let i = 0; i < 3; i++) {
+    if (await button.getAttribute('data-preference') === theme) break;
+    await button.click();
+  }
+  assert.equal(await button.getAttribute('data-preference'), theme);
   await page.waitForFunction(theme => document.documentElement.dataset.cuiTheme === (theme === 'system' ? matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light' : theme), theme);
 }
 async function setLanguage(page, locale) {
