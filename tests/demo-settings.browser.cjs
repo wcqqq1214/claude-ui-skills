@@ -36,6 +36,39 @@ withDevBrowser(async ({ browser, base }) => {
       assert.equal(await speed.count(), 0);
       assert.equal(await outside.evaluate(node => node === document.activeElement), true);
       await page.goto(`${base}/tests/fixtures/react-visual-parity/demo.html?strict=${strict}&lang=en#controls`);
+      for (const locale of ['en', 'zh-Hans']) {
+        await setLanguage(page, locale);
+        const notes = page.getByRole('button', { name: locale === 'en' ? 'Implementation notes' : '实现说明', exact: true });
+        const hint = page.locator('.demo-notes-control [role="tooltip"]');
+        const params = page.locator('.demo-control-params').first();
+        await page.locator('.cui-switch').first().evaluate(node => { window.retainedSwitch = node; });
+        assert.equal(await notes.locator('[data-glyph="Code"]').count(), 1, 'uses the bundled icon library');
+        assert.equal(await notes.locator('svg').count(), 0, 'no custom SVG');
+        await page.evaluate(() => document.fonts.ready);
+        assert.match(await notes.locator('[data-glyph="Code"]').evaluate(node => getComputedStyle(node).fontFamily), /cui-icons/);
+        assert.equal(await notes.getAttribute('aria-pressed'), 'false');
+        assert.equal(await params.isVisible(), false);
+        await notes.hover();
+        await page.waitForFunction(() => document.querySelector('.demo-notes-control [role="tooltip"]').getAttribute('data-open') === 'true');
+        assert.equal(await hint.innerText(), locale === 'en' ? 'Show implementation notes' : '显示实现说明');
+        await page.mouse.move(0, 0);
+        await notes.focus();
+        await page.waitForFunction(() => document.querySelector('.demo-notes-control [role="tooltip"]').getAttribute('data-open') === 'true');
+        await notes.press('Escape');
+        assert.equal(await hint.getAttribute('aria-hidden'), 'true');
+        assert.equal(await notes.evaluate(node => node === document.activeElement), true);
+        await notes.press('Enter');
+        assert.equal(await notes.getAttribute('aria-pressed'), 'true');
+        assert.equal(await params.isVisible(), true);
+        await page.locator('.demo-theme-toggle').focus();
+        await notes.focus();
+        await page.waitForFunction(() => document.querySelector('.demo-notes-control [role="tooltip"]').getAttribute('data-open') === 'true');
+        assert.equal(await hint.innerText(), locale === 'en' ? 'Hide implementation notes' : '隐藏实现说明');
+        await notes.press('Space');
+        assert.equal(await notes.getAttribute('aria-pressed'), 'false');
+        assert.equal(await params.isVisible(), false);
+        assert.equal(await page.locator('.cui-switch').first().evaluate(node => node === window.retainedSwitch), true, 'notes toggle retains the demonstration DOM');
+      }
       for (const width of [320, 390, 1280]) for (const locale of ['en', 'zh-Hans']) {
         await page.setViewportSize({ width, height: 900 }); await setLanguage(page, locale);
         for (const theme of ['light', 'dark', 'system']) {
@@ -46,6 +79,10 @@ withDevBrowser(async ({ browser, base }) => {
           assert.equal(box.height, 32);
           assert.equal(await themeButton.locator('svg').count(), 1);
           assert.equal(await themeButton.getAttribute('aria-haspopup'), null, 'theme cycles without a dropdown');
+          const notesBox = await page.locator('.demo-notes-toggle').boundingBox();
+          assert.equal(notesBox.width, 32, 'notes icon matches the shell buttons');
+          assert.equal(notesBox.height, 32);
+          assert.ok(notesBox.x >= 0 && notesBox.x + notesBox.width <= width, `${width}/${locale}/${theme}: notes button fits`);
           const slow = page.locator('.demo-slow'), rect = await slow.boundingBox();
           assert.ok(rect.x >= 0 && rect.x + rect.width <= width, `${width}/${locale}/${theme}: speed button fits`);
           assert.equal(await slow.getAttribute('aria-pressed'), 'true');
@@ -78,6 +115,11 @@ withDevBrowser(async ({ browser, base }) => {
       assert.equal(await slow.getAttribute('aria-pressed'), 'false');
       await slow.tap();
       assert.equal(await slow.getAttribute('aria-pressed'), 'true');
+      const notes = touch.getByRole('button', { name: '实现说明', exact: true });
+      await notes.tap();
+      assert.equal(await notes.getAttribute('aria-pressed'), 'true');
+      await notes.tap();
+      assert.equal(await notes.getAttribute('aria-pressed'), 'false');
     } finally { await touch.close(); }
     assert.deepEqual(errors, []);
     console.log('Demo settings: original icon buttons, 0.2× default, keyboard/touch, locales/themes, narrow layouts, StrictMode and retained Activity state passed.');

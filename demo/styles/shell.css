@@ -103,8 +103,10 @@
 .demo-chapter-chevron { flex-shrink:0; transition:transform 120ms var(--cui-ease-snap); }
 
 /* Optional implementation notes never unmount the specimens. */
-.demo-notes-toggle { flex-shrink: 0; }
-.demo-notes-toggle[aria-pressed=true] { background: var(--cui-muted-surface); }
+.demo-notes-control { display: inline-flex; flex-shrink: 0; }
+/* Keep this right-edge hint inside the page even before it is opened/measured. */
+.demo-notes-control .cui-tooltip { left: auto !important; right: 0; }
+.demo-notes-toggle[aria-pressed=true] { color: var(--cui-text); background: var(--cui-muted-surface); }
 .demo-slow { display:inline-flex; align-items:center; justify-content:center; height:44px; padding:0 10px; gap:6px; font-size:14px; font-weight:400; border:var(--demo-line) solid transparent; border-radius:6px; background:transparent; }
 .demo-slow svg { width:24px; height:24px; }
 .demo-slow[aria-pressed=true] { color:var(--cui-accent); background:var(--cui-surface); box-shadow:inset 0 0 0 var(--demo-line) currentColor; }

@@ -2,7 +2,7 @@ import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import type { MouseEvent, ReactNode } from 'react';
 import type { Copy, Locale } from '../i18n';
 import logo from '../../src/assets/artwork/claude-logo.svg';
-import { Icon } from '../../src';
+import { Icon, Tooltip } from '../../src';
 
 type Theme = 'system' | 'light' | 'dark';
 export function DemoShell({ chapter, chapters, copy, locale, theme, onLocale, onTheme, children }: {
@@ -111,7 +111,10 @@ export function DemoShell({ chapter, chapters, copy, locale, theme, onLocale, on
       </header>
       <main>
         <header className="demo-section-head"><h1 ref={title} tabIndex={-1}>{copy[chapter]}</h1>
-          <button type="button" className="demo-notes-toggle demo-button small subtle" aria-pressed={showNotes} onClick={() => setShowNotes(value => !value)}>{copy.notes}</button>
+          <Tooltip content={showNotes ? copy.hideNotes : copy.showNotes} className="demo-notes-control">
+            {trigger => <button {...trigger} type="button" className="demo-notes-toggle demo-shell-icon" aria-label={copy.notes}
+              aria-pressed={showNotes} onClick={() => setShowNotes(value => !value)}><Icon name="Code" size={16} /></button>}
+          </Tooltip>
         </header>
         <div className="demo-stage" data-chapter={chapter}>{children}</div>
       </main>
