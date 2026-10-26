@@ -56,12 +56,20 @@ withDevBrowser(async ({ browser, base }) => {
       await page.goto(`${base}/tests/fixtures/react-visual-parity/demo.html?strict=${strict}&lang=en#controls`);
       for (const width of [320, 390, 1280]) for (const locale of ['en', 'zh-Hans']) {
         await page.setViewportSize({ width, height: 900 }); await setLanguage(page, locale);
-        for (const theme of ['light', 'dark']) {
+        for (const theme of ['light', 'dark', 'system']) {
           const themeTrigger = page.locator('.demo-theme-select');
           await setChoice(page, themeTrigger, theme);
           for (const target of [themeTrigger, page.locator('.demo-speed-select')]) {
             await target.click();
             const menu = await page.getByRole('listbox').boundingBox();
+            const text = await target.evaluate(node => {
+              const list = document.getElementById(node.getAttribute('aria-controls'));
+              return [node, ...list.querySelectorAll('[role=option]')].map(item => {
+                const style = getComputedStyle(item), label = item.querySelector('span');
+                return { size: parseFloat(style.fontSize), weight: Number(style.fontWeight), clipped: label.scrollWidth > label.clientWidth };
+              });
+            });
+            assert.ok(text.every(item => item.size >= 14 && item.weight >= 400 && !item.clipped), `${width}/${locale}/${theme}: picker text stays legible and untruncated`);
             assert.ok(menu.x >= 0 && menu.x + menu.width <= width, `${width}/${locale}/${theme}: menu stays in viewport`);
             await target.press('Escape');
           }
