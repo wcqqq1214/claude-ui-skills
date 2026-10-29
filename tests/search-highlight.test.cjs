@@ -2,17 +2,13 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 const { readFileSync } = require('node:fs');
 const vm = require('node:vm');
-const sources = [
-  ['React', { code: '' }, 'cui-'],
-];
+let code;
 
 test.before(async () => {
   const { transformWithOxc } = await import('vite');
   const source = readFileSync(require.resolve('../src/components/menus/searchHighlight.ts'), 'utf8').replace('export function', 'function');
-  sources[0][1].code = (await transformWithOxc(source, 'searchHighlight.ts')).code;
+  code = (await transformWithOxc(source, 'searchHighlight.ts')).code;
 });
-
-for (const [implementation, source, prefix] of sources) {
 
 function fixture({ moving = false } = {}) {
   let now = 0,
@@ -70,7 +66,7 @@ function fixture({ moving = false } = {}) {
       removeEventListener: (name) => inputs.delete(name)
     }
   });
-  vm.runInContext(source.code, context);
+  vm.runInContext(code, context);
   const start = () => context.highlightSearchTarget(row, title);
   function tick(time) {
     now = time;
@@ -85,28 +81,28 @@ function fixture({ moving = false } = {}) {
     }
   }
   const settle = () => [0, 80, 160, 249, 250].forEach(tick);
-  const active = () => title.classList.values.has(prefix + 'feature-anchor-highlight');
+  const active = () => title.classList.values.has('cui-feature-anchor-highlight');
   return { start, tick, settle, active, title, row, inputs, endings, frames, timers, scrolls };
 }
 
-test(implementation + ': waits for the scroll settling minimum, then removes both layers on underline completion', () => {
+test('waits for the scroll settling minimum, then removes both layers on underline completion', () => {
   const f = fixture();
   f.start();
   [0, 80, 160, 249].forEach(f.tick);
   assert.equal(f.active(), false);
   f.tick(250);
   assert.equal(f.active(), true);
-  f.endings.get('animationend')({ target: f.title, animationName: prefix + 'feature-anchor-row-fill-wash' });
+  f.endings.get('animationend')({ target: f.title, animationName: 'cui-feature-anchor-row-fill-wash' });
   assert.equal(f.active(), true);
   f.endings.get('animationend')({
     target: f.title,
-    animationName: prefix + 'feature-anchor-highlight-underline'
+    animationName: 'cui-feature-anchor-highlight-underline'
   });
   assert.equal(f.active(), false);
   assert.equal(f.row.classList.values.size + f.inputs.size + f.timers.size, 0);
 });
 
-test(implementation + ': new selection cancellation prevents old frames and timers from clearing the replacement', () => {
+test('new selection cancellation prevents old frames and timers from clearing the replacement', () => {
   const f = fixture();
   const cancel = f.start();
   f.settle();
@@ -123,7 +119,7 @@ test(implementation + ': new selection cancellation prevents old frames and time
   assert.equal(f.inputs.size + f.endings.size + f.frames.size + f.timers.size, 0);
 });
 
-test(implementation + ': user input suppresses extra centering without cancelling the highlight', () => {
+test('user input suppresses extra centering without cancelling the highlight', () => {
   const f = fixture({ moving: true });
   f.start();
   f.tick(0);
@@ -144,7 +140,7 @@ test(implementation + ': user input suppresses extra centering without cancellin
 });
 
 
-test(implementation + ': continuous movement is capped at 1500ms and disconnection cleans up', () => {
+test('continuous movement is capped at 1500ms and disconnection cleans up', () => {
   const f = fixture();
   f.title.getBoundingClientRect = () => ({ top: ++step, bottom: step + 20 });
   let step = 0;
@@ -160,4 +156,3 @@ test(implementation + ': continuous movement is capped at 1500ms and disconnecti
   detached.start(); detached.tick(0); detached.title.isConnected = false; detached.tick(16);
   assert.equal(detached.inputs.size + detached.frames.size + detached.timers.size, 0);
 });
-}
