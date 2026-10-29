@@ -20,9 +20,9 @@ function links(source) {
   ];
 }
 function chapters() {
-  const list = read('demo/App.tsx').match(/const chapters = \[([^\]]+)\]/)?.[1];
+  const list = read('demo/App.tsx').match(/const chapters = \{([\s\S]+?)\};/)?.[1];
   assert.ok(list, 'the demo must declare its chapter routes');
-  return [...list.matchAll(/'([^']+)'/g)].map(match => match[1]);
+  return [...list.matchAll(/^\s+(\w+):/gm)].map(match => match[1]);
 }
 function anchors(file) {
   const normalized = file.replaceAll('\\', '/');

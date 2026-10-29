@@ -13,6 +13,8 @@ withDevBrowser(async ({ browser, base }) => {
       await page.goto(`${base}/tests/fixtures/react-visual-parity/demo.html?lang=en&strict=${strict}#controls`);
       const speed = page.getByRole('button', { name: 'Playback speed', exact: true });
       assert.equal(await speed.getAttribute('aria-pressed'), 'true', 'first visit defaults to 0.2×');
+      assert.deepEqual(await page.locator('nav a').evaluateAll(nodes => nodes.map(node => node.hash.slice(1))), chapters, 'navigation retains chapter order');
+      await page.locator('.demo-specimen').evaluateAll(nodes => { window.retainedChapters = nodes; });
       const grid = page.locator('.demo-controls-grid');
       assert.equal(await grid.evaluate(node => getComputedStyle(node).getPropertyValue('--cui-motion-scale')), '5');
       await speed.click();
@@ -66,6 +68,7 @@ withDevBrowser(async ({ browser, base }) => {
           }
         }
       }
+      assert.equal(await page.locator('.demo-specimen').evaluateAll(nodes => nodes.length === window.retainedChapters.length && nodes.every((node, index) => node === window.retainedChapters[index])), true, 'chapter, locale, theme and notes changes retain every chapter container');
       await setTheme(page, 'system');
       for (const mode of ['dark', 'light']) {
         await page.emulateMedia({ colorScheme: mode });
