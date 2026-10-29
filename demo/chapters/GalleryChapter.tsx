@@ -13,7 +13,7 @@ export function GalleryChapter({ locale, active }: { locale: Locale; active: boo
       { id: 'dusk', src: dusk, alt: t('Dusk'), filename: 'landscape-dusk.svg' },
       { id: 'sand', src: sand, alt: t('Sand dunes'), filename: 'landscape-sand.svg' },
     ]} labels={{ dialog: t('Example gallery'), close: t('Close gallery'), previous: t('Previous image'), next: t('Next image'),
-      open: (_, index) => t(`Open gallery image ${index + 1}`), zoom: (_, index) => t('Image {0}, click to zoom', index + 1), count: (position, total) => t('{0} of {1}', position, total),
+      open: (_, index) => t('Open gallery image {0}', index + 1), zoom: (_, index) => t('Image {0}, click to zoom', index + 1), count: (position, total) => t('{0} of {1}', position, total),
     }} />
     <div className="demo-card-foot"><span>{t('← → Browse; Enter Zoom; Drag Pan; Esc Close')}</span></div>
   </div>;
