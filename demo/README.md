@@ -56,7 +56,20 @@ export function Example() {
 }
 ```
 
-`src/styles/index.css` explicitly scans the adjacent component directory; it imports Tailwind theme/utilities without Preflight. A host already using Tailwind should keep a single theme/utilities import and incorporate every component stylesheet import, the `@theme inline` mappings and the component `@source` declaration from this entry. Dropping a stylesheet can remove behavior even when a component still renders. Keep utility class names literal. The library does not set body styles or load text fonts automatically; `fonts.css` is an optional separate import, or set `--cui-font-sans`, `--cui-font-serif` and `--cui-font-mono` to host fonts. `icons.css` includes its local glyph font; keep that asset when using `Icon`.
+Choose one stylesheet entry:
+
+- If the host has not loaded Tailwind theme/utilities, import `src/styles/index.css` as above. It includes the component styles and Tailwind theme/utilities without Preflight.
+- If the host already imports Tailwind, keep that import and add `src/styles/components.css` after it. This entry includes all component styles, `@theme inline` mappings and the component `@source` scan path. Do not also import `index.css`.
+
+```css
+/* Existing host stylesheet; adjust the component path to your copied source. */
+@import 'tailwindcss';
+@import './ui/styles/components.css';
+```
+
+The [standalone Tailwind host example](../examples/tailwind-host/README.md) includes a runnable application and copy instructions. It uses controlled state, scoped themes, system text fonts and local icon/sprite assets.
+
+The host owns its page reset and body styles. Keep utility class names literal. Text fonts are optional: import `fonts.css` separately or set `--cui-font-sans`, `--cui-font-serif` and `--cui-font-mono` to host fonts. `icons.css` includes its local glyph font; keep that asset when using `Icon`.
 
 This is source consumption, not a published npm package or a precompiled CSS distribution. [The independent consumer](../tests/fixtures/react-consumer/main.tsx) uses only the source entry and component stylesheet, with no demo assets or scripts.
 

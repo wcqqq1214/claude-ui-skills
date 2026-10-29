@@ -1,0 +1,44 @@
+/* For hosts that already load Tailwind theme and utilities. */
+@import './tokens.css';
+@import './motion.css';
+@import './reading.css';
+@import './feedback.css';
+@import './micro.css';
+@import './composer.css';
+@import './menus.css';
+@import './workspace.css';
+@import './sidebar.css';
+@import './images.css';
+@import './gallery.css';
+@import './tasks.css';
+@import './icons.css';
+@source '../components';
+
+@theme inline {
+  --font-cui-serif: var(--cui-font-serif);
+  --font-cui-mono: var(--cui-font-mono);
+  --font-cui: var(--cui-font-sans);
+  --color-cui-bg: var(--cui-bg);
+  --color-cui-surface: var(--cui-surface);
+  --color-cui-text: var(--cui-text);
+  --color-cui-secondary: var(--cui-secondary);
+  --color-cui-muted: var(--cui-muted);
+  --color-cui-line: var(--cui-line);
+  --color-cui-accent: var(--cui-accent);
+  --color-cui-accent-hover: var(--cui-accent-hover);
+  --color-cui-track: var(--cui-control-track);
+  --color-cui-track-hover: var(--cui-control-track-hover);
+  --color-cui-handle: var(--cui-control-handle);
+  --color-cui-check: var(--cui-check-border);
+  --color-cui-check-hover: var(--cui-check-border-hover);
+  --color-cui-range: var(--cui-range-track);
+  --color-cui-range-dot: var(--cui-range-dot);
+  --color-cui-segment-track: var(--cui-segment-track);
+  --color-cui-segment-thumb: var(--cui-segment-thumb);
+  --shadow-cui-focus: var(--cui-focus-shadow);
+  --shadow-cui-switch: var(--cui-switch-shadow);
+  --shadow-cui-segment: inset 0 0 0 1px var(--cui-line), 0 1px 2px rgb(0 0 0 / 5%);
+  --ease-cui-out: var(--cui-ease-out);
+  --ease-cui-overshoot: var(--cui-ease-overshoot);
+  --ease-cui-standard: var(--cui-ease-standard);
+}

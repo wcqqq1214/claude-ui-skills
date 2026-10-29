@@ -37,6 +37,8 @@ export function Example() {
 
 组件提供类型化 props 和局部深浅主题，无需 demo 代码、后端或应用全局变量。样式入口不包含 Preflight，不会重置宿主页面；内置文字字体按需导入。
 
+如果应用已经导入 Tailwind，请用 `src/styles/components.css` 替代 `src/styles/index.css`，参见[已有项目接入示例](examples/tailwind-host/README.md)。
+
 本仓库提供可导入的源码，尚未发布为 npm 包。Tailwind 配置、资源处理、自定义字体及 API 请见[接入说明](demo/README.md#import-the-source)，各场景用法见[组件指南](references/components.md)。[迁移记录](docs/react-migration.md)说明了实现和兼容性验证。
 
 ## 安装为 Agent Skill

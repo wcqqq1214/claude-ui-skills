@@ -23,6 +23,6 @@ Choose a scenario, then read its linked TSX source and component styles. All 13 
 
 [App.tsx](../demo/App.tsx) owns chapter navigation, language and theme preferences. [Chapter components](../demo/chapters) supply examples, translations and playback controls. Reusable components are exported from [src/index.ts](../src/index.ts); they own their listeners, observers, timers and animations with cleanup.
 
-Import [the component stylesheet](../src/styles/index.css) once. It includes scoped theme tokens, Tailwind utilities and component motion rules without a page-wide reset. [Text fonts](../src/styles/fonts.css) are optional. Components accept labels and data through props; they do not depend on demo translations, IDs or layout.
+Import [the component stylesheet](../src/styles/index.css) once. It includes scoped theme tokens, Tailwind utilities and component motion rules without a page-wide reset. For a host that already imports Tailwind, use [components.css](../src/styles/components.css) instead. [Text fonts](../src/styles/fonts.css) are optional. Components accept labels and data through props; they do not depend on demo translations, IDs or layout.
 
 [Coverage](../docs/coverage.md) records local adaptations and verification limits.

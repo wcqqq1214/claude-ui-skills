@@ -37,6 +37,8 @@ export function Example() {
 
 Components have typed props and scoped light/dark themes. They work without demo code, a backend or application globals. The stylesheet does not include Preflight or reset the host page; bundled text fonts are optional.
 
+If your application already imports Tailwind, use `src/styles/components.css` instead of `src/styles/index.css`; see the [existing-host example](examples/tailwind-host/README.md).
+
 This repository provides source to import, not a published npm package. See [integration and API details](demo/README.md#import-the-source) for Tailwind setup, asset handling and custom fonts, or browse the [component guides](references/components.md). The [migration record](docs/react-migration.md) describes the implementation and compatibility checks.
 
 ## Install as an agent skill

@@ -1,0 +1,10 @@
+/* The host owns Tailwind and its reset. Load them once. */
+@import 'tailwindcss';
+@import './ui/styles/components.css';
+
+body { margin: 0; font-family: system-ui, sans-serif; }
+[data-cui-theme] {
+  --cui-font-sans: system-ui, sans-serif;
+  --cui-font-serif: Georgia, serif;
+  --cui-font-mono: ui-monospace, monospace;
+}

@@ -2,6 +2,19 @@
 
 Run `npm test`: deterministic geometry/search checks, documentation/source integration checks, a fresh production build, then every browser suite. Chrome/Chromium must be installed; `CHROME_BIN` can override discovery. `npm run test:react` runs source-consumer and chapter checks; `npm run test:production` rebuilds and verifies static delivery.
 
+The browser runner prints each suite's start time, streams stdout/stderr with a suite prefix, and reports elapsed time every 30 seconds. Each suite has a 600-second limit; a timeout is a failure. Timeout/interruption cleanup terminates discoverable descendant groups, then closes inherited output pipes after a two-second grace period so an exited suite cannot block completion. Children already reparented before cleanup may need manual cleanup; the runner cannot safely identify their former owner. Configure the limit in seconds, or disable it explicitly:
+
+```sh
+npm run test:browser -- gallery --jobs=2 --timeout=180
+npm run test:browser -- production --timeout=0
+```
+
+`run-browser.test.cjs` checks live output before exit, progress reporting, argument validation, failure diagnostics, synchronous/asynchronous launch errors, timeout cleanup and interruption. The stubborn descendant-process check runs on POSIX; Windows uses `taskkill /T /F` and needs validation on Windows.
+
+[The independent Tailwind host](../examples/tailwind-host/README.md) is checked by `tailwind-host.browser.cjs`: copy the example and complete public source into a temporary project, reuse installed dependencies, typecheck/build, then verify host utilities, component styles, keyboard-controlled state, scoped themes and local assets in the built page. It does not import demo code or styles. This check does not validate fetching dependencies from npm.
+
+[Skill task validation](../docs/skill-validation.md) records the separate, guided demo adaptation exercise and its limits.
+
 Twelve ordinary development suites share [dev-browser.cjs](dev-browser.cjs) for Vite/Chrome startup and cleanup. Each suite retains its own pages, contexts, clocks and browser-error assertions. Feedback's controller loader, SSR middleware and the static production server keep their distinct entry paths. [Lifecycle checks](dev-browser.test.cjs) cover partial startup, assertion and cleanup failures, preserving the first error while releasing both resources.
 
 The original tests loaded page-global scripts or queried the retired showcase DOM. Their behavioral coverage is carried by these suites:
