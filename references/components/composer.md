@@ -14,8 +14,36 @@ Follow the [source integration guide](../../demo/README.md). The editor, attachm
 - React owns surrounding controls and candidate/context-menu rendering. The browser owns the editable subtree, selection and undo history. Do not insert React children or rewrite innerHTML while typing. defaultText is initial-only until resetKey changes; localization and resizing never replace draft nodes. Existing atom titles keep the wording used at insertion.
 - Activity effect reconnection keeps that same draft DOM, native undo and semantic blank lines without reapplying defaultText or republishing an unchanged draft. An explicit resetKey change while hidden applies when the editor reconnects.
 - Options filter by title. Arrows clamp at the first/last result, Enter/Tab insert, Escape dismisses and selection stays in the editor. IME composition cannot accept a candidate. Plain-text paste cannot create reference nodes. The native insertHTML/delete transactions retain Backspace and undo/redo. The host chooses if/when to submit; ordinary Enter remains a newline outside an open candidate list.
-- `AttachmentList`: controlled items (id/name/type), label, removeLabel, onRemove and optional onEmptyFocus. onRemove must synchronously update the items in React; it runs inside the browser snapshot update and flushes that commit so animation geometry matches. Items use unique instance-scoped transition names. Last-tile, hidden-page and unsupported-API removals update directly; interrupted updates run at most once. Activity hiding cancels visual snapshots but preserves accepted deletion, including a native update delivered while hidden; reconnection does not steal focus. True unmount cancels pending work and removes held-key guards.
-- active=false keeps candidate and mention context menus closed while allowing native draft editing. Right-clicking an existing mention cannot reopen a custom menu or move focus into it while inactive. Use a containing hidden/inert state when hiding an entire composer. Draft and attachments can stay mounted across chapter changes.
+- `AttachmentList`: controlled items (unique id/name/type), label, removeLabel, onRemove and optional onEmptyFocus. onRemove must synchronously update the items in React; it runs inside the browser snapshot update and flushes that commit so animation geometry matches. Items use unique instance-scoped transition names. Last-tile, hidden-page and unsupported-API removals update directly; interrupted updates run at most once. Activity hiding cancels visual snapshots but preserves accepted deletion, including a native update delivered while hidden; reconnection does not steal focus. True unmount cancels pending work and removes held-key guards.
+- active=false keeps candidate and mention context menus closed while allowing native draft editing. Right-clicking an existing mention cannot reopen a custom menu or move focus into it while inactive. Use a containing hidden/inert state when hiding an entire composer. Draft and attachments can stay mounted across chapter changes. Candidate/context menus stay in the component theme subtree; avoid transformed ancestors that establish a fixed-position containing block. File input, upload, submission and draft storage belong to the host.
+
+## Example
+
+Paths assume a consuming file at the repository root.
+
+```tsx
+import { useRef, useState } from 'react';
+import { AttachmentList, ComposerSurface, ComposerToolbar, MentionEditor } from './src';
+import type { MentionEditorHandle } from './src';
+
+export function DraftExample() {
+  const editor = useRef<MentionEditorHandle>(null);
+  const [files, setFiles] = useState([{ id: 'notes', name: 'design-notes.md' }]);
+  return <>
+    <ComposerSurface>
+      <AttachmentList items={files} label="Attachments"
+        removeLabel={file => `Remove ${file.name}`}
+        onRemove={id => setFiles(current => current.filter(file => file.id !== id))}
+        onEmptyFocus={() => editor.current?.focus()} />
+      <MentionEditor ref={editor} label="Draft" placeholder="Type a few lines…"
+        mentionListLabel="References" mentionHeading="Artifacts" deleteLabel="Delete"
+        options={[{ id: 'landscape', title: 'Landscape illustration', description: 'Design' }]}
+        onDraftChange={draft => console.log(draft.text, draft.mentions)} />
+    </ComposerSurface>
+    <ComposerToolbar projectLabel="Project" modelLabel="Sonnet 4.6" />
+  </>;
+}
+```
 
 ## Parameters
 

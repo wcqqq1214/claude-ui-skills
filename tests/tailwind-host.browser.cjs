@@ -6,9 +6,10 @@ const { execFile } = require('node:child_process');
 const { promisify } = require('node:util');
 const { chromium } = require(process.env.PLAYWRIGHT_MODULE || 'playwright-core');
 
-(async () => {
+async function withTailwindHost(run) {
   const root = resolve(__dirname, '..'), target = await mkdtemp(join(tmpdir(), 'cui-tailwind-host-'));
-  let server, browser;
+  let server, browser, result;
+  const failures = [];
   try {
     await cp(join(root, 'examples/tailwind-host'), target, { recursive: true });
     await cp(join(root, 'src'), join(target, 'ui'), { recursive: true });
@@ -20,6 +21,22 @@ const { chromium } = require(process.env.PLAYWRIGHT_MODULE || 'playwright-core')
     server = await preview({ root: target, configFile: join(target, 'vite.config.mts'), preview: { host: '127.0.0.1', port: 0, open: false } });
     const base = `http://127.0.0.1:${server.httpServer.address().port}`;
     browser = await chromium.launch({ executablePath: process.env.CHROME_BIN, headless: true });
+    result = await run({ browser, base });
+  } catch (error) { failures.push(error); }
+  // Each resource gets a cleanup attempt; cleanup must not replace an earlier failure.
+  for (const cleanup of [
+    () => browser?.close(),
+    () => server && new Promise((done, reject) => server.httpServer.close(error => error ? reject(error) : done())),
+    () => rm(target, { recursive: true, force: true }),
+  ]) {
+    try { await cleanup(); } catch (error) { failures.push(error); }
+  }
+  if (failures.length) throw failures[0];
+  return result;
+}
+
+async function main() {
+  await withTailwindHost(async ({ browser, base }) => {
     const page = await browser.newPage({ viewport: { width: 320, height: 740 } });
     const errors = [], external = [], assets = [];
     page.on('pageerror', error => errors.push(error.message));
@@ -48,9 +65,8 @@ const { chromium } = require(process.env.PLAYWRIGHT_MODULE || 'playwright-core')
     assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true);
     assert.deepEqual(errors, []); assert.deepEqual(external, []);
     console.log('Independent Tailwind host: typecheck, build, host/component utilities, controlled keyboard state, scoped themes and local assets passed.');
-  } finally {
-    await browser?.close();
-    if (server) await new Promise((done, reject) => server.httpServer.close(error => error ? reject(error) : done()));
-    await rm(target, { recursive: true, force: true });
-  }
-})().catch(error => { console.error(error); process.exitCode = 1; });
+  });
+}
+
+module.exports = { withTailwindHost };
+if (require.main === module) main().catch(error => { console.error(error); process.exitCode = 1; });

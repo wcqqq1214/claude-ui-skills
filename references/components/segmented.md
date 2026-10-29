@@ -4,9 +4,11 @@ Use for: a small fixed set of mutually exclusive views or options, such as previ
 
 ## React implementation
 
-[SegmentedControl.tsx](../../src/components/segmented/SegmentedControl.tsx) · [demo chapter](../../demo/chapters/ControlsChapter.tsx) · [setup and API](../../demo/README.md).
+[SegmentedControl.tsx](../../src/components/segmented/SegmentedControl.tsx) · [demo chapter](../../demo/chapters/ControlsChapter.tsx) · [source integration](../../demo/README.md).
 
 The TSX implementation keeps measured natural widths, pixel snapping, interruption from visible geometry and immediate-selection radio semantics. Use stable option IDs with `value/onValueChange` or `defaultValue`. Observers and animation handles are cleaned up on unmount; instances are independent. Label/size changes remeasure. Disabled options are skipped by keyboard navigation. Initialization does not call `onValueChange`. Component sizes are controlled by `size` and host styles.
+
+- `SegmentedControl`: `options` with unique string values, React labels and optional disabled states; `value/defaultValue/onValueChange`, `size`, group label and container props. Arrow keys select immediately; disabled options are skipped. A missing/invalid selection has no indicator until a valid option is selected. Initialization and prop changes do not emit callbacks. It implements a radio group, not tab-panel semantics.
 
 ## Parameters
 

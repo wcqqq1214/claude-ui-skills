@@ -6,12 +6,29 @@ Use for: a submenu where focus previews an option without committing it; search 
 
 [SubmenuSelect.tsx](../../src/components/menus/SubmenuSelect.tsx) · [GroupedSearch.tsx](../../src/components/menus/GroupedSearch.tsx) · [ArtifactActionsCard.tsx](../../src/components/menus/ArtifactActionsCard.tsx) · [useSearchHighlight.ts](../../src/hooks/useSearchHighlight.ts) · [menus.css](../../src/styles/menus.css) · [React demo](../../demo/chapters/MenusChapter.tsx)
 
-Import from `src/index.ts` with the shared stylesheet; see [integration](../../demo/README.md#menus-search-and-artifact-actions). The components own listeners, pending focus, animations and highlight cancellation. The demo owns translations, sample settings, selected effort, simulated actions and layout.
+Import from `src/index.ts` with the shared stylesheet; see [integration](../../demo/README.md#import-the-source). The components own listeners, pending focus, animations and highlight cancellation. The demo owns translations, sample settings, selected effort, simulated actions and layout.
 
-- `SubmenuSelect`: controlled/uncontrolled selection; focus preview callback/render content; disabled options; nested keyboard dismissal.
-- `GroupedSearch`: typed item IDs/labels/groups, controlled/uncontrolled query and a selection callback. The host chooses the destination.
-- `useSearchHighlight`: focuses the supplied heading, then delegates to [searchHighlight.ts](../../src/components/menus/searchHighlight.ts) for scroll settling and the destination animations; cancels on replacement, inactivity, pagehide and unmount.
-- `ArtifactActionsCard`: thumbnail, translated action list and deferred focus. `subtitle` accepts presentational React nodes, including blocks; both thumbnail and opened-card containers preserve valid HTML for SSR hydration. Host callbacks implement actions. No navigation or clipboard effect is implied.
+- `SubmenuSelect`: options with stable value/label/disabled, value/defaultValue/onValueChange, optional onPreviewChange/renderPreview, active and className. It keeps its in-flow menu layout; it does not portal or implement collision placement.
+- `GroupedSearch`: label, placeholder, emptyMessage, locale and items `{ id, label, group? }`; query/defaultQuery/onQueryChange and onSelect. Filtering trims the query and uses locale-aware lowercase comparison. Keep each group's items adjacent. Selection requests an empty query before onSelect. Optional autoFocus uses preventScroll and suppresses the initial focus-visible ring where supported.
+- `useSearchHighlight(active)`: returns highlight(row, title) and cancel(). Give the destination title `tabIndex={-1}`. The host owns destination lookup and chapter activation; lifecycle and focus rules are below.
+- `ArtifactActionsCard`: title, subtitle, image, actionsLabel, actions `{ id, label, onSelect, disabled? }`, active and className. The image is decorative; title names the artifact. Subtitle accepts presentational React nodes, including blocks, in both thumbnail and opened card with valid SSR markup. The host provides action effects; the demo's Open/Copy link messages are simulations. The card stays within its local theme/container.
+
+Pass translated text through props. Set active=false when hiding menu/action views, and hide or make inactive host content inert.
+
+## Example
+
+Paths assume a consuming file at the repository root.
+
+```tsx
+import { SubmenuSelect } from './src';
+
+export function EffortChoice() {
+  return <SubmenuSelect label="Model settings" submenuLabel="Thinking effort"
+    options={[{ value: 'low', label: 'Low' }, { value: 'high', label: 'High' }]}
+    defaultValue="high" onValueChange={value => console.log(value)}
+    renderPreview={(preview, selected) => <span>Preview: {preview} · Selected: {selected}</span>} />;
+}
+```
 
 ## Parameters
 

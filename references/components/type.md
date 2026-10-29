@@ -6,7 +6,16 @@ Use for: one of five standalone effects: grapheme reveal, body fade, a user mess
 
 [Text primitives](../../src/components/typography/Text.tsx) · [WorkingMark](../../src/components/typography/WorkingMark.tsx) · [ScrollFollower](../../src/components/typography/ScrollFollower.tsx) · [demo chapter](../../demo/chapters/TypographyChapter.tsx).
 
-Import through `src/index.ts` and the component stylesheet. The demo owns sample text, arrival timers, replay and viewport activation. `ScrollFollower` accepts host children and a reset key; it owns pinning, resize/end-marker observations and focus return. `WorkingMark` owns only the default sheet loop and pauses offscreen. Its fallback remains visible while the sheet loads/decodes and on failure, so a busy return button keeps its arrow until the animation is ready. Source CSS uses namespaced `--cui-*` tokens. See [integration and API boundaries](../../demo/README.md).
+Import through `src/index.ts` and the component stylesheet. The demo owns sample text, arrival timers, replay and viewport activation. `ScrollFollower` accepts host children and a reset key; it owns pinning, resize/end-marker observations and focus return. `WorkingMark` owns only the default sheet loop and pauses offscreen. Its fallback remains visible while the sheet loads/decodes and on failure, so a busy return button keeps its arrow until the animation is ready. Source CSS uses namespaced `--cui-*` tokens. See [source integration](../../demo/README.md).
+
+## Props
+
+- `GraphemeReveal`: text, locale, animate and replayKey; grapheme segmentation keeps combined emoji/accents intact and the accessible text is announced once. `FadeIn` animates content on mount. Neither schedules sample text.
+- `UserMessage` and `Prose`: children plus normal container props; Prose also takes a CSS `measure` (default 36em).
+- `WorkingMark`: default 40-frame loop, active and an optional fallback; offscreen, document visibility and active changes pause playback. Page exit cancels the old loop; pageshow creates a fresh loop when eligible. Unmount cancels it. For SSR, the decorative image starts without a source on both the server and the first client render; mounting resolves and decodes its browser asset URL. Use `StatusMark` for the four-activity entry/exit state machine.
+- `ScrollFollower`: children, label, returnLabel, active, busy, height, followContent and resetKey. Set followContent false for an initial static introduction; change resetKey to return to the top and restore following. Activity effect reconnection preserves the reading position and following state unless resetKey changes, including changes made while hidden. The host appends content. Upward input pauses following; scrolling back to the bottom or pressing Return restores it. If a focus callback synchronously deactivates, hides or unmounts the component, that Return is cancelled, including same-task reconnection.
+
+`useVisible` is exported for reusable consumers; sample playback timing stays in `demo/hooks/`.
 
 ## Parameters
 

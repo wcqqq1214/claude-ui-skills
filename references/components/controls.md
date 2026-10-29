@@ -6,7 +6,13 @@ Use for: a binary setting (switch), an independent choice (checkbox) or a small 
 
 [Switch.tsx](../../src/components/controls/Switch.tsx) · [Checkbox.tsx](../../src/components/controls/Checkbox.tsx) · [DiscreteSlider.tsx](../../src/components/controls/DiscreteSlider.tsx) · [demo chapter](../../demo/chapters/ControlsChapter.tsx).
 
-Import from `src/index.ts` and load the component stylesheet; see [setup and API boundaries](../../demo/README.md). Demo-only sample options and slow playback live in the chapter. Native range keyboard semantics and the three-layer fill are retained. The component stylesheet uses `--cui-*` namespaced versions of the original tokens; `--cui-motion-scale` replaces the demo speed variable. `onValueChange` returns the stable string option ID, while the native range value remains a numeric index.
+Import from `src/index.ts` and load the component stylesheet; see [source integration](../../demo/README.md). Demo-only sample options and slow playback live in the chapter. Native range keyboard semantics and the three-layer fill are retained. The component stylesheet uses `--cui-*` namespaced versions of the original tokens; `--cui-motion-scale` replaces the demo speed variable. `onValueChange` returns the stable string option ID, while the native range value remains a numeric index.
+
+## Props
+
+- `Switch`: `checked/defaultChecked/onCheckedChange`, native button props and ref. Name it with `aria-label` or `aria-labelledby`. It is a button-based switch, not a hidden form field.
+- `Checkbox`: native input props including `checked/defaultChecked/name/ref`, optional label children, and `onCheckedChange`. Its `className` styles the containing label. Native uncontrolled form reset is retained.
+- `DiscreteSlider`: ordered `options` with unique string values, labels and an optional recommended mark; `value/defaultValue/onValueChange`. Native input props/ref target the range; `className/style` target its wrapper. Pointer callbacks may synchronously disable or disconnect the control without starting a stale gesture. `aria-valuetext` defaults to the current option's label; the native value submitted by a form is its numeric index. At least two options are needed to enable it. Options are not individually disabled.
 
 ## Parameters
 

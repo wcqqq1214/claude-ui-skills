@@ -6,7 +6,15 @@ Use for: prose with headings, inline and fenced code, long identifiers, inline i
 
 [Prose](../../src/components/typography/Text.tsx) · [CodeBlock](../../src/components/reading/CodeBlock.tsx) · [ExpandableTable](../../src/components/reading/ExpandableTable.tsx) · [Icon](../../src/components/icons/Icon.tsx) · [demo chapter](../../demo/chapters/ReadingChapter.tsx).
 
-The library receives code, table data and translated labels through props. CodeBlock keeps whitespace and ignores late copy completions after unmount. ExpandableTable uses a native dialog with React-rendered data, unique labeling and focus return; pass `active={false}` when hiding the owning view. Its optional `heading` and `dialogTitle` let the visible headings differ from the table region's accessible `label`; both default to `label`. Font comparisons and the single number-sample interval belong to the demo. Optional font assets are in `src/assets/fonts`, and component CSS uses `--cui-*` tokens. See [setup and API boundaries](../../demo/README.md).
+The library receives code, table data and translated labels through props. CodeBlock keeps whitespace and ignores late copy completions after unmount. ExpandableTable uses a native dialog with React-rendered data, unique labeling and focus return; pass `active={false}` when hiding the owning view. Its optional `heading` and `dialogTitle` let the visible headings differ from the table region's accessible `label`; both default to `label`. Font comparisons and the single number-sample interval belong to the demo. Optional font assets are in `src/assets/fonts`, and component CSS uses `--cui-*` tokens. See [source integration](../../demo/README.md).
+
+## Props
+
+- `CodeBlock`: exact code string, optional language and translated copyLabel/copiedLabel/copyFailedLabel. Clipboard failure is announced; stale writes and timers cannot cross lifetimes.
+- `ExpandableTable`: columns/rows with stable keys, translated label/expandLabel/closeLabel, optional minWidth and active. Native dialog semantics retain focus return and scoped theme inheritance. Set active false when a chapter hides it. Activity cleanup releases the native modal; its obsolete close event does not restore focus into the hidden view. Reconnection restores a retained open request. Cells should be presentational content; expansion renders a second table, not a synchronized editor.
+- `Icon`: a typed static glyph name and authored size; the host supplies accessible text. `IconButton` accepts native button props/ref and should have a label.
+
+For clipboard result callbacks and lifecycle rules, see [copy feedback](micro.md).
 
 ## Parameters
 

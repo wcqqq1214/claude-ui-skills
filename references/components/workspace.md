@@ -6,7 +6,11 @@ Use for: a file list beside a preview, where readers switch files and view forma
 
 [FileWorkspace.tsx](../../src/components/workspace/FileWorkspace.tsx) · [usePaneResize.ts](../../src/components/workspace/usePaneResize.ts) · [workspace.css](../../src/styles/workspace.css) · [React demo](../../demo/chapters/WorkspaceChapter.tsx)
 
-Import `FileWorkspace` from `src/index.ts` with the shared stylesheet; see [integration](../../demo/README.md#file-panels-and-sidebar-navigation). React owns file, view and expanded state. The private resize hook owns the measured CSS variable and pointer transaction, cancelling capture on inactivity/unmount. The compact view uses [SegmentedControl](../../src/components/segmented/SegmentedControl.tsx), and remeasures after layout changes. Files supply preview React nodes and plain source strings; demo sample content stays outside the component.
+Import `FileWorkspace` from `src/index.ts` with the shared stylesheet; see [integration](../../demo/README.md#import-the-source). React owns file, view and expanded state. The private resize hook owns the measured CSS variable and pointer transaction, cancelling capture on inactivity/unmount. The compact view uses [SegmentedControl](../../src/components/segmented/SegmentedControl.tsx), and remeasures after layout changes. Files supply preview React nodes and plain source strings; demo sample content stays outside the component.
+
+- `FileWorkspace` takes files `{ id, name, icon?, preview, code }` and a `WorkspaceLabels` object for all visible/accessibility text. Preview is a React node; code is a plain string. File selection uses value/defaultValue/onValueChange; view uses view/defaultView/onViewChange (`preview` or `code`); expansion uses expanded/defaultExpanded/onExpandedChange. Missing file IDs resolve to the first available file without emitting a mount callback. Empty lists show labels.empty. Preview content is replaced on file/view changes; keep editor state in the host if it must persist across those changes.
+
+`defaultPaneWidth` chooses the initial width (244px by default). `onPaneWidthChange` reports committed changes, not every drag frame. Pass active=false and hide/inert inactive host content; actual navigation and persistence belong to the host.
 
 ## Parameters
 

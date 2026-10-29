@@ -19,6 +19,30 @@ Use for: notifications that stay manageable as messages arrive and leave. Presen
 - The host owns placement and business effects. Pass presentational message content; use action for interactive controls. For dynamic localization, render messages with renderMessage or context-aware React nodes so existing notices update too.
 - Messages and `renderMessage` results may contain block presentation nodes, including paragraphs or metadata containers. Their flow container preserves valid server HTML and hydrates the existing DOM without replacement.
 
+## Example
+
+Paths assume a consuming file at the repository root.
+
+```tsx
+import { useRef } from 'react';
+import { NotificationStack, Tooltip } from './src';
+import type { NotificationStackHandle } from './src';
+
+export function SaveFeedback() {
+  const notices = useRef<NotificationStackHandle>(null);
+  const trigger = useRef<HTMLButtonElement>(null);
+  return <>
+    <Tooltip content="Save these notes">
+      {binding => <button {...binding} type="button" onClick={() => {
+        notices.current?.notify({ key: 'saved', message: 'Notes saved' });
+      }}>Save</button>}
+    </Tooltip>
+    <button ref={trigger} type="button" onClick={() => notices.current?.clear()}>Clear notices</button>
+    <NotificationStack ref={notices} dismissLabel="Dismiss" fallbackFocus={trigger} />
+  </>;
+}
+```
+
 ## Parameters
 
 | Part | Value |
