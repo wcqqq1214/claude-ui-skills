@@ -57,7 +57,7 @@ export function SaveFeedback() {
 
 ## Rules
 
-- A repeated message reuses its existing entry.
+- In stack mode, a supplied matching `key` reuses a non-exiting entry. Identical message text with `key` omitted creates a separate notice.
 - Closing a front entry reveals the next queued one.
 - Active indices skip exiting items; exiting items keep DOM order.
 - The front entry has its natural height and rear layers take that height; ResizeObserver keeps the geometry current.
