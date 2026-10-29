@@ -161,7 +161,6 @@
   position: relative; display: flex; flex-direction: column; margin: -4px 0;
   font-size: 13px; line-height: 19px;
 }
-.cui-progress-current { display: contents; }
 .cui-progress-row { position: relative; display: flex; align-items: stretch; gap: 10px; padding: 6px 0; }
 .cui-progress-track { position: relative; width: 20px; flex-shrink: 0; align-self: stretch; }
 .cui-progress-rail { position: absolute; left: 50%; width: 2px; transform: translateX(-50%); top: -6px; bottom: -6px; background: var(--cui-progress-alpha-2); }

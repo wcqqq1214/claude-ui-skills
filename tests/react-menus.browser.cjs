@@ -1,4 +1,4 @@
-const { setTheme, setLanguage, chooseChapter } = require('./demo-helpers.cjs');
+const { setTheme, setLanguage } = require('./demo-helpers.cjs');
 const assert = require('node:assert/strict');
 const { withDevBrowser } = require('./dev-browser.cjs');
 const { testMenuCallbackLifecycle } = require('./menu-callback-checks.cjs');

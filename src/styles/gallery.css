@@ -110,8 +110,6 @@
   padding-inline: 24px;
   height: 56px;
 }
-.cui-gallery-attribution, .cui-gallery-bottom-spacer { flex: 1; min-width: 0; }
-.cui-gallery-attribution { display: flex; justify-content: flex-start; align-items: center; }
 .cui-gallery-filename {
   display: block;
   overflow: hidden;

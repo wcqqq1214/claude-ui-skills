@@ -2,7 +2,6 @@ import type { Locale } from './i18n';
 // Demo copy; reusable components receive labels from their caller.
 const chinese: Record<string, string> = {
   "Today": "今天", "Design files": "设计文件",
-  "Waiting": "等待",
   "Close table": "关闭表格",
   "Scroll to bottom": "回到底部",
   "Level {0} of {1}": "第 {0} 档，共 {1} 档",
@@ -148,7 +147,6 @@ const chinese: Record<string, string> = {
   "Typography": "文字呈现",
   "Controls": "基础控件",
   "Input & attachments": "输入框与附件",
-  "Waiting & disclosure": "等待与折叠",
   "File panel": "文件面板",
   "Image preview": "图片预览",
   "Hints & feedback": "提示与反馈",
@@ -206,7 +204,6 @@ const chinese: Record<string, string> = {
   "Design notes": "设计笔记",
   "Expand file panel": "展开文件面板",
   "Resize file list": "调整文件列表宽度",
-  "Resize, switch, restore": "拖动、切换与还原",
   "Files": "文件",
   "Drag the divider →": "拖动分隔线 →",
   "Arrows: 8px; Shift: 32px; Enter: reset": "方向键：8px；Shift：32px；Enter：还原",

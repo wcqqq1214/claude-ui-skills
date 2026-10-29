@@ -1,4 +1,4 @@
-const { setTheme, setLanguage, chooseChapter } = require('./demo-helpers.cjs');
+const { setTheme } = require('./demo-helpers.cjs');
 const assert = require('node:assert/strict');
 const { resolve } = require('node:path');
 const { readFileSync } = require('node:fs');
