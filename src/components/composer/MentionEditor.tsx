@@ -43,10 +43,16 @@ export function MentionEditor({ ref, label, placeholder, mentionListLabel, menti
     editing.current = instance;
     instance.connect();
     connected.current = true;
-    let lastWidth = 0;
-    const observer = new ResizeObserver(([entry]) => { if (entry.contentRect.width !== lastWidth) { lastWidth = entry.contentRect.width; resize(); } });
+    let lastWidth = 0, resizeFrame = 0;
+    const observer = new ResizeObserver(([entry]) => {
+      if (entry.contentRect.width === lastWidth) return;
+      lastWidth = entry.contentRect.width;
+      // Updating this observed element's height during delivery creates another
+      // resize notification in the same cycle. Coalesce width changes next frame.
+      if (!resizeFrame) resizeFrame = requestAnimationFrame(() => { resizeFrame = 0; resize(); });
+    });
     observer.observe(editor.current!);
-    return () => { connected.current = false; instance.disconnect(); observer.disconnect(); };
+    return () => { connected.current = false; instance.disconnect(); observer.disconnect(); cancelAnimationFrame(resizeFrame); };
   }, []);
   useLayoutEffect(() => {
     if (!appliedReset.current || !Object.is(appliedReset.current.key, resetKey)) {

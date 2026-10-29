@@ -4,6 +4,7 @@ const { spawn, execFileSync } = require('node:child_process');
 const { existsSync, readdirSync } = require('node:fs');
 const { basename, join } = require('node:path');
 const { createInterface } = require('node:readline');
+const { stripVTControlCharacters } = require('node:util');
 
 function parseOptions(args) {
   const options = { jobs: 1, timeoutMs: 600_000, filters: [] };
@@ -69,11 +70,17 @@ function runSuite(file, { env = process.env, timeoutMs = 600_000, heartbeatMs = 
       resolve({ file, code: null, error, seconds: (Date.now() - started) / 1000, passed: false });
       return;
     }
-    let reason, launchError, forceKill;
+    let reason, launchError, runtimeError, forceKill;
     const groups = new Set();
     const seconds = () => (Date.now() - started) / 1000;
     for (const [stream, suffix] of [[child.stdout, ''], [child.stderr, ' stderr']]) {
-      createInterface({ input: stream }).on('line', line => log(`[${name}${suffix}] ${line}`));
+      createInterface({ input: stream }).on('line', line => {
+        // Native ErrorEvents (including ResizeObserver loops) can reach Vite
+        // without becoming Playwright pageerror events or a nonzero suite exit.
+        const diagnostic = stripVTControlCharacters(line);
+        if (/\[vite\].*\[Unhandled (?:error|rejection)\]/.test(diagnostic)) runtimeError ??= diagnostic;
+        log(`[${name}${suffix}] ${line}`);
+      });
     }
     const stop = why => {
       if (reason) return;
@@ -98,9 +105,9 @@ function runSuite(file, { env = process.env, timeoutMs = 600_000, heartbeatMs = 
       clearTimeout(timeout); clearInterval(heartbeat); clearTimeout(forceKill);
       signal?.removeEventListener('abort', abort);
       if (reason) killTree(child, 'SIGKILL', groups, log);
-      const result = { file, code, signal: exitSignal, reason, error: launchError, seconds: seconds() };
-      result.passed = code === 0 && !reason && !launchError;
-      log(`${result.passed ? 'ok  ' : 'FAIL'} ${name} (${result.seconds.toFixed(1)}s)${reason ? `: ${reason}` : ''}${exitSignal ? `: ${exitSignal}` : ''}`);
+      const result = { file, code, signal: exitSignal, reason, error: launchError, runtimeError, seconds: seconds() };
+      result.passed = code === 0 && !reason && !launchError && !runtimeError;
+      log(`${result.passed ? 'ok  ' : 'FAIL'} ${name} (${result.seconds.toFixed(1)}s)${reason ? `: ${reason}` : ''}${exitSignal ? `: ${exitSignal}` : ''}${runtimeError ? ': browser runtime error' : ''}`);
       resolve(result);
     });
   });

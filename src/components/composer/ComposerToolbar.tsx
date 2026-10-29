@@ -58,13 +58,18 @@ export function ComposerToolbar({ projectLabel, modelLabel, modelAriaLabel, desc
       }
       setRenderedMode(mode.current);
     }
-    const observer = new ResizeObserver(measure);
+    // Folding changes the observed row/spacer geometry. Apply it outside the
+    // observer delivery cycle, coalescing notifications from both elements.
+    let measureFrame = 0;
+    const observer = new ResizeObserver(() => {
+      if (!measureFrame) measureFrame = requestAnimationFrame(() => { measureFrame = 0; measure(); });
+    });
     observer.observe(pickers.current!); observer.observe(spacer.current!);
     const touch = matchMedia('(pointer: coarse), (hover: none)'); touch.addEventListener('change', measure);
     let disposed = false;
     void document.fonts?.ready.then(() => { if (!disposed) measure(); });
     measure();
-    return () => { disposed = true; observer.disconnect(); touch.removeEventListener('change', measure); };
+    return () => { disposed = true; observer.disconnect(); cancelAnimationFrame(measureFrame); touch.removeEventListener('change', measure); };
   }, [projectLabel, modelLabel, trailing]);
   return <div ref={root} data-picker-mode={modes[renderedMode]} className={classes('cui-composer-chin relative z-0 overflow-clip p-2', className)}>
     <div className="cui-composer-chin-row flex items-center gap-2 text-cui-secondary">

@@ -14,7 +14,7 @@ From the repository root, install dependencies with `npm ci`. Browser suites req
 
 `test:browser` does not rebuild the main demo. Run `npm run build` first when selecting the production suite directly. The Tailwind host suite builds its own temporary application.
 
-The runner streams prefixed stdout/stderr, prints start times and reports elapsed time every 30 seconds. The default per-suite timeout is 600 seconds; `--timeout=0` disables it. Timeout/interruption cleanup terminates discoverable descendant groups and closes inherited output pipes after a two-second grace period. Children already reparented before cleanup may need manual cleanup because their former owner cannot be identified safely. Windows uses `taskkill /T /F`; its cleanup behavior still needs Windows validation.
+The runner streams prefixed stdout/stderr, prints start times and reports elapsed time every 30 seconds. Vite-reported unhandled browser errors and promise rejections fail the suite even if its process exits with code 0; this includes native ResizeObserver error events that can escape Playwright `pageerror` assertions. Suite-owned page/console assertions remain necessary, including for static production delivery. The default per-suite timeout is 600 seconds; `--timeout=0` disables it. Timeout/interruption cleanup terminates discoverable descendant groups and closes inherited output pipes after a two-second grace period. Children already reparented before cleanup may need manual cleanup because their former owner cannot be identified safely. Windows uses `taskkill /T /F`; its cleanup behavior still needs Windows validation.
 
 ## Coverage by area
 

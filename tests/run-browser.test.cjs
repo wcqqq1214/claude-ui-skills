@@ -34,6 +34,22 @@ test('suite output streams before exit, heartbeat reports progress, and failures
   });
 });
 
+test('Vite browser errors fail a suite even when its assertions and exit code pass', async () => {
+  for (const kind of ['error', 'rejection']) for (const stream of ['stdout', 'stderr']) {
+    const diagnostic = `[vite] (client) [Unhandled ${kind}] Error: browser failure`;
+    // Split the colored diagnostic across writes, just as streamed output can arrive.
+    await fixture(`process.${stream}.write('\\x1b[31m[vite] (client) ');
+      setTimeout(() => { process.${stream}.write(${JSON.stringify(`[Unhandled ${kind}] Error: browser failure`)} + '\\x1b[0m\\n'); console.log('assertions passed'); }, 10);`, async file => {
+      const lines = [];
+      const result = await runSuite(file, { log: line => lines.push(line) });
+      assert.equal(result.code, 0);
+      assert.equal(result.passed, false);
+      assert.equal(result.runtimeError, diagnostic);
+      assert.ok(lines.some(line => line.startsWith('FAIL ') && line.includes('browser runtime error')));
+    });
+  }
+});
+
 test('success and spawn failures settle without leaving timers running', async () => {
   await fixture("console.log('SKIP optional physical gesture');", async file => {
     const lines = [];
