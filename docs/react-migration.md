@@ -154,7 +154,7 @@ The initial completion established the React delivery and interactions, but did 
 
 ## Skill and behavior consistency follow-up
 
-The follow-up compares the migration with the same local `dev` baseline, including trigger/state/exit/focus behavior and the Skill's complete local reference chain.
+The follow-up compared the migration with the local `dev` baseline at that time, including trigger/state/exit/focus behavior and the Skill's complete local reference chain.
 
 - All 24 Markdown documents and 218 local links/anchors resolve. The component index covers every one of the 14 demo routes exactly once. [Persistent checks](../tests/migration-links.test.cjs) also verify linked TSX callers, local asset/CSS dependencies and the absence of retired runtime dependencies.
 - The source entry now typechecks without `vite/client` or ambient image declarations, with strict library checking. Sprite assets use static ESM URLs. [The regression](../tests/source-imports.test.cjs) first reproduced 14 missing-WebP-type errors; a separate temporary consumer also built and ran the copied source, fonts, Tailwind styles and all 14 sprite assets.
