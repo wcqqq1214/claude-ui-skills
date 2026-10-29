@@ -63,9 +63,9 @@ Further suite-owned cases cover slider release while hidden and synchronous poin
 Ordinary development suites share [dev-browser](dev-browser.cjs); suites still own pages, contexts, clocks and browser-error assertions. Feedback's controller loader, SSR, static production and the temporary Tailwind consumer retain distinct setup paths.
 
 - [Development lifetime](dev-browser.test.cjs) checks partial startup and assertion/cleanup failures, releasing both resources while preserving the first error.
-- [Tailwind host lifetime](tailwind-host.test.cjs) checks partial startup and independent browser/server/directory cleanup, including multiple simultaneous failures.
+- [Tailwind host checks](tailwind-host.test.cjs) compare the example's runtime/build dependencies and Node engine with the tested host, excluding the repository's Playwright test dependency. They also cover partial startup and independent browser/server/directory cleanup, including multiple simultaneous failures.
 - [Runner](run-browser.test.cjs) checks live output, heartbeats, argument validation, launch failures, interruption, stubborn descendants and inherited pipes after parent exit. Descendant-process cases currently run on POSIX.
-- [Documentation links](migration-links.test.cjs) checks local Markdown/HTML targets and anchors, every demo route's guide/implementation mapping, and copied-source imports/CSS/assets. POSIX and Windows paths are exercised; external URLs are excluded.
+- [Documentation links](migration-links.test.cjs) checks local Markdown/HTML targets and anchors, every demo route's guide/implementation mapping, and copied-source imports/CSS/assets. Local `docs/dev` notes are skipped before directory traversal. POSIX and Windows paths are exercised; external URLs are excluded.
 - [Public imports](source-imports.test.cjs) typechecks the public entry without Vite ambient types.
 
 ## Verification limits

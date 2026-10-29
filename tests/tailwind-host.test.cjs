@@ -5,6 +5,16 @@ const { tmpdir } = require('node:os');
 const { join } = require('node:path');
 const { spawnSync } = require('node:child_process');
 
+test('Tailwind example dependency ranges and Node engine match the tested host', () => {
+  const host = require('../package.json');
+  const example = require('../examples/tailwind-host/package.json');
+  assert.deepEqual(example.dependencies, host.dependencies, 'the consumer needs the same React runtime dependencies');
+  // Playwright belongs to the repository's browser runner, not the consumer build.
+  const buildDependencies = Object.fromEntries(Object.entries(host.devDependencies).filter(([name]) => name !== 'playwright-core'));
+  assert.deepEqual(example.devDependencies, buildDependencies, 'update all consumer build dependencies and the tested host together');
+  assert.deepEqual(example.engines, host.engines, 'the example must declare the tested Node engine range');
+});
+
 test('Tailwind host lifetime cleans every resource and preserves the first failure', () => {
   const root = mkdtempSync(join(tmpdir(), 'cui-host-lifetime-'));
   try {

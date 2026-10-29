@@ -6,6 +6,8 @@ const { test } = require('node:test');
 const root = resolve(__dirname, '..');
 const read = file => readFileSync(resolve(root, file), 'utf8');
 function filesIn(directory) {
+  // Local research notes are outside the published guides; never traverse them.
+  if (directory === 'docs/dev') return [];
   return readdirSync(resolve(root, directory), { withFileTypes: true }).flatMap(entry => {
     const file = `${directory}/${entry.name}`;
     return entry.isDirectory() ? filesIn(file) : [file];
@@ -41,8 +43,7 @@ function anchors(file) {
 
 test('skill, guides and README links resolve to local files and valid anchors', () => {
   const documents = ['SKILL.md', 'README.md', 'README.zh-CN.md', 'demo/README.md', 'tests/README.md',
-    // docs/dev is the ignored, user-local research archive, not shipped guides.
-    ...filesIn('examples'), ...filesIn('references'), ...filesIn('docs').filter(file => !file.startsWith('docs/dev/'))].filter(file => file.endsWith('.md'));
+    ...filesIn('examples'), ...filesIn('references'), ...filesIn('docs')].filter(file => file.endsWith('.md'));
   for (const file of documents) for (const target of links(prose(read(file)))) {
     if (/^[a-z][a-z\d+.-]*:|^\/\//i.test(target)) continue;
     const [location, fragment] = target.split('#');
