@@ -11,9 +11,9 @@ Adapt Claude Desktop–style UI, typography and motion into an existing frontend
 
 1. **Choose.** Find the scenario in the [component index](references/components.md) and read only that guide plus the files it links. Resolve paths from this skill's directory, not the target app's.
 2. **Ground the style.** Apply the quick reference and motion vocabulary below. Open [visual foundations](references/visual.md) when the change touches color, type, icons, radius, elevation or separators.
-3. **Adapt.** Keep the target stack and its component ownership. In React projects, import or copy the linked TSX components and documented styles; [integration instructions](demo/README.md) describe the Tailwind setup. Preserve geometry, timing, selection, focus and visibility. Leave sample text, page layout and demo controls behind. Map `--cui-*` variables onto the target theme. Components own their listeners, observers, timers and animations and clean them up; retain that ownership when adapting to another framework.
-4. **Verify.** Done when the changed interaction's trigger, state change, exit and focus return work in light and dark, in English and Chinese, and in a narrow container, and any numeric threshold has been tested at its controlling boundary. When shared icon styles change, check icons in controls, inline text and overlays for alignment, clipping, row height and hit area. Run the target project's checks and use a browser when one is available.
-5. **Report** the demo files and functions used, the local adaptations, the checks run and the checks left undone (visual, physical gestures). Present the result as an adaptation of the demo, without claiming pixel, runtime or performance parity with Claude.
+3. **Adapt.** Keep the target stack and its component ownership. For React 19 projects, copy the complete `src/` tree to preserve internal imports, styles and assets; [integration instructions](demo/README.md#import-the-source) describe React DOM, TypeScript and Tailwind setup. If selecting individual components, retain every transitive dependency and required stylesheet. For another framework, implement the documented behavior in the existing stack. Preserve geometry, timing, selection, focus and visibility. Leave sample text, page layout and demo controls behind. Map `--cui-*` variables onto the target theme. Components own their listeners, observers, timers and animations and clean them up; retain that ownership when adapting them.
+4. **Verify.** Check the changed interaction's trigger, state change, exit and focus return in the target app's supported themes, languages and layouts, including a narrow container when applicable. The bundled demo provides English/Chinese and light/dark examples; do not add languages or themes to the target app merely to match it. Test changed numeric thresholds at their controlling boundaries. When shared icon styles change, check icons in controls, inline text and overlays for alignment, clipping, row height and hit area. Run the target project's checks and use a browser when one is available.
+5. **Report** the component files, styles and guides used, the local adaptations, the checks run and the checks left undone (visual, physical gestures). Present the result as an adaptation of the bundled examples, without claiming pixel, runtime or performance parity with Claude.
 
 ## Style quick reference
 
@@ -50,8 +50,8 @@ Sprite marks (status marks, working dots) step through frames with `steps(n, jum
 - Change presentation only: markup, styles, motion, focus and visible state. Leave data flow, backend calls, auth, tool execution, reconnection and feature flags as they are.
 - Implement effects that have a guide here. [Coverage](docs/coverage.md) lists the effects deliberately left out and each chapter's local adaptations.
 - The demo has no reduced-motion variants; keep whatever reduced-motion handling the target app already has.
-- Work from the bundled demo; collect new reference material from Claude only when the user asks.
+- Use the bundled components and guides as implementation references, and the demo to inspect behavior. Collect new reference material from Claude only when the user asks.
 
 ## Demo
 
-Run `npm ci` and `npm run dev` from the skill root; see [demo instructions](demo/README.md#run). For static preview, run `npm run build` and serve `dist/`. All 13 chapters run locally without sending data or executing tools.
+Reading the skill and its guides needs no dependency installation. To run the demo, use the Node.js version specified in [demo instructions](demo/README.md#run), then run `npm ci` and `npm run dev` from the skill root. For static preview, run `npm run build` and serve `dist/`. All 13 chapters run locally without sending data or executing tools.

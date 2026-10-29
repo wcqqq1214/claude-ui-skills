@@ -2,6 +2,8 @@
 
 Date: 2026-10-20. Baseline: the local pre-migration showcase. Compared implementation: the React migration.
 
+The measurements and test counts below describe that comparison, not the current demo inventory. For current behavior and setup, see [the demo guide](../demo/README.md) and [coverage](coverage.md).
+
 ## What the comparison found
 
 The initial migration retained component behavior but redesigned much of the demo presentation. That changed the visual result: navigation and theme controls, chapter widths, canvas centering, card rings/shadows, padding, type stages, button sizes and responsive breakpoints. Source-only tests did not establish parity with the original demo.

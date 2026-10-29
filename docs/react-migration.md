@@ -1,5 +1,7 @@
 # React + TSX + Tailwind migration
 
+This is a historical implementation and validation record. Chapter counts, test counts and references to the former showcase describe the stage being recorded. For current setup and APIs, use [the integration guide](../demo/README.md); the current demo has 13 chapters, with segmented controls included under Controls.
+
 ## Starting point
 
 The migration reorganizes the local HTML/CSS/JavaScript showcase into reusable React components.

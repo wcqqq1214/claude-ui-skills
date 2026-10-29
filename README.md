@@ -20,7 +20,7 @@
 
 The source and demo use **TSX + React 19 + Tailwind CSS 4**. All 13 demo chapters import the same public components from [`src/index.ts`](src/index.ts); sample data, translations and replay controls stay in `demo/`.
 
-Copy the complete `src/` directory into a React + TypeScript project with Tailwind CSS 4 configured, preserving its internal paths and assets. Import the component stylesheet once:
+Copy the complete `src/` directory into a React 19 + TypeScript project with matching React DOM and Tailwind CSS 4 configured, preserving its internal paths and assets. Use React 19 type definitions in TypeScript projects. Import the component stylesheet once:
 
 ```tsx
 import { Switch } from './src';
@@ -41,7 +41,7 @@ This repository provides source to import, not a published npm package. See [int
 
 ## Install as an agent skill
 
-Clone the complete repository into an unused Codex skill directory. The guides reference its bundled TSX and CSS.
+Clone the complete repository into an unused Codex skill directory. Keep `SKILL.md` at the skill folder's root and retain the supporting directories: the guides link directly to bundled source, styles, assets and documentation. Reading and using the skill's guidance does not require `npm ci`; dependencies are needed to run the demo, build or tests.
 
 ```sh
 mkdir -p "${CODEX_HOME:-$HOME/.codex}/skills"
@@ -49,11 +49,13 @@ git clone https://github.com/wcqqq1214/claude-ui-skills.git \
   "${CODEX_HOME:-$HOME/.codex}/skills/claude-ui-skills"
 ```
 
-Then ask your agent:
+In your next Codex turn, invoke the installed skill explicitly:
 
 ```text
 Use $claude-ui-skills to adapt this page's sidebar and segmented controls.
 ```
+
+If it is not listed, check that the destination contains `SKILL.md` directly rather than another nested repository folder. Use the skill directory for the Codex environment running your task; a checkout elsewhere is not automatically installed. You can also point the agent at that checkout's `SKILL.md` to use its instructions directly.
 
 The skill covers UI, frontend interactions, typography and motion. See [scope and coverage](docs/coverage.md).
 

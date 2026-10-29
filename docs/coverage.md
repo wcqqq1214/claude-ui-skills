@@ -50,7 +50,7 @@ Not every size, disabled state, tooltip combination, long list, nested overlay, 
 
 ### Input and attachments
 
-- **Behavior:** the centered editor shows an add control, a toolbar and two sample attachment tiles. Removing a tile updates focus; removing the last tile collapses the empty row. The width control changes the editor width, with a 156/168px minimum. Tiles are 120px wide, separated by 6px, with a 20px remove control and up to four lines of sample text. A fixed artifact example accompanies the editor.
+- **Behavior:** the centered editor shows an add control, a toolbar and two initial sample attachment tiles. Add restores a missing sample, up to three attachments; removing the last tile collapses the empty row and returns focus to the editor. Typing `@` opens suggestions for the sample artifact; Enter or Tab inserts the reference and Escape dismisses suggestions. Enter otherwise inserts a new line. The width control changes the editor width, with a 156/168px minimum. Tiles are 120px wide, separated by 6px, with a 20px remove control and up to four lines of sample text.
 - **Limits:** the example does not provide a command menu, file chooser, file reading, upload or sending. Restored drafts, every long-filename layout and all touch gestures are not covered.
 
 <a id="feedback"></a>

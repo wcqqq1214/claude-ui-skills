@@ -30,7 +30,7 @@ The production build includes local JS, CSS and the optional bundled Sans/Serif/
 
 ## Import the source
 
-For an existing React + TypeScript project, copy `src/` to a component folder, retaining its internal structure. Install React/React DOM and configure Tailwind CSS 4 in the host build (this demo uses `@tailwindcss/vite`). The host bundler must support CSS imports, relative CSS assets and static `new URL(path, import.meta.url)` assets. Sprite URLs use this standard ESM form and do not require `vite/client` type declarations. Import the stylesheet once. Paths below assume a consuming file at this repository's root:
+For an existing React 19 + TypeScript project, copy the complete `src/` directory to a component folder, retaining its internal structure and assets. Use matching React 19/React DOM versions and React 19 type definitions; components accept `ref` as a prop. Configure Tailwind CSS 4 in the host build (this demo uses `@tailwindcss/vite`). The host bundler must support CSS imports, relative CSS assets and static `new URL(path, import.meta.url)` assets. Sprite URLs use this standard ESM form and do not require `vite/client` type declarations. Import the stylesheet once. Paths below assume a consuming file at this repository's root:
 
 ```tsx
 import { useState } from 'react';
@@ -82,7 +82,7 @@ The public source entry does not import demo code. It requires no backend, routi
 - `Icon`: a typed static glyph name and authored size; the host supplies accessible text. `IconButton` accepts native button props/ref and should have a label.
 - `useClipboard` and `useVisible` are available for reusable consumers; sample playback timing stays under `demo/hooks/`. `useClipboard.copy(text)` retains its Promise result; optional `copy(text, onResult)` rechecks request ownership at callback delivery, including disconnection, pagehide and newer writes.
 
-All migrated components preserve the existing demo's motion timings. Controls inherit optional `--cui-motion-scale` for demonstration; production use defaults to 1. Reduced-motion variants remain a later, explicit enhancement, matching the original coverage boundary.
+The components preserve the documented motion timings. Controls inherit optional `--cui-motion-scale` for demonstration; production use defaults to 1. Reduced-motion variants are not included; retain the target app's existing reduced-motion handling when adapting the examples.
 
 ## Waiting and disclosure
 

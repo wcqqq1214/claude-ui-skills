@@ -20,7 +20,7 @@
 
 源码和 demo 均采用 **TSX + React 19 + Tailwind CSS 4**。全部 13 个 demo 章节从 [`src/index.ts`](src/index.ts) 导入同一套公开组件；示例数据、翻译和重播控制留在 `demo/` 中。
 
-将完整的 `src/` 目录复制到已配置 Tailwind CSS 4 的 React + TypeScript 项目，保留内部路径和资源。在应用中导入一次组件样式：
+将完整的 `src/` 目录复制到使用 React 19、匹配的 React DOM 和 TypeScript，并已配置 Tailwind CSS 4 的项目，保留内部路径和资源。TypeScript 项目需使用 React 19 类型定义。在应用中导入一次组件样式：
 
 ```tsx
 import { Switch } from './src';
@@ -41,7 +41,7 @@ export function Example() {
 
 ## 安装为 Agent Skill
 
-将完整仓库克隆到尚不存在的 Codex Skill 目录，指南直接引用其中的 TSX 和 CSS。
+将完整仓库克隆到尚不存在的 Codex Skill 目录。`SKILL.md` 应直接位于 Skill 文件夹根目录，并保留配套目录：指南直接链接其中的源码、样式、资源和文档。读取和使用 Skill 指南无需执行 `npm ci`；运行演示、构建或测试时才需要安装依赖。
 
 ```sh
 mkdir -p "${CODEX_HOME:-$HOME/.codex}/skills"
@@ -49,11 +49,13 @@ git clone https://github.com/wcqqq1214/claude-ui-skills.git \
   "${CODEX_HOME:-$HOME/.codex}/skills/claude-ui-skills"
 ```
 
-然后向 Agent 提问：
+在下一轮 Codex 对话中明确调用已安装的 Skill：
 
 ```text
 用 $claude-ui-skills 改进这个页面的侧栏与分段控件。
 ```
+
+如果技能列表中没有出现它，检查目标目录是否直接包含 `SKILL.md`，而非再嵌套一层仓库文件夹。安装位置应属于运行当前任务的 Codex 环境；放在其他位置的项目副本不会自动成为已安装技能。也可以直接让 Agent 读取该副本的 `SKILL.md` 并按其说明操作。
 
 Skill 覆盖 UI、前端交互、排版与动效，详见[范围与覆盖](docs/coverage.md)。
 
