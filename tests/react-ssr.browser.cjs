@@ -19,10 +19,11 @@ const { chromium } = require(process.env.PLAYWRIGHT_MODULE || 'playwright-core')
       });
     } }],
   });
-  await server.listen();
-  const url = `http://127.0.0.1:${server.httpServer.address().port}${route}`;
   let browser;
+  const failures = [];
   try {
+    await server.listen();
+    const url = `http://127.0.0.1:${server.httpServer.address().port}${route}`;
     browser = await chromium.launch({ executablePath: process.env.CHROME_BIN, headless: true });
     const page = await browser.newPage();
     const errors = [];
@@ -121,5 +122,10 @@ const { chromium } = require(process.env.PLAYWRIGHT_MODULE || 'playwright-core')
       await blocks.close();
     }
     console.log('React SSR: real renderToString/hydration, preserved server DOM for block notices and Artifact subtitles, browser asset decode, StrictMode playback, pause, Replay, unmount and fallback passed');
-  } finally { await browser?.close(); await server.close(); }
+  } catch (error) { failures.push(error); }
+  // Attempt both cleanups, retaining the original startup or assertion failure.
+  for (const resource of [browser, server]) {
+    try { await resource?.close(); } catch (error) { failures.push(error); }
+  }
+  if (failures.length) throw failures[0];
 })().catch(error => { console.error(error); process.exitCode = 1; });

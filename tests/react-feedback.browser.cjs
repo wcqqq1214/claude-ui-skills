@@ -7,10 +7,11 @@ const { testStatusCommitDelivery, testStatusReconnectRequests } = require('./sta
 (async () => {
   const { createServer } = await import('vite');
   const server = await createServer({ root: resolve(__dirname, '..'), server: { host: '127.0.0.1', port: 0, open: false } });
-  await server.listen();
-  const base = `http://127.0.0.1:${server.httpServer.address().port}`;
   let browser;
+  const failures = [];
   try {
+    await server.listen();
+    const base = `http://127.0.0.1:${server.httpServer.address().port}`;
     // Exercise the production controller with a deterministic animation clock.
     // These assertions preserve the original authored seam/entry/exit contract.
     const { createStatusPlayback } = await server.ssrLoadModule('/src/components/feedback/statusPlayback.ts');
@@ -390,5 +391,10 @@ const { testStatusCommitDelivery, testStatusReconnectRequests } = require('./sta
     assert.equal(await mark.evaluate(element => element.firstElementChild.getAnimations()[0].currentTime), hiddenTime, 'hidden chapter pauses authored motion');
     assert.deepEqual(errors, []);
     console.log('React feedback: dynamic nested skeleton geometry/observers, pending/failed WorkingMark and return-arrow fallback, retained-DOM reconnect, authored seams, phase/frame/completion, hidden Replay, latest handoff, completion/replay, pause, StrictMode, disclosure focus and responsive bilingual demo passed');
-  } finally { await browser?.close(); await server.close(); }
+  } catch (error) { failures.push(error); }
+  // Attempt both cleanups, retaining the original startup or assertion failure.
+  for (const resource of [browser, server]) {
+    try { await resource?.close(); } catch (error) { failures.push(error); }
+  }
+  if (failures.length) throw failures[0];
 })().catch(error => { console.error(error); process.exitCode = 1; });

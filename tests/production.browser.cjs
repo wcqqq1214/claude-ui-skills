@@ -22,17 +22,18 @@ const { chromium } = require(process.env.PLAYWRIGHT_MODULE || 'playwright-core')
       res.end(body);
     } catch { res.writeHead(404); res.end('Not found'); }
   });
-  await new Promise((done, reject) => { server.once('error', reject); server.listen(0, '127.0.0.1', done); });
-  const origin = `http://127.0.0.1:${server.address().port}`;
   let browser;
-  const errors = [];
-  const observe = page => {
-    page.on('pageerror', e => errors.push(e.message));
-    page.on('console', m => { if (m.type() === 'error') errors.push(m.text()); });
-    page.on('response', r => { if (r.status() >= 400) errors.push(`${r.status()} ${r.url()}`); });
-    page.on('request', r => { if (/^https?:/.test(r.url()) && !r.url().startsWith(origin + '/')) errors.push(`External request: ${r.url()}`); });
-  };
+  const failures = [];
   try {
+    await new Promise((done, reject) => { server.once('error', reject); server.listen(0, '127.0.0.1', done); });
+    const origin = `http://127.0.0.1:${server.address().port}`;
+    const errors = [];
+    const observe = page => {
+      page.on('pageerror', e => errors.push(e.message));
+      page.on('console', m => { if (m.type() === 'error') errors.push(m.text()); });
+      page.on('response', r => { if (r.status() >= 400) errors.push(`${r.status()} ${r.url()}`); });
+      page.on('request', r => { if (/^https?:/.test(r.url()) && !r.url().startsWith(origin + '/')) errors.push(`External request: ${r.url()}`); });
+    };
     browser = await chromium.launch({ executablePath: process.env.CHROME_BIN, headless: true });
     // Existing visitors retain their choices; unsupported values fall through
     // to a valid saved choice or the browser language, as before the migration.
@@ -238,8 +239,13 @@ const { chromium } = require(process.env.PLAYWRIGHT_MODULE || 'playwright-core')
     }
     assert.deepEqual(errors, []);
     console.log('Built root/subpath entries, 13 chapters, local assets, image spring, history/reselection, legacy/current preferences, language fallback and denied storage passed.');
-  } finally {
-    await browser?.close();
-    await new Promise(done => server.close(done));
+  } catch (error) { failures.push(error); }
+  // HTTP close reports errors through its callback, unlike Vite's promise API.
+  for (const cleanup of [
+    () => browser?.close(),
+    () => new Promise((done, reject) => server.close(error => error ? reject(error) : done())),
+  ]) {
+    try { await cleanup(); } catch (error) { failures.push(error); }
   }
+  if (failures.length) throw failures[0];
 })().catch(error => { console.error(error); process.exitCode = 1; });
