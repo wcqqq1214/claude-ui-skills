@@ -16,9 +16,27 @@ function filesIn(directory) {
 // Examples are code, not links to files in this repository.
 const prose = source => source.replace(/^(`{3,}|~{3,})[^\n]*\n[\s\S]*?^\1[^\n]*$/gm, '');
 function links(source) {
+  const responsive = [];
+  for (const match of source.matchAll(/\bsrcset\s*=\s*["']([^"']+)["']/gi)) {
+    let candidates = match[1];
+    while (candidates) {
+      candidates = candidates.replace(/^[\s,]+/, '');
+      const url = candidates.match(/^\S+/)?.[0];
+      if (!url) break;
+      responsive.push(url.replace(/,+$/, ''));
+      candidates = candidates.slice(url.length);
+      // URLs can contain commas (notably data URLs). Whitespace ends the URL;
+      // skip its optional width/density descriptor to the next separator.
+      if (!url.endsWith(',')) {
+        const separator = candidates.indexOf(',');
+        candidates = separator < 0 ? '' : candidates.slice(separator + 1);
+      }
+    }
+  }
   return [
     ...[...source.matchAll(/!?\[[^\]\n]*\]\(<?([^\s)>]+)>?(?:\s+["'][^\n]*["'])?\)/g)].map(match => match[1]),
     ...[...source.matchAll(/\b(?:href|src)=["']([^"']+)["']/g)].map(match => match[1]),
+    ...responsive,
   ];
 }
 function chapters() {
@@ -41,10 +59,8 @@ function anchors(file) {
   return ids;
 }
 
-test('skill, guides and README links resolve to local files and valid anchors', () => {
-  const documents = ['SKILL.md', 'README.md', 'README.zh-CN.md', 'demo/README.md', 'tests/README.md',
-    ...filesIn('examples'), ...filesIn('references'), ...filesIn('docs')].filter(file => file.endsWith('.md'));
-  for (const file of documents) for (const target of links(prose(read(file)))) {
+function checkLinks(file, source) {
+  for (const target of links(prose(source))) {
     if (/^[a-z][a-z\d+.-]*:|^\/\//i.test(target)) continue;
     const [location, fragment] = target.split('#');
     const destination = location ? resolve(root, dirname(file), decodeURIComponent(location.split('?')[0])) : resolve(root, file);
@@ -53,6 +69,23 @@ test('skill, guides and README links resolve to local files and valid anchors', 
       assert.ok(anchors(relative(root, destination)).has(decodeURIComponent(fragment)), `${file}: missing anchor ${target}`);
     }
   }
+}
+
+test('skill, guides and README links resolve to local files and valid anchors', () => {
+  const documents = ['SKILL.md', 'README.md', 'README.zh-CN.md', 'demo/README.md', 'tests/README.md',
+    ...filesIn('examples'), ...filesIn('references'), ...filesIn('docs')].filter(file => file.endsWith('.md'));
+  for (const file of documents) checkLinks(file, read(file));
+});
+
+test('responsive screenshot links include every srcset candidate and reject missing files', () => {
+  for (const file of ['README.md', 'README.zh-CN.md']) {
+    const source = read(file), target = source.match(/srcset="([^"]+)"/)[1];
+    assert.ok(links(source).includes(target), `${file}: dark screenshot must be checked`);
+    assert.throws(() => checkLinks(file, source.replace(target, 'docs/assets/missing-screenshot.jpg')), /missing docs\/assets\/missing-screenshot\.jpg/);
+  }
+  assert.deepEqual(links(`<source srcset="one.jpg 1x, two.jpg 2x"><img srcset='small.jpg 320w, large.jpg 1280w'>`), ['one.jpg', 'two.jpg', 'small.jpg', 'large.jpg']);
+  assert.deepEqual(links('<img srcset="one.jpg, two.jpg">'), ['one.jpg', 'two.jpg']);
+  checkLinks('README.md', '<source srcset="data:image/png;base64,AAAA 1x, https://example.invalid/image.png 2x">');
 });
 
 test('chapter and Markdown anchors accept both POSIX and Windows relative paths', () => {

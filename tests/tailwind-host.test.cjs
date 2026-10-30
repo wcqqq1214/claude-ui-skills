@@ -22,6 +22,7 @@ test('Tailwind host lifetime cleans every resource and preserves the first failu
       mkdirSync(join(root, directory), { recursive: true });
     }
     copyFileSync(join(__dirname, 'tailwind-host.browser.cjs'), join(root, 'tests/tailwind-host.browser.cjs'));
+    copyFileSync(join(__dirname, 'browser-errors.cjs'), join(root, 'tests/browser-errors.cjs'));
     writeFileSync(join(root, 'node_modules/typescript/bin/tsc'), '');
     writeFileSync(join(root, 'node_modules/vite/package.json'), JSON.stringify({ type: 'module', exports: './index.js' }));
     writeFileSync(join(root, 'node_modules/vite/index.js'), `

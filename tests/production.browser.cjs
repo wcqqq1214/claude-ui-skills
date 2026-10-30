@@ -1,4 +1,5 @@
 const { setTheme, setLanguage, chooseChapter } = require('./demo-helpers.cjs');
+const { captureNativeBrowserErrors } = require('./browser-errors.cjs');
 // Exercise the built site through an ordinary static server, without Vite fallback.
 const assert = require('node:assert/strict');
 const http = require('node:http');
@@ -28,11 +29,12 @@ const { chromium } = require(process.env.PLAYWRIGHT_MODULE || 'playwright-core')
     await new Promise((done, reject) => { server.once('error', reject); server.listen(0, '127.0.0.1', done); });
     const origin = `http://127.0.0.1:${server.address().port}`;
     const errors = [];
-    const observe = page => {
+    const observe = async page => {
       page.on('pageerror', e => errors.push(e.message));
       page.on('console', m => { if (m.type() === 'error') errors.push(m.text()); });
       page.on('response', r => { if (r.status() >= 400) errors.push(`${r.status()} ${r.url()}`); });
       page.on('request', r => { if (/^https?:/.test(r.url()) && !r.url().startsWith(origin + '/')) errors.push(`External request: ${r.url()}`); });
+      await captureNativeBrowserErrors(page, errors);
     };
     browser = await chromium.launch({ executablePath: process.env.CHROME_BIN, headless: true });
     // Existing visitors retain their choices; unsupported values fall through
@@ -48,7 +50,7 @@ const { chromium } = require(process.env.PLAYWRIGHT_MODULE || 'playwright-core')
     for (const entry of preferenceCases) {
       const preferences = await browser.newContext({ locale: entry.browserLocale ?? 'en-US', colorScheme: 'light' });
       await preferences.addInitScript(storage => { for (const [key, value] of Object.entries(storage)) localStorage.setItem(key, value); }, entry.storage);
-      const savedPage = await preferences.newPage(); observe(savedPage);
+      const savedPage = await preferences.newPage(); await observe(savedPage);
       await savedPage.goto(`${origin}/claude-ui-skills/${entry.query ?? ''}#controls`);
       await savedPage.waitForFunction(() => document.documentElement.dataset.cuiTheme);
       assert.equal(await savedPage.locator('html').getAttribute('lang'), entry.language, entry.name);
@@ -57,7 +59,7 @@ const { chromium } = require(process.env.PLAYWRIGHT_MODULE || 'playwright-core')
       await preferences.close();
     }
     const context = await browser.newContext({ viewport: { width: 1280, height: 900 }, colorScheme: 'dark' });
-    const page = await context.newPage(); observe(page);
+    const page = await context.newPage(); await observe(page);
     const chapters = ['controls', 'type', 'reading', 'feedback', 'micro', 'recovery', 'composer', 'menus', 'workspace', 'modes', 'images', 'gallery', 'tasks'];
     for (const base of ['/', '/claude-ui-skills/']) {
       for (const entry of ['', 'demo/']) {
@@ -161,7 +163,7 @@ const { chromium } = require(process.env.PLAYWRIGHT_MODULE || 'playwright-core')
     assert.equal(await page.locator('html').getAttribute('lang'), 'zh-Hans', 'focus preview does not commit a language');
     // Translation preserves the reading position through text reflow and the
     // following ResizeObserver frame, including nested horizontal scrollers.
-    const localePage = await context.newPage(); observe(localePage);
+    const localePage = await context.newPage(); await observe(localePage);
     await localePage.setViewportSize({ width: 390, height: 500 });
     await localePage.goto(`${origin}/claude-ui-skills/?lang=en#reading`);
     await localePage.evaluate(() => document.fonts.ready);
@@ -215,7 +217,7 @@ const { chromium } = require(process.env.PLAYWRIGHT_MODULE || 'playwright-core')
     // Privacy settings may deny storage; rendering and explicit choices still work.
     const denied = await browser.newContext({ locale: 'zh-CN', colorScheme: 'dark' });
     await denied.addInitScript(() => Object.defineProperty(window, 'localStorage', { get() { throw new DOMException('Denied', 'SecurityError'); } }));
-    const deniedPage = await denied.newPage(); observe(deniedPage);
+    const deniedPage = await denied.newPage(); await observe(deniedPage);
     await deniedPage.goto(`${origin}/`);
     await deniedPage.getByRole('heading', { name: '文字与排版', exact: true }).waitFor();
     await chooseChapter(deniedPage, 'controls');

@@ -156,6 +156,22 @@ withDevBrowser(async ({ browser, base }) => {
     const editor = first.getByRole('textbox'), popup = first.getByRole('listbox', { name: 'References' });
     const draft = async () => JSON.parse(await first.locator('[data-draft]').textContent());
     assert.equal(await first.locator('[data-changes]').textContent(), '0', 'StrictMode initialization emits no draft edits');
+    // Count actual layout reads after the initial observer/font measurements.
+    // Input and imperative clear should each size once, without waiting a frame.
+    await page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
+    await editor.evaluate(element => {
+      const read = Object.getOwnPropertyDescriptor(Element.prototype, 'scrollHeight').get;
+      window.editorHeightReads = 0;
+      Object.defineProperty(element, 'scrollHeight', { configurable: true, get() { window.editorHeightReads++; return read.call(this); } });
+    });
+    try {
+      await editor.focus(); await page.keyboard.insertText('One edit');
+      assert.equal(await page.evaluate(() => window.editorHeightReads), 1, 'one native input performs one height measurement');
+      await page.evaluate(() => { window.editorHeightReads = 0; });
+      await first.getByRole('button', { name: 'Clear draft', exact: true }).click();
+      assert.equal(await page.evaluate(() => window.editorHeightReads), 1, 'imperative clear performs one height measurement');
+      assert.deepEqual(await draft(), { text: '', mentions: [] });
+    } finally { await editor.evaluate(element => { delete element.scrollHeight; delete window.editorHeightReads; }); }
     async function expectDraft(text, message) {
       assert.equal((await draft()).text, text, `${message}: editing callback`);
       await first.getByRole('button', { name: 'Read draft', exact: true }).click();

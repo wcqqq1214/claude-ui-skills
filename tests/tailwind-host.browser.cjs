@@ -5,6 +5,7 @@ const { join, resolve } = require('node:path');
 const { execFile } = require('node:child_process');
 const { promisify } = require('node:util');
 const { chromium } = require(process.env.PLAYWRIGHT_MODULE || 'playwright-core');
+const { captureNativeBrowserErrors } = require('./browser-errors.cjs');
 
 async function withTailwindHost(run) {
   const root = resolve(__dirname, '..'), target = await mkdtemp(join(tmpdir(), 'cui-tailwind-host-'));
@@ -43,6 +44,7 @@ async function main() {
     page.on('console', message => { if (message.type() === 'error') errors.push(message.text()); });
     page.on('response', response => { if (response.status() >= 400) errors.push(`${response.status()} ${response.url()}`); assets.push(response.url()); });
     page.on('request', request => { if (/^https?:/.test(request.url()) && !request.url().startsWith(base + '/')) external.push(request.url()); });
+    await captureNativeBrowserErrors(page, errors);
     await page.goto(base);
     const control = page.getByRole('switch', { name: 'Notifications' }), theme = page.getByRole('button', { name: 'Toggle theme' });
     await control.waitFor();

@@ -38,7 +38,8 @@ export function MentionEditor({ ref, label, placeholder, mentionListLabel, menti
     const instance = editing.current ?? createMentionEditing(editor.current!, template.current!, {
       options: () => latest.current.options, popup: () => popup.current, menu: () => menu.current,
       setPopup: setSuggestions, setContext, setEmpty,
-      onChange: value => { resize(); latest.current.onDraftChange?.(value); },
+      onEdit: resize,
+      onChange: value => latest.current.onDraftChange?.(value),
     });
     editing.current = instance;
     instance.connect();
@@ -59,7 +60,6 @@ export function MentionEditor({ ref, label, placeholder, mentionListLabel, menti
       editing.current?.reset(defaultText);
       appliedReset.current = { key: resetKey };
     }
-    resize();
   }, [resetKey]);
   useLayoutEffect(() => { editing.current?.setActive(active); resize(); }, [active, maxHeight]);
   // Localizing the surrounding chrome never rewrites existing draft/atom text.
@@ -75,12 +75,12 @@ export function MentionEditor({ ref, label, placeholder, mentionListLabel, menti
   }, [context]);
   useImperativeHandle(ref, () => ({
     focus: () => editor.current?.focus({ preventScroll: true }),
-    clear: () => { if (connected.current) { editing.current?.reset('', true); resize(); } },
+    clear: () => { if (connected.current) editing.current?.reset('', true); },
     getDraft: () => connected.current ? editing.current!.getDraft() : { text: '', mentions: [] },
   }), []);
   return <div className={classes('relative min-w-0 font-cui', className)}>
     {empty ? <span aria-hidden="true" className="cui-composer-placeholder pointer-events-none absolute inset-0 select-none text-cui-muted">{placeholder}</span> : null}
-    <div ref={editor} className="cui-composer-editor" contentEditable suppressContentEditableWarning onInput={resize} role="textbox" aria-multiline="true" aria-label={label} aria-autocomplete="list" aria-controls={suggestions ? `${id}-list` : undefined} aria-expanded={!!suggestions} aria-activedescendant={suggestions ? `${id}-option-${suggestions.index}` : undefined} translate="no" style={{ maxHeight }} />
+    <div ref={editor} className="cui-composer-editor" contentEditable suppressContentEditableWarning role="textbox" aria-multiline="true" aria-label={label} aria-autocomplete="list" aria-controls={suggestions ? `${id}-list` : undefined} aria-expanded={!!suggestions} aria-activedescendant={suggestions ? `${id}-option-${suggestions.index}` : undefined} translate="no" style={{ maxHeight }} />
     <span ref={template} hidden aria-hidden="true" className="cui-composer-mention" contentEditable={false} dir="auto"><span className="cui-composer-mention-content"><Icon name="Palette" size={16} /><span data-cui-mention-title="" /></span></span>
     {suggestions ? <div ref={popup} id={`${id}-list`} role="listbox" aria-label={mentionListLabel} className="cui-composer-mention-popup">
       {mentionHeading ? <div aria-hidden="true" className="px-2.5 py-1 text-[13px] leading-[18px] font-(--cui-medium) text-cui-muted">{mentionHeading}</div> : null}

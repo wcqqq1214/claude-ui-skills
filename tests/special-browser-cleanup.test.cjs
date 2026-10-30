@@ -14,7 +14,7 @@ test('special browser suites release partial startup and preserve assertion fail
     for (const dir of ['tests', 'dist', 'node_modules/vite', 'node_modules/playwright-core']) {
       mkdirSync(join(root, dir), { recursive: true });
     }
-    for (const file of ['production.browser.cjs', 'react-ssr.browser.cjs', 'react-feedback.browser.cjs', 'demo-helpers.cjs', 'status-notice-lifecycle-checks.cjs']) {
+    for (const file of ['production.browser.cjs', 'react-ssr.browser.cjs', 'react-feedback.browser.cjs', 'demo-helpers.cjs', 'browser-errors.cjs', 'status-notice-lifecycle-checks.cjs']) {
       copyFileSync(join(__dirname, file), join(root, 'tests', file));
     }
     writeFileSync(join(root, 'dist/index.html'), '');

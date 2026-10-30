@@ -11,6 +11,7 @@ export function createMentionEditing(editor: HTMLDivElement, template: HTMLEleme
   setPopup: (popup: MentionPopup) => void;
   setContext: (context: MentionContext) => void;
   setEmpty: (empty: boolean) => void;
+  onEdit: () => void;
   onChange: (draft: ComposerDraft) => void;
 }) {
   let queryRange: Range | null = null, composing = false, dismissed: string | null = null, active = true;
@@ -166,7 +167,9 @@ export function createMentionEditing(editor: HTMLDivElement, template: HTMLEleme
       else lineBreakTails.delete(node);
     }
     lineBreakLength = null;
-    update(); publish();
+    // Every native edit can change geometry, even formatting with no draft
+    // change. Size once before publishing; execCommand also delivers input.
+    update(); bindings.onEdit(); publish();
   });
   listen(editor, 'compositionstart', () => { composing = true; close(); });
   listen(editor, 'compositionend', () => { composing = false; update(); publish(); });
@@ -217,7 +220,7 @@ export function createMentionEditing(editor: HTMLDivElement, template: HTMLEleme
     highlight(index: number) { if (popup) show({ ...popup, index }); },
     setActive(value: boolean) { active = value; if (!value) { close(); closeMenu(); } },
     refresh() { close(); closeMenu(); },
-    reset(text: string, notify = false) { close(); closeMenu(); editor.textContent = text; lastDraft = ''; update(); if (notify) publish(); else lastDraft = JSON.stringify(getDraft()); },
+    reset(text: string, notify = false) { close(); closeMenu(); editor.textContent = text; lastDraft = ''; update(); bindings.onEdit(); if (notify) publish(); else lastDraft = JSON.stringify(getDraft()); },
     connect() { connectors.forEach(connect => connect()); observer.observe(editor); },
     disconnect() {
       observer.disconnect(); disposers.forEach(dispose => dispose());
