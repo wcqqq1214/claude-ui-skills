@@ -257,6 +257,30 @@ withDevBrowser(async ({ browser, base }) => {
     const overflowChanges = () => reactive.locator('[data-overflow-changes]').textContent();
     assert.equal(await reactive.locator('[data-overflow-result]').textContent(), 'true');
     assert.equal(await overflowChanges(), '1', 'StrictMode and initial observers notify one initial result');
+    const reads = await reactive.getByRole('button', { name: 'Reactive target', exact: true }).evaluate(async element => {
+      await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+      const rangeRect = Range.prototype.getBoundingClientRect, elementRect = element.getBoundingClientRect;
+      const text = element.firstChild.textContent;
+      let ranges = 0, boxes = 0;
+      Range.prototype.getBoundingClientRect = function () {
+        if (element.contains(this.commonAncestorContainer)) ranges++;
+        return rangeRect.call(this);
+      };
+      element.getBoundingClientRect = function () { boxes++; return elementRect.call(this); };
+      try {
+        // Keep the fixed-width trigger overflowing: only its text mutation
+        // should request a measurement, without changing the host's state.
+        element.firstChild.textContent += ' extra';
+        await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+        return { ranges, boxes };
+      } finally {
+        Range.prototype.getBoundingClientRect = rangeRect;
+        delete element.getBoundingClientRect;
+        element.firstChild.textContent = text;
+      }
+    });
+    assert.deepEqual(reads, { ranges: 1, boxes: 1 }, 'one tooltip measurement reads text and trigger geometry once');
+    assert.equal(await overflowChanges(), '1', 'equivalent overflow still does not republish');
     await reactive.getByRole('button', { name: 'Resize JSX trigger', exact: true }).click();
     await page.waitForFunction(() => document.querySelector('[data-overflow-result]').textContent === 'false');
     assert.equal(await overflowChanges(), '2', 'resize publishes the changed overflow result');

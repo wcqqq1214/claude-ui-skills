@@ -15,6 +15,10 @@ export type TooltipProps<T extends HTMLElement = HTMLButtonElement> = {
   style?: CSSProperties;
 };
 
+function overflows(text: DOMRect, box: DOMRect, scrollWidth: number, clientWidth: number) {
+  return scrollWidth > clientWidth || text.right > box.right + .1 || text.left < box.left - .1;
+}
+
 /** Spread the trigger props onto a focusable element; keep its native semantics. */
 export function Tooltip<T extends HTMLElement = HTMLButtonElement>({ content, children, overflowOnly = false, onOverflowChange, active = true, delay = 300, describedBy, className, style }: TooltipProps<T>) {
   const id = useId(), target = useRef<T>(null), anchor = useRef<HTMLSpanElement>(null), tip = useRef<HTMLSpanElement>(null);
@@ -33,7 +37,7 @@ export function Tooltip<T extends HTMLElement = HTMLButtonElement>({ content, ch
     if (!element) return false;
     const range = document.createRange(); range.selectNodeContents(element);
     const text = range.getBoundingClientRect(), box = element.getBoundingClientRect();
-    return element.scrollWidth > element.clientWidth || text.right > box.right + .1 || text.left < box.left - .1;
+    return overflows(text, box, element.scrollWidth, element.clientWidth);
   }
   function hide() { clearTimeout(timer.current); timer.current = undefined; deadline.current = undefined; replayableFocus.current = false; setOpen(false); }
   function schedule(at: number) {
@@ -65,12 +69,13 @@ export function Tooltip<T extends HTMLElement = HTMLButtonElement>({ content, ch
       if (disposed) return;
       const range = document.createRange(); range.selectNodeContents(element);
       const text = range.getBoundingClientRect(), box = element.getBoundingClientRect();
-      const measurement = JSON.stringify([element.textContent, tip.current?.textContent, element.clientWidth, element.clientHeight, element.scrollWidth, box.width, box.height, text.left - box.left, text.right - box.left]);
+      const { clientWidth, clientHeight, scrollWidth } = element;
+      const measurement = JSON.stringify([element.textContent, tip.current?.textContent, clientWidth, clientHeight, scrollWidth, box.width, box.height, text.left - box.left, text.right - box.left]);
       // An initial observer pass or equivalent JSX content is not a dismissal.
       // Actual text/geometry changes still invalidate the displayed hint.
       if (lastMeasurement.current !== undefined && measurement !== lastMeasurement.current) hide();
       lastMeasurement.current = measurement;
-      const next = truncated();
+      const next = overflows(text, box, scrollWidth, clientWidth);
       // Notify the result, not each observer pass or new JSX content identity.
       // Store it before calling the host, which may synchronously rerender us.
       if (next !== lastOverflow.current) { lastOverflow.current = next; overflowCallback.current?.(next); }
