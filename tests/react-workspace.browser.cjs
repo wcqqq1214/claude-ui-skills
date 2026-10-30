@@ -1,7 +1,7 @@
 const { setTheme, setLanguage, chooseChapter } = require('./demo-helpers.cjs');
 const assert = require('node:assert/strict');
 const { withDevBrowser } = require('./dev-browser.cjs');
-const { testPinnedActivityReconnect, testPinnedDragCancellation } = require('./pinned-activity-checks.cjs');
+const { testPinnedActivityReconnect, testPinnedDragCancellation, testPinnedDragFrames } = require('./pinned-activity-checks.cjs');
 const { testWorkspacePreviewIsolation } = require('./workspace-preview-checks.cjs');
 const { testPinnedCaptureHide, testPaneKeyboardHide } = require('./capture-lifecycle-checks.cjs');
 async function testResizeFocusReentry(page, base) {
@@ -49,6 +49,7 @@ withDevBrowser(async ({ browser, base }) => {
     const reentryPage = await browser.newPage({ viewport: { width: 1280, height: 1000 } });
     await testResizeFocusReentry(reentryPage, base); await reentryPage.close();
     const activityPage = await browser.newPage({ viewport: { width: 1280, height: 1000 } });
+    await testPinnedDragFrames(activityPage, base);
     await testPinnedActivityReconnect(activityPage, base);
     await testPinnedDragCancellation(activityPage, base); await activityPage.close();
     const previewPage = await browser.newPage({ viewport: { width: 1280, height: 1000 } });

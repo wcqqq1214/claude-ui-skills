@@ -142,4 +142,61 @@ async function testPinnedDragCancellation(page, base) {
   } finally { page.off('pageerror', onError); }
 }
 
-module.exports = { testPinnedActivityReconnect, testPinnedDragCancellation };
+async function testPinnedDragFrames(page, base) {
+  for (const strict of ['off', 'on']) for (const end of ['release', 'Escape', 'Hide pins', 'Unmount pins']) {
+    await page.goto(`${base}/tests/fixtures/react-workspace/pinned-activity.html?strict=${strict}&sync=on`);
+    const row = page.locator('[data-pin="b"]'), ghost = page.locator('.cui-pinned-ghost');
+    const box = await row.boundingBox(), x = box.x + 40, y = box.y + 13;
+    // Hold frame delivery to test bursts and cancellation in the same task.
+    // This fixture has no other animation-frame owners; CSS motion stays native.
+    await page.evaluate(() => {
+      const request = window.requestAnimationFrame, cancel = window.cancelAnimationFrame;
+      const pending = new Map(); let serial = 0;
+      window.requestAnimationFrame = callback => { const id = ++serial; pending.set(id, callback); return id; };
+      window.cancelAnimationFrame = id => pending.delete(id);
+      window.pinFrameProbe = {
+        pending,
+        flush() {
+          const batch = [...pending];
+          for (const [id, callback] of batch) { pending.delete(id); callback(performance.now()); }
+          return batch.length;
+        },
+        restore() { window.requestAnimationFrame = request; window.cancelAnimationFrame = cancel; delete window.pinFrameProbe; },
+      };
+    });
+    try {
+      await page.mouse.move(x, y); await page.mouse.down(); await page.mouse.move(x + 4, y);
+      assert.equal(await ghost.evaluate(element => element.style.transform), `translate(${x + 4}px, ${y}px)`, 'crossing the threshold paints immediately');
+      assert.equal(await page.evaluate(() => window.pinFrameProbe.pending.size), 0, 'a stationary drag has no animation frame queued');
+      await row.evaluate((element, { x, y }) => {
+        for (const offset of [5, 10, 15]) element.dispatchEvent(new PointerEvent('pointermove', { bubbles: true, pointerId: 1, buttons: 1, clientX: x + offset, clientY: y }));
+      }, { x, y });
+      assert.equal(await page.evaluate(() => window.pinFrameProbe.pending.size), 1, 'multiple moves before a frame coalesce');
+      assert.equal(await page.evaluate(() => window.pinFrameProbe.flush()), 1);
+      assert.equal(await ghost.evaluate(element => element.style.transform), `translate(${x + 15}px, ${y}px)`, 'the frame uses the latest pointer coordinates');
+      assert.equal(await page.evaluate(() => window.pinFrameProbe.flush()), 0, 'painting does not queue another idle frame');
+      await row.dispatchEvent('pointermove', { pointerId: 1, buttons: 1, clientX: x + 20, clientY: y });
+      assert.equal(await page.evaluate(() => window.pinFrameProbe.pending.size), 1, 'movement after an idle frame schedules again');
+      await ghost.evaluate(element => {
+        window.pinFrameProbe.ghost = element;
+        window.pinFrameProbe.before = element.style.transform;
+        window.pinFrameProbe.stale = [...window.pinFrameProbe.pending.values()][0];
+      });
+      if (end === 'release') await page.mouse.up();
+      else if (end === 'Escape') await page.keyboard.press('Escape');
+      else await page.getByRole('button', { name: end, exact: true }).evaluate(element => element.click());
+      assert.equal(await ghost.count(), 0, `${strict}/${end}: ending removes the preview`);
+      assert.equal(await page.evaluate(() => window.pinFrameProbe.pending.size), 0, `${strict}/${end}: ending cancels the queued frame`);
+      assert.equal(await page.evaluate(() => {
+        const probe = window.pinFrameProbe;
+        probe.stale(performance.now());
+        return probe.ghost.style.transform === probe.before && probe.pending.size === 0;
+      }), true, `${strict}/${end}: even a late frame cannot repaint or schedule work`);
+    } finally {
+      await page.mouse.up();
+      await page.evaluate(() => window.pinFrameProbe.restore());
+    }
+  }
+}
+
+module.exports = { testPinnedActivityReconnect, testPinnedDragCancellation, testPinnedDragFrames };

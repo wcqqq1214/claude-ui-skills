@@ -23,6 +23,11 @@ export function createPinnedDrag(list: HTMLOListElement, stage: HTMLDivElement, 
     if (commit && state.to !== state.from) callbacks.onMove(state.row.dataset.pin!, state.to);
     else if (!commit && announce) callbacks.onCancel();
   }
+  function paint(state: Drag) {
+    if (drag !== state || !state.ghost) return;
+    state.frame = 0;
+    state.ghost.style.transform = `translate(${state.pointerX}px, ${state.pointerY}px)`;
+  }
   function move(event: PointerEvent) {
     const state = drag;
     if (!state || event.pointerId !== state.id) return;
@@ -39,9 +44,10 @@ export function createPinnedDrag(list: HTMLOListElement, stage: HTMLDivElement, 
       Object.assign(surface.style, { left: `${-dx}px`, top: `${-dy}px`, width: `${box.width}px`, height: `${box.height}px`, transformOrigin: `${dx}px ${dy}px` });
       surface.append(clone); ghost.append(surface); stage.append(ghost); state.ghost = ghost;
       state.step = parseFloat(getComputedStyle(stage).getPropertyValue('--cui-pin-row-h')) + parseFloat(getComputedStyle(stage).getPropertyValue('--cui-pin-row-gap'));
-      const paint = () => { if (drag !== state) return; ghost.style.transform = `translate(${state.pointerX}px, ${state.pointerY}px)`; state.frame = requestAnimationFrame(paint); };
-      paint(); state.row.style.visibility = 'hidden'; list.setAttribute('data-pin-dragging', ''); state.row.setPointerCapture(event.pointerId); return;
+      paint(state); state.row.style.visibility = 'hidden'; list.setAttribute('data-pin-dragging', ''); state.row.setPointerCapture(event.pointerId); return;
     }
+    // Coalesce movement to the latest coordinates without running while idle.
+    if (!state.frame) state.frame = requestAnimationFrame(() => paint(state));
     event.preventDefault();
     let slot = state.boxes.findIndex(box => event.clientY < box.top + box.height / 2); if (slot < 0) slot = state.boxes.length;
     state.to = slot > state.from ? slot - 1 : slot;
