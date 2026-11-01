@@ -74,8 +74,6 @@ The skill covers UI, frontend interactions, typography and motion. See [scope an
 
 ## Demo
 
-**[Try the live demo →](https://wcqqq1214.github.io/claude-ui-skills/)**
-
 Explore 13 interactive chapters: typography, controls, input and attachments, loading and disclosure, file panels, image previews, hints, reading and tables, galleries, menus and search, sidebar modes, cards and drop targets, and notifications. Segmented controls are included under Controls. Supports English, Simplified Chinese and light/dark themes.
 
 Implementation notes are optional. The turtle button defaults to 0.2× playback for the switch, checkbox and slider; click it to restore their original speed. Theme selection includes Light, Dark and System.
