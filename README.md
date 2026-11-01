@@ -9,7 +9,6 @@
 
 <p align="center">
   <a href="https://wcqqq1214.github.io/claude-ui-skills/">Live demo</a> &nbsp;
-  <a href="#demo">Demo</a> &nbsp;
   <a href="#react-components">React components</a> &nbsp;
   <a href="references/components.md">Component guides</a> &nbsp;
   <a href="README.zh-CN.md">简体中文</a>

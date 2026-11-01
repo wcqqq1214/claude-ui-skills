@@ -9,7 +9,6 @@
 
 <p align="center">
   <a href="https://wcqqq1214.github.io/claude-ui-skills/">在线演示</a> &nbsp;
-  <a href="#演示">演示</a> &nbsp;
   <a href="#react-组件">React 组件</a> &nbsp;
   <a href="references/components.md">组件指南</a> &nbsp;
   <a href="README.md">English</a>
