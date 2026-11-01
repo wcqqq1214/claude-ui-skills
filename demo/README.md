@@ -26,7 +26,7 @@ npm run test:react  # independent consumer and demo browser checks
 npm test           # unit checks, fresh production build and all browser checks
 ```
 
-The production build includes local JS, CSS and the optional bundled Sans/Serif/Mono fonts, the icon font and the default and activity sprite sheets. It does not use runtime CDNs. The [Pages workflow](../.github/workflows/pages.yml) installs dependencies, builds this demo and publishes `dist/`. It remains manual-only, gated on `main` and `PAGES_ENABLED=true`. Relative asset URLs support both the site root and a repository subpath. Source HTML needs Vite; serve the built `dist/` directory for standalone static use.
+The production build includes local JS, CSS and the optional bundled Sans/Serif/Mono fonts, the icon font and the default and activity sprite sheets. It does not use runtime CDNs. The [Pages workflow](../.github/workflows/pages.yml) installs dependencies, builds this demo and publishes `dist/`. It remains manual-only, gated on `main` and `PAGES_ENABLED=true`; in a fork, also choose GitHub Actions under Settings → Pages. Relative asset URLs support both the site root and a repository subpath. Source HTML needs Vite; serve the built `dist/` directory for standalone static use.
 
 ## Import the source
 

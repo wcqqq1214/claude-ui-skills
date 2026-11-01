@@ -1,5 +1,10 @@
 <h1 align="center">Claude UI Skills</h1>
 
+<p align="center">
+  <a href="LICENSE"><img alt="License: MIT" src="https://img.shields.io/badge/license-MIT-blue.svg"></a>
+  <a href="https://wcqqq1214.github.io/claude-ui-skills/"><img alt="Live demo" src="https://img.shields.io/badge/demo-live-brightgreen.svg"></a>
+</p>
+
 <p align="center">An agent skill for Claude-inspired UI and motion, with reusable React + Tailwind CSS components and an interactive demo.</p>
 
 <p align="center">
@@ -44,15 +49,21 @@ This repository provides source to import, not a published npm package. See [int
 
 ## Install as an agent skill
 
-Clone the complete repository into an unused Codex skill directory. Keep `SKILL.md` at the skill folder's root and retain the supporting directories: the guides link directly to bundled source, styles, assets and documentation. Reading and using the skill's guidance does not require `npm ci`; dependencies are needed to run the demo, build or tests.
+Clone the complete repository into an unused skill directory for your agent (Codex or Claude Code). Keep `SKILL.md` at the skill folder's root and retain the supporting directories: the guides link directly to bundled source, styles, assets and documentation. Reading and using the skill's guidance does not require `npm ci`; dependencies are needed to run the demo, build or tests.
 
 ```sh
+# Codex
 mkdir -p "${CODEX_HOME:-$HOME/.codex}/skills"
 git clone https://github.com/wcqqq1214/claude-ui-skills.git \
   "${CODEX_HOME:-$HOME/.codex}/skills/claude-ui-skills"
+
+# Claude Code
+mkdir -p ~/.claude/skills
+git clone https://github.com/wcqqq1214/claude-ui-skills.git \
+  ~/.claude/skills/claude-ui-skills
 ```
 
-In your next Codex turn, invoke the installed skill explicitly:
+In your next turn, invoke the installed skill explicitly (in Codex; in Claude Code, ask it to use the `claude-ui-skills` skill):
 
 ```text
 Use $claude-ui-skills to adapt this page's sidebar and segmented controls.
@@ -84,7 +95,7 @@ npm run build      # Typecheck and build the static site into dist/
 npm run preview    # Preview the production build locally
 ```
 
-The production build includes local assets and requires no backend or Claude installation. Serve `dist/` for static hosting; source HTML needs Vite. GitHub Pages deployment is manual and requires `PAGES_ENABLED=true`. See [demo documentation](demo/README.md#run) for entry points and deployment details.
+The production build includes local assets and requires no backend or Claude installation. Serve `dist/` for static hosting; source HTML needs Vite. The live demo is deployed manually by the Pages workflow; in a fork, set `PAGES_ENABLED=true`, choose GitHub Actions under Settings → Pages, then run the workflow. See [demo documentation](demo/README.md#run) for entry points and deployment details.
 
 ## Validation
 

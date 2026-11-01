@@ -1,5 +1,10 @@
 <h1 align="center">Claude UI Skills</h1>
 
+<p align="center">
+  <a href="LICENSE"><img alt="License: MIT" src="https://img.shields.io/badge/license-MIT-blue.svg"></a>
+  <a href="https://wcqqq1214.github.io/claude-ui-skills/"><img alt="在线演示" src="https://img.shields.io/badge/demo-live-brightgreen.svg"></a>
+</p>
+
 <p align="center">用于实现 Claude 风格 UI 和动效的 Agent Skill，附可直接导入的 React + Tailwind CSS 组件与交互演示。</p>
 
 <p align="center">
@@ -44,15 +49,21 @@ export function Example() {
 
 ## 安装为 Agent Skill
 
-将完整仓库克隆到尚不存在的 Codex Skill 目录。`SKILL.md` 应直接位于 Skill 文件夹根目录，并保留配套目录：指南直接链接其中的源码、样式、资源和文档。读取和使用 Skill 指南无需执行 `npm ci`；运行演示、构建或测试时才需要安装依赖。
+将完整仓库克隆到尚不存在的 Agent Skill 目录（Codex 或 Claude Code）。`SKILL.md` 应直接位于 Skill 文件夹根目录，并保留配套目录：指南直接链接其中的源码、样式、资源和文档。读取和使用 Skill 指南无需执行 `npm ci`；运行演示、构建或测试时才需要安装依赖。
 
 ```sh
+# Codex
 mkdir -p "${CODEX_HOME:-$HOME/.codex}/skills"
 git clone https://github.com/wcqqq1214/claude-ui-skills.git \
   "${CODEX_HOME:-$HOME/.codex}/skills/claude-ui-skills"
+
+# Claude Code
+mkdir -p ~/.claude/skills
+git clone https://github.com/wcqqq1214/claude-ui-skills.git \
+  ~/.claude/skills/claude-ui-skills
 ```
 
-在下一轮 Codex 对话中明确调用已安装的 Skill：
+在下一轮对话中明确调用已安装的 Skill（Codex 中如下；Claude Code 中请让它使用 `claude-ui-skills` Skill）：
 
 ```text
 用 $claude-ui-skills 改进这个页面的侧栏与分段控件。
@@ -84,7 +95,7 @@ npm run build      # 类型检查并构建静态站点到 dist/
 npm run preview    # 本地预览生产构建
 ```
 
-生产构建包含本地资源，无需后端或安装 Claude。静态托管时使用 `dist/`，源码 HTML 需要通过 Vite 运行。GitHub Pages 部署需设置 `PAGES_ENABLED=true`，然后手动触发工作流。入口和部署细节见[演示文档](demo/README.md#run)。
+生产构建包含本地资源，无需后端或安装 Claude。静态托管时使用 `dist/`，源码 HTML 需要通过 Vite 运行。在线演示由 Pages 工作流手动部署；fork 后需设置 `PAGES_ENABLED=true`，在 Settings → Pages 中选择 GitHub Actions，再手动触发工作流。入口和部署细节见[演示文档](demo/README.md#run)。
 
 ## 验证
 
