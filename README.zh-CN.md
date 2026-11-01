@@ -35,11 +35,9 @@ export function Example() {
 }
 ```
 
-组件提供类型化 props 和局部深浅主题，无需 demo 代码、后端或应用全局变量。样式入口不包含 Preflight，不会重置宿主页面；内置文字字体按需导入。
+组件提供类型化 props 和局部深浅主题，无需 demo 代码、后端或应用全局变量。样式入口不包含 Preflight，不会重置宿主页面；内置文字字体按需导入。如果应用已经导入 Tailwind，请用 `src/styles/components.css` 替代 `src/styles/index.css`，参见[已有项目接入示例](examples/tailwind-host/README.md)。
 
-如果应用已经导入 Tailwind，请用 `src/styles/components.css` 替代 `src/styles/index.css`，参见[已有项目接入示例](examples/tailwind-host/README.md)。
-
-本仓库提供可导入的源码，尚未发布为 npm 包。Tailwind 配置、资源处理、自定义字体及 API 请见[接入说明](demo/README.md#import-the-source)，各场景用法见[组件指南](references/components.md)。[迁移记录](docs/react-migration.md)说明了实现和兼容性验证。
+本仓库提供可导入的源码，尚未发布为 npm 包。Tailwind 配置、资源处理、自定义字体及 API 请见[接入说明](demo/README.md#import-the-source)，各场景用法见[组件指南](references/components.md)，实现和兼容性验证见[迁移记录](docs/react-migration.md)。
 
 ## 安装为 Agent Skill
 
@@ -63,31 +61,18 @@ git clone https://github.com/wcqqq1214/claude-ui-skills.git \
 用 $claude-ui-skills 改进这个页面的侧栏与分段控件。
 ```
 
-如果技能列表中没有出现它，检查目标目录是否直接包含 `SKILL.md`，而非再嵌套一层仓库文件夹。安装位置应属于运行当前任务的 Codex 环境；放在其他位置的项目副本不会自动成为已安装技能。也可以直接让 Agent 读取该副本的 `SKILL.md` 并按其说明操作。
-
 Skill 覆盖 UI、前端交互、排版与动效，详见[范围与覆盖](docs/coverage.md)。
 
 ## 演示
 
-包含 13 个交互章节：文字与排版、基础控件、输入框与附件、加载与折叠、文件面板、图片预览、提示与反馈、阅读与表格、缩放与图库、菜单与搜索、侧栏模式、卡片与拖放、通知。分段控件合并展示在基础控件中。支持简体中文、English 和深浅主题。
-
-实现说明默认收起，可按需展开。乌龟按钮默认以 0.2× 播放开关、复选框和滑块的动效，点击可恢复原速。主题可选择浅色、深色或跟随系统。
-
-使用 Node.js 22.12+（或 20.x 系列的 20.19+），在仓库根目录执行：
+包含 13 个交互章节，从文字排版、基础控件到图库、菜单、侧栏和通知，支持简体中文、English 和深浅主题。本地运行需要 Node.js 22.12+（或 20.x 系列的 20.19+）：
 
 ```sh
 npm ci
 npm run dev
 ```
 
-打开 Vite 输出的地址。通过 `?lang=zh-Hans` 或 `?lang=en` 指定语言，通过 `#controls` 打开上图的基础控件章节。截图来自当前 React demo，视口为 1280 × 720。
-
-```sh
-npm run build      # 类型检查并构建静态站点到 dist/
-npm run preview    # 本地预览生产构建
-```
-
-生产构建包含本地资源，无需后端或安装 Claude。静态托管时使用 `dist/`，源码 HTML 需要通过 Vite 运行。在线演示由 Pages 工作流手动部署；fork 后需设置 `PAGES_ENABLED=true`，在 Settings → Pages 中选择 GitHub Actions，再手动触发工作流。入口和部署细节见[演示文档](demo/README.md#run)。
+在线演示由 Pages 工作流手动部署；fork 后需设置 `PAGES_ENABLED=true`，在 Settings → Pages 中选择 GitHub Actions，再手动触发工作流。入口、URL 参数和部署细节见[演示文档](demo/README.md#run)。
 
 ## 验证
 
@@ -95,7 +80,7 @@ npm run preview    # 本地预览生产构建
 npm test
 ```
 
-依次执行单元测试、类型检查、生产构建和浏览器回归测试，覆盖独立导入、SSR hydration、StrictMode 与 Activity 保留 DOM 重连等场景。浏览器测试需要 Chrome/Chromium；安装位置不在默认目录时可设置 `CHROME_BIN`。详见[测试覆盖](tests/README.md)。
+依次执行单元测试、类型检查、生产构建和浏览器回归测试。浏览器测试需要 Chrome/Chromium；安装位置不在默认目录时可设置 `CHROME_BIN`。详见[测试覆盖](tests/README.md)。
 
 ## 许可证
 

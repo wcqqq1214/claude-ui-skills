@@ -35,11 +35,9 @@ export function Example() {
 }
 ```
 
-Components have typed props and scoped light/dark themes. They work without demo code, a backend or application globals. The stylesheet does not include Preflight or reset the host page; bundled text fonts are optional.
+Components have typed props and scoped light/dark themes, and work without demo code, a backend or application globals. The stylesheet does not include Preflight or reset the host page; bundled text fonts are optional. If your application already imports Tailwind, use `src/styles/components.css` instead of `src/styles/index.css`; see the [existing-host example](examples/tailwind-host/README.md).
 
-If your application already imports Tailwind, use `src/styles/components.css` instead of `src/styles/index.css`; see the [existing-host example](examples/tailwind-host/README.md).
-
-This repository provides source to import, not a published npm package. See [integration and API details](demo/README.md#import-the-source) for Tailwind setup, asset handling and custom fonts, or browse the [component guides](references/components.md). The [migration record](docs/react-migration.md) describes the implementation and compatibility checks.
+This repository provides source to import, not a published npm package. See [integration and API details](demo/README.md#import-the-source) for Tailwind setup, assets and custom fonts, the [component guides](references/components.md) for usage, and the [migration record](docs/react-migration.md) for implementation and compatibility checks.
 
 ## Install as an agent skill
 
@@ -63,31 +61,18 @@ In your next turn, invoke the installed skill explicitly (in Codex; in Claude Co
 Use $claude-ui-skills to adapt this page's sidebar and segmented controls.
 ```
 
-If it is not listed, check that the destination contains `SKILL.md` directly rather than another nested repository folder. Use the skill directory for the Codex environment running your task; a checkout elsewhere is not automatically installed. You can also point the agent at that checkout's `SKILL.md` to use its instructions directly.
-
-The skill covers UI, frontend interactions, typography and motion. See [scope and coverage](docs/coverage.md).
+The skill covers UI, frontend interactions, typography and motion; see [scope and coverage](docs/coverage.md).
 
 ## Demo
 
-Explore 13 interactive chapters: typography, controls, input and attachments, loading and disclosure, file panels, image previews, hints, reading and tables, galleries, menus and search, sidebar modes, cards and drop targets, and notifications. Segmented controls are included under Controls. Supports English, Simplified Chinese and light/dark themes.
-
-Implementation notes are optional. The turtle button defaults to 0.2× playback for the switch, checkbox and slider; click it to restore their original speed. Theme selection includes Light, Dark and System.
-
-With Node.js 22.12+ (or 20.19+ on the 20.x line), run from the repository root:
+Explore 13 interactive chapters, from typography and controls to galleries, menus, sidebars and notifications, in English or Simplified Chinese with light/dark themes. To run it locally with Node.js 22.12+ (or 20.19+ on the 20.x line):
 
 ```sh
 npm ci
 npm run dev
 ```
 
-Open the address printed by Vite. Use `?lang=en` or `?lang=zh-Hans` to select a language, and `#controls` to open the chapter shown above. The screenshot captures the current React demo at 1280 × 720.
-
-```sh
-npm run build      # Typecheck and build the static site into dist/
-npm run preview    # Preview the production build locally
-```
-
-The production build includes local assets and requires no backend or Claude installation. Serve `dist/` for static hosting; source HTML needs Vite. The live demo is deployed manually by the Pages workflow; in a fork, set `PAGES_ENABLED=true`, choose GitHub Actions under Settings → Pages, then run the workflow. See [demo documentation](demo/README.md#run) for entry points and deployment details.
+The live demo is deployed manually by the Pages workflow; in a fork, set `PAGES_ENABLED=true`, choose GitHub Actions under Settings → Pages, then run the workflow. See the [demo documentation](demo/README.md#run) for entry points, URL parameters and deployment details.
 
 ## Validation
 
@@ -95,7 +80,7 @@ The production build includes local assets and requires no backend or Claude ins
 npm test
 ```
 
-Runs unit checks, typechecking, a production build and browser regression suites, including independent imports, SSR hydration, StrictMode and retained-DOM Activity reconnection. Browser checks need Chrome/Chromium; set `CHROME_BIN` if it is outside the usual locations. See [test coverage](tests/README.md).
+Runs unit checks, typechecking, a production build and browser regression suites. Browser checks need Chrome/Chromium; set `CHROME_BIN` if it is outside the usual locations. See [test coverage](tests/README.md).
 
 ## License
 
