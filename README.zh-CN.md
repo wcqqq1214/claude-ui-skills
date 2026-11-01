@@ -1,10 +1,5 @@
 <h1 align="center">Claude UI Skills</h1>
 
-<p align="center">
-  <a href="LICENSE"><img alt="License: MIT" src="https://img.shields.io/badge/license-MIT-blue.svg"></a>
-  <a href="https://wcqqq1214.github.io/claude-ui-skills/"><img alt="在线演示" src="https://img.shields.io/badge/demo-live-brightgreen.svg"></a>
-</p>
-
 <p align="center">用于实现 Claude 风格 UI 和动效的 Agent Skill，附可直接导入的 React + Tailwind CSS 组件与交互演示。</p>
 
 <p align="center">

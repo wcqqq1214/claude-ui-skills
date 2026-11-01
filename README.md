@@ -1,10 +1,5 @@
 <h1 align="center">Claude UI Skills</h1>
 
-<p align="center">
-  <a href="LICENSE"><img alt="License: MIT" src="https://img.shields.io/badge/license-MIT-blue.svg"></a>
-  <a href="https://wcqqq1214.github.io/claude-ui-skills/"><img alt="Live demo" src="https://img.shields.io/badge/demo-live-brightgreen.svg"></a>
-</p>
-
 <p align="center">An agent skill for Claude-inspired UI and motion, with reusable React + Tailwind CSS components and an interactive demo.</p>
 
 <p align="center">
