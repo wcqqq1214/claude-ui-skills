@@ -3,6 +3,7 @@
 <p align="center">用于实现 Claude 风格 UI 和动效的 Agent Skill，附可直接导入的 React + Tailwind CSS 组件与交互演示。</p>
 
 <p align="center">
+  <a href="https://wcqqq1214.github.io/claude-ui-skills/">在线演示</a> &nbsp;
   <a href="#演示">演示</a> &nbsp;
   <a href="#react-组件">React 组件</a> &nbsp;
   <a href="references/components.md">组件指南</a> &nbsp;
@@ -62,6 +63,8 @@ git clone https://github.com/wcqqq1214/claude-ui-skills.git \
 Skill 覆盖 UI、前端交互、排版与动效，详见[范围与覆盖](docs/coverage.md)。
 
 ## 演示
+
+**[在线体验 →](https://wcqqq1214.github.io/claude-ui-skills/)**
 
 包含 13 个交互章节：文字与排版、基础控件、输入框与附件、加载与折叠、文件面板、图片预览、提示与反馈、阅读与表格、缩放与图库、菜单与搜索、侧栏模式、卡片与拖放、通知。分段控件合并展示在基础控件中。支持简体中文、English 和深浅主题。
 
